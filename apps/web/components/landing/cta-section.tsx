@@ -23,9 +23,9 @@ export function CtaSection() {
                 Documentation
               </Button>
             </Link>
-            <Link href="/components">
+            <Link href="/design-system">
               <Button variant="outline" size="lg">
-                Components UI
+                Design System
               </Button>
             </Link>
           </div>

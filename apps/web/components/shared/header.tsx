@@ -19,6 +19,7 @@ import {
   Input,
   InputGroup,
   InputGroupAddon,
+  ButtonGroup,
 } from "@celestia-project/ui"
 import { LogoMark } from "@/components/landing/nav-bar"
 import { SearchDialog } from "@/components/docs/search-dialog"
@@ -77,7 +78,7 @@ export function Header({
   const resolvedBrandTitle = brandTitle ?? defaultBrandTitle
   const defaultBadgeLabel = isShowcase ? "Showcase" : "Docs"
   const resolvedBadgeLabel = badgeLabel ?? defaultBadgeLabel
-  const defaultBadgeHref = isShowcase ? "/components" : "/docs"
+  const defaultBadgeHref = isShowcase ? "/design-system" : "/docs"
   const resolvedBadgeHref = badgeHref ?? defaultBadgeHref
 
   return (
@@ -184,63 +185,63 @@ export function Header({
           <div className="flex items-center gap-1.5 shrink-0">
             {children}
 
-            {isShowcase ? (
-              <Link href="/docs/components" className="hidden sm:inline-flex">
-                <Button
-                  variant="ghost"
-                  size="xs"
-                  className="gap-1.5 text-xs text-muted-foreground hover:text-foreground active:scale-97 transition-transform"
-                >
-                  <BookOpenIcon className="size-3.5 text-primary" />
-                  <span>Docs</span>
-                </Button>
-              </Link>
-            ) : (
-              <Link href="/components" className="hidden sm:inline-flex">
-                <Button
-                  variant="ghost"
-                  size="xs"
-                  className="gap-1.5 text-xs text-muted-foreground hover:text-foreground active:scale-97 transition-transform"
-                >
-                  <SparkleIcon className="size-3.5 text-primary" />
-                  <span>Showcase</span>
-                </Button>
-              </Link>
-            )}
-
-            <Link
-              href="https://github.com/celestia-realm/celestia-starter"
-              target="_blank"
-              rel="noreferrer"
-              className="hidden md:inline-flex"
-            >
+            <ButtonGroup className="hidden sm:inline-flex">
               <Button
-                variant="ghost"
-                size="xs"
-                className="gap-1.5 text-xs text-muted-foreground hover:text-foreground active:scale-97 transition-transform"
+                variant="outline"
+                size="sm"
+                render={<Link href="/design-system" />}
+                className="gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+              >
+                <SparkleIcon className="size-3.5 text-primary" />
+                <span>Design System</span>
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                render={<Link href="/docs" />}
+                className="gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+              >
+                <BookOpenIcon className="size-3.5 text-primary" />
+                <span>Docs</span>
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                render={
+                  <Link
+                    href="https://github.com/celestia-realm/celestia-starter"
+                    target="_blank"
+                    rel="noreferrer"
+                  />
+                }
+                className="hidden md:inline-flex gap-1.5 text-xs text-muted-foreground hover:text-foreground"
               >
                 <GithubLogoIcon className="size-4" />
                 <span>GitHub</span>
               </Button>
-            </Link>
 
-            <Link href="/">
-              <Button variant="outline" size="xs" className="gap-1.5 text-xs">
+              <Button
+                variant="outline"
+                size="sm"
+                render={<Link href="/" />}
+                className="gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+              >
                 <HouseIcon className="size-3.5" />
-                <span className="hidden sm:inline">Landing</span>
+                <span>Landing</span>
               </Button>
-            </Link>
+            </ButtonGroup>
 
             {mounted && (
               <Button
                 variant="ghost"
-                size="icon-xs"
+                size="icon-sm"
                 onClick={() =>
                   setTheme(resolvedTheme === "dark" ? "light" : "dark")
                 }
                 aria-label="Toggle theme"
                 title="Toggle theme"
-                className="text-muted-foreground hover:text-foreground active:scale-95 transition-transform"
               >
                 {resolvedTheme === "dark" ? (
                   <SunIcon className="size-4" />

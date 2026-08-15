@@ -56,14 +56,14 @@ export function StackSection() {
         <div className="reveal-stagger">
           {STACK.map((item) => (
             <Reveal key={item.tag}>
-              <div className="group grid gap-1 border-t border-stroke py-6 transition-colors duration-300 last:border-b hover:bg-surface/60 motion-reduce:transition-none sm:grid-cols-[11rem_1fr_auto] sm:items-baseline sm:gap-6 sm:px-4">
+              <div className="group grid gap-1 border-t border-stroke py-6 transition-[background-color,border-color] duration-200 [transition-timing-function:cubic-bezier(0.23,1,0.32,1)] last:border-b hover:bg-surface/70 rounded-lg motion-reduce:transition-none sm:grid-cols-[11rem_1fr_auto] sm:items-baseline sm:gap-6 sm:px-4">
                 <h3 className="font-medium text-text-primary">
                   {item.name}
                 </h3>
                 <p className="text-sm leading-relaxed text-fog">
                   {item.description}
                 </p>
-                <span className="font-mono text-xs text-fog/80 transition-colors group-hover:text-[#89aacc]">
+                <span className="font-mono text-xs text-fog/80 transition-colors duration-150 group-hover:text-[#89aacc]">
                   {item.tag}
                 </span>
               </div>

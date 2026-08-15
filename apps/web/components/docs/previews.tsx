@@ -253,7 +253,7 @@ import {
 } from "@celestia-project/ui/components/sheet"
 import { Skeleton } from "@celestia-project/ui/components/skeleton"
 import { Slider } from "@celestia-project/ui/components/slider"
-import { Toaster } from "@celestia-project/ui/components/sonner"
+import { Toaster, toast } from "@celestia-project/ui/components/sonner"
 import { Spinner } from "@celestia-project/ui/components/spinner"
 import { Switch } from "@celestia-project/ui/components/switch"
 import {
@@ -286,7 +286,6 @@ import {
 import { BellIcon, NoteBlankIcon, UserIcon } from "@phosphor-icons/react"
 import { useState } from "react"
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
-import { toast } from "sonner"
 
 function PreviewShell({ children }: { children: React.ReactNode }) {
   return (

@@ -55,7 +55,7 @@ export function ArchitectureSection() {
               <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-stroke bg-bg px-3 py-1 font-mono text-xs whitespace-nowrap text-fog">
                 /api/*
               </span>
-              <span className="absolute top-1/2 left-1/2 size-2 -translate-x-1/2 translate-y-8 rounded-full accent-gradient" />
+              <span className="absolute top-1/2 left-1/2 size-2 -translate-x-1/2 translate-y-8 rounded-full accent-gradient animate-pulse" />
             </div>
           </div>
           <div aria-hidden className="flex justify-center lg:hidden">

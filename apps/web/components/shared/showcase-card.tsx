@@ -25,7 +25,7 @@ import {
   DialogClose,
 } from "@celestia-project/ui"
 import { CodeBlock } from "@/components/shared/code-block"
-import { toast } from "sonner"
+import { toast } from "@celestia-project/ui/components/sonner"
 import { cn } from "@celestia-project/ui/lib/utils"
 
 export interface ShowcaseCardProps {

@@ -2,9 +2,10 @@
 
 import * as React from "react"
 import { CopyIcon, CheckIcon } from "@phosphor-icons/react"
-import { Button, Badge } from "@celestia-project/ui"
-import { toast } from "sonner"
+import { Button, Badge, TextEditor } from "@celestia-project/ui"
+import { toast } from "@celestia-project/ui/components/sonner"
 import { cn } from "@celestia-project/ui/lib/utils"
+import { useTheme } from "next-themes"
 
 export interface CodeBlockProps extends React.HTMLAttributes<HTMLDivElement> {
   code?: string
@@ -17,8 +18,31 @@ export interface CodeBlockProps extends React.HTMLAttributes<HTMLDivElement> {
   showCopy?: boolean
   copyLabel?: string
   height?: number | string
+  minHeight?: number | string
   maxHeight?: number | string
   preClassName?: string
+}
+
+function extractText(node: React.ReactNode): string {
+  if (typeof node === "string") return node
+  if (typeof node === "number") return String(node)
+  if (Array.isArray(node)) return node.map(extractText).join("")
+  if (React.isValidElement(node)) {
+    const props = node.props as { children?: React.ReactNode }
+    return props.children ? extractText(props.children) : ""
+  }
+  return ""
+}
+
+function mapLanguage(lang?: string): "javascript" | "typescript" | "tsx" | "json" | "markdown" {
+  if (!lang) return "tsx"
+  const normalized = lang.toLowerCase().trim()
+  if (["tsx", "jsx"].includes(normalized)) return "tsx"
+  if (["ts", "typescript"].includes(normalized)) return "typescript"
+  if (["js", "javascript", "mjs", "cjs"].includes(normalized)) return "javascript"
+  if (["json"].includes(normalized)) return "json"
+  if (["md", "markdown", "mdx"].includes(normalized)) return "markdown"
+  return "tsx"
 }
 
 export function CodeBlock({
@@ -34,36 +58,43 @@ export function CodeBlock({
   showCopy = true,
   copyLabel,
   height,
+  minHeight,
   maxHeight,
   preClassName,
   style,
   ...props
-}: CodeBlockProps) {
+}: Readonly<CodeBlockProps>) {
   const [copied, setCopied] = React.useState(false)
-  const preRef = React.useRef<HTMLPreElement>(null)
+  const [mounted, setMounted] = React.useState(false)
+  const { resolvedTheme } = useTheme()
 
-  const content = code ?? value ?? (typeof children === "string" ? children : undefined)
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Derive language from prop, data attribute, or className (e.g. language-bash -> bash)
-  const langMatch = className?.match(/language-(\w+)/)
-  const lang = language || dataLanguage || (langMatch ? langMatch[1] : "")
+  const langMatch = className?.match(/language-([\w-]+)/)
+  const derivedLang = language || dataLanguage || (langMatch ? langMatch[1] : "")
+
+  const rawCode =
+    code ??
+    value ??
+    (children !== undefined ? extractText(children) : "")
+
+  const editorLang = mapLanguage(derivedLang)
 
   const handleCopy = () => {
-    const text =
-      content ??
-      (preRef.current ? preRef.current.innerText || preRef.current.textContent || "" : "")
-
-    if (!text) return
-    navigator.clipboard.writeText(text)
+    if (!rawCode) return
+    navigator.clipboard.writeText(rawCode)
     setCopied(true)
     toast.success(copyLabel ? `Copied ${copyLabel}` : "Code copied to clipboard")
     setTimeout(() => setCopied(false), 2000)
   }
 
   const formattedLang =
-    lang && (lang.toLowerCase() === "tsx" || lang.toLowerCase() === "typescript")
+    derivedLang && (derivedLang.toLowerCase() === "tsx" || derivedLang.toLowerCase() === "typescript")
       ? "TypeScript / JSX"
-      : lang || ""
+      : derivedLang || ""
 
   return (
     <div
@@ -80,8 +111,8 @@ export function CodeBlock({
           <div className="flex items-center gap-2">
             {title ? (
               <span className="font-mono text-xs font-medium text-foreground">{title}</span>
-            ) : lang ? (
-              <span className="font-mono text-[11px] text-muted-foreground uppercase">{lang}</span>
+            ) : derivedLang ? (
+              <span className="font-mono text-[11px] text-muted-foreground uppercase">{derivedLang}</span>
             ) : (
               <span className="font-mono text-[11px] text-muted-foreground">Code</span>
             )}
@@ -125,24 +156,34 @@ export function CodeBlock({
         </div>
       )}
 
-      {/* Code Content */}
-      <pre
-        ref={preRef}
-        style={{
-          height: height !== undefined ? (typeof height === "number" ? `${height}px` : height) : undefined,
-          maxHeight: maxHeight !== undefined ? (typeof maxHeight === "number" ? `${maxHeight}px` : maxHeight) : undefined,
-        }}
-        className={cn(
-          "overflow-x-auto p-4 font-mono text-xs leading-relaxed text-foreground scrollbar-thin select-text",
-          preClassName
-        )}
-      >
-        {content !== undefined ? (
-          <code className={lang ? `language-${lang}` : undefined}>{content}</code>
-        ) : (
-          children
-        )}
-      </pre>
+      {/* Code Content using CodeMirror TextEditor */}
+      {mounted ? (
+        <TextEditor
+          value={rawCode}
+          language={editorLang}
+          theme={resolvedTheme === "light" ? "light" : "dark"}
+          options={{ readOnly: true }}
+          height={height}
+          minHeight={minHeight}
+          maxHeight={maxHeight}
+          detectLinks={true}
+          className={cn("w-full overflow-hidden text-xs", preClassName)}
+        />
+      ) : (
+        <pre
+          style={{
+            height: height !== undefined ? (typeof height === "number" ? `${height}px` : height) : undefined,
+            minHeight: minHeight !== undefined ? (typeof minHeight === "number" ? `${minHeight}px` : minHeight) : undefined,
+            maxHeight: maxHeight !== undefined ? (typeof maxHeight === "number" ? `${maxHeight}px` : maxHeight) : undefined,
+          }}
+          className={cn(
+            "overflow-x-auto p-4 font-mono text-xs leading-relaxed text-foreground scrollbar-thin select-text",
+            preClassName
+          )}
+        >
+          <code>{rawCode}</code>
+        </pre>
+      )}
     </div>
   )
 }

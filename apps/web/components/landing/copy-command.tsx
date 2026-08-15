@@ -32,7 +32,7 @@ export function CopyCommand({ className }: Readonly<{ className?: string }>) {
     <div
       className={cn(
         "group flex items-center gap-1 rounded-lg border border-stroke bg-surface p-1 pl-4 font-mono text-sm",
-        "transition-colors duration-300 hover:border-[#4e85bf66] motion-reduce:transition-none",
+        "transition-[border-color,box-shadow] duration-200 hover:border-[#4e85bf66] motion-reduce:transition-none",
         className,
       )}
     >
@@ -46,12 +46,12 @@ export function CopyCommand({ className }: Readonly<{ className?: string }>) {
         size="icon-sm"
         onClick={copy}
         aria-label={copied ? "Copied" : "Copy install command"}
-        className="shrink-0 text-fog hover:text-text-primary"
+        className="shrink-0 text-fog hover:text-text-primary active:scale-90 motion-reduce:active:scale-100"
       >
         {copied ? (
-          <Check size={15} weight="bold" className="text-[#89aacc]" />
+          <Check size={15} weight="bold" className="text-[#89aacc] animate-in fade-in-0 zoom-in-75 duration-150" />
         ) : (
-          <Copy size={15} />
+          <Copy size={15} className="transition-transform duration-150" />
         )}
       </Button>
     </div>

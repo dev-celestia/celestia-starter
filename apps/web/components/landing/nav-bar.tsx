@@ -66,9 +66,9 @@ export function NavBar() {
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-colors duration-300 motion-reduce:transition-none",
+        "fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-200 [transition-timing-function:cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none",
         scrolled
-          ? "border-b border-stroke bg-bg/90 backdrop-blur-md"
+          ? "border-b border-stroke/80 bg-bg/85 backdrop-blur-xl"
           : "border-b border-transparent bg-transparent",
       )}
     >
@@ -88,36 +88,33 @@ export function NavBar() {
       >
         <Link
           href="/"
-          className="flex items-center gap-2.5 text-text-primary"
+          className="flex items-center gap-2.5 text-text-primary transition-opacity hover:opacity-90 active:scale-[0.98] motion-reduce:active:scale-100"
         >
           <LogoMark />
           <span className="text-[15px] tracking-[-0.01em]">
-            Celestia Project
+            Celestia
           </span>
         </Link>
 
+        <div className="flex items-center gap-1">
+          <Link href="/design-system">
+            <Button variant="ghost" size="sm">
+              Design System
+            </Button>
+          </Link>
+          <Link href="/docs">
+            <Button variant="ghost" size="sm">
+              Docs
+            </Button>
+          </Link>
 
-
-        <div className="flex items-center gap-2">
-          <Link href={GITHUB_URL} target="_blank" rel="noreferrer">
+           <Link href={GITHUB_URL} target="_blank" rel="noreferrer">
             <Button
               variant="ghost"
               size="sm"
               aria-label="Star on GitHub"
-              className={"mt-1.5"}
             >
               <GithubIcon className="size-5" />
-              Github
-            </Button>
-          </Link>
-          <Link href="/docs">
-            <Button variant="default" size="sm">
-              Components UI
-            </Button>
-          </Link>
-          <Link href="/docs">
-            <Button variant="default" size="sm">
-              Docs
             </Button>
           </Link>
         </div>

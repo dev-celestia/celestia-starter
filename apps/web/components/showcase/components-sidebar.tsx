@@ -170,7 +170,9 @@ export function ComponentsSidebar({
                       onSelectCategory(cat.id)
                       const element = document.getElementById(cat.id)
                       if (element) {
-                        element.scrollIntoView({ behavior: "smooth", block: "start" })
+                        const yOffset = -90
+                        const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset
+                        window.scrollTo({ top: y, behavior: "smooth" })
                       }
                     }}
                     className={cn(
@@ -201,6 +203,15 @@ export function ComponentsSidebar({
                         <a
                           key={item.id}
                           href={`#${item.id}`}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            const element = document.getElementById(item.id)
+                            if (element) {
+                              const yOffset = -90
+                              const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset
+                              window.scrollTo({ top: y, behavior: "smooth" })
+                            }
+                          }}
                           className="py-1 text-[11px] text-muted-foreground transition-colors hover:text-primary"
                         >
                           {item.name}

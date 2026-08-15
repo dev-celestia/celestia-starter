@@ -6,6 +6,7 @@
     "packages",
     "features",
     "components",
+    "design-system",
     "---Features---",
     "authentication",
     "backend",

@@ -29,7 +29,7 @@ export const mdxComponents = {
   h1: ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h1
       className={cn(
-        "mt-2 mb-4 scroll-m-20 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl",
+        "mt-2 mb-4 scroll-m-20 text-3xl  tracking-tight text-foreground sm:text-4xl",
         className
       )}
       {...props}

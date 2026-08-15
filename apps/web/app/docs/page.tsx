@@ -26,7 +26,7 @@ export default async function DocsIndexPage() {
       <article className="flex-1 min-w-0 max-w-4xl">
         {/* Page Title & Header */}
         <div className="border-b border-border/60 pb-6 mb-8">
-          <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+          <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
             {doc.meta.title}
           </h1>
           {doc.meta.description && (

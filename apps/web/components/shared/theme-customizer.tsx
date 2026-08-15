@@ -10,7 +10,7 @@ import {
   CheckIcon,
 } from "@phosphor-icons/react"
 import { Button } from "@celestia-project/ui"
-import { toast } from "sonner"
+import { toast } from "@celestia-project/ui/components/sonner"
 import { cn } from "@celestia-project/ui/lib/utils"
 
 export interface PaletteItem {

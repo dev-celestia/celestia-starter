@@ -71,7 +71,7 @@ import {
   CommandSeparator,
   Button,
 } from "@celestia-project/ui"
-import { toast } from "sonner"
+import { toast } from "@celestia-project/ui/components/sonner"
 import { ShowcaseCard } from "../showcase-card"
 
 const TABS_CODE = `import * as React from "react"

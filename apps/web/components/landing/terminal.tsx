@@ -117,7 +117,7 @@ export function InstallTerminal({ className }: Readonly<{ className?: string }>)
           )}
         >
           <span className="text-fog">$ </span>
-          <span className="inline-block h-4 w-[7px] translate-y-[3px] accent-gradient" />
+          <span className="inline-block h-4 w-[7px] translate-y-[3px] accent-gradient animate-pulse" />
         </p>
       </div>
     </div>
