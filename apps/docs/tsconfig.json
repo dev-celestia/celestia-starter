@@ -29,6 +29,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    "../../packages/ui/src/**/*.d.ts",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],

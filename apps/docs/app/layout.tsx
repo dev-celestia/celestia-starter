@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import type * as PageTree from 'fumadocs-core/page-tree';
-import { Inter } from 'next/font/google';
-import { Provider } from '@/components/provider';
-import { DocsLayout } from 'fumadocs-ui/layouts/docs';
-import { source } from '@/lib/source';
-import { baseOptions } from '@/lib/layout.shared';
-import { sidebarComponents } from '@/components/sidebar';
-import './global.css';
+import type * as PageTree from "fumadocs-core/page-tree";
+import { DocsLayout } from "fumadocs-ui/layouts/docs";
+import { Inter } from "next/font/google";
+import { Provider } from "@/components/provider";
+import { sidebarComponents } from "@/components/sidebar";
+import { baseOptions } from "@/lib/layout.shared";
+import { source } from "@/lib/source";
+import "./global.css";
 
 const inter = Inter({
-  subsets: ['latin'],
+  subsets: ["latin"],
 });
 
 /**
@@ -23,12 +23,12 @@ function flattenComponentsFolder(root: PageTree.Root): PageTree.Root {
   const children: PageTree.Node[] = [];
 
   for (const node of root.children) {
-    if (node.type === 'folder' && node.$ref?.folder === 'components') {
+    if (node.type === "folder" && node.$ref?.folder === "components") {
       const [overview, ...pages] = node.children;
 
       children.push(
-        ...(overview?.type === 'page' ? [overview] : []),
-        { type: 'separator', name: node.name },
+        ...(overview?.type === "page" ? [overview] : []),
+        { type: "separator", name: node.name },
         ...pages,
       );
     } else {
@@ -41,7 +41,7 @@ function flattenComponentsFolder(root: PageTree.Root): PageTree.Root {
 
 const sidebarTree = flattenComponentsFolder(source.getPageTree());
 
-export default function Layout({ children }: LayoutProps<'/'>) {
+export default function Layout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={inter.className} suppressHydrationWarning>
       <body className="flex flex-col min-h-screen">

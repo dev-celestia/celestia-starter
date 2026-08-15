@@ -1,20 +1,20 @@
-import defaultMdxComponents from 'fumadocs-ui/mdx';
-import type { MDXComponents } from 'mdx/types';
-import { Card, Cards } from 'fumadocs-ui/components/card';
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
-import { Step, Steps } from 'fumadocs-ui/components/steps';
-import { File, Files, Folder } from 'fumadocs-ui/components/files';
+import { Callout } from "fumadocs-ui/components/callout";
+import { Card, Cards } from "fumadocs-ui/components/card";
+import { File, Files, Folder } from "fumadocs-ui/components/files";
+import { Step, Steps } from "fumadocs-ui/components/steps";
+import { Tab, Tabs } from "fumadocs-ui/components/tabs";
+import defaultMdxComponents from "fumadocs-ui/mdx";
+import type { MDXComponents } from "mdx/types";
 import {
   AccordionPreview,
-  AlertPreview,
   AlertDialogPreview,
+  AlertPreview,
   AspectRatioPreview,
   AvatarPreview,
   BadgePreview,
   BreadcrumbPreview,
-  ButtonPreview,
   ButtonGroupPreview,
+  ButtonPreview,
   CalendarPreview,
   CardPreview,
   CarouselPreview,
@@ -31,14 +31,14 @@ import {
   EmptyPreview,
   FieldPreview,
   HoverCardPreview,
-  InputPreview,
   InputGroupPreview,
   InputOTPPreview,
+  InputPreview,
   ItemPreview,
   KbdPreview,
   LabelPreview,
-  MenuPreview,
   MenubarPreview,
+  MenuPreview,
   NativeSelectPreview,
   NavigationMenuPreview,
   PaginationPreview,
@@ -58,10 +58,10 @@ import {
   TablePreview,
   TabsPreview,
   TextareaPreview,
-  TogglePreview,
   ToggleGroupPreview,
+  TogglePreview,
   TooltipPreview,
-} from '@/components/previews';
+} from "@/components/previews";
 
 export function getMDXComponents(components?: MDXComponents) {
   return {

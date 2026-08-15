@@ -5,9 +5,10 @@
 @import 'fumadocs-ui/css/preset.css';
 @import '@celestia-project/ui/globals.css';
 
-@source '../../packages/ui';
-@source '../components';
-@source '../content';
+@source '../../../packages/ui/src';
+@source '../../components';
+@source '../../content';
+@source '..';
 
 
 

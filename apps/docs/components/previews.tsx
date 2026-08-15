@@ -1,12 +1,16 @@
-'use client';
+"use client"
 
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { BellIcon, NoteBlankIcon, UserIcon } from '@phosphor-icons/react';
-import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
-
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@celestia-project/ui/components/accordion';
-import { Alert, AlertDescription, AlertTitle } from '@celestia-project/ui/components/alert';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@celestia-project/ui/components/accordion"
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@celestia-project/ui/components/alert"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,10 +21,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@celestia-project/ui/components/alert-dialog';
-import { AspectRatio } from '@celestia-project/ui/components/aspect-ratio';
-import { Avatar, AvatarFallback, AvatarImage } from '@celestia-project/ui/components/avatar';
-import { Badge } from '@celestia-project/ui/components/badge';
+} from "@celestia-project/ui/components/alert-dialog"
+import { AspectRatio } from "@celestia-project/ui/components/aspect-ratio"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@celestia-project/ui/components/avatar"
+import { Badge } from "@celestia-project/ui/components/badge"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -28,10 +36,13 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '@celestia-project/ui/components/breadcrumb';
-import { Button } from '@celestia-project/ui/components/button';
-import { ButtonGroup, ButtonGroupSeparator } from '@celestia-project/ui/components/button-group';
-import { Calendar } from '@celestia-project/ui/components/calendar';
+} from "@celestia-project/ui/components/breadcrumb"
+import { Button } from "@celestia-project/ui/components/button"
+import {
+  ButtonGroup,
+  ButtonGroupSeparator,
+} from "@celestia-project/ui/components/button-group"
+import { Calendar } from "@celestia-project/ui/components/calendar"
 import {
   Card,
   CardAction,
@@ -40,12 +51,33 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@celestia-project/ui/components/card';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@celestia-project/ui/components/carousel';
-import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@celestia-project/ui/components/chart';
-import { Checkbox } from '@celestia-project/ui/components/checkbox';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@celestia-project/ui/components/collapsible';
-import { Combobox, ComboboxContent, ComboboxInput, ComboboxItem, ComboboxList } from '@celestia-project/ui/components/combobox';
+} from "@celestia-project/ui/components/card"
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@celestia-project/ui/components/carousel"
+import {
+  type ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@celestia-project/ui/components/chart"
+import { Checkbox } from "@celestia-project/ui/components/checkbox"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@celestia-project/ui/components/collapsible"
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@celestia-project/ui/components/combobox"
 import {
   Command,
   CommandEmpty,
@@ -55,7 +87,7 @@ import {
   CommandList,
   CommandSeparator,
   CommandShortcut,
-} from '@celestia-project/ui/components/command';
+} from "@celestia-project/ui/components/command"
 import {
   ContextMenu,
   ContextMenuContent,
@@ -63,7 +95,7 @@ import {
   ContextMenuSeparator,
   ContextMenuShortcut,
   ContextMenuTrigger,
-} from '@celestia-project/ui/components/context-menu';
+} from "@celestia-project/ui/components/context-menu"
 import {
   Dialog,
   DialogClose,
@@ -73,7 +105,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@celestia-project/ui/components/dialog';
+} from "@celestia-project/ui/components/dialog"
 import {
   Drawer,
   DrawerClose,
@@ -83,7 +115,7 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from '@celestia-project/ui/components/drawer';
+} from "@celestia-project/ui/components/drawer"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -91,13 +123,39 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from '@celestia-project/ui/components/dropdown-menu';
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@celestia-project/ui/components/empty';
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@celestia-project/ui/components/field';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@celestia-project/ui/components/hover-card';
-import { Input } from '@celestia-project/ui/components/input';
-import { InputGroup, InputGroupInput, InputGroupText } from '@celestia-project/ui/components/input-group';
-import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@celestia-project/ui/components/input-otp';
+} from "@celestia-project/ui/components/dropdown-menu"
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@celestia-project/ui/components/empty"
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@celestia-project/ui/components/field"
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@celestia-project/ui/components/hover-card"
+import { Input } from "@celestia-project/ui/components/input"
+import {
+  InputGroup,
+  InputGroupInput,
+  InputGroupText,
+} from "@celestia-project/ui/components/input-group"
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@celestia-project/ui/components/input-otp"
 import {
   Item,
   ItemActions,
@@ -106,9 +164,9 @@ import {
   ItemGroup,
   ItemMedia,
   ItemTitle,
-} from '@celestia-project/ui/components/item';
-import { Kbd, KbdGroup } from '@celestia-project/ui/components/kbd';
-import { Label } from '@celestia-project/ui/components/label';
+} from "@celestia-project/ui/components/item"
+import { Kbd, KbdGroup } from "@celestia-project/ui/components/kbd"
+import { Label } from "@celestia-project/ui/components/label"
 import {
   Menu,
   MenuCheckboxItem,
@@ -125,7 +183,7 @@ import {
   MenuSub,
   MenuSubTrigger,
   MenuTrigger,
-} from '@celestia-project/ui/components/menu';
+} from "@celestia-project/ui/components/menu"
 import {
   Menubar,
   MenubarContent,
@@ -134,8 +192,11 @@ import {
   MenubarSeparator,
   MenubarShortcut,
   MenubarTrigger,
-} from '@celestia-project/ui/components/menubar';
-import { NativeSelect, NativeSelectOption } from '@celestia-project/ui/components/native-select';
+} from "@celestia-project/ui/components/menubar"
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@celestia-project/ui/components/native-select"
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -143,7 +204,7 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-} from '@celestia-project/ui/components/navigation-menu';
+} from "@celestia-project/ui/components/navigation-menu"
 import {
   Pagination,
   PaginationContent,
@@ -152,14 +213,34 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from '@celestia-project/ui/components/pagination';
-import { Popover, PopoverContent, PopoverDescription, PopoverHeader, PopoverTitle, PopoverTrigger } from '@celestia-project/ui/components/popover';
-import { Progress } from '@celestia-project/ui/components/progress';
-import { RadioGroup, RadioGroupItem } from '@celestia-project/ui/components/radio-group';
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@celestia-project/ui/components/resizable';
-import { ScrollArea } from '@celestia-project/ui/components/scroll-area';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@celestia-project/ui/components/select';
-import { Separator } from '@celestia-project/ui/components/separator';
+} from "@celestia-project/ui/components/pagination"
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@celestia-project/ui/components/popover"
+import { Progress } from "@celestia-project/ui/components/progress"
+import {
+  RadioGroup,
+  RadioGroupItem,
+} from "@celestia-project/ui/components/radio-group"
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@celestia-project/ui/components/resizable"
+import { ScrollArea } from "@celestia-project/ui/components/scroll-area"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@celestia-project/ui/components/select"
+import { Separator } from "@celestia-project/ui/components/separator"
 import {
   Sheet,
   SheetClose,
@@ -169,25 +250,50 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@celestia-project/ui/components/sheet';
-import { Skeleton } from '@celestia-project/ui/components/skeleton';
-import { Slider } from '@celestia-project/ui/components/slider';
-import { Toaster } from '@celestia-project/ui/components/sonner';
-import { Spinner } from '@celestia-project/ui/components/spinner';
-import { Switch } from '@celestia-project/ui/components/switch';
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@celestia-project/ui/components/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@celestia-project/ui/components/tabs';
-import { Textarea } from '@celestia-project/ui/components/textarea';
-import { Toggle } from '@celestia-project/ui/components/toggle';
-import { ToggleGroup, ToggleGroupItem } from '@celestia-project/ui/components/toggle-group';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@celestia-project/ui/components/tooltip';
+} from "@celestia-project/ui/components/sheet"
+import { Skeleton } from "@celestia-project/ui/components/skeleton"
+import { Slider } from "@celestia-project/ui/components/slider"
+import { Toaster } from "@celestia-project/ui/components/sonner"
+import { Spinner } from "@celestia-project/ui/components/spinner"
+import { Switch } from "@celestia-project/ui/components/switch"
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@celestia-project/ui/components/table"
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@celestia-project/ui/components/tabs"
+import { Textarea } from "@celestia-project/ui/components/textarea"
+import { Toggle } from "@celestia-project/ui/components/toggle"
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@celestia-project/ui/components/toggle-group"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@celestia-project/ui/components/tooltip"
+import { BellIcon, NoteBlankIcon, UserIcon } from "@phosphor-icons/react"
+import { useState } from "react"
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
+import { toast } from "sonner"
 
 function PreviewShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="not-prose my-4 flex flex-wrap items-center justify-center gap-3 rounded-lg border border-fd-border bg-fd-card p-8">
+    <div className="not-prose border-fd-border bg-fd-card my-4 flex flex-wrap items-center justify-center gap-3 rounded-lg border p-8">
       {children}
     </div>
-  );
+  )
 }
 
 export function AccordionPreview() {
@@ -196,15 +302,19 @@ export function AccordionPreview() {
       <Accordion className="w-80">
         <AccordionItem value="item-1">
           <AccordionTrigger>Is it accessible?</AccordionTrigger>
-          <AccordionContent>Yes. It uses Base UI primitives with full keyboard support.</AccordionContent>
+          <AccordionContent>
+            Yes. It uses Base UI primitives with full keyboard support.
+          </AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-2">
           <AccordionTrigger>Is it styled?</AccordionTrigger>
-          <AccordionContent>Yes. It comes with default styles that match the design system.</AccordionContent>
+          <AccordionContent>
+            Yes. It comes with default styles that match the design system.
+          </AccordionContent>
         </AccordionItem>
       </Accordion>
     </PreviewShell>
-  );
+  )
 }
 
 export function AlertPreview() {
@@ -213,27 +323,34 @@ export function AlertPreview() {
       <div className="flex w-80 flex-col gap-3">
         <Alert>
           <AlertTitle>Heads up!</AlertTitle>
-          <AlertDescription>You can add components using the CLI.</AlertDescription>
+          <AlertDescription>
+            You can add components using the CLI.
+          </AlertDescription>
         </Alert>
         <Alert variant="destructive">
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription>Your session has expired. Please log in again.</AlertDescription>
+          <AlertDescription>
+            Your session has expired. Please log in again.
+          </AlertDescription>
         </Alert>
       </div>
     </PreviewShell>
-  );
+  )
 }
 
 export function AlertDialogPreview() {
   return (
     <PreviewShell>
       <AlertDialog>
-        <AlertDialogTrigger render={<Button variant="outline" />}>Delete post</AlertDialogTrigger>
+        <AlertDialogTrigger render={<Button variant="outline" />}>
+          Delete post
+        </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your post.
+              This action cannot be undone. This will permanently delete your
+              post.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -243,17 +360,19 @@ export function AlertDialogPreview() {
         </AlertDialogContent>
       </AlertDialog>
     </PreviewShell>
-  );
+  )
 }
 
 export function AspectRatioPreview() {
   return (
     <PreviewShell>
       <AspectRatio ratio={16 / 9} className="w-80 rounded-lg bg-muted">
-        <div className="flex h-full items-center justify-center text-sm text-muted-foreground">16:9</div>
+        <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+          16:9
+        </div>
       </AspectRatio>
     </PreviewShell>
-  );
+  )
 }
 
 export function AvatarPreview() {
@@ -269,7 +388,7 @@ export function AvatarPreview() {
         </AvatarFallback>
       </Avatar>
     </PreviewShell>
-  );
+  )
 }
 
 export function BadgePreview() {
@@ -280,7 +399,7 @@ export function BadgePreview() {
       <Badge variant="destructive">Destructive</Badge>
       <Badge variant="outline">Outline</Badge>
     </PreviewShell>
-  );
+  )
 }
 
 export function BreadcrumbPreview() {
@@ -302,7 +421,7 @@ export function BreadcrumbPreview() {
         </BreadcrumbList>
       </Breadcrumb>
     </PreviewShell>
-  );
+  )
 }
 
 export function ButtonPreview() {
@@ -318,7 +437,7 @@ export function ButtonPreview() {
       <Button size="lg">Large</Button>
       <Button disabled>Disabled</Button>
     </PreviewShell>
-  );
+  )
 }
 
 export function ButtonGroupPreview() {
@@ -332,16 +451,21 @@ export function ButtonGroupPreview() {
         <Button variant="outline">Day</Button>
       </ButtonGroup>
     </PreviewShell>
-  );
+  )
 }
 
 export function CalendarPreview() {
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [date, setDate] = useState<Date | undefined>(new Date())
   return (
     <PreviewShell>
-      <Calendar mode="single" selected={date} onSelect={setDate} className="rounded-md border shadow-sm" />
+      <Calendar
+        mode="single"
+        selected={date}
+        onSelect={setDate}
+        className="rounded-md border shadow-sm"
+      />
     </PreviewShell>
-  );
+  )
 }
 
 export function CardPreview() {
@@ -350,7 +474,9 @@ export function CardPreview() {
       <Card className="w-72">
         <CardHeader>
           <CardTitle>Create project</CardTitle>
-          <CardDescription>Deploy your new project in one-click.</CardDescription>
+          <CardDescription>
+            Deploy your new project in one-click.
+          </CardDescription>
           <CardAction>
             <Button variant="ghost" size="icon-xs" aria-label="More options">
               ⋯
@@ -369,7 +495,7 @@ export function CardPreview() {
         </CardFooter>
       </Card>
     </PreviewShell>
-  );
+  )
 }
 
 export function CarouselPreview() {
@@ -377,9 +503,16 @@ export function CarouselPreview() {
     <PreviewShell>
       <Carousel className="w-64">
         <CarouselContent>
-          {['bg-primary/80', 'bg-primary/60', 'bg-primary/40', 'bg-primary/20'].map((color, index) => (
+          {[
+            "bg-primary/80",
+            "bg-primary/60",
+            "bg-primary/40",
+            "bg-primary/20",
+          ].map((color, index) => (
             <CarouselItem key={`${color}`}>
-              <div className={`flex h-28 items-center justify-center rounded-md text-sm text-primary-foreground ${color}`}>
+              <div
+                className={`flex h-28 items-center justify-center rounded-md text-sm text-primary-foreground ${color}`}
+              >
                 {index + 1}
               </div>
             </CarouselItem>
@@ -389,23 +522,23 @@ export function CarouselPreview() {
         <CarouselNext />
       </Carousel>
     </PreviewShell>
-  );
+  )
 }
 
 const chartData = [
-  { month: 'Jan', desktop: 186 },
-  { month: 'Feb', desktop: 305 },
-  { month: 'Mar', desktop: 237 },
-  { month: 'Apr', desktop: 173 },
-  { month: 'May', desktop: 209 },
-];
+  { month: "Jan", desktop: 186 },
+  { month: "Feb", desktop: 305 },
+  { month: "Mar", desktop: 237 },
+  { month: "Apr", desktop: 173 },
+  { month: "May", desktop: 209 },
+]
 
 const chartConfig = {
   desktop: {
-    label: 'Desktop',
-    color: 'var(--chart-1)',
+    label: "Desktop",
+    color: "var(--chart-1)",
   },
-} satisfies ChartConfig;
+} satisfies ChartConfig
 
 export function ChartPreview() {
   return (
@@ -413,13 +546,18 @@ export function ChartPreview() {
       <ChartContainer config={chartConfig} className="h-48 w-full max-w-md">
         <BarChart data={chartData}>
           <CartesianGrid vertical={false} />
-          <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
+          <XAxis
+            dataKey="month"
+            tickLine={false}
+            axisLine={false}
+            tickMargin={8}
+          />
           <ChartTooltip content={<ChartTooltipContent />} />
           <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
         </BarChart>
       </ChartContainer>
     </PreviewShell>
-  );
+  )
 }
 
 export function CheckboxPreview() {
@@ -436,30 +574,38 @@ export function CheckboxPreview() {
         </div>
       </div>
     </PreviewShell>
-  );
+  )
 }
 
 export function CollapsiblePreview() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
   return (
     <PreviewShell>
       <Collapsible open={open} onOpenChange={setOpen} className="w-80">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-sm font-medium">@celestia-project/ui starred repositories</span>
+          <span className="text-sm font-medium">
+            @celestia-project/ui starred repositories
+          </span>
           <CollapsibleTrigger render={<Button variant="ghost" size="sm" />}>
-            {open ? 'Close' : 'Open'}
+            {open ? "Close" : "Open"}
           </CollapsibleTrigger>
         </div>
-        <div className="mt-2 rounded-md border px-3 py-2 text-sm">@workspace/db</div>
+        <div className="mt-2 rounded-md border px-3 py-2 text-sm">
+          @workspace/db
+        </div>
         <CollapsibleContent>
           <div className="mt-2 flex flex-col gap-2">
-            <div className="rounded-md border px-3 py-2 text-sm">@celestia-project/ui</div>
-            <div className="rounded-md border px-3 py-2 text-sm">@workspace/cli</div>
+            <div className="rounded-md border px-3 py-2 text-sm">
+              @celestia-project/ui
+            </div>
+            <div className="rounded-md border px-3 py-2 text-sm">
+              @workspace/cli
+            </div>
           </div>
         </CollapsibleContent>
       </Collapsible>
     </PreviewShell>
-  );
+  )
 }
 
 export function ComboboxPreview() {
@@ -478,7 +624,7 @@ export function ComboboxPreview() {
         </ComboboxContent>
       </Combobox>
     </PreviewShell>
-  );
+  )
 }
 
 export function CommandPreview() {
@@ -507,7 +653,7 @@ export function CommandPreview() {
         </CommandList>
       </Command>
     </PreviewShell>
-  );
+  )
 }
 
 export function ContextMenuPreview() {
@@ -531,42 +677,53 @@ export function ContextMenuPreview() {
         </ContextMenuContent>
       </ContextMenu>
     </PreviewShell>
-  );
+  )
 }
 
 export function DialogPreview() {
   return (
     <PreviewShell>
       <Dialog>
-        <DialogTrigger render={<Button variant="outline" />}>Open Dialog</DialogTrigger>
+        <DialogTrigger render={<Button variant="outline" />}>
+          Open Dialog
+        </DialogTrigger>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit profile</DialogTitle>
-            <DialogDescription>Make changes to your profile here. Click save when you&apos;re done.</DialogDescription>
+            <DialogDescription>
+              Make changes to your profile here. Click save when you&apos;re
+              done.
+            </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-2">
             <Label htmlFor="dialog-name">Name</Label>
             <Input id="dialog-name" placeholder="Pedro Duarte" />
           </div>
           <DialogFooter>
-            <DialogClose render={<Button variant="outline" />}>Cancel</DialogClose>
+            <DialogClose render={<Button variant="outline" />}>
+              Cancel
+            </DialogClose>
             <Button>Save changes</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </PreviewShell>
-  );
+  )
 }
 
 export function DrawerPreview() {
   return (
     <PreviewShell>
       <Drawer>
-        <DrawerTrigger render={<Button variant="outline" />}>Open Drawer</DrawerTrigger>
+        <DrawerTrigger render={<Button variant="outline" />}>
+          Open Drawer
+        </DrawerTrigger>
         <DrawerContent>
           <DrawerHeader>
             <DrawerTitle>Edit profile</DrawerTitle>
-            <DrawerDescription>Make changes to your profile here.</DrawerDescription>
+            <DrawerDescription>
+              Make changes to your profile here.
+            </DrawerDescription>
           </DrawerHeader>
           <div className="flex flex-col gap-2 px-4">
             <Label htmlFor="drawer-name">Name</Label>
@@ -574,19 +731,23 @@ export function DrawerPreview() {
           </div>
           <DrawerFooter>
             <Button>Save changes</Button>
-            <DrawerClose render={<Button variant="outline" />}>Cancel</DrawerClose>
+            <DrawerClose render={<Button variant="outline" />}>
+              Cancel
+            </DrawerClose>
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
     </PreviewShell>
-  );
+  )
 }
 
 export function DropdownMenuPreview() {
   return (
     <PreviewShell>
       <DropdownMenu>
-        <DropdownMenuTrigger render={<Button variant="outline" />}>Open Dropdown</DropdownMenuTrigger>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>
+          Open Dropdown
+        </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuItem>
             Profile
@@ -604,7 +765,7 @@ export function DropdownMenuPreview() {
         </DropdownMenuContent>
       </DropdownMenu>
     </PreviewShell>
-  );
+  )
 }
 
 export function EmptyPreview() {
@@ -616,14 +777,16 @@ export function EmptyPreview() {
             <NoteBlankIcon />
           </EmptyMedia>
           <EmptyTitle>No posts yet</EmptyTitle>
-          <EmptyDescription>Create your first post to get started.</EmptyDescription>
+          <EmptyDescription>
+            Create your first post to get started.
+          </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
           <Button>New Post</Button>
         </EmptyContent>
       </Empty>
     </PreviewShell>
-  );
+  )
 }
 
 export function FieldPreview() {
@@ -633,7 +796,9 @@ export function FieldPreview() {
         <Field>
           <FieldLabel htmlFor="field-email">Email</FieldLabel>
           <Input id="field-email" type="email" placeholder="you@example.com" />
-          <FieldDescription>We&apos;ll never share your email.</FieldDescription>
+          <FieldDescription>
+            We&apos;ll never share your email.
+          </FieldDescription>
         </Field>
         <Field data-invalid="true">
           <FieldLabel htmlFor="field-username">Username</FieldLabel>
@@ -642,14 +807,16 @@ export function FieldPreview() {
         </Field>
       </FieldGroup>
     </PreviewShell>
-  );
+  )
 }
 
 export function HoverCardPreview() {
   return (
     <PreviewShell>
       <HoverCard>
-        <HoverCardTrigger render={<a href="#" />}>@celestia-project/ui</HoverCardTrigger>
+        <HoverCardTrigger render={<a href="#" />}>
+          @celestia-project/ui
+        </HoverCardTrigger>
         <HoverCardContent>
           <div className="flex gap-3">
             <Avatar>
@@ -665,7 +832,7 @@ export function HoverCardPreview() {
         </HoverCardContent>
       </HoverCard>
     </PreviewShell>
-  );
+  )
 }
 
 export function InputPreview() {
@@ -678,7 +845,7 @@ export function InputPreview() {
         <Input id="disabled" disabled placeholder="Unavailable" />
       </div>
     </PreviewShell>
-  );
+  )
 }
 
 export function InputGroupPreview() {
@@ -690,7 +857,7 @@ export function InputGroupPreview() {
         <InputGroupText>.00</InputGroupText>
       </InputGroup>
     </PreviewShell>
-  );
+  )
 }
 
 export function InputOTPPreview() {
@@ -710,7 +877,7 @@ export function InputOTPPreview() {
         </InputOTPGroup>
       </InputOTP>
     </PreviewShell>
-  );
+  )
 }
 
 export function ItemPreview() {
@@ -735,7 +902,7 @@ export function ItemPreview() {
         </Item>
       </ItemGroup>
     </PreviewShell>
-  );
+  )
 }
 
 export function KbdPreview() {
@@ -751,28 +918,34 @@ export function KbdPreview() {
         <Kbd>Tab</Kbd>
       </KbdGroup>
     </PreviewShell>
-  );
+  )
 }
 
 export function LabelPreview() {
   return (
     <PreviewShell>
       <div className="flex items-center gap-2">
-        <input id="terms" type="checkbox" className="size-3.5 accent-[var(--primary)]" />
+        <input
+          id="terms"
+          type="checkbox"
+          className="size-3.5 accent-[var(--primary)]"
+        />
         <Label htmlFor="terms">Accept terms and conditions</Label>
       </div>
     </PreviewShell>
-  );
+  )
 }
 
 export function MenuPreview() {
-  const [showStatusBar, setShowStatusBar] = useState(true);
-  const [panel, setPanel] = useState('top');
+  const [showStatusBar, setShowStatusBar] = useState(true)
+  const [panel, setPanel] = useState("top")
 
   return (
     <PreviewShell>
       <Menu>
-        <MenuTrigger render={<Button variant="outline" />}>Open Menu</MenuTrigger>
+        <MenuTrigger render={<Button variant="outline" />}>
+          Open Menu
+        </MenuTrigger>
         <MenuPortal>
           <MenuPositioner sideOffset={8} align="start">
             <MenuPopup>
@@ -800,7 +973,10 @@ export function MenuPreview() {
                 </MenuSub>
               </MenuGroup>
               <MenuSeparator />
-              <MenuCheckboxItem checked={showStatusBar} onCheckedChange={setShowStatusBar}>
+              <MenuCheckboxItem
+                checked={showStatusBar}
+                onCheckedChange={setShowStatusBar}
+              >
                 Status Bar
               </MenuCheckboxItem>
               <MenuSeparator />
@@ -819,7 +995,7 @@ export function MenuPreview() {
         </MenuPortal>
       </Menu>
     </PreviewShell>
-  );
+  )
 }
 
 export function MenubarPreview() {
@@ -856,7 +1032,7 @@ export function MenubarPreview() {
         </MenubarMenu>
       </Menubar>
     </PreviewShell>
-  );
+  )
 }
 
 export function NativeSelectPreview() {
@@ -869,7 +1045,7 @@ export function NativeSelectPreview() {
         <NativeSelectOption value="grape">Grape</NativeSelectOption>
       </NativeSelect>
     </PreviewShell>
-  );
+  )
 }
 
 export function NavigationMenuPreview() {
@@ -899,7 +1075,7 @@ export function NavigationMenuPreview() {
         </NavigationMenuList>
       </NavigationMenu>
     </PreviewShell>
-  );
+  )
 }
 
 export function PaginationPreview() {
@@ -930,18 +1106,22 @@ export function PaginationPreview() {
         </PaginationContent>
       </Pagination>
     </PreviewShell>
-  );
+  )
 }
 
 export function PopoverPreview() {
   return (
     <PreviewShell>
       <Popover>
-        <PopoverTrigger render={<Button variant="outline" />}>Open Popover</PopoverTrigger>
+        <PopoverTrigger render={<Button variant="outline" />}>
+          Open Popover
+        </PopoverTrigger>
         <PopoverContent className="w-64">
           <PopoverHeader>
             <PopoverTitle>Dimensions</PopoverTitle>
-            <PopoverDescription>Set the dimensions for the layer.</PopoverDescription>
+            <PopoverDescription>
+              Set the dimensions for the layer.
+            </PopoverDescription>
           </PopoverHeader>
           <div className="flex flex-col gap-2">
             <Label htmlFor="popover-width">Width</Label>
@@ -950,7 +1130,7 @@ export function PopoverPreview() {
         </PopoverContent>
       </Popover>
     </PreviewShell>
-  );
+  )
 }
 
 export function ProgressPreview() {
@@ -958,7 +1138,7 @@ export function ProgressPreview() {
     <PreviewShell>
       <Progress value={60} className="w-64" />
     </PreviewShell>
-  );
+  )
 }
 
 export function RadioGroupPreview() {
@@ -979,23 +1159,30 @@ export function RadioGroupPreview() {
         </div>
       </RadioGroup>
     </PreviewShell>
-  );
+  )
 }
 
 export function ResizablePreview() {
   return (
     <PreviewShell>
-      <ResizablePanelGroup orientation="horizontal" className="min-h-40 w-full max-w-md rounded-lg border">
+      <ResizablePanelGroup
+        orientation="horizontal"
+        className="min-h-40 w-full max-w-md rounded-lg border"
+      >
         <ResizablePanel defaultSize={40}>
-          <div className="flex h-full items-center justify-center p-4 text-sm text-muted-foreground">Sidebar</div>
+          <div className="flex h-full items-center justify-center p-4 text-sm text-muted-foreground">
+            Sidebar
+          </div>
         </ResizablePanel>
         <ResizableHandle />
         <ResizablePanel defaultSize={60}>
-          <div className="flex h-full items-center justify-center p-4 text-sm text-muted-foreground">Content</div>
+          <div className="flex h-full items-center justify-center p-4 text-sm text-muted-foreground">
+            Content
+          </div>
         </ResizablePanel>
       </ResizablePanelGroup>
     </PreviewShell>
-  );
+  )
 }
 
 export function ScrollAreaPreview() {
@@ -1011,7 +1198,7 @@ export function ScrollAreaPreview() {
         </div>
       </ScrollArea>
     </PreviewShell>
-  );
+  )
 }
 
 export function SelectPreview() {
@@ -1030,7 +1217,7 @@ export function SelectPreview() {
         </SelectContent>
       </Select>
     </PreviewShell>
-  );
+  )
 }
 
 export function SeparatorPreview() {
@@ -1038,7 +1225,9 @@ export function SeparatorPreview() {
     <PreviewShell>
       <div className="w-72">
         <div className="text-sm font-medium">Celestia Starter</div>
-        <p className="text-sm text-muted-foreground">A monorepo starter with auth, dashboard, and blog features.</p>
+        <p className="text-sm text-muted-foreground">
+          A monorepo starter with auth, dashboard, and blog features.
+        </p>
         <Separator className="my-3" />
         <div className="flex h-5 items-center gap-3 text-sm">
           <div>Docs</div>
@@ -1049,31 +1238,38 @@ export function SeparatorPreview() {
         </div>
       </div>
     </PreviewShell>
-  );
+  )
 }
 
 export function SheetPreview() {
   return (
     <PreviewShell>
       <Sheet>
-        <SheetTrigger render={<Button variant="outline" />}>Open Sheet</SheetTrigger>
+        <SheetTrigger render={<Button variant="outline" />}>
+          Open Sheet
+        </SheetTrigger>
         <SheetContent>
           <SheetHeader>
             <SheetTitle>Edit profile</SheetTitle>
-            <SheetDescription>Make changes to your profile here. Click save when you&apos;re done.</SheetDescription>
+            <SheetDescription>
+              Make changes to your profile here. Click save when you&apos;re
+              done.
+            </SheetDescription>
           </SheetHeader>
           <div className="flex flex-col gap-2">
             <Label htmlFor="sheet-name">Name</Label>
             <Input id="sheet-name" placeholder="Pedro Duarte" />
           </div>
           <SheetFooter>
-            <SheetClose render={<Button variant="outline" />}>Cancel</SheetClose>
+            <SheetClose render={<Button variant="outline" />}>
+              Cancel
+            </SheetClose>
             <Button>Save changes</Button>
           </SheetFooter>
         </SheetContent>
       </Sheet>
     </PreviewShell>
-  );
+  )
 }
 
 export function SkeletonPreview() {
@@ -1087,15 +1283,21 @@ export function SkeletonPreview() {
         </div>
       </div>
     </PreviewShell>
-  );
+  )
 }
 
 export function SliderPreview() {
   return (
     <PreviewShell>
-      <Slider defaultValue={[50]} max={100} step={1} className="w-64" aria-label="Volume" />
+      <Slider
+        defaultValue={[50]}
+        max={100}
+        step={1}
+        className="w-64"
+        aria-label="Volume"
+      />
     </PreviewShell>
-  );
+  )
 }
 
 export function SonnerPreview() {
@@ -1105,8 +1307,8 @@ export function SonnerPreview() {
       <Button
         variant="outline"
         onClick={() =>
-          toast('Event has been created', {
-            description: 'Sunday, December 03rd at 10:00 AM',
+          toast("Event has been created", {
+            description: "Sunday, December 03rd at 10:00 AM",
           })
         }
       >
@@ -1114,7 +1316,7 @@ export function SonnerPreview() {
         Show Toast
       </Button>
     </PreviewShell>
-  );
+  )
 }
 
 export function SpinnerPreview() {
@@ -1126,7 +1328,7 @@ export function SpinnerPreview() {
         Loading
       </Button>
     </PreviewShell>
-  );
+  )
 }
 
 export function SwitchPreview() {
@@ -1143,7 +1345,7 @@ export function SwitchPreview() {
         </div>
       </div>
     </PreviewShell>
-  );
+  )
 }
 
 export function TablePreview() {
@@ -1181,7 +1383,7 @@ export function TablePreview() {
         </TableBody>
       </Table>
     </PreviewShell>
-  );
+  )
 }
 
 export function TabsPreview() {
@@ -1193,14 +1395,18 @@ export function TabsPreview() {
           <TabsTrigger value="password">Password</TabsTrigger>
         </TabsList>
         <TabsContent value="account">
-          <p className="py-3 text-sm text-muted-foreground">Make changes to your account here.</p>
+          <p className="py-3 text-sm text-muted-foreground">
+            Make changes to your account here.
+          </p>
         </TabsContent>
         <TabsContent value="password">
-          <p className="py-3 text-sm text-muted-foreground">Change your password here.</p>
+          <p className="py-3 text-sm text-muted-foreground">
+            Change your password here.
+          </p>
         </TabsContent>
       </Tabs>
     </PreviewShell>
-  );
+  )
 }
 
 export function TextareaPreview() {
@@ -1212,7 +1418,7 @@ export function TextareaPreview() {
         <Textarea id="message-disabled" disabled placeholder="Unavailable" />
       </div>
     </PreviewShell>
-  );
+  )
 }
 
 export function TogglePreview() {
@@ -1226,19 +1432,19 @@ export function TogglePreview() {
         D
       </Toggle>
     </PreviewShell>
-  );
+  )
 }
 
 export function ToggleGroupPreview() {
   return (
     <PreviewShell>
-      <ToggleGroup defaultValue={['center']} aria-label="Text alignment">
+      <ToggleGroup defaultValue={["center"]} aria-label="Text alignment">
         <ToggleGroupItem value="left">Left</ToggleGroupItem>
         <ToggleGroupItem value="center">Center</ToggleGroupItem>
         <ToggleGroupItem value="right">Right</ToggleGroupItem>
       </ToggleGroup>
     </PreviewShell>
-  );
+  )
 }
 
 export function TooltipPreview() {
@@ -1246,24 +1452,36 @@ export function TooltipPreview() {
     <PreviewShell>
       <TooltipProvider>
         <Tooltip>
-          <TooltipTrigger render={<Button variant="outline" />}>Hover me</TooltipTrigger>
+          <TooltipTrigger render={<Button variant="outline" />}>
+            Hover me
+          </TooltipTrigger>
           <TooltipContent>Add to library</TooltipContent>
         </Tooltip>
       </TooltipProvider>
     </PreviewShell>
-  );
+  )
 }
 
-function ColorSwatch({ label, className, value }: Readonly<{ label: string; className: string; value?: string }>) {
+function ColorSwatch({
+  label,
+  className,
+  value,
+}: Readonly<{ label: string; className: string; value?: string }>) {
   return (
     <div className="flex items-center gap-3">
-      <div className={`size-10 shrink-0 rounded-lg border border-fd-border ${className}`} />
+      <div
+        className={`border-fd-border size-10 shrink-0 rounded-lg border ${className}`}
+      />
       <div className="flex flex-col">
         <span className="text-sm font-medium">{label}</span>
-        {value && <span className="font-mono text-xs text-muted-foreground">{value}</span>}
+        {value && (
+          <span className="font-mono text-xs text-muted-foreground">
+            {value}
+          </span>
+        )}
       </div>
     </div>
-  );
+  )
 }
 
 export function ColorsPreview() {
@@ -1275,21 +1493,40 @@ export function ColorsPreview() {
           <h4 className="text-sm font-semibold">Landing Tokens</h4>
           <div className="grid gap-3 rounded-lg bg-[#0a0a0a] p-4 sm:grid-cols-2">
             <ColorSwatch label="bg" className="bg-[#0a0a0a]" value="#0a0a0a" />
-            <ColorSwatch label="surface" className="bg-[#141414]" value="#141414" />
-            <ColorSwatch label="text-primary" className="bg-[#f5f5f5]" value="#f5f5f5" />
+            <ColorSwatch
+              label="surface"
+              className="bg-[#141414]"
+              value="#141414"
+            />
+            <ColorSwatch
+              label="text-primary"
+              className="bg-[#f5f5f5]"
+              value="#f5f5f5"
+            />
             <ColorSwatch label="fog" className="bg-[#878787]" value="#878787" />
-            <ColorSwatch label="stroke" className="bg-[#1f1f1f]" value="#1f1f1f" />
+            <ColorSwatch
+              label="stroke"
+              className="bg-[#1f1f1f]"
+              value="#1f1f1f"
+            />
           </div>
         </div>
 
         {/* Brand accent */}
         <div className="flex flex-col gap-3">
           <h4 className="text-sm font-semibold">Brand Accent</h4>
-          <div className="flex items-center gap-3 rounded-lg border border-fd-border p-4">
-            <div className="h-10 w-20 shrink-0 rounded-lg" style={{ background: 'linear-gradient(90deg, #89aacc 0%, #4e85bf 100%)' }} />
+          <div className="border-fd-border flex items-center gap-3 rounded-lg border p-4">
+            <div
+              className="h-10 w-20 shrink-0 rounded-lg"
+              style={{
+                background: "linear-gradient(90deg, #89aacc 0%, #4e85bf 100%)",
+              }}
+            />
             <div className="flex flex-col">
               <span className="text-sm font-medium">accent-gradient</span>
-              <span className="font-mono text-xs text-muted-foreground">#89aacc → #4e85bf</span>
+              <span className="font-mono text-xs text-muted-foreground">
+                #89aacc → #4e85bf
+              </span>
             </div>
           </div>
         </div>
@@ -1297,30 +1534,72 @@ export function ColorsPreview() {
         {/* Semantic tokens */}
         <div className="flex flex-col gap-3">
           <h4 className="text-sm font-semibold">Semantic Tokens</h4>
-          <div className="grid gap-3 rounded-lg border border-fd-border p-4 sm:grid-cols-2">
-            <ColorSwatch label="background" className="bg-background" value="oklch(1 0 0)" />
-            <ColorSwatch label="foreground" className="bg-foreground" value="oklch(0.145 0 0)" />
-            <ColorSwatch label="primary" className="bg-primary" value="oklch(0.205 0 0)" />
-            <ColorSwatch label="secondary" className="bg-secondary" value="oklch(0.97 0 0)" />
-            <ColorSwatch label="muted" className="bg-muted" value="oklch(0.97 0 0)" />
-            <ColorSwatch label="accent" className="bg-accent" value="oklch(0.97 0 0)" />
-            <ColorSwatch label="destructive" className="bg-destructive" value="oklch(0.577 0.245 27.325)" />
-            <ColorSwatch label="border" className="bg-border" value="oklch(0.922 0 0)" />
+          <div className="border-fd-border grid gap-3 rounded-lg border p-4 sm:grid-cols-2">
+            <ColorSwatch
+              label="background"
+              className="bg-background"
+              value="oklch(1 0 0)"
+            />
+            <ColorSwatch
+              label="foreground"
+              className="bg-foreground"
+              value="oklch(0.145 0 0)"
+            />
+            <ColorSwatch
+              label="primary"
+              className="bg-primary"
+              value="oklch(0.205 0 0)"
+            />
+            <ColorSwatch
+              label="secondary"
+              className="bg-secondary"
+              value="oklch(0.97 0 0)"
+            />
+            <ColorSwatch
+              label="muted"
+              className="bg-muted"
+              value="oklch(0.97 0 0)"
+            />
+            <ColorSwatch
+              label="accent"
+              className="bg-accent"
+              value="oklch(0.97 0 0)"
+            />
+            <ColorSwatch
+              label="destructive"
+              className="bg-destructive"
+              value="oklch(0.577 0.245 27.325)"
+            />
+            <ColorSwatch
+              label="border"
+              className="bg-border"
+              value="oklch(0.922 0 0)"
+            />
           </div>
         </div>
 
         {/* Chart colors */}
         <div className="flex flex-col gap-3">
           <h4 className="text-sm font-semibold">Chart Colors</h4>
-          <div className="flex gap-2 rounded-lg border border-fd-border p-4">
-            <div className="flex h-10 flex-1 items-center justify-center rounded-md bg-chart-1 text-xs font-medium text-chart-1-foreground">1</div>
-            <div className="flex h-10 flex-1 items-center justify-center rounded-md bg-chart-2 text-xs font-medium text-chart-2-foreground">2</div>
-            <div className="flex h-10 flex-1 items-center justify-center rounded-md bg-chart-3 text-xs font-medium text-chart-3-foreground">3</div>
-            <div className="flex h-10 flex-1 items-center justify-center rounded-md bg-chart-4 text-xs font-medium text-chart-4-foreground">4</div>
-            <div className="flex h-10 flex-1 items-center justify-center rounded-md bg-chart-5 text-xs font-medium text-chart-5-foreground">5</div>
+          <div className="border-fd-border flex gap-2 rounded-lg border p-4">
+            <div className="text-chart-1-foreground flex h-10 flex-1 items-center justify-center rounded-md bg-chart-1 text-xs font-medium">
+              1
+            </div>
+            <div className="text-chart-2-foreground flex h-10 flex-1 items-center justify-center rounded-md bg-chart-2 text-xs font-medium">
+              2
+            </div>
+            <div className="text-chart-3-foreground flex h-10 flex-1 items-center justify-center rounded-md bg-chart-3 text-xs font-medium">
+              3
+            </div>
+            <div className="text-chart-4-foreground flex h-10 flex-1 items-center justify-center rounded-md bg-chart-4 text-xs font-medium">
+              4
+            </div>
+            <div className="text-chart-5-foreground flex h-10 flex-1 items-center justify-center rounded-md bg-chart-5 text-xs font-medium">
+              5
+            </div>
           </div>
         </div>
       </div>
     </PreviewShell>
-  );
+  )
 }

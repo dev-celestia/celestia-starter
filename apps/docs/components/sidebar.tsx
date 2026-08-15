@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import type * as PageTree from "fumadocs-core/page-tree"
+import type * as PageTree from "fumadocs-core/page-tree";
 import {
   SidebarItem,
   SidebarSeparator,
-} from "fumadocs-ui/components/sidebar/base"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/cn"
+} from "fumadocs-ui/components/sidebar/base";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/cn";
 
 /**
  * Enhanced sidebar item — same link behaviour as the default, plus:
@@ -15,8 +15,8 @@ import { cn } from "@/lib/cn"
 export function EnhancedSidebarItem({
   item,
 }: Readonly<{ item: PageTree.Item }>) {
-  const pathname = usePathname()
-  const active = pathname === item.url
+  const pathname = usePathname();
+  const active = pathname === item.url;
 
   return (
     <SidebarItem
@@ -26,7 +26,7 @@ export function EnhancedSidebarItem({
         "flex pl-2 gap-2 items-center p-2 relative rounded-md transition-colors duration-150",
         active
           ? "bg-fd-primary/10 text-primary font-medium"
-          : "text-fd-muted-foreground hover:bg-fd-accent hover:text-fd-accent-foreground"
+          : "text-fd-muted-foreground hover:bg-fd-accent hover:text-fd-accent-foreground",
       )}
     >
       {active && (
@@ -37,7 +37,7 @@ export function EnhancedSidebarItem({
       )}
       {item.name}
     </SidebarItem>
-  )
+  );
 }
 
 /**
@@ -50,10 +50,10 @@ export function EnhancedSidebarSeparator({
     <SidebarSeparator className="text-muted-foreground mt-10 mb-2 px-2 text-[11px] tracking-wide uppercase">
       {item.name}
     </SidebarSeparator>
-  )
+  );
 }
 
 export const sidebarComponents = {
   Item: EnhancedSidebarItem,
   Separator: EnhancedSidebarSeparator,
-}
+};

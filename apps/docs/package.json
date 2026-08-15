@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
-    "@celestia-project/ui": "^0.2.0",
+    "@celestia-project/ui": "workspace:*",
     "cnfast": "^0.1.0",
     "fumadocs-core": "16.14.0",
     "fumadocs-mdx": "15.2.1",

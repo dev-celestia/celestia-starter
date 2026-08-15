@@ -18,6 +18,7 @@
     "**/*.ts",
     "**/*.tsx",
     "**/*.mts",
+    "../../packages/ui/src/**/*.d.ts",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],

@@ -17,7 +17,6 @@ export default defineConfig({
     "react-dom",
     "react-hook-form",
     "@tanstack/react-table",
-    "monaco-editor",
     "codemirror",
     "@codemirror/autocomplete",
     "@codemirror/commands",
@@ -34,7 +33,6 @@ export default defineConfig({
     "@codemirror/view",
     "@lezer/highlight",
     "@tauri-apps/plugin-opener",
-    /^monaco-editor\/.*/,
   ],
 })
 
