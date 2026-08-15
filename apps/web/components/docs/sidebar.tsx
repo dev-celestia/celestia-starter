@@ -49,9 +49,9 @@ export function DocsSidebar({ groups, onSelect }: DocsSidebarProps) {
   }, [groups, filter])
 
   return (
-    <aside className="w-full h-full flex flex-col">
+    <aside className="w-full h-full flex flex-col min-h-0">
       {/* Quick Filter Search */}
-      <div className="pb-3 px-1">
+      <div className="pb-3 px-1 shrink-0">
         <div className="relative flex items-center">
           <MagnifyingGlassIcon className="absolute left-2.5 size-3.5 text-muted-foreground/70 pointer-events-none" />
           <input
@@ -73,7 +73,7 @@ export function DocsSidebar({ groups, onSelect }: DocsSidebarProps) {
       </div>
 
       {/* Nav Groups List */}
-      <nav className="flex flex-col gap-5 overflow-y-auto pr-2 pb-8 scrollbar-thin">
+      <nav className="flex flex-col gap-5 overflow-y-auto flex-1 min-h-0 pr-2 pb-8 [scrollbar-width:thin]">
         {filteredGroups.map((group) => {
           const isCollapsed = Boolean(collapsedGroups[group.name]) && !filter
 

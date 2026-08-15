@@ -20,7 +20,7 @@ export default function DocsLayout({
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex gap-8 py-6">
           {/* Sticky Left Sidebar (Desktop) */}
-          <aside className="sticky top-20 hidden w-64 shrink-0 lg:block self-start max-h-[calc(100vh-6rem)] overflow-hidden pr-2">
+          <aside className="sticky top-20 hidden w-64 shrink-0 lg:flex lg:flex-col self-start h-[calc(100vh-5.5rem)] max-h-[calc(100vh-5.5rem)] overflow-hidden pr-2">
             <DocsSidebar groups={groups} />
           </aside>
 
