@@ -8,7 +8,7 @@
     { "from": "api/src/features/access/routes.ts", "to": "apps/api/src/features/access/routes.ts" },
     { "from": "web/app/(dashboard)/dashboard/users/page.tsx", "to": "apps/web/app/(dashboard)/dashboard/users/page.tsx" },
     { "from": "web/components/access/users-manager.tsx", "to": "apps/web/components/access/users-manager.tsx" },
-    { "from": "docs/access.mdx", "to": "apps/docs/content/docs/access.mdx" }
+    { "from": "docs/access.mdx", "to": "apps/web/content/docs/access.mdx" }
   ],
   "insertions": [
     { "file": "apps/api/src/app.ts", "marker": "imports", "snippet": "snippets/api-imports.ts" },
@@ -22,11 +22,11 @@
     { "file": "apps/web/components/dashboard/sidebar.tsx", "marker": "imports", "snippet": "snippets/sidebar-imports.ts" },
     { "file": "apps/web/components/dashboard/sidebar.tsx", "marker": "nav", "snippet": "snippets/sidebar-nav.ts" },
     { "file": "apps/web/components/dashboard/sidebar.tsx", "marker": "nav-visibility", "snippet": "snippets/sidebar-visibility.ts" },
-    { "file": "apps/docs/content/docs/index.mdx", "marker": "cards", "snippet": "snippets/docs-card.mdx" },
+    { "file": "apps/web/content/docs/index.mdx", "marker": "cards", "snippet": "snippets/docs-card.mdx" },
     { "file": "README.md", "marker": "features", "snippet": "snippets/readme-feature.md" }
   ],
   "jsonAppends": [
-    { "file": "apps/docs/content/docs/meta.json", "path": "pages", "value": "access" }
+    { "file": "apps/web/content/docs/meta.json", "path": "pages", "value": "access" }
   ],
   "dependencies": {
     "apps/api": {

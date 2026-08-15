@@ -42,7 +42,7 @@ features/<name>/
 ├── api/          → files copied into apps/api  (e.g. api/src/features/<name>/routes.ts)
 ├── web/          → files copied into apps/web  (pages, components, hooks)
 ├── ui/           → files copied into packages/ui
-├── docs/         → files copied into apps/docs/content/docs/
+├── docs/         → files copied into apps/web/content/docs/
 ├── snippets/     → insertion snippets for marker-based edits
 └── feature.json  → manifest (copies / insertions format — never the legacy `files` map)
 ```
@@ -60,14 +60,14 @@ Paths in `copies[].from` and `insertions[].snippet` are relative to the feature 
   "requires": ["auth"],
   "copies": [
     { "from": "api/src/features/<name>/routes.ts", "to": "apps/api/src/features/<name>/routes.ts" },
-    { "from": "docs/<name>.mdx", "to": "apps/docs/content/docs/<name>.mdx" }
+    { "from": "docs/<name>.mdx", "to": "apps/web/content/docs/<name>.mdx" }
   ],
   "insertions": [
     { "file": "apps/api/src/app.ts", "marker": "imports", "snippet": "snippets/api-imports.ts" },
     { "file": "apps/api/src/app.ts", "marker": "routes", "snippet": "snippets/api-routes.ts" }
   ],
   "jsonAppends": [
-    { "file": "apps/docs/content/docs/meta.json", "path": "pages", "value": "<name>" }
+    { "file": "apps/web/content/docs/meta.json", "path": "pages", "value": "<name>" }
   ],
   "dependencies": {
     "apps/api": { "some-lib": "^1.0.0" }
@@ -101,17 +101,15 @@ Current regions:
 | `packages/db/src/schema.ts` | `tables` | Drizzle `pgTable(...)` definitions |
 | `apps/web/components/dashboard/sidebar.tsx` | `imports` | Icon imports, e.g. `import { NoteBlank } from "lucide-react"` |
 | `apps/web/components/dashboard/sidebar.tsx` | `nav` | `{ label: "...", href: "/dashboard/...", icon: Icon },` |
-| `apps/docs/content/docs/index.mdx` | `cards` | `<Card title="..." href="/docs/<name>" description="..." />` |
-| `README.md` | `features` | `- **<name>** — one-line description` |
+| `apps/web/content/docs/index.mdx` | `cards` | `<Card title="..." href="/docs/<name>" description="..." />` |
+| `README.md` | `features` | `- **<name>** — One-line description` |
 
-## Documentation is mandatory
+## Writing documentation for a feature
 
-Every feature must ship docs:
-
-1. `docs/<name>.mdx` — what it does, env vars, file overview, server/client usage, setup. Use Fumadocs components; `bash` for shell/env code fences.
-2. Copy it via `copies` to `apps/docs/content/docs/<name>.mdx`.
-3. `jsonAppends` entry for `apps/docs/content/docs/meta.json` → `pages`.
-4. `insertions` entry for the `cards` marker in `apps/docs/content/docs/index.mdx`.
+1. Author `docs/<name>.mdx` inside `features/<name>/`.
+2. Copy it via `copies` to `apps/web/content/docs/<name>.mdx`.
+3. `jsonAppends` entry for `apps/web/content/docs/meta.json` → `pages`.
+4. `insertions` entry for the `cards` marker in `apps/web/content/docs/index.mdx`.
 5. `insertions` entry for the `features` marker in `README.md`.
 
 ## CLI reference

@@ -5,7 +5,7 @@
 [![npm version](https://img.shields.io/npm/v/@celestia-project/ui)](https://www.npmjs.com/package/@celestia-project/ui)
 [![license](https://img.shields.io/npm/l/@celestia-project/ui)](./LICENSE)
 
-> 📘 **Full Documentation**: Detailed implementation info (import options, component mappings, sub-components, and props reference) is located in [packages/ui/docs](./docs/implementation-details.md) and on the docs site at [`/docs/components/implementation-details`](file:///Users/arham/Desktop/project/celestia-starter/apps/docs/content/docs/components/implementation-details.mdx).
+> 📘 **Full Documentation**: Detailed implementation info (import options, component mappings, sub-components, and props reference) is located in [packages/ui/docs](./docs/implementation-details.md) and on the docs site at [`/docs/components/implementation-details`](file:///Users/arham/Desktop/project/celestia-starter/apps/web/content/docs/components/implementation-details.mdx).
 
 ---
 

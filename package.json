@@ -8,7 +8,7 @@
     "lint": "turbo lint",
     "format": "turbo format",
     "typecheck": "turbo typecheck",
-    "docs": "turbo dev --filter=docs",
+    "docs": "turbo dev --filter=web",
     "scaffold": "node packages/cli/src/index.js",
     "add-feature": "tsx packages/feature-manager/src/cli/index.ts add",
     "remove-feature": "tsx packages/feature-manager/src/cli/index.ts remove",

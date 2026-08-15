@@ -36,13 +36,12 @@ pnpm install
 # 3. Push database schema to PostgreSQL
 pnpm --filter @workspace/db db:push
 
-# 4. Start all applications (Next.js web, Hono API, Fumadocs documentation)
+# 4. Start all applications (Next.js web & documentation, Hono API)
 pnpm dev
 ```
 
-- **Web App (Frontend)** → [http://localhost:3000](http://localhost:3000)
+- **Web App & Docs** → [http://localhost:3000](http://localhost:3000) (Docs at [/docs](http://localhost:3000/docs))
 - **API Server (Backend)** → [http://localhost:4000](http://localhost:4000)
-- **Documentation Site** → [http://localhost:3001](http://localhost:3001)
 
 ---
 
@@ -62,7 +61,7 @@ Celestia Starter enforces a strict **separated architecture** between frontend a
 ```
 
 - **Backend API (`apps/api`)**: Powered by Hono running on Node.js (port 4000). Owns the database connection, business logic, authentication server instance, and CRUD endpoints. Exposes end-to-end typed contracts via Hono RPC.
-- **Frontend (`apps/web`)**: Next.js 15 App Router (port 3000). Pure UI layer with zero direct database access and no server-side auth secrets. Proxies `/api/*` to the backend.
+- **Frontend (`apps/web`)**: Next.js 15 App Router (port 3000). Pure UI layer with zero direct database access and no server-side auth secrets. Houses landing pages, interactive component showcase, and full documentation. Proxies `/api/*` to the backend.
 - **Shared DB (`packages/db`)**: Drizzle ORM schema and PostgreSQL client (`@workspace/db`).
 - **Shared UI (`packages/ui`)**: `@celestia-project/ui` component library built on Base UI and Tailwind CSS v4.
 
@@ -74,8 +73,7 @@ Celestia Starter enforces a strict **separated architecture** between frontend a
 celestia-starter/
 ├── apps/
 │   ├── api/                # Standalone Hono backend (owns DB, auth, RPC routes)
-│   ├── web/                # Next.js 15 frontend (pure UI, Hono RPC client)
-│   └── docs/               # Documentation site built with Fumadocs
+│   └── web/                # Next.js 15 frontend (pure UI, landing, docs, showcase)
 ├── packages/
 │   ├── ui/                 # @celestia-project/ui component library (Base UI + Tailwind v4)
 │   ├── db/                 # @workspace/db (Drizzle schema & PostgreSQL client)
@@ -132,7 +130,7 @@ pnpm remove-feature <name>
 
 | Command | Purpose |
 |---------|---------|
-| `pnpm dev` | Start development servers for web, api, and docs in parallel |
+| `pnpm dev` | Start development servers for web and api in parallel |
 | `pnpm build` | Build all applications and workspace packages via Turborepo |
 | `pnpm lint` | Run ESLint checks across all apps and packages |
 | `pnpm typecheck` | Run `tsc --noEmit` across all workspace targets |

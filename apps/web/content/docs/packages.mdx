@@ -138,7 +138,7 @@ pnpm list-features          # List available and installed features
 
 1. Reads `features/<name>/feature.json` (legacy v1 manifests using `files` are normalized)
 2. Verifies `requires` against the tracker (root `features.json`)
-3. Copies `copies` entries into the workspace — `apps/api`, `apps/web`, `packages/*`, `apps/docs`, root files
+3. Copies `copies` entries into the workspace — `apps/api`, `apps/web`, `packages/*`, root files
 4. Inserts `insertions` snippets into managed marker regions
 5. Applies `jsonAppends` to JSON arrays (e.g. the docs sidebar `meta.json`)
 6. Merges `dependencies` / `devDependencies` into each target package's `package.json`
@@ -195,7 +195,7 @@ Available regions:
 | `nav-visibility` | `apps/web/components/dashboard/sidebar.tsx` | Per-item visibility filter inside the nav map |
 | `client-imports` | `apps/web/lib/auth-client.ts` | Better Auth client-plugin imports |
 | `client-plugins` | `apps/web/lib/auth-client.ts` | Client-plugin entries in the `plugins` array |
-| `cards` | `apps/docs/content/docs/index.mdx` | Landing page `<Card>` links |
+| `cards` | `apps/web/content/docs/index.mdx` | Landing page `<Card>` links |
 | `features` | `README.md` | "Installed Features" bullets |
 
 Marker ids are scoped per file, so `imports` in `app.ts` and `imports` in `sidebar.tsx` don't collide. Comment syntax follows the file type (`//` for TS/TSX, `<!-- -->` for `.md`, `{/* */}` for `.mdx`). Files that cannot carry comments (e.g. `meta.json`) use `jsonAppends` instead.

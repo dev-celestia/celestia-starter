@@ -10,7 +10,7 @@
     { "from": "web/app/(dashboard)/dashboard/posts/new/page.tsx", "to": "apps/web/app/(dashboard)/dashboard/posts/new/page.tsx" },
     { "from": "web/app/(dashboard)/dashboard/posts/[id]/edit/page.tsx", "to": "apps/web/app/(dashboard)/dashboard/posts/[id]/edit/page.tsx" },
     { "from": "ui/components/textarea.tsx", "to": "packages/ui/src/components/textarea.tsx" },
-    { "from": "docs/blog.mdx", "to": "apps/docs/content/docs/blog.mdx" }
+    { "from": "docs/blog.mdx", "to": "apps/web/content/docs/blog.mdx" }
   ],
   "insertions": [
     { "file": "apps/api/src/app.ts", "marker": "imports", "snippet": "snippets/api-imports.ts" },
@@ -18,11 +18,11 @@
     { "file": "packages/db/src/schema.ts", "marker": "tables", "snippet": "snippets/db-schema.ts" },
     { "file": "apps/web/components/dashboard/sidebar.tsx", "marker": "imports", "snippet": "snippets/sidebar-imports.ts" },
     { "file": "apps/web/components/dashboard/sidebar.tsx", "marker": "nav", "snippet": "snippets/sidebar-nav.ts" },
-    { "file": "apps/docs/content/docs/index.mdx", "marker": "cards", "snippet": "snippets/docs-card.mdx" },
+    { "file": "apps/web/content/docs/index.mdx", "marker": "cards", "snippet": "snippets/docs-card.mdx" },
     { "file": "README.md", "marker": "features", "snippet": "snippets/readme-feature.md" }
   ],
   "jsonAppends": [
-    { "file": "apps/docs/content/docs/meta.json", "path": "pages", "value": "blog" }
+    { "file": "apps/web/content/docs/meta.json", "path": "pages", "value": "blog" }
   ],
   "dependencies": {
     "apps/api": { "drizzle-orm": "^0.45.2" },

@@ -35,7 +35,7 @@ features/<name>/
 ├── api/          → files copied into apps/api  (routes, services)
 ├── web/          → files copied into apps/web  (pages, components, hooks)
 ├── ui/           → files copied into packages/ui (shared components)
-├── docs/         → files copied into apps/docs/content/docs/
+├── docs/         → files copied into apps/web/content/docs/
 ├── snippets/     → insertion snippets for marker-based edits
 └── feature.json  → manifest using `copies` / `insertions` format
 ```
@@ -49,24 +49,24 @@ features/<name>/
 <!-- BEGIN:feature-scaffolding-agent-rules -->
 # Creating new features (mandatory)
 
-New features MUST be authored as installable feature packages under `features/<name>/` and installed with `pnpm add-feature <name>` — never hand-copied into `apps/` or `packages/`. Before scaffolding any feature, read and follow the guide at `apps/docs/content/docs/features.mdx` (published at `/docs/features`, and included in the docs site's `/llms.txt` and `/llms-full.txt`). Use `features/blog/` as the reference implementation.
+New features MUST be authored as installable feature packages under `features/<name>/` and installed with `pnpm add-feature <name>` — never hand-copied into `apps/` or `packages/`. Before scaffolding any feature, read and follow the guide at `apps/web/content/docs/features.mdx` (published at `/docs/features`). Use `features/blog/` as the reference implementation.
 <!-- END:feature-scaffolding-agent-rules -->
 
 <!-- BEGIN:docs-agent-rules -->
 # Documentation is mandatory
 
-When a new feature is developed or an existing feature is modified, you MUST update the documentation site (`apps/docs/content/docs/`).
+When a new feature is developed or an existing feature is modified, you MUST update the documentation site (`apps/web/content/docs/`).
 
 ## Requirements
 
-1. **New feature** — Create a new `.mdx` page in `apps/docs/content/docs/` covering:
+1. **New feature** — Create a new `.mdx` page in `apps/web/content/docs/` covering:
    - What the feature does
    - Environment variables it requires
    - File overview (where the code lives)
    - Server and client usage examples
    - Setup / install instructions
 2. **Modified feature** — Update the corresponding `.mdx` page to reflect any API, config, or dependency changes.
-3. **Sidebar ordering** — Add the new page to `apps/docs/content/docs/meta.json` so it appears in navigation.
+3. **Sidebar ordering** — Add the new page to `apps/web/content/docs/meta.json` so it appears in navigation.
 4. **Landing page cards** — Add a `<Card>` link on `index.mdx` for each new feature page.
 5. **README** — Update the root `README.md` "Installed Features" section when a feature is added or removed.
 
