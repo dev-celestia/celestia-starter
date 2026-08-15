@@ -91,45 +91,33 @@ export function NavBar() {
           className="flex items-center gap-2.5 text-text-primary"
         >
           <LogoMark />
-          <span className="text-[15px] font-semibold tracking-[-0.01em]">
-            Celestia Starter
+          <span className="text-[15px] tracking-[-0.01em]">
+            Celestia Project
           </span>
         </Link>
 
-        <div className="hidden items-center gap-8 md:flex">
-          {LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              {...(link.external && { target: "_blank", rel: "noreferrer" })}
-              className="text-sm text-fog transition-colors hover:text-text-primary"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
+
 
         <div className="flex items-center gap-2">
           <Link href={GITHUB_URL} target="_blank" rel="noreferrer">
             <Button
               variant="ghost"
-              size="lg"
+              size="sm"
               aria-label="Star on GitHub"
+              className={"mt-1.5"}
             >
               <GithubIcon className="size-5" />
+              Github
             </Button>
           </Link>
-          <Link href="/sign-in">
-            <Button
-              variant="ghost"
-              size="lg"
-            >
-              Sign in
+          <Link href="/docs">
+            <Button variant="default" size="sm">
+              Components UI
             </Button>
           </Link>
-          <Link href="/sign-up">
-            <Button variant="default" size="lg">
-              Get started
+          <Link href="/docs">
+            <Button variant="default" size="sm">
+              Docs
             </Button>
           </Link>
         </div>

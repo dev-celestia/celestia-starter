@@ -111,7 +111,7 @@ export function DocsSidebar({ groups, onSelect }: DocsSidebarProps) {
                         className={cn(
                           "relative flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all duration-150 active:scale-[0.98]",
                           isActive
-                            ? "bg-primary/10 text-primary font-semibold shadow-xs"
+                            ? "bg-primary/10 text-primary shadow-xs"
                             : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
                         )}
                       >

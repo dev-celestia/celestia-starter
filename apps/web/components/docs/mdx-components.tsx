@@ -49,7 +49,7 @@ export const mdxComponents = {
     <h3
       id={id}
       className={cn(
-        "mt-8 mb-3 scroll-m-20 text-lg font-semibold tracking-tight text-foreground sm:text-xl",
+        "mt-8 mb-3 scroll-m-20 text-lg tracking-tight text-foreground sm:text-xl",
         className
       )}
       {...props}
@@ -58,7 +58,7 @@ export const mdxComponents = {
   h4: ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h4
       className={cn(
-        "mt-6 mb-2 scroll-m-20 text-base font-semibold tracking-tight text-foreground",
+        "mt-6 mb-2 scroll-m-20 text-base tracking-tight text-foreground",
         className
       )}
       {...props}
@@ -106,7 +106,7 @@ export const mdxComponents = {
     <tr className={cn("border-b border-border/40 last:border-0 transition-colors hover:bg-muted/20", className)} {...props} />
   ),
   th: ({ className, ...props }: React.HTMLAttributes<HTMLTableCellElement>) => (
-    <th className={cn("px-4 py-3 text-left font-semibold text-foreground", className)} {...props} />
+    <th className={cn("px-4 py-3 text-left font-medium text-foreground", className)} {...props} />
   ),
   td: ({ className, ...props }: React.HTMLAttributes<HTMLTableCellElement>) => (
     <td className={cn("px-4 py-3 text-muted-foreground", className)} {...props} />

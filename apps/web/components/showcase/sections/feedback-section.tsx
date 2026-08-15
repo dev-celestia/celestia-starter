@@ -258,7 +258,7 @@ export function PopoverDemo() {
       </PopoverTrigger>
       <PopoverContent className="w-72 p-4">
         <div className="flex flex-col gap-2">
-          <Label className="text-xs font-semibold">Sampling Rate</Label>
+          <Label className="text-xs font-medium">Sampling Rate</Label>
           <Input defaultValue="100%" className="h-7 text-xs" />
         </div>
       </PopoverContent>
@@ -305,7 +305,7 @@ export function HoverCardDemo() {
             <AvatarFallback>CC</AvatarFallback>
           </Avatar>
           <div className="space-y-1">
-            <h4 className="text-xs font-semibold">Celestia Framework</h4>
+            <h4 className="text-xs font-medium">Celestia Framework</h4>
             <p className="text-[11px] text-muted-foreground">Next.js 16 + Hono monorepo starter.</p>
           </div>
         </div>
@@ -324,7 +324,7 @@ export function ProgressDemo() {
     <div className="flex flex-col gap-3 max-w-sm w-full">
       <div className="flex justify-between text-xs">
         <span className="text-muted-foreground">Migration Status</span>
-        <span className="font-mono font-semibold">{progress}%</span>
+        <span className="font-mono font-medium">{progress}%</span>
       </div>
       <Progress value={progress} className="w-full" />
     </div>
@@ -565,7 +565,7 @@ export function FeedbackSection() {
               </PopoverTrigger>
               <PopoverContent className="w-72 p-4">
                 <div className="flex flex-col gap-2.5">
-                  <h4 className="text-xs font-semibold text-foreground">Active Telemetry</h4>
+                  <h4 className="text-xs font-medium text-foreground">Active Telemetry</h4>
                   <p className="text-[11px] text-muted-foreground">
                     Set the automated sampling rate for distributed trace spans.
                   </p>
@@ -636,7 +636,7 @@ export function FeedbackSection() {
                     <AvatarFallback>CC</AvatarFallback>
                   </Avatar>
                   <div className="space-y-1">
-                    <h4 className="text-xs font-semibold">Celestia Framework</h4>
+                    <h4 className="text-xs font-medium">Celestia Framework</h4>
                     <p className="text-[11px] text-muted-foreground">
                       The Next.js 16 + Hono fullstack monorepo starter with decoupled architecture.
                     </p>
@@ -662,7 +662,7 @@ export function FeedbackSection() {
             <div className="flex w-full max-w-sm flex-col gap-3">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">Migration Status</span>
-                <span className="font-mono font-semibold">{progressVal}%</span>
+                <span className="font-mono font-medium">{progressVal}%</span>
               </div>
               <Progress value={progressVal} className="w-full" />
               <div className="flex justify-end gap-2">

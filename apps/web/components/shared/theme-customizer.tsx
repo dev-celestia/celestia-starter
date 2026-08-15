@@ -238,7 +238,7 @@ export function ThemeCustomizer() {
                 className={cn(
                   "group flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium transition-all duration-150 active:scale-95 cursor-pointer shrink-0",
                   isActive
-                    ? "border-primary bg-primary/10 text-foreground font-semibold shadow-xs ring-1 ring-primary/40"
+                    ? "border-primary bg-primary/10 text-foreground shadow-xs ring-1 ring-primary/40"
                     : "border-border/60 bg-muted/30 text-muted-foreground hover:border-border hover:bg-muted/70 hover:text-foreground"
                 )}
               >
@@ -272,7 +272,7 @@ export function ThemeCustomizer() {
                     className={cn(
                       "px-2 py-0.5 text-[11px] font-medium rounded-md transition-all active:scale-95 cursor-pointer",
                       isActive
-                        ? "bg-background text-foreground shadow-xs font-semibold"
+                        ? "bg-background text-foreground shadow-xs"
                         : "text-muted-foreground hover:text-foreground"
                     )}
                   >
@@ -290,7 +290,7 @@ export function ThemeCustomizer() {
               className={cn(
                 "p-1.5 rounded-md text-xs transition-all active:scale-90 cursor-pointer",
                 theme === "light"
-                  ? "bg-background text-foreground shadow-xs font-semibold"
+                  ? "bg-background text-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
               )}
               title="Light mode"
@@ -303,7 +303,7 @@ export function ThemeCustomizer() {
               className={cn(
                 "p-1.5 rounded-md text-xs transition-all active:scale-90 cursor-pointer",
                 theme === "dark"
-                  ? "bg-background text-foreground shadow-xs font-semibold"
+                  ? "bg-background text-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
               )}
               title="Dark mode"
@@ -316,7 +316,7 @@ export function ThemeCustomizer() {
               className={cn(
                 "p-1.5 rounded-md text-xs transition-all active:scale-90 cursor-pointer",
                 theme === "system"
-                  ? "bg-background text-foreground shadow-xs font-semibold"
+                  ? "bg-background text-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
               )}
               title="System mode"

@@ -85,11 +85,11 @@ export function TabsDemo() {
         <TabsTrigger value="password">Password</TabsTrigger>
       </TabsList>
       <TabsContent value="account" className="p-3 border rounded-lg">
-        <p className="font-semibold text-xs">Account Settings</p>
+        <p className="font-medium text-xs">Account Settings</p>
         <p className="text-xs text-muted-foreground">Manage your team email and subscription.</p>
       </TabsContent>
       <TabsContent value="password" className="p-3 border rounded-lg">
-        <p className="font-semibold text-xs">Password & Security</p>
+        <p className="font-medium text-xs">Password & Security</p>
         <p className="text-xs text-muted-foreground">Configure multi-factor authentication.</p>
       </TabsContent>
     </Tabs>
@@ -98,20 +98,22 @@ export function TabsDemo() {
 
 const TAB_BAR_CODE = `import * as React from "react"
 import { TabBar, type TabItem } from "@celestia-project/ui"
+import { SparkleIcon, LightningIcon, DatabaseIcon } from "@phosphor-icons/react"
 
 export function TabBarDemo() {
-  const [activeTabId, setActiveTabId] = React.useState("tab-1")
   const [tabs, setTabs] = React.useState<TabItem[]>([
-    { id: "tab-1", name: "auth.ts", method: "GET" },
-    { id: "tab-2", name: "routes.ts", method: "POST" },
+    { id: "1", label: "GET /api/v1/users", icon: <SparkleIcon className="size-3 text-emerald-400" /> },
+    { id: "2", label: "POST /api/v1/auth", icon: <LightningIcon className="size-3 text-amber-400" /> },
+    { id: "3", label: "Drizzle Schema", icon: <DatabaseIcon className="size-3 text-sky-400" /> },
   ])
+  const [activeTabId, setActiveTabId] = React.useState("1")
 
   return (
     <TabBar
       tabs={tabs}
       activeTabId={activeTabId}
       onSelectTab={setActiveTabId}
-      onAddTab={() => setTabs([...tabs, { id: \`tab-\${Date.now()}\`, name: "new.ts", method: "GET" }])}
+      onAddTab={() => setTabs([...tabs, { id: String(Date.now()), label: "New Request" }])}
       onRemoveTab={(id) => setTabs(tabs.filter((t) => t.id !== id))}
     />
   )
@@ -132,13 +134,21 @@ export function BreadcrumbDemo() {
   return (
     <Breadcrumb>
       <BreadcrumbList>
-        <BreadcrumbItem><BreadcrumbLink href="#">Home</BreadcrumbLink></BreadcrumbItem>
+        <BreadcrumbItem>
+          <BreadcrumbLink href="#">Home</BreadcrumbLink>
+        </BreadcrumbItem>
         <BreadcrumbSeparator />
-        <BreadcrumbItem><BreadcrumbEllipsis /></BreadcrumbItem>
+        <BreadcrumbItem>
+          <BreadcrumbEllipsis />
+        </BreadcrumbItem>
         <BreadcrumbSeparator />
-        <BreadcrumbItem><BreadcrumbLink href="#">Packages</BreadcrumbLink></BreadcrumbItem>
+        <BreadcrumbItem>
+          <BreadcrumbLink href="#">Packages</BreadcrumbLink>
+        </BreadcrumbItem>
         <BreadcrumbSeparator />
-        <BreadcrumbItem><BreadcrumbPage>UI Primitives</BreadcrumbPage></BreadcrumbItem>
+        <BreadcrumbItem>
+          <BreadcrumbPage>UI Primitives</BreadcrumbPage>
+        </BreadcrumbItem>
       </BreadcrumbList>
     </Breadcrumb>
   )
@@ -159,11 +169,24 @@ export function PaginationDemo() {
   return (
     <Pagination>
       <PaginationContent>
-        <PaginationItem><PaginationPrevious href="#" /></PaginationItem>
-        <PaginationItem><PaginationLink href="#" isActive>1</PaginationLink></PaginationItem>
-        <PaginationItem><PaginationLink href="#">2</PaginationLink></PaginationItem>
-        <PaginationItem><PaginationEllipsis /></PaginationItem>
-        <PaginationItem><PaginationNext href="#" /></PaginationItem>
+        <PaginationItem>
+          <PaginationPrevious href="#" />
+        </PaginationItem>
+        <PaginationItem>
+          <PaginationLink href="#" isActive>1</PaginationLink>
+        </PaginationItem>
+        <PaginationItem>
+          <PaginationLink href="#">2</PaginationLink>
+        </PaginationItem>
+        <PaginationItem>
+          <PaginationLink href="#">3</PaginationLink>
+        </PaginationItem>
+        <PaginationItem>
+          <PaginationEllipsis />
+        </PaginationItem>
+        <PaginationItem>
+          <PaginationNext href="#" />
+        </PaginationItem>
       </PaginationContent>
     </Pagination>
   )
@@ -177,11 +200,15 @@ export function AccordionDemo() {
     <Accordion defaultValue={["item-1"]} className="w-full max-w-sm">
       <AccordionItem value="item-1">
         <AccordionTrigger>Is Celestia accessible?</AccordionTrigger>
-        <AccordionContent>Yes. All primitives follow WAI-ARIA authoring guidelines.</AccordionContent>
+        <AccordionContent>
+          Yes. Built on Base UI primitives adhering to WAI-ARIA authoring guidelines.
+        </AccordionContent>
       </AccordionItem>
       <AccordionItem value="item-2">
         <AccordionTrigger>How does monorepo sharing work?</AccordionTrigger>
-        <AccordionContent>Packages are linked via pnpm workspaces.</AccordionContent>
+        <AccordionContent>
+          Packages are linked via pnpm workspaces, allowing frontend and backend to share models.
+        </AccordionContent>
       </AccordionItem>
     </Accordion>
   )
@@ -189,7 +216,7 @@ export function AccordionDemo() {
 
 const COLLAPSIBLE_CODE = `import * as React from "react"
 import { Collapsible, CollapsibleTrigger, CollapsibleContent, Button } from "@celestia-project/ui"
-import { FolderIcon, CaretDownIcon, FileIcon } from "@phosphor-icons/react"
+import { CaretDownIcon, FolderIcon } from "@phosphor-icons/react"
 
 export function CollapsibleDemo() {
   const [open, setOpen] = React.useState(false)
@@ -199,7 +226,7 @@ export function CollapsibleDemo() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <FolderIcon className="size-4 text-primary" weight="fill" />
-          <span className="text-xs font-semibold">src/components</span>
+          <span className="text-xs font-medium">src/components</span>
         </div>
         <CollapsibleTrigger
           render={
@@ -397,11 +424,11 @@ export function NavigationSection() {
               <TabsTrigger value="password">Password</TabsTrigger>
             </TabsList>
             <TabsContent value="account" className="rounded-lg border border-border p-3 text-xs">
-              <p className="font-semibold text-foreground">Account Information</p>
+              <p className="font-medium text-foreground">Account Information</p>
               <p className="text-muted-foreground mt-1">Manage your team email addresses and subscription plan.</p>
             </TabsContent>
             <TabsContent value="password" className="rounded-lg border border-border p-3 text-xs">
-              <p className="font-semibold text-foreground">Password & Security</p>
+              <p className="font-medium text-foreground">Password & Security</p>
               <p className="text-muted-foreground mt-1">Update your password or configure multi-factor authenticator.</p>
             </TabsContent>
           </Tabs>
@@ -505,13 +532,13 @@ export function NavigationSection() {
         >
           <Accordion defaultValue={["item-1"]} className="w-full max-w-sm">
             <AccordionItem value="item-1">
-              <AccordionTrigger className="text-xs font-semibold">Is Celestia accessible?</AccordionTrigger>
+              <AccordionTrigger className="text-xs font-medium">Is Celestia accessible?</AccordionTrigger>
               <AccordionContent className="text-xs text-muted-foreground">
                 Yes. All components are built on Base UI primitives adhering to WAI-ARIA authoring guidelines.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-2">
-              <AccordionTrigger className="text-xs font-semibold">How does monorepo sharing work?</AccordionTrigger>
+              <AccordionTrigger className="text-xs font-medium">How does monorepo sharing work?</AccordionTrigger>
               <AccordionContent className="text-xs text-muted-foreground">
                 Packages are linked via pnpm workspaces, allowing apps/web and apps/api to share TypeScript models and UI tokens.
               </AccordionContent>
@@ -537,7 +564,7 @@ export function NavigationSection() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <FolderIcon className="size-4 text-primary" weight="fill" />
-                <span className="text-xs font-semibold">@celestia-project/ui/src</span>
+                <span className="text-xs font-medium">@celestia-project/ui/src</span>
               </div>
               <CollapsibleTrigger
                 render={

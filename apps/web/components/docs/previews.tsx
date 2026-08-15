@@ -1490,7 +1490,7 @@ export function ColorsPreview() {
       <div className="grid w-full max-w-3xl gap-8">
         {/* Landing tokens */}
         <div className="flex flex-col gap-3">
-          <h4 className="text-sm font-semibold">Landing Tokens</h4>
+          <h4 className="text-sm">Landing Tokens</h4>
           <div className="grid gap-3 rounded-lg bg-[#0a0a0a] p-4 sm:grid-cols-2">
             <ColorSwatch label="bg" className="bg-[#0a0a0a]" value="#0a0a0a" />
             <ColorSwatch
@@ -1514,7 +1514,7 @@ export function ColorsPreview() {
 
         {/* Brand accent */}
         <div className="flex flex-col gap-3">
-          <h4 className="text-sm font-semibold">Brand Accent</h4>
+          <h4 className="text-sm">Brand Accent</h4>
           <div className="border-fd-border flex items-center gap-3 rounded-lg border p-4">
             <div
               className="h-10 w-20 shrink-0 rounded-lg"
@@ -1533,7 +1533,7 @@ export function ColorsPreview() {
 
         {/* Semantic tokens */}
         <div className="flex flex-col gap-3">
-          <h4 className="text-sm font-semibold">Semantic Tokens</h4>
+          <h4 className="text-sm">Semantic Tokens</h4>
           <div className="border-fd-border grid gap-3 rounded-lg border p-4 sm:grid-cols-2">
             <ColorSwatch
               label="background"
@@ -1580,7 +1580,7 @@ export function ColorsPreview() {
 
         {/* Chart colors */}
         <div className="flex flex-col gap-3">
-          <h4 className="text-sm font-semibold">Chart Colors</h4>
+          <h4 className="text-sm">Chart Colors</h4>
           <div className="border-fd-border flex gap-2 rounded-lg border p-4">
             <div className="text-chart-1-foreground flex h-10 flex-1 items-center justify-center rounded-md bg-chart-1 text-xs font-medium">
               1

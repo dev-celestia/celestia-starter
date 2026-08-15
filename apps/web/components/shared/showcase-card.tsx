@@ -17,7 +17,6 @@ import {
 import {
   Badge,
   Button,
-  TextEditor,
   Dialog,
   DialogTrigger,
   DialogContent,
@@ -25,6 +24,7 @@ import {
   DialogDescription,
   DialogClose,
 } from "@celestia-project/ui"
+import { CodeBlock } from "@/components/shared/code-block"
 import { toast } from "sonner"
 import { cn } from "@celestia-project/ui/lib/utils"
 
@@ -97,7 +97,7 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/50 px-4 py-3 sm:px-5">
         <div className="flex flex-col gap-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-sm sm:text-base text-foreground tracking-tight">
+            <h3 className="text-sm sm:text-base text-foreground tracking-tight">
               {title}
             </h3>
             <Badge
@@ -121,7 +121,7 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
               className={cn(
                 "flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-all cursor-pointer active:scale-97",
                 activeTab === "preview"
-                  ? "bg-background text-foreground shadow-xs font-semibold"
+                  ? "bg-background text-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -133,7 +133,7 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
               className={cn(
                 "flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-all cursor-pointer active:scale-97",
                 activeTab === "code"
-                  ? "bg-background text-foreground shadow-xs font-semibold"
+                  ? "bg-background text-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -202,7 +202,7 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
                       className={cn(
                         "flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-all cursor-pointer active:scale-97",
                         modalActiveTab === "preview"
-                          ? "bg-background text-foreground shadow-xs font-semibold"
+                          ? "bg-background text-foreground shadow-xs"
                           : "text-muted-foreground hover:text-foreground"
                       )}
                     >
@@ -214,7 +214,7 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
                       className={cn(
                         "flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-all cursor-pointer active:scale-97",
                         modalActiveTab === "code"
-                          ? "bg-background text-foreground shadow-xs font-semibold"
+                          ? "bg-background text-foreground shadow-xs"
                           : "text-muted-foreground hover:text-foreground"
                       )}
                     >
@@ -231,7 +231,7 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
                         className={cn(
                           "flex items-center gap-1 rounded-md px-2 py-1 text-xs transition-all cursor-pointer active:scale-97",
                           viewport === "desktop"
-                            ? "bg-background text-foreground shadow-xs font-semibold"
+                            ? "bg-background text-foreground shadow-xs"
                             : "text-muted-foreground hover:text-foreground"
                         )}
                         title="Desktop (100%)"
@@ -244,7 +244,7 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
                         className={cn(
                           "flex items-center gap-1 rounded-md px-2 py-1 text-xs transition-all cursor-pointer active:scale-97",
                           viewport === "tablet"
-                            ? "bg-background text-foreground shadow-xs font-semibold"
+                            ? "bg-background text-foreground shadow-xs"
                             : "text-muted-foreground hover:text-foreground"
                         )}
                         title="Tablet (768px)"
@@ -257,7 +257,7 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
                         className={cn(
                           "flex items-center gap-1 rounded-md px-2 py-1 text-xs transition-all cursor-pointer active:scale-97",
                           viewport === "mobile"
-                            ? "bg-background text-foreground shadow-xs font-semibold"
+                            ? "bg-background text-foreground shadow-xs"
                             : "text-muted-foreground hover:text-foreground"
                         )}
                         title="Mobile (375px)"
@@ -314,24 +314,15 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
                   </div>
                 ) : (
                   <div className="flex-1 flex flex-col h-full overflow-hidden">
-                    <div className="flex items-center justify-between border-b border-border/40 bg-muted/40 px-4 py-2 text-xs">
-                      <span className="font-mono font-medium text-foreground">
-                        {title.toLowerCase().replace(/\s+/g, "-")}.tsx
-                      </span>
-                      <Badge variant="outline" className="font-mono text-[10px]">
-                        TypeScript / React 19
-                      </Badge>
-                    </div>
-                    <div className="flex-1 overflow-hidden">
-                      <TextEditor
-                        value={fullCode}
-                        language="tsx"
-                        theme={resolvedTheme === "dark" ? "dark" : "light"}
-                        height="100%"
-                        options={{ readOnly: true }}
-                        className="w-full h-full text-xs font-mono"
-                      />
-                    </div>
+                    <CodeBlock
+                      code={fullCode}
+                      language="tsx"
+                      title={`${title.toLowerCase().replace(/\s+/g, "-")}.tsx`}
+                      badge="TypeScript / React 19"
+                      showCopy={false}
+                      className="my-0 border-0 rounded-none bg-transparent h-full flex flex-col shadow-none"
+                      preClassName="flex-1 max-h-none h-full bg-background/70"
+                    />
                   </div>
                 )}
               </div>
@@ -362,29 +353,16 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
         </div>
       ) : (
         <div className="relative flex flex-col flex-1 rounded-b-xl overflow-hidden bg-background">
-          {/* Editor Header Bar */}
-          <div className="flex items-center justify-between border-b border-border/40 bg-muted/30 px-3.5 py-1.5 text-[11px]">
-            <div className="flex items-center gap-2">
-              <span className="font-mono font-semibold text-muted-foreground">
-                {title.toLowerCase().replace(/\s+/g, "-")}.tsx
-              </span>
-            </div>
-            <Badge variant="outline" className="font-mono text-[9px] uppercase px-1.5 py-0">
-              TypeScript / JSX
-            </Badge>
-          </div>
-
-          {/* Full CodeMirror TextEditor */}
-          <div className="flex-1 w-full overflow-hidden">
-            <TextEditor
-              value={fullCode}
-              language="tsx"
-              theme={resolvedTheme === "dark" ? "dark" : "light"}
-              height={280}
-              options={{ readOnly: true }}
-              className="w-full text-xs font-mono"
-            />
-          </div>
+          <CodeBlock
+            code={fullCode}
+            language="tsx"
+            title={`${title.toLowerCase().replace(/\s+/g, "-")}.tsx`}
+            badge="TypeScript / JSX"
+            showCopy={false}
+            height={280}
+            className="my-0 border-0 rounded-none bg-transparent shadow-none"
+            preClassName="bg-background/70"
+          />
         </div>
       )}
     </section>

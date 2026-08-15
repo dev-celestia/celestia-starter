@@ -34,7 +34,7 @@ export function Tabs({ items, defaultValue, children, className, ...props }: Tab
                   className={cn(
                     "rounded-lg px-3 py-1 text-xs font-medium transition-all cursor-pointer active:scale-97",
                     isActive
-                      ? "bg-background text-foreground shadow-xs font-semibold"
+                      ? "bg-background text-foreground shadow-xs"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >

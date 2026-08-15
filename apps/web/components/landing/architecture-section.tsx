@@ -8,7 +8,7 @@ export function ArchitectureSection() {
     >
       <div className="mx-auto w-full max-w-6xl px-5 py-28 sm:px-8 sm:py-36">
         <Reveal>
-          <h2 className="max-w-2xl text-3xl font-semibold tracking-[-0.02em] text-balance sm:text-4xl">
+          <h2 className="max-w-2xl text-3xl tracking-[-0.02em] text-balance sm:text-4xl">
             Two apps. One boundary. Enforced by structure
           </h2>
           <p className="mt-5 max-w-2xl text-fog leading-relaxed">
@@ -26,7 +26,7 @@ export function ArchitectureSection() {
           <Reveal className="h-full">
             <div className="flex h-full flex-col rounded-xl border border-stroke bg-bg p-8">
               <p className="font-mono text-xs text-fog">apps/web</p>
-              <h3 className="mt-3 text-xl font-semibold tracking-[-0.01em]">
+              <h3 className="mt-3 text-xl tracking-[-0.01em]">
                 Pure UI
               </h3>
               <ul className="mt-6 space-y-4 text-sm leading-relaxed text-fog">
@@ -67,7 +67,7 @@ export function ArchitectureSection() {
           <Reveal className="h-full">
             <div className="flex h-full flex-col rounded-xl border border-stroke bg-bg p-8">
               <p className="font-mono text-xs text-fog">apps/api</p>
-              <h3 className="mt-3 text-xl font-semibold tracking-[-0.01em]">
+              <h3 className="mt-3 text-xl tracking-[-0.01em]">
                 Owns the truth
               </h3>
               <ul className="mt-6 space-y-4 text-sm leading-relaxed text-fog">

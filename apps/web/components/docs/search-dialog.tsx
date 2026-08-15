@@ -178,7 +178,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                         )}
                       </div>
                       <div className="flex flex-col min-w-0 truncate">
-                        <span className="font-semibold text-foreground truncate">{item.title}</span>
+                        <span className="text-foreground truncate">{item.title}</span>
                         {item.description && (
                           <span className="text-[11px] text-muted-foreground truncate">{item.description}</span>
                         )}

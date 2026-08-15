@@ -72,7 +72,7 @@ export default async function DocSubPage(props: PageProps) {
               <React.Fragment key={crumb.href}>
                 <BreadcrumbSeparatorIcon className="size-3 text-muted-foreground/50" />
                 {isLast ? (
-                  <span className="font-semibold text-foreground truncate max-w-[200px]">
+                  <span className="text-foreground truncate max-w-[200px]">
                     {crumb.title}
                   </span>
                 ) : (
@@ -121,7 +121,7 @@ export default async function DocSubPage(props: PageProps) {
               <CaretLeftIcon className="size-4 text-muted-foreground" />
               <div className="flex flex-col text-left">
                 <span className="text-[10px] text-muted-foreground uppercase font-mono">Previous</span>
-                <span className="font-semibold text-foreground">{pagination.prev.title}</span>
+                <span className="text-foreground">{pagination.prev.title}</span>
               </div>
             </Link>
           ) : <div />}
@@ -133,7 +133,7 @@ export default async function DocSubPage(props: PageProps) {
             >
               <div className="flex flex-col text-right">
                 <span className="text-[10px] text-muted-foreground uppercase font-mono">Next</span>
-                <span className="font-semibold text-foreground">{pagination.next.title}</span>
+                <span className="text-foreground">{pagination.next.title}</span>
               </div>
               <CaretRightIcon className="size-4 text-muted-foreground" />
             </Link>

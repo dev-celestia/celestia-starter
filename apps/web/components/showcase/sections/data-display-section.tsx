@@ -115,7 +115,7 @@ const COLUMNS: ColumnDef<SampleUser>[] = [
     accessorKey: "spent",
     header: "Usage",
     cell: ({ row }) => (
-      <span className="font-mono text-xs font-semibold">{row.original.spent}</span>
+      <span className="font-mono text-xs font-medium">{row.original.spent}</span>
     ),
   },
 ]
@@ -241,7 +241,7 @@ export function TableDemo() {
         <TableRow>
           <TableCell className="font-mono text-xs font-medium">/api/v1/auth/session</TableCell>
           <TableCell><Badge variant="secondary">GET</Badge></TableCell>
-          <TableCell className="text-green-500 font-semibold">200 OK</TableCell>
+          <TableCell className="text-green-500 font-medium">200 OK</TableCell>
           <TableCell className="text-right font-mono">12 ms</TableCell>
         </TableRow>
       </TableBody>
@@ -423,7 +423,7 @@ export function DataDisplaySection() {
           <Card className="w-full max-w-sm">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-semibold">PostgreSQL Database</CardTitle>
+                <CardTitle className="text-sm">PostgreSQL Database</CardTitle>
                 <Badge variant="secondary" className="gap-1 text-[10px]">
                   <CheckCircleIcon className="size-3 text-green-500" weight="fill" />
                   Healthy
@@ -522,7 +522,7 @@ export function DataDisplaySection() {
             </Avatar>
 
             <Avatar className="size-10 bg-primary/10 text-primary">
-              <AvatarFallback className="font-semibold text-xs">CL</AvatarFallback>
+              <AvatarFallback className="font-medium text-xs">CL</AvatarFallback>
             </Avatar>
 
             {/* Avatar Stack */}
@@ -565,19 +565,19 @@ export function DataDisplaySection() {
                 <TableRow>
                   <TableCell className="font-mono text-xs font-medium">/api/v1/auth/session</TableCell>
                   <TableCell><Badge variant="secondary" className="font-mono text-[10px]">GET</Badge></TableCell>
-                  <TableCell className="text-green-500 text-xs font-semibold">200 OK</TableCell>
+                  <TableCell className="text-green-500 text-xs font-medium">200 OK</TableCell>
                   <TableCell className="text-right font-mono text-xs">12 ms</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-mono text-xs font-medium">/api/v1/users/create</TableCell>
                   <TableCell><Badge variant="default" className="font-mono text-[10px]">POST</Badge></TableCell>
-                  <TableCell className="text-green-500 text-xs font-semibold">201 Created</TableCell>
+                  <TableCell className="text-green-500 text-xs font-medium">201 Created</TableCell>
                   <TableCell className="text-right font-mono text-xs">48 ms</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-mono text-xs font-medium">/api/v1/posts/38</TableCell>
                   <TableCell><Badge variant="outline" className="font-mono text-[10px]">DELETE</Badge></TableCell>
-                  <TableCell className="text-muted-foreground text-xs font-semibold">204 No Content</TableCell>
+                  <TableCell className="text-muted-foreground text-xs">204 No Content</TableCell>
                   <TableCell className="text-right font-mono text-xs">22 ms</TableCell>
                 </TableRow>
               </TableBody>

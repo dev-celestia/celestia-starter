@@ -65,7 +65,7 @@ export default function ComponentsPage() {
         {/* Hero Section */}
         <section className="relative flex flex-col items-start gap-4 border-b border-border/60 py-10 sm:py-14">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline" className="gap-1.5 border-primary/30 bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+            <Badge variant="outline" className="gap-1.5 border-primary/30 bg-primary/10 px-2.5 py-1 text-xs text-primary">
               <SparkleIcon className="size-3.5 text-primary" weight="fill" />
               @celestia-project/ui
             </Badge>
@@ -120,7 +120,7 @@ export default function ComponentsPage() {
                 }}
                 className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                   activeCategory === cat.id
-                    ? "bg-primary text-primary-foreground font-semibold"
+                    ? "bg-primary text-primary-foreground"
                     : "bg-muted text-muted-foreground hover:text-foreground"
                 }`}
               >

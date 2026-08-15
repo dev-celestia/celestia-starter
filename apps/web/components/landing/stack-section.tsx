@@ -44,7 +44,7 @@ export function StackSection() {
     <section id="stack" className="mx-auto w-full max-w-6xl px-5 py-28 sm:px-8 sm:py-36">
       <div className="grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-20">
         <Reveal>
-          <h2 className="text-3xl font-semibold tracking-[-0.02em] text-balance sm:text-4xl">
+          <h2 className="text-3xl tracking-[-0.02em] text-balance sm:text-4xl">
             The box comes full
           </h2>
           <p className="mt-5 max-w-md text-fog leading-relaxed">

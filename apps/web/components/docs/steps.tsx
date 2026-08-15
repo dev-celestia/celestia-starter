@@ -26,7 +26,7 @@ export function Step({ className, title, children, ...props }: React.HTMLAttribu
       </div>
 
       {title && (
-        <h4 className="text-sm font-semibold tracking-tight text-foreground mb-2">
+        <h4 className="text-sm tracking-tight text-foreground mb-2">
           {title}
         </h4>
       )}

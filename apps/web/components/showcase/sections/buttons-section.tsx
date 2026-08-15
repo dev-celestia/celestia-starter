@@ -189,7 +189,7 @@ export function RippleDemo() {
   return (
     <button
       onClick={addRipple}
-      className="relative overflow-hidden rounded-lg bg-primary px-6 py-2.5 text-xs font-semibold text-primary-foreground shadow-sm transition-transform active:scale-95 cursor-pointer"
+      className="relative overflow-hidden rounded-lg bg-primary px-6 py-2.5 text-xs text-primary-foreground shadow-sm transition-transform active:scale-95 cursor-pointer font-medium"
     >
       <RippleContainer ripples={ripples} color="rgba(255, 255, 255, 0.4)" />
       Click for Ripple Effect
@@ -400,7 +400,7 @@ export function ButtonsSection() {
           <div className="flex flex-wrap items-center justify-center gap-4">
             <button
               onClick={addRipple}
-              className="relative overflow-hidden rounded-lg bg-primary px-6 py-2.5 text-xs font-semibold text-primary-foreground shadow-sm transition-transform active:scale-95 cursor-pointer"
+              className="relative overflow-hidden rounded-lg bg-primary px-6 py-2.5 text-xs text-primary-foreground shadow-sm transition-transform active:scale-95 cursor-pointer font-medium"
             >
               <RippleContainer ripples={ripples} color="rgba(255, 255, 255, 0.4)" />
               Click Me for Ripple

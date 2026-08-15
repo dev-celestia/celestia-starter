@@ -6,7 +6,7 @@ export function InstallSection() {
     <section id="install" className="mx-auto w-full max-w-6xl px-5 py-28 sm:px-8 sm:py-36">
       <div className="grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
         <Reveal>
-          <h2 className="text-3xl font-semibold tracking-[-0.02em] text-balance sm:text-4xl">
+          <h2 className="text-3xl tracking-[-0.02em] text-balance sm:text-4xl">
             From npx to pnpm dev
           </h2>
           <p className="mt-5 text-fog leading-relaxed">

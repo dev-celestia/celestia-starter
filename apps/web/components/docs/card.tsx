@@ -67,7 +67,7 @@ export function Card({
                 {icon}
               </div>
             )}
-            <h4 className="text-sm font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary">
+            <h4 className="text-sm tracking-tight text-foreground transition-colors group-hover:text-primary">
               {title}
             </h4>
           </div>

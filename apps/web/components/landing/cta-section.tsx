@@ -10,7 +10,7 @@ export function CtaSection() {
       <div className="mx-auto w-full max-w-4xl px-5 py-28 text-center sm:px-8 sm:py-36">
         <Reveal>
           <LogoMark className="mx-auto" />
-          <h2 className="mt-8 text-3xl font-semibold tracking-[-0.02em] text-balance sm:text-5xl">
+          <h2 className="mt-8 text-3xl tracking-[-0.02em] text-balance sm:text-5xl">
             Start from architecture, not setup.
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-fog leading-relaxed">
@@ -18,14 +18,14 @@ export function CtaSection() {
             installer and make it yours.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link href="/sign-up">
+            <Link href="/docs">
               <Button variant="default" size="lg">
-                Get started
+                Documentation
               </Button>
             </Link>
-            <Link href="/sign-in">
+            <Link href="/components">
               <Button variant="outline" size="lg">
-                Sign in
+                Components UI
               </Button>
             </Link>
           </div>

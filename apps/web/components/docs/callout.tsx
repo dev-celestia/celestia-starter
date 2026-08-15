@@ -76,7 +76,7 @@ export function Callout({
     >
       <div className="mt-0.5">{getIcon()}</div>
       <div className="flex-1">
-        {title && <div className="font-semibold text-foreground mb-1">{title}</div>}
+        {title && <div className="text-foreground mb-1">{title}</div>}
         <div className="text-muted-foreground/90 font-normal [&>p]:m-0">{children}</div>
       </div>
     </div>

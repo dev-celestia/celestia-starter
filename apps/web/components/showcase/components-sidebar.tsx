@@ -155,7 +155,7 @@ export function ComponentsSidebar({
     <aside className="sticky top-20 hidden w-64 shrink-0 lg:block self-start max-h-[calc(100vh-6rem)] overflow-y-auto pr-3 py-2 scrollbar-none">
       <div className="flex flex-col gap-6">
         <div>
-          <div className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/80">
+          <div className="px-3 pb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/80">
             Categories
           </div>
           <nav className="flex flex-col gap-1">
@@ -176,7 +176,7 @@ export function ComponentsSidebar({
                     className={cn(
                       "flex items-center justify-between rounded-lg px-3 py-2 text-xs font-medium transition-all text-left group cursor-pointer",
                       isActive
-                        ? "bg-primary/10 text-primary font-semibold"
+                        ? "bg-primary/10 text-primary"
                         : "text-muted-foreground hover:bg-muted hover:text-foreground"
                     )}
                   >

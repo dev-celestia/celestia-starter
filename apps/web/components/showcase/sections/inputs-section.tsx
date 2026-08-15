@@ -558,7 +558,7 @@ export function InputsSection() {
               <RadioGroupItem value="free" id="r-free" />
               <div className="flex flex-1 items-center justify-between">
                 <Label htmlFor="r-free" className="text-xs font-medium cursor-pointer">Starter Plan</Label>
-                <span className="font-mono text-xs font-semibold text-muted-foreground">$0/mo</span>
+                <span className="font-mono text-xs text-muted-foreground">$0/mo</span>
               </div>
             </div>
 
@@ -746,7 +746,7 @@ export function InputsSection() {
         >
           <div className="flex flex-col items-center gap-3">
             <div className="flex flex-col items-center gap-1 text-center">
-              <Label className="text-xs font-semibold">Verification Code</Label>
+              <Label className="text-xs font-medium">Verification Code</Label>
               <span className="text-[11px] text-muted-foreground">Enter the 6-digit code sent to your email</span>
             </div>
             <InputOTP maxLength={6} value={otpValue} onChange={setOtpValue}>
@@ -785,7 +785,7 @@ export function InputsSection() {
               className="rounded-md border border-input bg-background p-2 text-xs font-mono"
             />
             <span className="text-[10px] text-muted-foreground">
-              Tokens in <code className="text-sky-400 font-semibold">{`{{...}}`}</code> are highlighted.
+              Tokens in <code className="text-sky-400 font-medium">{`{{...}}`}</code> are highlighted.
             </span>
           </div>
         </ShowcaseCard>

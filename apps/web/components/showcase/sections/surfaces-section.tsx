@@ -80,7 +80,7 @@ import { ScrollArea } from "@celestia-project/ui"
 export function ScrollAreaDemo() {
   return (
     <ScrollArea className="h-36 w-full max-w-sm rounded-lg border p-3">
-      <h4 className="mb-2 text-xs font-semibold">Changelog & Commits</h4>
+      <h4 className="mb-2 text-xs font-medium">Changelog & Commits</h4>
       <div className="flex flex-col gap-2 text-xs text-muted-foreground">
         {Array.from({ length: 10 }).map((_, i) => (
           <div key={i} className="flex justify-between border-b pb-1">
@@ -112,7 +112,7 @@ export function CarouselDemo() {
           <CarouselItem key={index}>
             <Card>
               <CardContent className="flex aspect-video items-center justify-center p-4">
-                <span className="text-xs font-semibold">{item}</span>
+                <span className="text-xs font-medium">{item}</span>
               </CardContent>
             </Card>
           </CarouselItem>
@@ -204,7 +204,7 @@ const TEXT_EDITOR_USAGE_CODE = `import * as React from "react"
 import { TextEditor } from "@celestia-project/ui"
 
 export function CodeEditorDemo() {
-  const [code, setCode] = React.useState(\`const greeting: string = "Hello Celestia!"\`)
+  const [code, setCode] = React.useState("const greeting: string = \\"Hello Celestia!\\"")
 
   return (
     <TextEditor
@@ -286,7 +286,7 @@ export function SurfacesSection() {
           codeExample={SCROLL_AREA_CODE}
         >
           <ScrollArea className="h-36 w-full max-w-sm rounded-lg border border-border p-3">
-            <h4 className="mb-2 text-xs font-semibold leading-none">Changelog & Milestones</h4>
+            <h4 className="mb-2 text-xs font-medium leading-none">Changelog & Milestones</h4>
             <div className="flex flex-col gap-2 text-xs text-muted-foreground">
               {Array.from({ length: 12 }).map((_, i) => (
                 <div key={i} className="flex items-center justify-between border-b border-border/40 py-1">
@@ -317,7 +317,7 @@ export function SurfacesSection() {
                       <CardContent className="flex aspect-video items-center justify-center p-4">
                         <div className="flex flex-col items-center gap-1 text-center">
                           <Badge variant="outline" className="text-[10px]">Feature #{index + 1}</Badge>
-                          <span className="text-xs font-semibold text-foreground">{item}</span>
+                          <span className="text-xs font-medium text-foreground">{item}</span>
                         </div>
                       </CardContent>
                     </Card>

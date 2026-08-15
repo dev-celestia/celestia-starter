@@ -15,7 +15,7 @@ export function HeroSection() {
           <span>celestia-starter · production-ready</span>
         </p>
 
-        <h1 className="mt-6 font-semibold text-[clamp(2.75rem,6.5vw,5.5rem)] leading-[1.04] tracking-[-0.03em] text-balance">
+        <h1 className="mt-6 text-[clamp(2.75rem,6.5vw,5.5rem)] leading-[1.04] tracking-[-0.03em] text-balance">
           The production stack, installed in one command.
         </h1>
 
