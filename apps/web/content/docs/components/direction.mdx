@@ -1,0 +1,25 @@
+---
+title: "Direction"
+description: "RTL and LTR text direction provider and hook powered by Radix Direction."
+---
+
+RTL and LTR text direction provider and hook powered by Radix Direction.
+
+```tsx
+import { DirectionProvider, useDirection } from "@celestia-project/ui/components/direction"
+
+export function AppWithRtl({ children }: { children: React.ReactNode }) {
+  return (
+    <DirectionProvider dir="rtl">
+      {children}
+    </DirectionProvider>
+  )
+}
+```
+
+### Components & Hooks
+
+| Export | Type | Description |
+|--------|------|-------------|
+| `DirectionProvider` | Component | Context provider accepting `dir="ltr" \| "rtl"` |
+| `useDirection()` | Hook | Custom hook returning current direction context string |

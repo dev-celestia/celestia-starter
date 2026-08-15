@@ -1,0 +1,52 @@
+---
+title: "Toast"
+description: "Base UI toast primitives for customizable stacked notifications."
+---
+
+Base UI toast primitives for customizable stacked notifications.
+
+> **Note:** For simple toast popups in app features, you can also use `sonner` (`@celestia-project/ui/components/sonner`).
+
+```tsx
+import {
+  ToastProvider,
+  ToastViewport,
+  Toast,
+  ToastContent,
+  ToastTitle,
+  ToastDescription,
+  ToastClose,
+  toast,
+} from "@celestia-project/ui/components/toast"
+
+export function AppToasts() {
+  return (
+    <ToastProvider>
+      <button
+        onClick={() =>
+          toast.create({
+            title: "Notification",
+            description: "Your settings have been saved.",
+          })
+        }
+      >
+        Show Toast
+      </button>
+      <ToastViewport />
+    </ToastProvider>
+  )
+}
+```
+
+### Sub-Components & API
+
+| Component / Utility | Description |
+|---------------------|-------------|
+| `ToastProvider` | Root context provider for managing toast stack state |
+| `ToastViewport` | Fixed container element where toast items are rendered |
+| `Toast` | Individual toast card element |
+| `ToastTitle` | Bold notification heading |
+| `ToastDescription` | Muted detail copy |
+| `ToastAction` | Inline action button trigger |
+| `ToastClose` | Dismiss button |
+| `toast.create(...)` | Programmatic manager function to spawn a toast |

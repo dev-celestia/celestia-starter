@@ -1,0 +1,41 @@
+---
+title: "Sheet"
+description: "A panel that slides in from the side of the screen, composed on the Base UI `Dialog` primitive."
+---
+
+A panel that slides in from the side of the screen, composed on the Base UI `Dialog` primitive.
+
+<SheetPreview />
+
+```tsx
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@celestia-project/ui/components/sheet"
+import { Button } from "@celestia-project/ui/components/button"
+
+<Sheet>
+  <SheetTrigger render={<Button variant="outline" />}>Open Sheet</SheetTrigger>
+  <SheetContent side="right">
+    <SheetHeader>
+      <SheetTitle>Edit profile</SheetTitle>
+      <SheetDescription>Make changes to your profile here.</SheetDescription>
+    </SheetHeader>
+    {/* content */}
+    <SheetFooter>
+      <SheetClose render={<Button variant="outline" />}>Cancel</SheetClose>
+      <Button>Save changes</Button>
+    </SheetFooter>
+  </SheetContent>
+</Sheet>
+```
+
+| Prop | Type | Default |
+|------|------|---------|
+| `side` (on `SheetContent`) | `top \| right \| bottom \| left` | `right` |

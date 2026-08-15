@@ -1,0 +1,20 @@
+---
+title: "Skeleton"
+description: "A placeholder loading shape that pulses."
+---
+
+A placeholder loading shape that pulses.
+
+<SkeletonPreview />
+
+```tsx
+import { Skeleton } from "@celestia-project/ui/components/skeleton"
+
+<div className="flex items-center gap-3">
+  <Skeleton className="size-10 rounded-full" />
+  <div className="flex flex-col gap-2">
+    <Skeleton className="h-3 w-3/4" />
+    <Skeleton className="h-3 w-1/2" />
+  </div>
+</div>
+```

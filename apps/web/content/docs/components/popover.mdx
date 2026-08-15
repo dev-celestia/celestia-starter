@@ -1,0 +1,31 @@
+---
+title: "Popover"
+description: "A floating card anchored to a trigger, built on the Base UI `Popover` primitive."
+---
+
+A floating card anchored to a trigger, built on the Base UI `Popover` primitive.
+
+<PopoverPreview />
+
+```tsx
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@celestia-project/ui/components/popover"
+import { Button } from "@celestia-project/ui/components/button"
+
+<Popover>
+  <PopoverTrigger render={<Button variant="outline" />}>Open Popover</PopoverTrigger>
+  <PopoverContent className="w-64">
+    <PopoverHeader>
+      <PopoverTitle>Dimensions</PopoverTitle>
+      <PopoverDescription>Set the dimensions for the layer.</PopoverDescription>
+    </PopoverHeader>
+    {/* content */}
+  </PopoverContent>
+</Popover>
+```

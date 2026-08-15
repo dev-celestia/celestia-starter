@@ -1,0 +1,21 @@
+---
+title: "Message"
+description: "AI chat message container primitives for building conversational interfaces."
+---
+
+AI chat message container primitives for building conversational interfaces.
+
+```tsx
+import { Message, MessageBubble } from "@celestia-project/ui/components/message"
+
+<Message variant="user">
+  <MessageBubble>What features are included in Celestia UI?</MessageBubble>
+</Message>
+```
+
+### Components & Props
+
+| Component | Prop | Type | Default | Description |
+|-----------|------|------|---------|-------------|
+| `Message` | `variant` | `"user" \| "assistant"` | `"user"` | Message container role layout |
+| `MessageBubble` | `className` | `string` | `undefined` | Styled message text container |

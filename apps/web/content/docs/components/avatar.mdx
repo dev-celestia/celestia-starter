@@ -1,0 +1,17 @@
+---
+title: "Avatar"
+description: "An image with a fallback, built on the Base UI `Avatar` primitive."
+---
+
+An image with a fallback, built on the Base UI `Avatar` primitive.
+
+<AvatarPreview />
+
+```tsx
+import { Avatar, AvatarFallback, AvatarImage } from "@celestia-project/ui/components/avatar"
+
+<Avatar>
+  <AvatarImage src="https://github.com/shadcn.png" alt="shadcn" />
+  <AvatarFallback>CN</AvatarFallback>
+</Avatar>
+```

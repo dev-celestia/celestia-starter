@@ -1,0 +1,81 @@
+---
+title: Blog (CRUD)
+description: A full create-read-update-delete blog built on the Hono backend and the typed RPC client
+icon: blog
+---
+
+The blog feature is a complete CRUD example built on the decoupled architecture: the backend (`apps/api`) owns the `posts` table and exposes REST endpoints, and the frontend (`apps/web`) manages posts through the typed Hono RPC client. There is no database access in the frontend.
+
+## Endpoints
+
+All endpoints require a session. Users can only read, update, and delete their **own** posts.
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/posts` | List the current user's posts (newest first) |
+| `GET` | `/api/posts/:id` | Get a single post |
+| `POST` | `/api/posts` | Create a post |
+| `PATCH` | `/api/posts/:id` | Update a post |
+| `DELETE` | `/api/posts/:id` | Delete a post |
+
+The routes live in `apps/api/src/features/blog/routes.ts` and are mounted into the Hono app through the managed `routes` marker in `apps/api/src/app.ts`.
+
+## Schema
+
+The `posts` table is contributed by the feature into `packages/db/src/schema.ts` (via the managed `tables` marker):
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | text | Primary key (UUID) |
+| `title` | text | Required |
+| `content` | text | Defaults to `""` |
+| `published` | boolean | Defaults to `false` (draft) |
+| `authorId` | text | References `user.id` |
+| `createdAt` / `updatedAt` | timestamp | Managed automatically |
+
+## Frontend Pages
+
+```
+apps/web/app/(dashboard)/dashboard/posts/
+├── page.tsx              # List + delete
+├── new/page.tsx          # Create
+└── [id]/edit/page.tsx    # Update
+```
+
+A single reusable form powers create and update:
+
+```
+apps/web/components/blog/post-form.tsx
+```
+
+## Calling the API (typed RPC)
+
+```tsx
+"use client"
+import { api } from "@/lib/api-client"
+
+// Create
+await api.api.posts.$post({ json: { title, content, published } })
+
+// List
+const res = await api.api.posts.$get()
+const posts = await res.json()
+
+// Update
+await api.api.posts[":id"].$patch({ param: { id }, json: { title } })
+
+// Delete
+await api.api.posts[":id"].$delete({ param: { id } })
+```
+
+## Install / Uninstall
+
+This feature is managed by the feature manager:
+
+```bash
+pnpm add-feature blog       # copies files, applies insertions, adds drizzle-orm to apps/api
+pnpm --filter @workspace/db db:push   # create the posts table
+pnpm remove-feature blog    # reverses all of the above
+```
+
+Then open `http://localhost:3000/dashboard/posts`.

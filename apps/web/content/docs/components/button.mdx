@@ -1,0 +1,27 @@
+---
+title: "Button"
+description: "An interactive button with tactile 3D physical depth and multiple variants and sizes, built on the Base UI `Button` primitive."
+---
+
+An interactive button featuring tactile 3D physical depth with vertical translation and theme-adaptive shadow depth, built on the Base UI `Button` primitive.
+
+<ButtonPreview />
+
+```tsx
+import { Button } from "@celestia-project/ui/components/button"
+
+<Button>Default</Button>
+<Button variant="secondary">Secondary</Button>
+<Button variant="outline">Outline</Button>
+<Button variant="ghost">Ghost</Button>
+<Button variant="destructive">Destructive</Button>
+<Button variant="link">Link</Button>
+<Button size="sm">Small</Button>
+<Button size="lg">Large</Button>
+<Button disabled>Disabled</Button>
+```
+
+| Prop      | Type                                                                 | Default   |
+| --------- | -------------------------------------------------------------------- | --------- |
+| `variant` | `default \| secondary \| outline \| ghost \| destructive \| link`    | `default` |
+| `size`    | `default \| xs \| sm \| lg \| icon \| icon-xs \| icon-sm \| icon-lg` | `default` |

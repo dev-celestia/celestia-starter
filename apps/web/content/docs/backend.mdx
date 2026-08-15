@@ -1,0 +1,175 @@
+---
+title: Backend API
+description: A standalone Hono backend that owns the database, business logic, and auth — the frontend is pure UI
+icon: backend
+---
+
+Celestia uses a **decoupled architecture**. The backend (`apps/api`) owns the database, all business logic, and authentication. The frontend (`apps/web`) is pure UI: it renders components and talks to the backend over HTTP. There is no database access and no server-side auth instance in the frontend.
+
+## Stack
+
+| Layer | Technology |
+|-------|-----------|
+| HTTP framework | [Hono](https://hono.dev) |
+| Server | `@hono/node-server` |
+| ORM | Drizzle ORM (PostgreSQL) via `@workspace/db` |
+| Auth | Better Auth (runs on the backend) |
+| Validation | Zod + `@hono/zod-validator` |
+| Typed client | Hono RPC (`hono/client`) |
+
+## Architecture
+
+```
+┌────────────────────┐        /api/* (proxy)        ┌────────────────────┐
+│   apps/web (UI)    │  ─────────────────────────▶  │   apps/api (Hono)  │
+│  Next.js, no DB    │   same-origin via rewrites   │  auth + data + DB  │
+└────────────────────┘                              └─────────┬──────────┘
+                                                              │ Drizzle
+                                                    ┌─────────▼──────────┐
+                                                    │     PostgreSQL     │
+                                                    └────────────────────┘
+```
+
+The browser only ever talks to the frontend origin. Next.js rewrites proxy every `/api/*` request to the backend, so session cookies work without any cross-origin configuration.
+
+## Project Structure
+
+```
+apps/
+├── api/                  # Hono backend (owns DB + auth + business logic)
+│   └── src/
+│       ├── index.ts      # Server entry (@hono/node-server)
+│       ├── app.ts        # Hono app + routes (exports AppType for RPC)
+│       └── auth.ts       # Better Auth instance (Drizzle adapter)
+└── web/                  # Next.js frontend (pure UI)
+    ├── next.config.ts    # /api/* proxy rewrites to the backend
+    └── lib/
+        ├── auth-client.ts  # Better Auth client (over the proxy)
+        └── api-client.ts   # Typed Hono RPC client
+packages/
+└── db/                   # Drizzle schema + client (imported by apps/api ONLY)
+    └── src/
+        ├── schema.ts     # Tables (auth + posts example)
+        ├── client.ts     # Drizzle instance
+        └── index.ts
+```
+
+The boundary is enforced by imports: only `apps/api` imports `@workspace/db`. The frontend never does.
+
+## Environment Variables
+
+The backend owns all secrets. Add the following to `apps/api/.env`:
+
+```bash
+PORT=4000
+# Public URL the browser uses to reach auth (the frontend, via the proxy)
+BETTER_AUTH_URL=http://localhost:3000
+BETTER_AUTH_SECRET=<generate with: openssl rand -base64 32>
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/celestia
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+```
+
+The frontend only needs the backend URL (defaults to `http://localhost:4000`) in `apps/web/.env`:
+
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:4000
+```
+
+## The Proxy (frontend → backend)
+
+`apps/web/next.config.ts` forwards every `/api/*` call to the backend:
+
+```ts
+const nextConfig: NextConfig = {
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/:path*`,
+      },
+    ]
+  },
+}
+```
+
+Because the browser sees a single origin, Better Auth's session cookie is a normal same-origin cookie — no `SameSite=None`/`Secure` workarounds needed in development.
+
+## Backend Routes
+
+Routes are defined in `apps/api/src/app.ts`. Protected routes read the session with `auth.api.getSession`:
+
+```ts
+import { zValidator } from "@hono/zod-validator"
+import { Hono } from "hono"
+import { z } from "zod"
+import { db, posts } from "@workspace/db"
+import { auth } from "./auth"
+
+const createPostSchema = z.object({ title: z.string().min(1).max(200) })
+
+const app = new Hono()
+  .get("/api/posts", async (c) => {
+    const session = await auth.api.getSession({ headers: c.req.raw.headers })
+    if (!session) return c.json({ error: "Unauthorized" }, 401)
+    return c.json(await db.select().from(posts))
+  })
+  .post("/api/posts", zValidator("json", createPostSchema), async (c) => {
+    const session = await auth.api.getSession({ headers: c.req.raw.headers })
+    if (!session) return c.json({ error: "Unauthorized" }, 401)
+    const data = c.req.valid("json")
+    const [post] = await db.insert(posts).values({ /* ... */ }).returning()
+    return c.json(post, 201)
+  })
+
+// Better Auth catch-all (handled by the Better Auth client on the frontend)
+app.on(["GET", "POST"], "/api/auth/*", (c) => auth.handler(c.req.raw))
+
+export type AppType = typeof app
+```
+
+## Typed RPC Client (frontend)
+
+The frontend imports the backend's route **types** (type-only — no backend code runs in the browser) and gets fully typed API calls:
+
+```ts
+// apps/web/lib/api-client.ts
+import { hc } from "hono/client"
+import type { AppType } from "@workspace/api/app"
+
+export const api = hc<AppType>("")
+```
+
+```tsx
+"use client"
+import { api } from "@/lib/api-client"
+
+const res = await api.api.posts.$get()
+const data = await res.json()
+
+await api.api.posts.$post({ json: { title: "Hello" } })
+```
+
+## Database
+
+The schema and Drizzle client live in `packages/db`. Push the schema (including the Better Auth tables and the example `posts` table):
+
+```bash
+pnpm --filter @workspace/db db:push
+```
+
+## Running
+
+`pnpm dev` starts the whole workspace (frontend, backend, and docs). To run the backend on its own:
+
+```bash
+pnpm --filter @workspace/api dev
+```
+
+The API starts at `http://localhost:4000`.
+
+## Adding a New Resource
+
+1. Add the table to `packages/db/src/schema.ts` and run `pnpm --filter @workspace/db db:push`.
+2. Add routes in `apps/api/src/app.ts` (chain them on `app` so they're part of `AppType`).
+3. Call them from the frontend through `api` — request and response types are inferred automatically.

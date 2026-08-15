@@ -1,0 +1,46 @@
+---
+title: "Attachment"
+description: "File attachment chips and cards for chat interfaces and input forms."
+---
+
+File attachment chips and cards for chat interfaces and input forms.
+
+```tsx
+import {
+  Attachment,
+  AttachmentGroup,
+  AttachmentMedia,
+  AttachmentContent,
+  AttachmentTitle,
+  AttachmentDescription,
+  AttachmentActions,
+  AttachmentAction,
+} from "@celestia-project/ui/components/attachment"
+import { FilePdf, X } from "@phosphor-icons/react"
+
+<AttachmentGroup>
+  <Attachment size="default" state="done" orientation="horizontal">
+    <AttachmentMedia variant="icon">
+      <FilePdf />
+    </AttachmentMedia>
+    <AttachmentContent>
+      <AttachmentTitle>document.pdf</AttachmentTitle>
+      <AttachmentDescription>2.4 MB</AttachmentDescription>
+    </AttachmentContent>
+    <AttachmentActions>
+      <AttachmentAction variant="ghost" size="icon-xs">
+        <X />
+      </AttachmentAction>
+    </AttachmentActions>
+  </Attachment>
+</AttachmentGroup>
+```
+
+### Props Reference
+
+| Sub-Component | Prop | Type | Default | Description |
+|---------------|------|------|---------|-------------|
+| `Attachment` | `state` | `"idle" \| "uploading" \| "processing" \| "error" \| "done"` | `"done"` | Attachment status state |
+| `Attachment` | `size` | `"default" \| "sm" \| "xs"` | `"default"` | Sizing variant |
+| `Attachment` | `orientation` | `"horizontal" \| "vertical"` | `"horizontal"` | Layout direction |
+| `AttachmentMedia` | `variant` | `"icon" \| "image"` | `"icon"` | Media preview type |

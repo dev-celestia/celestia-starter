@@ -1,0 +1,34 @@
+---
+title: "Dropdown Menu"
+description: "A dropdown menu with a pre-styled API that wraps the Base UI `Menu` primitive (portal and positioning included in `DropdownMenuContent`)."
+---
+
+A dropdown menu with a pre-styled API that wraps the Base UI `Menu` primitive (portal and positioning included in `DropdownMenuContent`).
+
+<DropdownMenuPreview />
+
+```tsx
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuTrigger,
+} from "@celestia-project/ui/components/dropdown-menu"
+import { Button } from "@celestia-project/ui/components/button"
+
+<DropdownMenu>
+  <DropdownMenuTrigger render={<Button variant="outline" />}>Open</DropdownMenuTrigger>
+  <DropdownMenuContent>
+    <DropdownMenuItem>
+      Profile
+      <DropdownMenuShortcut>⌘P</DropdownMenuShortcut>
+    </DropdownMenuItem>
+    <DropdownMenuSeparator />
+    <DropdownMenuItem variant="destructive">Log out</DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenu>
+```
+
+For full control over portal/positioner, use the lower-level `Menu` component below.

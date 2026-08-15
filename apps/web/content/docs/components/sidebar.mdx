@@ -1,0 +1,67 @@
+---
+title: "Sidebar"
+description: "A full-featured application shell sidebar component with collapsible states, mobile sheet overlay, nested submenus, and keyboard shortcuts."
+---
+
+A full-featured application shell sidebar component with collapsible states (`offcanvas`, `icon`, `none`), mobile sheet overlay, nested submenus, and keyboard shortcuts.
+
+```tsx
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarTrigger,
+  SidebarInset,
+} from "@celestia-project/ui/components/sidebar"
+
+export function AppLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <SidebarProvider defaultOpen>
+      <Sidebar collapsible="icon">
+        <SidebarHeader>
+          <span className="font-semibold">Acme Inc</span>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Application</SidebarGroupLabel>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton isActive tooltip="Dashboard">
+                  <span>Dashboard</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        </SidebarContent>
+        <SidebarFooter>
+          <span className="text-xs text-muted-foreground">v1.0.0</span>
+        </SidebarFooter>
+      </Sidebar>
+      <SidebarInset>
+        <header className="flex h-12 items-center gap-2 px-4 border-b">
+          <SidebarTrigger />
+        </header>
+        <main className="p-4">{children}</main>
+      </SidebarInset>
+    </SidebarProvider>
+  )
+}
+```
+
+### Components & Props
+
+| Sub-Component | Key Props | Description |
+|---------------|-----------|-------------|
+| `SidebarProvider` | `defaultOpen?: boolean`, `open?: boolean`, `onOpenChange?: (open: boolean) => void` | Context provider managing collapse state and mobile drawer state |
+| `Sidebar` | `side?: "left" \| "right"`, `variant?: "sidebar" \| "floating" \| "inset"`, `collapsible?: "offcanvas" \| "icon" \| "none"` | Root sidebar panel container |
+| `SidebarTrigger` | `className?: string` | Toggle button that triggers `toggleSidebar()` |
+| `SidebarMenuButton` | `isActive?: boolean`, `variant?: "default" \| "outline"`, `size?: "default" \| "sm" \| "lg"`, `tooltip?: string` | Interactive menu item trigger with automatic tooltip support |
+| `SidebarInset` | `className?: string` | Main content container adjacent to the sidebar |
+| `useSidebar()` | — | Hook returning `{ state, open, setOpen, isMobile, toggleSidebar }` |

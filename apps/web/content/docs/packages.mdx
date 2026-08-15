@@ -1,0 +1,214 @@
+---
+title: Packages
+description: Shared workspace packages for UI components, linting, TypeScript config, and feature management
+icon: package
+---
+
+The `packages/` directory contains shared workspace packages. Some are private workspace-only packages (`@workspace/*`), others are published to npm under the `@celestia-project` org.
+
+## @celestia-project/ui
+
+[![npm](https://img.shields.io/npm/v/@celestia-project/ui)](https://www.npmjs.com/package/@celestia-project/ui)
+
+A shadcn-style React component library built on **Base UI** and **Tailwind CSS v4**, with 60+ components.
+
+**Exports:**
+
+| Import path | Resolves to |
+|-------------|-------------|
+| `@celestia-project/ui` | Barrel export of every component (tree-shaken) |
+| `@celestia-project/ui/globals.css` | Global styles and CSS variables |
+| `@celestia-project/ui/components/*` | UI components (button, card, input, label) |
+| `@celestia-project/ui/hooks/*` | Shared React hooks |
+| `@celestia-project/ui/lib/*` | Utilities (`cn` helper) |
+
+**Usage:**
+
+```tsx
+import { Button } from "@celestia-project/ui"
+import { Button } from "@celestia-project/ui/components/button"
+import { cn } from "@celestia-project/ui/lib/utils"
+```
+
+**Key dependencies:** `@base-ui/react`, `class-variance-authority`, `tailwind-merge`, `next-themes`, `@phosphor-icons/react`
+
+### Using it outside this monorepo
+
+The package is published to npm and can be installed in any React 19 + Tailwind CSS v4 project:
+
+```bash
+pnpm add @celestia-project/ui
+```
+
+Import the global stylesheet in your app entry point:
+
+```css
+/* app/layout.tsx or global.css */
+@import "@celestia-project/ui/globals.css";
+```
+
+See the [full component reference](https://www.npmjs.com/package/@celestia-project/ui) on npm.
+
+---
+
+## @celestia-project/create
+
+[![npm](https://img.shields.io/npm/v/@celestia-project/create)](https://www.npmjs.com/package/@celestia-project/create)
+
+The interactive CLI that scaffolds a new Celestia Starter project. Lives in `packages/cli`.
+
+**Usage:**
+
+```bash
+npx @celestia-project/create my-app
+npx @celestia-project/create my-app --features auth,dashboard
+```
+
+**Bin registered:** `create-celestia`
+
+**Publishing:**
+
+```bash
+# From the monorepo root — publishes both @celestia-project/ui and @celestia-project/create
+pnpm publish:packages
+
+# Dry run first (previews tarball contents without uploading)
+pnpm publish:dry-run
+```
+
+See the [CLI docs](/docs/cli) for the full feature flag reference and local testing guide.
+
+---
+
+## @workspace/eslint-config
+
+Shared ESLint flat-config presets for consistent linting across the monorepo.
+
+**Exports:**
+
+| Import path | Purpose |
+|-------------|---------|
+| `@workspace/eslint-config/base` | Base JS/TS rules (strict, turbo, prettier compat) |
+| `@workspace/eslint-config/next-js` | Next.js-specific rules (adds `@next/eslint-plugin-next`) |
+| `@workspace/eslint-config/react-internal` | React library rules (hooks, jsx) |
+
+**Usage in a consumer `eslint.config.js`:**
+
+```js
+import { config } from "@workspace/eslint-config/next-js"
+
+export default config
+```
+
+---
+
+## @workspace/typescript-config
+
+Reusable `tsconfig` profiles that all workspace projects extend.
+
+| File | Use case |
+|------|----------|
+| `base.json` | Default — strict, ES2022, NodeNext resolution |
+| `nextjs.json` | Next.js apps — adds JSX, bundler resolution, plugins |
+| `react-library.json` | React component libraries — JSX + DOM libs |
+
+**Usage in a consumer `tsconfig.json`:**
+
+```json
+{
+  "extends": "@workspace/typescript-config/nextjs.json"
+}
+```
+
+---
+
+## @workspace/feature-manager
+
+A CLI and runtime registry that discovers, installs, and tracks features defined by `feature.json` manifests under the project's `features/` directory.
+
+**CLI commands (via root scripts):**
+
+```bash
+pnpm add-feature <name>     # Install a feature into the workspace
+pnpm remove-feature <name>  # Reverse an install (copies, insertions, tracker)
+pnpm list-features          # List available and installed features
+```
+
+**How `add` works:**
+
+1. Reads `features/<name>/feature.json` (legacy v1 manifests using `files` are normalized)
+2. Verifies `requires` against the tracker (root `features.json`)
+3. Copies `copies` entries into the workspace — `apps/api`, `apps/web`, `packages/*`, `apps/docs`, root files
+4. Inserts `insertions` snippets into managed marker regions
+5. Applies `jsonAppends` to JSON arrays (e.g. the docs sidebar `meta.json`)
+6. Merges `dependencies` / `devDependencies` into each target package's `package.json`
+7. Records the feature in the tracker and prints next steps (`pnpm install`, env vars, `postInstall` commands)
+
+**Feature manifest schema (`feature.json`):**
+
+```json
+{
+  "name": "blog",
+  "version": "1.0.0",
+  "description": "Full CRUD blog over the typed RPC client",
+  "requires": ["auth", "dashboard"],
+  "copies": [
+    { "from": "api/src/features/blog/routes.ts", "to": "apps/api/src/features/blog/routes.ts" }
+  ],
+  "insertions": [
+    { "file": "apps/api/src/app.ts", "marker": "routes", "snippet": "snippets/api-routes.ts" }
+  ],
+  "jsonAppends": [
+    { "file": "apps/docs/content/docs/meta.json", "path": "pages", "value": "blog" }
+  ],
+  "dependencies": { "apps/api": { "drizzle-orm": "^0.45.2" } },
+  "env": { "apps/api": ["DATABASE_URL=postgresql://postgres:postgres@localhost:5432/celestia"] },
+  "postInstall": ["pnpm --filter @workspace/db db:push"],
+  "notes": "Optional post-install instructions"
+}
+```
+
+### Managed marker regions
+
+Insertions target empty sentinel regions that already exist in shared files. Installing wraps the snippet in a per-feature block so it can later be replaced (idempotent reinstall) or removed cleanly:
+
+```ts
+// feature-manager:<marker>:begin
+// feature-manager:<marker>:<feature>:begin
+...snippet...
+// feature-manager:<marker>:<feature>:end
+// feature-manager:<marker>:end
+```
+
+Available regions:
+
+| Marker | File | What features insert |
+|--------|------|----------------------|
+| `imports` | `apps/api/src/app.ts` | Route module imports |
+| `routes` | `apps/api/src/app.ts` | `.route(...)` mounts |
+| `auth-imports` | `apps/api/src/auth.ts` | Better Auth server-plugin imports |
+| `auth-plugins` | `apps/api/src/auth.ts` | Plugin entries in the `plugins` array |
+| `tables` | `packages/db/src/schema.ts` | Drizzle tables + relations |
+| `user-fields` | `packages/db/src/schema.ts` | Additional columns on the `user` table |
+| `imports` | `apps/web/components/dashboard/sidebar.tsx` | Icon imports |
+| `nav` | `apps/web/components/dashboard/sidebar.tsx` | Sidebar navigation items |
+| `nav-visibility` | `apps/web/components/dashboard/sidebar.tsx` | Per-item visibility filter inside the nav map |
+| `client-imports` | `apps/web/lib/auth-client.ts` | Better Auth client-plugin imports |
+| `client-plugins` | `apps/web/lib/auth-client.ts` | Client-plugin entries in the `plugins` array |
+| `cards` | `apps/docs/content/docs/index.mdx` | Landing page `<Card>` links |
+| `features` | `README.md` | "Installed Features" bullets |
+
+Marker ids are scoped per file, so `imports` in `app.ts` and `imports` in `sidebar.tsx` don't collide. Comment syntax follows the file type (`//` for TS/TSX, `<!-- -->` for `.md`, `{/* */}` for `.mdx`). Files that cannot carry comments (e.g. `meta.json`) use `jsonAppends` instead.
+
+**Authoring snippets:**
+
+- Snippets are inserted verbatim — include their leading indentation in the snippet file itself (only the sentinel comments are auto-indented)
+- A single trailing newline is stripped before insertion
+
+**Programmatic exports:**
+
+| Import path | Purpose |
+|-------------|---------|
+| `@workspace/feature-manager` | Types + marker utilities (`insertIntoRegion`, `removeFromRegion`, `jsonAppend`, `jsonRemove`) + runtime registry |
+| `@workspace/feature-manager/types` | `Feature`, `FeatureManifest`, `FeatureCopy`, `FeatureInsertion`, `FeatureTracker` types |
+| `@workspace/feature-manager/registry` | Runtime feature registry |

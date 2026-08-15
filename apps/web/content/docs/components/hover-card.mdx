@@ -1,0 +1,21 @@
+---
+title: "Hover Card"
+description: "Preview content when hovering a trigger, built on the Base UI `HoverCard` primitive."
+---
+
+Preview content when hovering a trigger, built on the Base UI `HoverCard` primitive.
+
+<HoverCardPreview />
+
+```tsx
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@celestia-project/ui/components/hover-card"
+
+<HoverCard>
+  <HoverCardTrigger render={<a href="#" />}>@celestia-project/ui</HoverCardTrigger>
+  <HoverCardContent>A shared components library.</HoverCardContent>
+</HoverCard>
+```

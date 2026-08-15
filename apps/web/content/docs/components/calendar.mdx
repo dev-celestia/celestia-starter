@@ -1,0 +1,21 @@
+---
+title: "Calendar"
+description: "A date picker calendar built on `react-day-picker` v10."
+---
+
+A date picker calendar built on `react-day-picker` v10.
+
+<CalendarPreview />
+
+```tsx
+"use client"
+
+import { useState } from "react"
+import { Calendar } from "@celestia-project/ui/components/calendar"
+
+const [date, setDate] = useState<Date | undefined>(new Date())
+
+<Calendar mode="single" selected={date} onSelect={setDate} className="rounded-md border" />
+```
+
+Combine it with a `Popover` to build a full date picker. Supports all `react-day-picker` props (`mode`, `numberOfMonths`, `disabled`, ...).

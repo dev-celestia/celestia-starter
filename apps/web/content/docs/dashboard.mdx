@@ -1,0 +1,133 @@
+---
+title: Dashboard
+description: Protected dashboard with sidebar navigation, route protection, and user settings
+icon: dashboard
+---
+
+The dashboard adds a protected application shell: a sidebar layout, an overview page, a profile settings page, and route protection so only signed-in users can access `/dashboard`. It is built entirely from client components that talk to the backend — there is no server-side data access in the frontend.
+
+## Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Route protection | Next.js Proxy (`proxy.ts`) + client-side `useSession` guard |
+| Session | Better Auth client (`useSession`) |
+| Data fetching | Hono RPC client (`@/lib/api-client`) |
+| UI | `@celestia-project/ui` (Card, Menu, Button, Input, Label) |
+| Icons | `@phosphor-icons/react` |
+
+## Prerequisites
+
+The dashboard relies on the **backend** (`apps/api`) being up and the auth + db setup complete. See [Backend API](/docs/backend) and [Authentication](/docs/authentication).
+
+## File Overview
+
+```
+apps/web/
+├── proxy.ts                              # Optimistic cookie check for /dashboard
+├── lib/
+│   ├── auth-client.ts                    # Better Auth client (useSession)
+│   └── api-client.ts                     # Typed Hono RPC client
+├── app/
+│   └── (dashboard)/
+│       ├── layout.tsx                    # Sidebar layout + client session guard
+│       └── dashboard/
+│           ├── page.tsx                  # Account overview + posts demo
+│           └── settings/page.tsx         # Profile settings
+└── components/
+    └── dashboard/
+        ├── sidebar.tsx                   # Navigation sidebar
+        ├── user-nav.tsx                  # User dropdown menu
+        ├── profile-form.tsx              # Update display name
+        └── posts-demo.tsx                # Example CRUD via the RPC client
+```
+
+## How Route Protection Works
+
+Protection happens in two layers:
+
+1. **Proxy (optimistic)** — `proxy.ts` runs before every `/dashboard` request and redirects to `/sign-in?callbackURL=...` when no session cookie is present. It uses Better Auth's `getSessionCookie` helper and only checks for the cookie's existence (no database call) to stay fast.
+2. **Layout (authoritative, client-side)** — the dashboard layout calls `useSession()` and redirects if there is no session once the auth client resolves. The session itself is validated by the backend.
+
+```ts
+// proxy.ts
+import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
+import { getSessionCookie } from "better-auth/cookies"
+
+export function proxy(request: NextRequest) {
+  const sessionCookie = getSessionCookie(request)
+
+  if (!sessionCookie) {
+    const signInUrl = new URL("/sign-in", request.url)
+    signInUrl.searchParams.set("callbackURL", request.nextUrl.pathname)
+    return NextResponse.redirect(signInUrl)
+  }
+
+  return NextResponse.next()
+}
+
+export const config = {
+  matcher: ["/dashboard/:path*"],
+}
+```
+
+```tsx
+// app/(dashboard)/layout.tsx
+"use client"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { useSession } from "@/lib/auth-client"
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const { data: session, isPending } = useSession()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!isPending && !session) router.replace("/sign-in?callbackURL=/dashboard")
+  }, [isPending, session, router])
+
+  if (isPending || !session) return <div>Loading...</div>
+  return <div className="flex min-h-svh">{/* sidebar + children */}</div>
+}
+```
+
+> **Note**: In Next.js 16, `middleware.ts` was renamed to `proxy.ts` and the exported function is `proxy`. `getSessionCookie` only checks that the cookie *exists* — it does not validate it. The backend performs the authoritative session validation.
+
+## Reading the Session
+
+The session is read client-side with `useSession`:
+
+```tsx
+"use client"
+import { useSession } from "@/lib/auth-client"
+
+const { data: session, isPending } = useSession()
+// session.user.name, session.user.email, ...
+```
+
+## Fetching Data from the Backend
+
+The overview page demonstrates calling the backend through the typed Hono RPC client — no database access in the frontend:
+
+```tsx
+"use client"
+import { api } from "@/lib/api-client"
+
+const res = await api.api.posts.$get()
+const data = await res.json()
+
+await api.api.posts.$post({ json: { title: "Hello" } })
+```
+
+## Updating the Profile
+
+The settings page uses the Better Auth client to update the user's name:
+
+```ts
+import { authClient } from "@/lib/auth-client"
+
+await authClient.updateUser({ name: "New Name" })
+```
+
+> **Note on the feature manager:** the `dashboard` feature template under `features/dashboard` is kept in sync with this client-side implementation, but it assumes the separated backend already exists. See [Backend API](/docs/backend).

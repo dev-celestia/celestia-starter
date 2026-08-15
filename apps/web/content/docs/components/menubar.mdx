@@ -1,0 +1,34 @@
+---
+title: "Menubar"
+description: "A horizontal set of menus, like a desktop application menu bar."
+---
+
+A horizontal set of menus, like a desktop application menu bar.
+
+<MenubarPreview />
+
+```tsx
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarShortcut,
+  MenubarTrigger,
+} from "@celestia-project/ui/components/menubar"
+
+<Menubar>
+  <MenubarMenu>
+    <MenubarTrigger>File</MenubarTrigger>
+    <MenubarContent>
+      <MenubarItem>
+        New Tab
+        <MenubarShortcut>⌘T</MenubarShortcut>
+      </MenubarItem>
+      <MenubarSeparator />
+      <MenubarItem>Print</MenubarItem>
+    </MenubarContent>
+  </MenubarMenu>
+</Menubar>
+```

@@ -1,0 +1,24 @@
+---
+title: "Sonner"
+description: "An opinionated toast notification built on `sonner`."
+---
+
+An opinionated toast notification built on `sonner`.
+
+<SonnerPreview />
+
+```tsx
+import { toast } from "sonner"
+import { Toaster } from "@celestia-project/ui/components/sonner"
+import { Button } from "@celestia-project/ui/components/button"
+
+// Mount once in your root layout
+<Toaster />
+
+// Fire from anywhere
+<Button onClick={() => toast("Event has been created", {
+  description: "Sunday, December 03rd at 10:00 AM",
+})}>
+  Show Toast
+</Button>
+```

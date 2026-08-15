@@ -1,0 +1,33 @@
+---
+title: "Navigation Menu"
+description: "A site-level navigation bar with dropdown content panels."
+---
+
+A site-level navigation bar with dropdown content panels.
+
+<NavigationMenuPreview />
+
+```tsx
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@celestia-project/ui/components/navigation-menu"
+
+<NavigationMenu>
+  <NavigationMenuList>
+    <NavigationMenuItem>
+      <NavigationMenuTrigger>Docs</NavigationMenuTrigger>
+      <NavigationMenuContent>
+        <NavigationMenuLink>Components</NavigationMenuLink>
+      </NavigationMenuContent>
+    </NavigationMenuItem>
+    <NavigationMenuItem>
+      <NavigationMenuLink>GitHub</NavigationMenuLink>
+    </NavigationMenuItem>
+  </NavigationMenuList>
+</NavigationMenu>
+```

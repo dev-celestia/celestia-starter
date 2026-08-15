@@ -1,0 +1,30 @@
+---
+title: "Combobox"
+description: "An autocomplete input built on the Base UI `Combobox` primitive. Supports single and multiple selection."
+---
+
+An autocomplete input built on the Base UI `Combobox` primitive. Supports single and multiple selection.
+
+<ComboboxPreview />
+
+```tsx
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@celestia-project/ui/components/combobox"
+
+<Combobox>
+  <ComboboxInput placeholder="Select a fruit..." />
+  <ComboboxContent>
+    <ComboboxList>
+      <ComboboxItem value="apple">Apple</ComboboxItem>
+      <ComboboxItem value="banana">Banana</ComboboxItem>
+    </ComboboxList>
+  </ComboboxContent>
+</Combobox>
+```
+
+Also exports `ComboboxGroup`, `ComboboxLabel`, `ComboboxEmpty`, `ComboboxChips` and friends for multi-select tagging.

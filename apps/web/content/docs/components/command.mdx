@@ -1,0 +1,40 @@
+---
+title: "Command"
+description: "A fast, composable command menu built on `cmdk`."
+---
+
+A fast, composable command menu built on `cmdk`.
+
+<CommandPreview />
+
+```tsx
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+  CommandShortcut,
+} from "@celestia-project/ui/components/command"
+
+<Command className="rounded-lg border">
+  <CommandInput placeholder="Type a command or search..." />
+  <CommandList>
+    <CommandEmpty>No results found.</CommandEmpty>
+    <CommandGroup heading="Suggestions">
+      <CommandItem>Calendar</CommandItem>
+    </CommandGroup>
+    <CommandSeparator />
+    <CommandGroup heading="Settings">
+      <CommandItem>
+        Profile
+        <CommandShortcut>⌘P</CommandShortcut>
+      </CommandItem>
+    </CommandGroup>
+  </CommandList>
+</Command>
+```
+
+`CommandDialog` wraps the menu in a `Dialog` for a `⌘K` command palette.

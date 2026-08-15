@@ -1,0 +1,21 @@
+---
+title: "Message Scroller"
+description: "Smooth autoscroll container for streaming chat messages."
+---
+
+Smooth autoscroll container for streaming chat messages. Automatically scrolls down as new content streams in unless the user manually scrolls up.
+
+```tsx
+import { MessageScroller } from "@celestia-project/ui/components/message-scroller"
+
+<MessageScroller className="h-[400px]">
+  {/* List of chat messages */}
+</MessageScroller>
+```
+
+### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `className` | `string` | `undefined` | Container class name (must specify explicit height e.g. `h-[500px]`) |
+| `children` | `React.ReactNode` | Required | Content area containing message stream |

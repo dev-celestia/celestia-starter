@@ -1,0 +1,24 @@
+---
+title: "Input Group"
+description: "Combines inputs with addons, text, and buttons in a single bordered control."
+---
+
+Combines inputs with addons, text, and buttons in a single bordered control.
+
+<InputGroupPreview />
+
+```tsx
+import {
+  InputGroup,
+  InputGroupInput,
+  InputGroupText,
+} from "@celestia-project/ui/components/input-group"
+
+<InputGroup>
+  <InputGroupText>$</InputGroupText>
+  <InputGroupInput type="number" placeholder="0.00" aria-label="Amount" />
+  <InputGroupText>.00</InputGroupText>
+</InputGroup>
+```
+
+Also exports `InputGroupAddon`, `InputGroupButton`, and `InputGroupTextarea`.

@@ -1,0 +1,20 @@
+---
+title: "Bubble"
+description: "A chat bubble container with variants for user and assistant message styling."
+---
+
+A chat bubble container with variants for user and assistant message styling.
+
+```tsx
+import { Bubble } from "@celestia-project/ui/components/bubble"
+
+<Bubble variant="user">Hello, how can I help you today?</Bubble>
+<Bubble variant="assistant">I can assist with component documentation.</Bubble>
+```
+
+### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `variant` | `"user" \| "assistant" \| "system"` | `"user"` | Styling variant for sender role |
+| `className` | `string` | `undefined` | Custom CSS class overrides |

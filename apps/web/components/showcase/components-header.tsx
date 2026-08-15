@@ -81,12 +81,10 @@ export function ComponentsHeader({
         {/* Right Actions: Links & Theme */}
         <div className="flex items-center gap-2 shrink-0">
           <Link
-            href="https://dev-celestia.github.io/celestia-starter/docs/components"
-            target="_blank"
-            rel="noreferrer"
+            href="/docs/components"
             className="hidden md:flex"
           >
-            <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground hover:text-foreground">
+            <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground hover:text-foreground active:scale-97 transition-transform">
               <BookOpenIcon className="size-4" />
               <span>Docs</span>
             </Button>

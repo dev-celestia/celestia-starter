@@ -1,0 +1,22 @@
+---
+title: "Resizable"
+description: "Resizable panel groups and handles, built on `react-resizable-panels`."
+---
+
+Resizable panel groups and handles, built on `react-resizable-panels`.
+
+<ResizablePreview />
+
+```tsx
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@celestia-project/ui/components/resizable"
+
+<ResizablePanelGroup orientation="horizontal" className="min-h-40 rounded-lg border">
+  <ResizablePanel defaultSize={40}>Sidebar</ResizablePanel>
+  <ResizableHandle />
+  <ResizablePanel defaultSize={60}>Content</ResizablePanel>
+</ResizablePanelGroup>
+```

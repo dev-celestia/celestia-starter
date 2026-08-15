@@ -1,0 +1,123 @@
+---
+title: Creating Features
+description: How to scaffold, author, and install feature packages for the Celestia feature plugin system
+icon: features
+---
+
+# Creating Features
+
+New features MUST be authored as installable feature packages under `features/<name>/`
+and installed with the feature-manager CLI — **never hand-copy files into `apps/` or
+`packages/` while authoring**. The `feature-manager add` command performs the actual
+copies and insertions, which keeps features installable, removable, and portable.
+
+Use `features/blog/` as the canonical reference implementation.
+
+## Architecture constraints (hard rules)
+
+| Layer | Location | Rule |
+|---|---|---|
+| Backend | `apps/api` (Hono, port 4000) | All API routes, auth server, DB access. Secrets env only here. |
+| Frontend | `apps/web` (Next.js, port 3000) | Pure UI. No DB access, no Better Auth server instance, no secrets. |
+| Database | `packages/db` | Drizzle schema + pooled client (`@workspace/db`). Never create local `db.ts`. |
+| Shared UI | `packages/ui` | Reusable shadcn/ui components (`@celestia-project/ui`). |
+
+- Backend code must never import from `apps/web`; frontend code must never import server auth or DB directly.
+- API routes live in `apps/api/src/features/<name>/routes.ts`, mounted via the `routes` marker in `apps/api/src/app.ts`. Use the `/api/...` prefix; never collide with the reserved `/api/auth/*` catch-all.
+- The frontend reaches the API through the `/api/*` rewrite proxy in `apps/web/next.config.ts`.
+
+## Workflow
+
+1. **Plan** — Read `features.json` (installed features) and manifests in `features/*/feature.json`. Decide `requires`, DB tables, env vars, dependencies, dashboard pages. Ask the user for anything unclear.
+2. **Scaffold** — Create `features/<name>/` with the directory layout below and a valid starter `feature.json`.
+3. **Author** — Write template files per target (`api/`, `web/`, `ui/`, `docs/`) and one snippet file per insertion.
+4. **Self-check** — For every manifest entry verify: `copies[].from` exists; every `insertions[].snippet` exists; every `insertions[].file` exists in the repo and contains the referenced marker region (`feature-manager:<marker>:begin`); `requires` lists only installed features; no orphan files in the feature dir.
+5. **Install** — Run `pnpm add-feature <name>` from the repo root, then `pnpm install`, env vars, and the printed `postInstall` commands.
+6. **Verify** — `pnpm typecheck` at root; confirm docs page and README entry.
+
+## Directory layout
+
+```text
+features/<name>/
+├── api/          → files copied into apps/api  (e.g. api/src/features/<name>/routes.ts)
+├── web/          → files copied into apps/web  (pages, components, hooks)
+├── ui/           → files copied into packages/ui
+├── docs/         → files copied into apps/docs/content/docs/
+├── snippets/     → insertion snippets for marker-based edits
+└── feature.json  → manifest (copies / insertions format — never the legacy `files` map)
+```
+
+Paths in `copies[].from` and `insertions[].snippet` are relative to the feature dir;
+`copies[].to`, `insertions[].file`, and `jsonAppends[].file` are relative to the repo root.
+
+## feature.json schema
+
+```json
+{
+  "name": "<name>",
+  "version": "1.0.0",
+  "description": "One-line summary shown by `feature-manager list`",
+  "requires": ["auth"],
+  "copies": [
+    { "from": "api/src/features/<name>/routes.ts", "to": "apps/api/src/features/<name>/routes.ts" },
+    { "from": "docs/<name>.mdx", "to": "apps/docs/content/docs/<name>.mdx" }
+  ],
+  "insertions": [
+    { "file": "apps/api/src/app.ts", "marker": "imports", "snippet": "snippets/api-imports.ts" },
+    { "file": "apps/api/src/app.ts", "marker": "routes", "snippet": "snippets/api-routes.ts" }
+  ],
+  "jsonAppends": [
+    { "file": "apps/docs/content/docs/meta.json", "path": "pages", "value": "<name>" }
+  ],
+  "dependencies": {
+    "apps/api": { "some-lib": "^1.0.0" }
+  },
+  "devDependencies": {},
+  "env": {
+    "apps/api": ["SOME_KEY=change-me"]
+  },
+  "postInstall": ["pnpm --filter @workspace/db db:push"],
+  "notes": "Short human summary printed after install."
+}
+```
+
+- `dependencies` / `devDependencies` / `env` are **keyed by target package dir** (`apps/api`, `apps/web`, `packages/ui`, ...).
+- Include `postInstall: ["pnpm --filter @workspace/db db:push"]` whenever the feature adds DB tables.
+- `requires` must list features already present in `features.json`.
+
+## Available marker regions
+
+Snippets are inserted between sentinel comments; feature-manager wraps each snippet in
+a per-feature block automatically. Comment style depends on file type: `//` for
+`.ts`/`.tsx`, `<!-- -->` for `.md`, and JSX comments for `.mdx`. Only use regions that
+already exist in the target file — verify before referencing them.
+
+Current regions:
+
+| File | Marker | Snippet shape |
+|---|---|---|
+| `apps/api/src/app.ts` | `imports` | `import { xRoutes } from "./features/<name>/routes"` |
+| `apps/api/src/app.ts` | `routes` | `.route("/", xRoutes)` |
+| `packages/db/src/schema.ts` | `tables` | Drizzle `pgTable(...)` definitions |
+| `apps/web/components/dashboard/sidebar.tsx` | `imports` | Icon imports, e.g. `import { NoteBlank } from "lucide-react"` |
+| `apps/web/components/dashboard/sidebar.tsx` | `nav` | `{ label: "...", href: "/dashboard/...", icon: Icon },` |
+| `apps/docs/content/docs/index.mdx` | `cards` | `<Card title="..." href="/docs/<name>" description="..." />` |
+| `README.md` | `features` | `- **<name>** — one-line description` |
+
+## Documentation is mandatory
+
+Every feature must ship docs:
+
+1. `docs/<name>.mdx` — what it does, env vars, file overview, server/client usage, setup. Use Fumadocs components; `bash` for shell/env code fences.
+2. Copy it via `copies` to `apps/docs/content/docs/<name>.mdx`.
+3. `jsonAppends` entry for `apps/docs/content/docs/meta.json` → `pages`.
+4. `insertions` entry for the `cards` marker in `apps/docs/content/docs/index.mdx`.
+5. `insertions` entry for the `features` marker in `README.md`.
+
+## CLI reference
+
+```bash
+pnpm add-feature <name>       # install features/<name> into the workspace
+pnpm remove-feature <name>    # uninstall cleanly (removes copies + marker blocks)
+pnpm list-features            # show available/installed features
+```

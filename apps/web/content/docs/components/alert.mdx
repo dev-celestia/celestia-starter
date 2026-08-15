@@ -1,0 +1,21 @@
+---
+title: "Alert"
+description: "A callout that draws the user's attention to important information."
+---
+
+A callout that draws the user's attention to important information.
+
+<AlertPreview />
+
+```tsx
+import { Alert, AlertDescription, AlertTitle } from "@celestia-project/ui/components/alert"
+
+<Alert>
+  <AlertTitle>Heads up!</AlertTitle>
+  <AlertDescription>You can add components using the CLI.</AlertDescription>
+</Alert>
+```
+
+| Prop | Type | Default |
+|------|------|---------|
+| `variant` | `default \| destructive` | `default` |

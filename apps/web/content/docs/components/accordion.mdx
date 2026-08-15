@@ -1,0 +1,28 @@
+---
+title: "Accordion"
+description: "A vertically stacked set of expandable items, built on the Base UI `Accordion` primitive."
+---
+
+A vertically stacked set of expandable items, built on the Base UI `Accordion` primitive.
+
+<AccordionPreview />
+
+```tsx
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@celestia-project/ui/components/accordion"
+
+<Accordion>
+  <AccordionItem value="item-1">
+    <AccordionTrigger>Is it accessible?</AccordionTrigger>
+    <AccordionContent>Yes. Full keyboard support.</AccordionContent>
+  </AccordionItem>
+</Accordion>
+```
+
+| Prop | Type | Default |
+|------|------|---------|
+| `multiple` | `boolean` | `false` |
