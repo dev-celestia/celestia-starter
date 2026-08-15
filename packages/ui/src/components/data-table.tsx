@@ -1,3 +1,5 @@
+"use client"
+
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -271,3 +273,5 @@ export function DataTable<TData, TValue>({
     </div>
   );
 }
+
+export type { ColumnDef } from "@tanstack/react-table";

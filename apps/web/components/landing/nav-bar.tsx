@@ -11,6 +11,7 @@ const LINKS: {
   label: string
   external?: boolean
 }[] = [
+  { href: "/components", label: "Components" },
   { href: "#stack", label: "Stack" },
   { href: "#architecture", label: "Architecture" },
   { href: "#install", label: "Install" },

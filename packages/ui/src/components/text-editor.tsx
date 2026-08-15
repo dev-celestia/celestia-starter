@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, useRef } from 'react';
 import { basicSetup } from 'codemirror';
 import { EditorState, Compartment, Prec, Range } from '@codemirror/state';
@@ -162,10 +164,12 @@ export interface TextEditorProps {
   onMount?: (view: EditorView) => void;
   options?: TextEditorOptions;
   height?: string | number;
+  minHeight?: string | number;
+  maxHeight?: string | number;
   path?: string;
   theme?: 'dark' | 'light';
   className?: string;
-  language?: 'javascript' | 'json' | 'markdown';
+  language?: 'javascript' | 'typescript' | 'tsx' | 'json' | 'markdown';
   detectLinks?: boolean;
 }
 
@@ -175,9 +179,11 @@ export function TextEditor({
   onMount,
   options,
   height = '100%',
+  minHeight,
+  maxHeight,
   className,
   theme = 'dark',
-  language = 'javascript',
+  language = 'typescript',
   detectLinks = false,
 }: TextEditorProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -194,12 +200,14 @@ export function TextEditor({
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const langMap: Record<'javascript' | 'json' | 'markdown', () => Extension> = {
-      javascript: () => javascript(),
+    const langMap: Record<'javascript' | 'typescript' | 'tsx' | 'json' | 'markdown', () => Extension> = {
+      javascript: () => javascript({ jsx: true }),
+      typescript: () => javascript({ typescript: true, jsx: true }),
+      tsx: () => javascript({ typescript: true, jsx: true }),
       json: () => json(),
       markdown: () => markdown(),
     };
-    const getLang = langMap[language] ?? (() => javascript());
+    const getLang = langMap[language] ?? (() => javascript({ typescript: true, jsx: true }));
     const langExt = getLang();
 
     const view = new EditorView({
@@ -211,17 +219,29 @@ export function TextEditor({
           langExt,
           EditorView.lineWrapping,
           EditorView.theme({
-            '&': { height: '100%' },
-            '.cm-scroller': { overflow: 'auto' },
+            '&': {
+              height: '100%',
+              fontSize: '12px',
+              fontFamily: 'var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace)',
+            },
+            '.cm-scroller': {
+              overflow: 'auto',
+              fontFamily: 'inherit',
+            },
             '.cm-content': {
               userSelect: 'text',
-              fontSize: '12px',
+              fontSize: '12.5px',
+              lineHeight: '1.6',
+              padding: '8px 0',
             },
             '.cm-line': {
               userSelect: 'text',
+              padding: '0 8px',
             },
-            '.cm-gutter': {
-              fontSize: '12px',
+            '.cm-gutters': {
+              fontSize: '11px',
+              lineHeight: '1.6',
+              paddingTop: '8px',
             },
             '.cm-link': {
               color: 'var(--primary, #00c950)',
@@ -294,7 +314,11 @@ export function TextEditor({
   return (
     <div
       ref={containerRef}
-      style={{ height: typeof height === 'number' ? `${height}px` : height }}
+      style={{
+        height: typeof height === 'number' ? `${height}px` : height,
+        minHeight: typeof minHeight === 'number' ? `${minHeight}px` : minHeight,
+        maxHeight: typeof maxHeight === 'number' ? `${maxHeight}px` : maxHeight,
+      }}
       className={className}
     />
   );

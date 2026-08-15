@@ -371,3 +371,16 @@ export {
   ChartLegendContent,
   ChartStyle,
 }
+
+export {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+} from "recharts"

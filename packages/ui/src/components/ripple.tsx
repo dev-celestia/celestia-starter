@@ -1,50 +1,56 @@
-import * as React from "react";
-import { cn } from '../lib/utils';
+"use client"
+ 
+import * as React from "react"
+import { cn } from "../lib/utils"
 
-interface RippleProps {
-  x: number;
-  y: number;
-  size: number;
+export interface RippleItem {
+  id: number | string
+  x: number
+  y: number
+  size: number
 }
 
-interface UseRippleOptions {
-  disabled?: boolean;
-  color?: string;
-  duration?: number;
+export type RippleProps = RippleItem
+
+export interface UseRippleOptions {
+  disabled?: boolean
+  color?: string
+  duration?: number
 }
 
 export function useRipple(options: UseRippleOptions = {}) {
-  const { disabled = false, duration = 600 } = options;
-  const [ripples, setRipples] = React.useState<RippleProps[]>([]);
+  const { disabled = false, duration = 600 } = options
+  const [ripples, setRipples] = React.useState<RippleItem[]>([])
 
   const addRipple = React.useCallback(
     (event: React.MouseEvent<HTMLElement>) => {
-      if (disabled) return;
+      if (disabled) return
 
-      const element = event.currentTarget;
-      const rect = element.getBoundingClientRect();
-      const size = Math.max(rect.width, rect.height) * 2;
-      const x = event.clientX - rect.left - size / 2;
-      const y = event.clientY - rect.top - size / 2;
+      const element = event.currentTarget
+      const rect = element.getBoundingClientRect()
+      const size = Math.max(rect.width, rect.height) * 2
+      const x = event.clientX - rect.left - size / 2
+      const y = event.clientY - rect.top - size / 2
+      const id = Date.now() + Math.random()
 
-      const newRipple = { x, y, size };
-      setRipples((prev) => [...prev, newRipple]);
+      const newRipple: RippleItem = { id, x, y, size }
+      setRipples((prev) => [...prev, newRipple])
 
       setTimeout(() => {
-        setRipples((prev) => prev.slice(1));
-      }, duration);
+        setRipples((prev) => prev.filter((r) => r.id !== id))
+      }, duration)
     },
     [disabled, duration]
-  );
+  )
 
-  return { ripples, addRipple };
+  return { ripples, addRipple }
 }
 
-interface RippleContainerProps {
-  ripples: RippleProps[];
-  color?: string;
-  duration?: number;
-  className?: string;
+export interface RippleContainerProps {
+  ripples: RippleItem[]
+  color?: string
+  duration?: number
+  className?: string
 }
 
 export function RippleContainer({
@@ -59,11 +65,12 @@ export function RippleContainer({
         "pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]",
         className
       )}
+      aria-hidden="true"
     >
-      {ripples.map((ripple, index) => (
+      {ripples.map((ripple) => (
         <span
-          key={index}
-          className="absolute animate-ripple rounded-full opacity-30"
+          key={ripple.id}
+          className="absolute rounded-full animate-ripple pointer-events-none"
           style={{
             left: ripple.x,
             top: ripple.y,
@@ -75,20 +82,20 @@ export function RippleContainer({
         />
       ))}
     </span>
-  );
+  )
 }
 
 export function useGlobalRipple(options: UseRippleOptions = {}) {
-  const { disabled = false, color = "rgba(255, 255, 255, 0.4)", duration = 500 } = options;
+  const { disabled = false, color = "rgba(255, 255, 255, 0.4)", duration = 500 } = options
 
   React.useEffect(() => {
-    if (disabled) return;
+    if (disabled) return
 
     const handleClick = (event: MouseEvent) => {
-      const ripple = document.createElement("span");
-      const size = 20;
-      const x = event.clientX - size / 2;
-      const y = event.clientY - size / 2;
+      const ripple = document.createElement("span")
+      const size = 20
+      const x = event.clientX - size / 2
+      const y = event.clientY - size / 2
 
       ripple.style.cssText = `
         position: fixed;
@@ -101,26 +108,36 @@ export function useGlobalRipple(options: UseRippleOptions = {}) {
         pointer-events: none;
         z-index: 99999;
         animation: globalRipple ${duration}ms ease-out forwards;
-      `;
+      `
 
-      document.body.appendChild(ripple);
+      document.body.appendChild(ripple)
 
       setTimeout(() => {
-        ripple.remove();
-      }, duration);
-    };
+        ripple.remove()
+      }, duration)
+    }
 
-    document.addEventListener("click", handleClick);
-    return () => document.removeEventListener("click", handleClick);
-  }, [disabled, color, duration]);
+    document.addEventListener("click", handleClick)
+    return () => document.removeEventListener("click", handleClick)
+  }, [disabled, color, duration])
 }
 
 if (typeof document !== "undefined") {
-  const styleId = "global-ripple-styles";
+  const styleId = "celestia-ripple-styles"
   if (!document.getElementById(styleId)) {
-    const style = document.createElement("style");
-    style.id = styleId;
+    const style = document.createElement("style")
+    style.id = styleId
     style.textContent = `
+      @keyframes ripple {
+        0% {
+          transform: scale(0);
+          opacity: 0.45;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 0;
+        }
+      }
       @keyframes globalRipple {
         0% {
           transform: scale(1);
@@ -131,7 +148,11 @@ if (typeof document !== "undefined") {
           opacity: 0;
         }
       }
-    `;
-    document.head.appendChild(style);
+      .animate-ripple {
+        animation: ripple 600ms cubic-bezier(0, 0, 0.2, 1) forwards;
+      }
+    `
+    document.head.appendChild(style)
   }
 }
+
