@@ -140,7 +140,7 @@ export function NavBar() {
               size="sm"
               aria-label="Star on GitHub"
             >
-              <GithubLogoIcon className="size-5" weight="fill" />
+              <GithubLogoIcon className="size-3.5" weight="fill" />
               Star on Github
             </Button>
           </Link>
