@@ -17,7 +17,7 @@ import { cn } from "@celestia-project/ui/lib/utils"
 
 const FREELANCER_CONFIG = {
   name: "Arham",
-  role: "Web & Software Developer",
+  role: "Software Developer",
   status: "Available for freelance & contract work",
   avatarUrl: "/1775011264570.jpg",
   email: "arhamymr@gmail.com",
@@ -84,25 +84,20 @@ export function FloatingFreelancerWidget() {
           <div className="relative flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
               {/* Profile Photo / Avatar */}
-              <div className="relative size-12 shrink-0">
-                <div className="relative size-12 overflow-hidden rounded-full ring-2 ring-stroke shadow-md">
+              <div className="relative size-10 shrink-0">
+                <div className="relative size-10 overflow-hidden rounded-full ring-2 ring-stroke shadow-md">
                   <Image
                     src={FREELANCER_CONFIG.avatarUrl}
                     alt={FREELANCER_CONFIG.name}
-                    width={48}
+                    width={28}
                     height={48}
                     className="size-full object-cover"
                   />
-                </div>
-                {/* Pulsing Celestia Blue Online Indicator */}
-                <span className="absolute bottom-0 right-0 flex size-3.5 items-center justify-center">
-                  <span className="absolute inline-flex size-full animate-ping rounded-full bg-[#89aacc] opacity-75" />
-                  <span className="relative inline-flex size-2.5 rounded-full border-2 border-bg bg-[#89aacc]" />
-                </span>
+                </div>å
               </div>
 
               <div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 mb-0.5">
                   <h3 className="text-sm font-medium tracking-tight text-text-primary">
                     {FREELANCER_CONFIG.name}
                   </h3>
