@@ -1,7 +1,9 @@
 import type { Metadata } from "next"
 
 import { ArchitectureSection } from "@/components/landing/architecture-section"
+import { AutoDarkTheme } from "@/components/landing/auto-dark-theme"
 import { CtaSection } from "@/components/landing/cta-section"
+import { FloatingFreelancerWidget } from "@/components/landing/floating-freelancer-widget"
 import { Footer } from "@/components/landing/footer"
 import { HeroSection } from "@/components/landing/hero-section"
 import { InstallSection } from "@/components/landing/install-section"
@@ -21,6 +23,7 @@ export default function LandingPage() {
     // "dark" scope forces the shadcn dark tokens for every component on
     // this page — the landing is always dark, regardless of system theme.
     <main className="dark bg-bg text-text-primary">
+      <AutoDarkTheme />
       <NavBar />
       <HeroSection />
       <StackSection />
@@ -28,6 +31,7 @@ export default function LandingPage() {
       <InstallSection />
       <CtaSection />
       <Footer />
+      <FloatingFreelancerWidget />
     </main>
   )
 }

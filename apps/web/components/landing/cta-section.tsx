@@ -23,11 +23,6 @@ export function CtaSection() {
                 Documentation
               </Button>
             </Link>
-            <Link href="/design-system">
-              <Button variant="outline" size="lg">
-                Design System
-              </Button>
-            </Link>
           </div>
         </Reveal>
       </div>
