@@ -93,7 +93,7 @@ export function FloatingFreelancerWidget() {
                     height={48}
                     className="size-full object-cover"
                   />
-                </div>å
+                </div>
               </div>
 
               <div>
