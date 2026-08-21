@@ -47,7 +47,7 @@ export function Header({
   totalComponents,
   className = "",
   children,
-}: HeaderProps) {
+}: Readonly<HeaderProps>) {
   const [searchOpen, setSearchOpen] = React.useState(false)
   const searchInputRef = React.useRef<HTMLInputElement>(null)
   const { resolvedTheme, setTheme } = useTheme()
@@ -278,12 +278,12 @@ export function Header({
 
 export type DocsHeaderProps = Omit<HeaderProps, "variant">
 
-export function DocsHeader(props: DocsHeaderProps) {
+export function DocsHeader(props: Readonly<DocsHeaderProps>) {
   return <Header variant="docs" {...props} />
 }
 
 export type ComponentsHeaderProps = Omit<HeaderProps, "variant">
 
-export function ComponentsHeader(props: ComponentsHeaderProps) {
+export function ComponentsHeader(props: Readonly<ComponentsHeaderProps>) {
   return <Header variant="showcase" {...props} />
 }
