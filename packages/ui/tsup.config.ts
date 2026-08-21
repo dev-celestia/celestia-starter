@@ -4,6 +4,8 @@ export default defineConfig({
   entry: [
     "src/index.ts",
     "src/components/*.tsx",
+    "src/components/ai/*.tsx",
+    "src/components/ai/index.ts",
     "src/lib/*.ts",
     "src/hooks/*.ts",
   ],
@@ -12,6 +14,9 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   treeshake: true,
+  banner: {
+    js: '"use client";',
+  },
   external: [
     "react",
     "react-dom",

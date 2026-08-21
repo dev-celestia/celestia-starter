@@ -250,19 +250,80 @@ Below is the complete mapping of all 63 component modules in `packages/ui/src/co
 
 ---
 
-### Data, Media & AI Primitives
+### Data & Media
 
 | Module | Deep Import | Exported Sub-Components | Base Primitive |
 |--------|-------------|-------------------------|----------------|
-| `attachment` | `@celestia-project/ui/components/attachment` | `Attachment`, `AttachmentGroup`, `AttachmentMedia`, `AttachmentContent`, `AttachmentTitle`, `AttachmentDescription`, `AttachmentActions`, `AttachmentAction`, `AttachmentTrigger` | Custom HTML |
 | `avatar` | `@celestia-project/ui/components/avatar` | `Avatar`, `AvatarImage`, `AvatarFallback` | Base UI `Avatar` |
-| `bubble` | `@celestia-project/ui/components/bubble` | `Bubble` | Custom HTML |
 | `calendar` | `@celestia-project/ui/components/calendar` | `Calendar` | `react-day-picker` |
 | `carousel` | `@celestia-project/ui/components/carousel` | `Carousel`, `CarouselContent`, `CarouselItem`, `CarouselPrevious`, `CarouselNext` | `embla-carousel-react` |
 | `chart` | `@celestia-project/ui/components/chart` | `ChartContainer`, `ChartTooltip`, `ChartTooltipContent`, `ChartLegend`, `ChartLegendContent`, `ChartStyle` | Recharts wrapper |
-| `message-scroller` | `@celestia-project/ui/components/message-scroller` | `MessageScroller` | Custom scroll engine |
 | `progress` | `@celestia-project/ui/components/progress` | `Progress` | Base UI `Progress` |
 | `scroll-area` | `@celestia-project/ui/components/scroll-area` | `ScrollArea`, `ScrollBar` | Radix ScrollArea |
+
+---
+
+### AI & Chat Development (`@celestia-project/ui/ai` & `@celestia-project/ui`)
+
+Comprehensive suite of 54 AI development primitives, interactive elements, streaming displays, and agent tools.
+
+| Module | Deep Import | Exported Sub-Components | Purpose |
+|--------|-------------|-------------------------|---------|
+| `agent` | `@celestia-project/ui/components/ai/agent` | `Agent`, `AgentHeader`, `AgentTools`, `AgentOutput` | Visual AI agent profile with registered tool manifests |
+| `artifact` | `@celestia-project/ui/components/ai/artifact` | `Artifact`, `ArtifactHeader`, `ArtifactContent`, `ArtifactAction`, `ArtifactActions`, `ArtifactClose`, `ArtifactTitle`, `ArtifactDescription` | Sidecar artifact container for generated documents, websites, and code |
+| `attachment` | `@celestia-project/ui/components/ai/attachment` | `Attachment`, `AttachmentGroup`, `AttachmentMedia`, `AttachmentContent`, `AttachmentTitle`, `AttachmentDescription`, `AttachmentActions`, `AttachmentAction` | Single upload item badge with progress state indicators |
+| `attachments` | `@celestia-project/ui/components/ai/attachments` | `Attachments`, `AttachmentItem`, `AttachmentPreview`, `AttachmentRemove`, `AttachmentEmpty`, `AttachmentHoverCard`, `AttachmentHoverCardTrigger`, `AttachmentHoverCardContent` | Multi-file attachment carousel and thumbnail hover preview grid |
+| `audio-player` | `@celestia-project/ui/components/ai/audio-player` | `AudioPlayer`, `AudioPlayerElement`, `AudioPlayerControlBar`, `AudioPlayerPlayButton`, `AudioPlayerSeekBackwardButton`, `AudioPlayerSeekForwardButton`, `AudioPlayerTimeDisplay`, `AudioPlayerTimeRange`, `AudioPlayerDurationDisplay`, `AudioPlayerMuteButton`, `AudioPlayerVolumeRange` | AI speech and voice synthesis audio playback controller powered by MediaChrome |
+| `bubble` | `@celestia-project/ui/components/ai/bubble` | `Bubble`, `BubbleGroup`, `BubbleContent`, `BubbleReactions` | Chat message speech bubble with customizable alignments, variants, and reactions |
+| `canvas` | `@celestia-project/ui/components/ai/canvas` | `Canvas` | Infinite canvas surface for AI workflow visual graphs |
+| `chain-of-thought` | `@celestia-project/ui/components/ai/chain-of-thought` | `ChainOfThought`, `ChainOfThoughtStep`, `ChainOfThoughtOutput` | Step-by-step reasoning step timeline |
+| `chat-input` | `@celestia-project/ui/components/ai/chat-input` | `ChatInput` | Multi-line text input field tailored for conversational prompt entry |
+| `chat-message-area` | `@celestia-project/ui/components/ai/chat-message-area` | `ChatMessageArea` | Scrollable message container layout with automatic bubble stacking |
+| `chat-message` | `@celestia-project/ui/components/ai/chat-message` | `ChatMessage` | Role-based message container (user vs assistant) with distinct styling |
+| `checkpoint` | `@celestia-project/ui/components/ai/checkpoint` | `Checkpoint`, `CheckpointTrigger`, `CheckpointContent`, `CheckpointRestore`, `CheckpointBadge` | Checkpoint and snapshot version tracker for iterative AI generations |
+| `code-block` | `@celestia-project/ui/components/ai/code-block` | `CodeBlock`, `CodeBlockHeader`, `CodeBlockTitle`, `CodeBlockCopyButton`, `CodeBlockLanguageSelect` | Syntax-highlighted code container powered by Shiki with copy button and language selector |
+| `commit` | `@celestia-project/ui/components/ai/commit` | `Commit`, `CommitHeader`, `CommitContent`, `CommitDiff` | Git commit and code modification diff viewer for AI code generators |
+| `confirmation` | `@celestia-project/ui/components/ai/confirmation` | `Confirmation`, `ConfirmationTitle`, `ConfirmationRequest`, `ConfirmationAccepted`, `ConfirmationRejected`, `ConfirmationActions`, `ConfirmationAction` | Human-in-the-loop tool execution approval alert dialog |
+| `connection` | `@celestia-project/ui/components/ai/connection` | `Connection` | Node connection routing line for AI graph workflows |
+| `context` | `@celestia-project/ui/components/ai/context` | `Context`, `ContextTrigger`, `ContextContent`, `ContextTokens`, `ContextCacheUsage` | LLM context window token counter and cache utilization monitor |
+| `controls` | `@celestia-project/ui/components/ai/controls` | `Controls`, `ControlItem` | Zoom, pan, and fit-to-view navigation controls for canvas workflows |
+| `conversation` | `@celestia-project/ui/components/ai/conversation` | `Conversation`, `ConversationContent`, `ConversationEmptyState`, `ConversationScrollToBottom` | Pinned auto-scrolling chat stream container with stick-to-bottom behavior |
+| `edge` | `@celestia-project/ui/components/ai/edge` | `Edge` | Visual graph edge connector between workflow nodes |
+| `environment-variables` | `@celestia-project/ui/components/ai/environment-variables` | `EnvironmentVariables`, `EnvironmentVariablesHeader`, `EnvironmentVariablesContent` | Key-value environment variable editor for AI tool sandboxes |
+| `file-tree` | `@celestia-project/ui/components/ai/file-tree` | `FileTree`, `FileTreeFolder`, `FileTreeFile` | Interactive workspace file tree hierarchy viewer |
+| `image` | `@celestia-project/ui/components/ai/image` | `ImageZoom`, `ImagePreview` | AI generated image viewer with lightbox magnification and metadata |
+| `inline-citation` | `@celestia-project/ui/components/ai/inline-citation` | `InlineCitation`, `InlineCitationCard`, `InlineCitationSource` | Per-sentence footnote popover linking directly to source citations |
+| `jsx-preview` | `@celestia-project/ui/components/ai/jsx-preview` | `JSXPreview` | Safe JSX string sandbox renderer for live AI UI generation |
+| `message-scroller` | `@celestia-project/ui/components/ai/message-scroller` | `MessageScroller` | Auto-scrolling viewport maintaining scroll anchor during real-time streaming |
+| `message` | `@celestia-project/ui/components/ai/message` | `AiMessage`, `AiMessageContent`, `MessageActions`, `MessageAction`, `MessageBranch`, `MessageBranchContent`, `MessageBranchSelector`, `MessageBranchPrevious`, `MessageBranchNext`, `MessageBranchPage`, `MessageResponse`, `MessageToolbar` | Markdown-rendered message item with multi-branch switching and response actions |
+| `mic-selector` | `@celestia-project/ui/components/ai/mic-selector` | `MicSelector`, `MicSelectorTrigger`, `MicSelectorContent` | Input microphone device selector dropdown |
+| `model-selector` | `@celestia-project/ui/components/ai/model-selector` | `ModelSelector`, `ModelSelectorTrigger`, `ModelSelectorContent`, `ModelSelectorInput`, `ModelSelectorList`, `ModelSelectorEmpty`, `ModelSelectorGroup`, `ModelSelectorItem`, `ModelSelectorShortcut`, `ModelSelectorSeparator`, `ModelSelectorLogo`, `ModelSelectorLogoGroup`, `ModelSelectorName` | LLM model switcher with provider logos, shortcuts, and context metadata |
+| `node` | `@celestia-project/ui/components/ai/node` | `Node`, `NodeHeader`, `NodeContent`, `NodeAction` | Interactive workflow canvas node card |
+| `open-in-chat` | `@celestia-project/ui/components/ai/open-in-chat` | `OpenInChat`, `OpenInTrigger`, `OpenInChatGPT`, `OpenInClaude` | Quick-launch external query in ChatGPT, Claude, or Perplexity |
+| `package-info` | `@celestia-project/ui/components/ai/package-info` | `PackageInfo`, `PackageInfoHeader`, `PackageInfoContent` | Package manifest and npm dependency analyzer |
+| `panel` | `@celestia-project/ui/components/ai/panel` | `Panel`, `PanelHeader`, `PanelContent` | Floating sidecar tool panel on infinite canvases |
+| `persona` | `@celestia-project/ui/components/ai/persona` | `Persona`, `PersonaAvatar`, `PersonaName`, `PersonaRole` | AI assistant persona profile badge and role indicator |
+| `plan` | `@celestia-project/ui/components/ai/plan` | `Plan`, `PlanHeader`, `PlanTitle`, `PlanDescription`, `PlanAction`, `PlanContent`, `PlanFooter`, `PlanTrigger` | Collapsible multi-step plan breakdown with live streaming shimmer |
+| `prompt-input` | `@celestia-project/ui/components/ai/prompt-input` | `PromptInput`, `PromptInputTextarea`, `PromptInputHeader`, `PromptInputFooter`, `PromptInputTools`, `PromptInputButton`, `PromptInputSubmit`, `PromptInputActionMenu`, `PromptInputSelect` | Rich AI prompt bar with multi-line expand, file upload dropzone, command autocomplete, and status controls |
+| `queue` | `@celestia-project/ui/components/ai/queue` | `Queue`, `QueueHeader`, `QueueItem`, `QueueContent` | Background job execution and generation queue monitor |
+| `reasoning` | `@celestia-project/ui/components/ai/reasoning` | `Reasoning`, `ReasoningTrigger`, `ReasoningContent` | Collapsible streaming chain-of-thought and model reasoning display with timer |
+| `sandbox` | `@celestia-project/ui/components/ai/sandbox` | `Sandbox`, `SandboxHeader`, `SandboxContent`, `SandboxRunButton` | Live code execution sandbox with output viewer |
+| `schema-display` | `@celestia-project/ui/components/ai/schema-display` | `SchemaDisplay` | Interactive JSON Schema explorer and validator |
+| `shimmer` | `@celestia-project/ui/components/ai/shimmer` | `Shimmer` | Text skeleton shimmer animation effect during streaming generation |
+| `snippet` | `@celestia-project/ui/components/ai/snippet` | `Snippet`, `SnippetHeader`, `SnippetContent`, `SnippetCopyButton` | Compact code snippet preview and one-click copy card |
+| `sources` | `@celestia-project/ui/components/ai/sources` | `Sources`, `SourcesTrigger`, `SourcesContent`, `Source` | Collapsible RAG source references panel with external links |
+| `speech-input` | `@celestia-project/ui/components/ai/speech-input` | `SpeechInput` | Speech-to-text voice input controller and audio visualizer |
+| `stack-trace` | `@celestia-project/ui/components/ai/stack-trace` | `StackTrace`, `StackTraceHeader`, `StackTraceFrames` | Formatted error stack trace analyzer and frame inspector |
+| `suggestion` | `@celestia-project/ui/components/ai/suggestion` | `Suggestions`, `Suggestion` | Horizontal scrollable prompt suggestions and quick action pills |
+| `task` | `@celestia-project/ui/components/ai/task` | `Task`, `TaskTrigger`, `TaskContent`, `TaskItem`, `TaskItemFile` | Multi-step agent task progress display with status icons |
+| `terminal` | `@celestia-project/ui/components/ai/terminal` | `Terminal`, `TerminalHeader`, `TerminalContent` | Simulated terminal command executor and CLI output stream |
+| `test-results` | `@celestia-project/ui/components/ai/test-results` | `TestResults`, `TestResultSummary`, `TestResultList` | Test suite execution breakdown with pass/fail counts |
+| `tool` | `@celestia-project/ui/components/ai/tool` | `Tool`, `ToolHeader`, `ToolContent`, `ToolInput`, `ToolOutput` | Agent tool call inspection and execution viewer with status badges |
+| `toolbar` | `@celestia-project/ui/components/ai/toolbar` | `Toolbar`, `ToolbarButton`, `ToolbarSeparator`, `ToolbarGroup` | Floating AI action toolbar for canvas and text selections |
+| `transcription` | `@celestia-project/ui/components/ai/transcription` | `Transcription`, `TranscriptionSegment` | Audio transcription synchronized viewer |
+| `voice-selector` | `@celestia-project/ui/components/ai/voice-selector` | `VoiceSelector`, `VoiceSelectorTrigger`, `VoiceSelectorContent`, `VoiceSelectorList` | Voice selection dialog with audio previews and gender badges |
+| `web-preview` | `@celestia-project/ui/components/ai/web-preview` | `WebPreview`, `WebPreviewNavigation`, `WebPreviewAddressBar` | Responsive viewport browser frame for previewing generated web pages |
+
 
 ---
 

@@ -124,8 +124,8 @@ function DesignSystemContent() {
         badgeHref="/design-system"
         searchQuery={searchQuery}
         setSearchQuery={handleSearchChange}
-        searchPlaceholder="Search 70+ components, tokens, guides..."
-        totalComponents={70}
+        searchPlaceholder="Search 110+ UI & AI components, tokens, guides..."
+        totalComponents={110}
       />
 
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-24">
@@ -137,7 +137,7 @@ function DesignSystemContent() {
               @celestia-project/ui • v0.2.1
             </Badge>
             <Badge variant="secondary" className="font-mono text-xs">
-              70+ Base UI Components
+              110+ Components (63 Base UI + 54 AI)
             </Badge>
             <Badge variant="outline" className="text-xs text-muted-foreground font-mono">
               Tailwind CSS v4 + OKLCH
@@ -150,7 +150,7 @@ function DesignSystemContent() {
 
           <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground sm:text-base lg:text-lg">
             An industry-grade, token-driven design system and component library engineered for high performance, accessibility,
-            and multi-framework integration. Powered by unstyled <strong>Base UI</strong> primitives, modern <strong>OKLCH color scales</strong>, and zero-runtime Tailwind CSS v4.
+            and multi-framework integration. Powered by unstyled <strong>Base UI</strong> primitives, 54 <strong>AI & agent development primitives</strong>, modern <strong>OKLCH color scales</strong>, and zero-runtime Tailwind CSS v4.
           </p>
 
           {/* Quick Pillars */}
@@ -203,7 +203,7 @@ function DesignSystemContent() {
                 data-state={activeSection === "components" ? "on" : "off"}
               >
                 <CursorClickIcon className="size-4" />
-                <span>1. Components Showcase (70+)</span>
+                <span>1. Components Showcase (110+)</span>
               </Button>
               <Button
                 variant="outline"
@@ -329,7 +329,7 @@ function DesignSystemContent() {
                   <NavigationSection />
                 )}
 
-                {(!normalizedQuery || "chat ai message bubble attachment input scroller area".includes(normalizedQuery)) && (
+                {(!normalizedQuery || "chat ai message bubble attachment input prompt reasoning tool model plan task suggestion sources citation audio file-tree confirmation context scroller area".includes(normalizedQuery)) && (
                   <ChatAiSection />
                 )}
 
