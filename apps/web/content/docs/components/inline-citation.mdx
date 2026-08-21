@@ -1,0 +1,44 @@
+---
+title: "Inline Citation"
+description: "A per-sentence inline footnote chip with a rich hover popover card previewing the citation source."
+---
+
+The `InlineCitation` component displays numbered or pill-style citations inline with chat prose, expanding into a hover card with source metadata.
+
+<InlineCitationPreview />
+
+## Usage
+
+```tsx
+import {
+  InlineCitation,
+  InlineCitationCard,
+  InlineCitationCardTrigger,
+} from "@celestia-project/ui"
+
+export function MyInlineCitation() {
+  return (
+    <p className="text-sm leading-relaxed">
+      Celestia utilizes standalone Hono backend services
+      <InlineCitation>
+        <InlineCitationCardTrigger sources={[{ title: "Hono RPC Guide", url: "https://hono.dev" }]} />
+        <InlineCitationCard
+          title="Hono Framework"
+          url="https://hono.dev"
+          description="Ultra-fast web standards framework for cloud and Node.js."
+        />
+      </InlineCitation>
+      combined with Next.js pure UI rendering.
+    </p>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `InlineCitationCardTrigger` | `sources` | `Array<{ title: string; url?: string }>` | List of sources mapped to numbered pill chips. |
+| `InlineCitationCard` | `title` | `string` | Header title in hover popover. |
+| `InlineCitationCard` | `url` | `string` | Outbound external link. |
+| `InlineCitationCard` | `description` | `string` | Summary or excerpt text. |

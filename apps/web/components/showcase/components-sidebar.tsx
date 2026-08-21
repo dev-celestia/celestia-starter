@@ -115,7 +115,7 @@ export const CATEGORIES: CategoryItem[] = [
   },
   {
     id: "chat-ai",
-    name: "AI & Chat UI",
+    name: "AI Components",
     icon: ChatCircleDotsIcon,
     count: 14,
     items: [

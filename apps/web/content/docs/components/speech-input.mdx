@@ -1,0 +1,30 @@
+---
+title: "Speech Input"
+description: "A voice recording and speech-to-text input component with real-time waveform animation."
+---
+
+The `SpeechInput` component manages browser microphone access, voice capture, and visual audio level meters.
+
+<SpeechInputPreview />
+
+## Usage
+
+```tsx
+import { SpeechInput } from "@celestia-project/ui"
+
+export function MySpeechInput() {
+  return (
+    <SpeechInput
+      onAudioRecorded={(blob) => console.log("Audio blob:", blob)}
+      className="w-full max-w-md"
+    />
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `SpeechInput` | `onAudioRecorded` | `(blob: Blob) => void` | Triggered when user finishes recording speech. |
+| `SpeechInput` | `maxDuration` | `number` | Maximum allowed recording length in seconds. |

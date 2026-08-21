@@ -1,0 +1,32 @@
+---
+title: "Transcription"
+description: "An audio transcription segment viewer with timestamp navigation and speaker highlighting."
+---
+
+The `Transcription` component presents speech-to-text outputs with synchronized timestamps and active segment tracking.
+
+<TranscriptionPreview />
+
+## Usage
+
+```tsx
+import { Transcription } from "@celestia-project/ui"
+
+export function MyTranscription() {
+  const segments = [
+    { start: 0, end: 2.4, text: "Welcome to Celestia Starter." },
+    { start: 2.5, end: 5.1, text: "A decoupled monorepo architecture for modern web applications." },
+  ]
+
+  return (
+    <Transcription segments={segments} className="w-full max-w-md" />
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `Transcription` | `segments` | `Array<{ start: number; end: number; text: string; speaker?: string }>` | Array of audio transcription time-coded phrases. |
+| `Transcription` | `currentTime` | `number` | Optional playback head time for active segment highlighting. |

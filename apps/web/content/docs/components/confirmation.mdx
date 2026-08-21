@@ -1,0 +1,45 @@
+---
+title: "Confirmation"
+description: "A human-in-the-loop approval dialog for dangerous actions, tool execution permissions, and schema migrations."
+---
+
+The `Confirmation` component allows agents to prompt users for explicit authorization before executing sensitive actions like running destructive database queries, deleting files, or spending credits.
+
+<ConfirmationPreview />
+
+## Usage
+
+```tsx
+import {
+  Confirmation,
+  ConfirmationTitle,
+  ConfirmationActions,
+  ConfirmationAction,
+} from "@celestia-project/ui"
+
+export function MyConfirmation() {
+  return (
+    <Confirmation className="w-full max-w-md rounded-xl border p-4">
+      <ConfirmationTitle>
+        Run database migration on production cluster?
+      </ConfirmationTitle>
+      <ConfirmationActions>
+        <ConfirmationAction variant="outline" size="sm" onClick={() => console.log("Rejected")}>
+          Cancel
+        </ConfirmationAction>
+        <ConfirmationAction variant="default" size="sm" onClick={() => console.log("Approved")}>
+          Confirm & Execute
+        </ConfirmationAction>
+      </ConfirmationActions>
+    </Confirmation>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `ConfirmationTitle` | `children` | `ReactNode` | The confirmation message or question presented to the user. |
+| `ConfirmationAction` | `variant` | `string` | Button styling variant (`default`, `outline`, `destructive`). |
+| `ConfirmationAction` | `onClick` | `() => void` | Action trigger callback. |

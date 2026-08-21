@@ -1,0 +1,67 @@
+---
+title: "Model Selector"
+description: "A comprehensive LLM model selector dropdown featuring provider logos, keyboard shortcuts, and context size badges."
+---
+
+The `ModelSelector` component provides a search-enabled popover menu for switching between LLM providers (Anthropic, OpenAI, Google Gemini, Mistral, Ollama, DeepSeek).
+
+<ModelSelectorPreview />
+
+## Usage
+
+```tsx
+import * as React from "react"
+import {
+  ModelSelector,
+  ModelSelectorTrigger,
+  ModelSelectorContent,
+  ModelSelectorInput,
+  ModelSelectorList,
+  ModelSelectorEmpty,
+  ModelSelectorGroup,
+  ModelSelectorItem,
+  ModelSelectorLogo,
+  ModelSelectorName,
+  Button,
+} from "@celestia-project/ui"
+import { SparkleIcon } from "@phosphor-icons/react"
+
+export function MyModelSelector() {
+  const [model, setModel] = React.useState("claude-3-7-sonnet")
+
+  return (
+    <ModelSelector>
+      <ModelSelectorTrigger render={<Button variant="outline" size="sm" className="gap-2 font-mono text-xs" />}>
+        <SparkleIcon className="size-3.5 text-primary" weight="fill" />
+        <span>{model}</span>
+      </ModelSelectorTrigger>
+      <ModelSelectorContent>
+        <ModelSelectorInput placeholder="Search models..." />
+        <ModelSelectorList>
+          <ModelSelectorEmpty>No models found.</ModelSelectorEmpty>
+          <ModelSelectorGroup heading="Anthropic">
+            <ModelSelectorItem onSelect={() => setModel("claude-3-7-sonnet")}>
+              <ModelSelectorLogo provider="anthropic" />
+              <ModelSelectorName>Claude 3.7 Sonnet</ModelSelectorName>
+            </ModelSelectorItem>
+          </ModelSelectorGroup>
+          <ModelSelectorGroup heading="OpenAI">
+            <ModelSelectorItem onSelect={() => setModel("gpt-4o")}>
+              <ModelSelectorLogo provider="openai" />
+              <ModelSelectorName>GPT-4o</ModelSelectorName>
+            </ModelSelectorItem>
+          </ModelSelectorGroup>
+        </ModelSelectorList>
+      </ModelSelectorContent>
+    </ModelSelector>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `ModelSelectorLogo` | `provider` | `"anthropic" \| "openai" \| "google" \| "mistral" \| "ollama" \| "deepseek"` | Renders authentic vector logo. |
+| `ModelSelectorInput` | `placeholder` | `string` | Search input placeholder text. |
+| `ModelSelectorItem` | `onSelect` | `() => void` | Selection callback handler. |

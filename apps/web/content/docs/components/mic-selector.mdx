@@ -1,0 +1,35 @@
+---
+title: "Mic Selector"
+description: "An audio input device selection dropdown for multi-mic recording setups."
+---
+
+The `MicSelector` component allows users to choose their audio input device when interacting with speech-to-text models.
+
+<MicSelectorPreview />
+
+## Usage
+
+```tsx
+import {
+  MicSelector,
+  MicSelectorTrigger,
+  MicSelectorContent,
+} from "@celestia-project/ui"
+
+export function MyMicSelector() {
+  return (
+    <MicSelector>
+      <MicSelectorTrigger className="h-8 text-xs gap-2" />
+      <MicSelectorContent />
+    </MicSelector>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Purpose |
+| --- | --- |
+| `MicSelector` | Root popover context for media device detection. |
+| `MicSelectorTrigger` | Dropdown trigger button showing active microphone device. |
+| `MicSelectorContent` | Menu list of discovered system microphone inputs. |

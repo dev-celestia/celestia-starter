@@ -195,10 +195,26 @@ export function getDocsNavigation(): NavGroup[] {
         description: compOverviewDoc?.meta.description,
       })
 
-      // Add other components into a dedicated UI Components group
-      const compItems: NavLink[] = []
+      if (currentGroupItems.length > 0) {
+        groups.push({ name: currentGroupName, items: currentGroupItems })
+        currentGroupItems = []
+      }
+
+      // Add other components into dedicated groups
+      let compGroupName = "UI Components"
+      let compItems: NavLink[] = []
+
       for (const compSlug of compPages) {
         if (compSlug === "index") continue
+        if (compSlug.startsWith("---") && compSlug.endsWith("---")) {
+          if (compItems.length > 0) {
+            groups.push({ name: compGroupName, items: compItems })
+            compItems = []
+          }
+          compGroupName = compSlug.replace(/^---+|---+$/g, "").trim()
+          continue
+        }
+
         const doc = getDocBySlug(["components", compSlug])
         compItems.push({
           title: doc?.meta.title || compSlug,
@@ -208,15 +224,12 @@ export function getDocsNavigation(): NavGroup[] {
         })
       }
 
-      if (currentGroupItems.length > 0) {
-        groups.push({ name: currentGroupName, items: currentGroupItems })
-        currentGroupItems = []
+      if (compItems.length > 0) {
+        groups.push({
+          name: compGroupName,
+          items: compItems,
+        })
       }
-
-      groups.push({
-        name: "UI Components",
-        items: compItems,
-      })
       currentGroupName = "More"
       continue
     }

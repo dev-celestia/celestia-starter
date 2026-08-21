@@ -1,0 +1,35 @@
+---
+title: "Suggestion"
+description: "Horizontal quick-action suggestion pills that prompt user follow-up questions."
+---
+
+The `Suggestions` component displays horizontally scrollable chips containing recommended prompt questions or actions.
+
+<SuggestionsPreview />
+
+## Usage
+
+```tsx
+import { Suggestions, Suggestion } from "@celestia-project/ui"
+
+export function MySuggestions() {
+  const handleSelect = (text: string) => {
+    console.log("Selected prompt:", text)
+  }
+
+  return (
+    <Suggestions>
+      <Suggestion suggestion="Scaffold Hono CRUD route" onClick={handleSelect} />
+      <Suggestion suggestion="Add Better Auth Google OAuth" onClick={handleSelect} />
+      <Suggestion suggestion="Create Drizzle Migration" onClick={handleSelect} />
+    </Suggestions>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `Suggestion` | `suggestion` | `string` | The suggestion label and text value passed on click. |
+| `Suggestion` | `onClick` | `(text: string) => void` | Callback triggered when the suggestion pill is clicked. |

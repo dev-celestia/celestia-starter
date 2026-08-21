@@ -1,0 +1,44 @@
+---
+title: "Commit"
+description: "A Git commit card detailing commit message, hash, author, and line change diff badges."
+---
+
+The `Commit` component visualizes code modification commits authored by autonomous agents or developers.
+
+<CommitPreview />
+
+## Usage
+
+```tsx
+import {
+  Commit,
+  CommitHeader,
+  CommitContent,
+  CommitDiff,
+} from "@celestia-project/ui"
+
+export function MyCommit() {
+  return (
+    <Commit className="w-full max-w-md">
+      <CommitHeader
+        hash="7a8f9c1"
+        message="feat: add Hono RPC typed client route"
+        author="Celestia Agent"
+      />
+      <CommitContent>
+        <CommitDiff added={18} removed={3} />
+      </CommitContent>
+    </Commit>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `CommitHeader` | `hash` | `string` | Commit SHA hash snippet. |
+| `CommitHeader` | `message` | `string` | Git commit title. |
+| `CommitHeader` | `author` | `string` | Name of committer or agent. |
+| `CommitDiff` | `added` | `number` | Count of inserted lines. |
+| `CommitDiff` | `removed` | `number` | Count of deleted lines. |

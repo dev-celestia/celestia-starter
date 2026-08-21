@@ -1,0 +1,33 @@
+---
+title: "Panel"
+description: "A floating sidecar tool panel on infinite workflow canvases."
+---
+
+The `Panel` component renders floating toolbars, statistics overlays, or settings menus fixed at canvas viewport anchors.
+
+## Usage
+
+```tsx
+import {
+  Panel,
+  PanelHeader,
+  PanelContent,
+} from "@celestia-project/ui"
+
+export function MyPanel() {
+  return (
+    <Panel position="top-right" className="rounded-lg border bg-card p-3 shadow-md">
+      <PanelHeader title="Canvas MiniMap" />
+      <PanelContent>
+        <span className="text-xs text-muted-foreground">Zoom: 100%</span>
+      </PanelContent>
+    </Panel>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `Panel` | `position` | `"top-left" \| "top-right" \| "bottom-left" \| "bottom-right"` | Viewport corner anchor. |

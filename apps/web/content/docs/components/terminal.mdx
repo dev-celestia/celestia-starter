@@ -1,0 +1,36 @@
+---
+title: "Terminal"
+description: "A simulated command-line terminal window with ANSI color parsing and streaming execution cursors."
+---
+
+The `Terminal` component renders interactive CLI command outputs, shell logs, and build outputs with full ANSI escape sequence coloring.
+
+<TerminalPreview />
+
+## Usage
+
+```tsx
+import { Terminal } from "@celestia-project/ui"
+
+export function MyTerminal() {
+  const output = `$ pnpm build
+> @celestia-project/ui:build
+> tsup
+✓ Build completed in 420ms`
+
+  return (
+    <Terminal
+      output={output}
+      className="w-full max-w-md"
+    />
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `Terminal` | `output` | `string` | `""` | ANSI text output from execution. |
+| `Terminal` | `isStreaming` | `boolean` | `false` | Shows animated pulsing terminal cursor. |
+| `Terminal` | `autoScroll` | `boolean` | `true` | Automatically scrolls down as output streams. |

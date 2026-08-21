@@ -141,11 +141,9 @@ import { GearIcon } from "@phosphor-icons/react"
 export function DialogDemo() {
   return (
     <Dialog>
-      <DialogTrigger>
-        <Button variant="default" size="sm" className="gap-1.5">
-          <GearIcon className="size-4" />
-          Edit Profile Dialog
-        </Button>
+      <DialogTrigger render={<Button variant="default" size="sm" className="gap-1.5" />}>
+        <GearIcon className="size-4" />
+        Edit Profile Dialog
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
@@ -187,11 +185,9 @@ import { WarningIcon } from "@phosphor-icons/react"
 export function AlertDialogDemo() {
   return (
     <AlertDialog>
-      <AlertDialogTrigger>
-        <Button variant="destructive" size="sm" className="gap-1.5">
-          <WarningIcon className="size-4" />
-          Delete Project
-        </Button>
+      <AlertDialogTrigger render={<Button variant="destructive" size="sm" className="gap-1.5" />}>
+        <WarningIcon className="size-4" />
+        Delete Project
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -225,11 +221,9 @@ import { BellIcon } from "@phosphor-icons/react"
 export function SheetDemo() {
   return (
     <Sheet>
-      <SheetTrigger>
-        <Button variant="outline" size="sm" className="gap-1.5">
-          <BellIcon className="size-4" />
-          Open Side Sheet
-        </Button>
+      <SheetTrigger render={<Button variant="outline" size="sm" className="gap-1.5" />}>
+        <BellIcon className="size-4" />
+        Open Side Sheet
       </SheetTrigger>
       <SheetContent side="right" className="p-6">
         <SheetHeader>
@@ -253,8 +247,8 @@ import { Popover, PopoverTrigger, PopoverContent, Button, Input, Label } from "@
 export function PopoverDemo() {
   return (
     <Popover>
-      <PopoverTrigger>
-        <Button variant="outline" size="sm">Customize Metrics</Button>
+      <PopoverTrigger render={<Button variant="outline" size="sm" />}>
+        Customize Metrics
       </PopoverTrigger>
       <PopoverContent className="w-72 p-4">
         <div className="flex flex-col gap-2">
@@ -274,10 +268,8 @@ export function TooltipDemo() {
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger>
-          <Button variant="outline" size="icon-sm">
-            <SparkleIcon className="size-4 text-amber-400" weight="fill" />
-          </Button>
+        <TooltipTrigger render={<Button variant="outline" size="icon-sm" />}>
+          <SparkleIcon className="size-4 text-amber-400" weight="fill" />
         </TooltipTrigger>
         <TooltipContent>
           <p>AI Query Optimization Enabled</p>
@@ -293,10 +285,8 @@ import { HoverCard, HoverCardTrigger, HoverCardContent, Avatar, AvatarImage, Ava
 export function HoverCardDemo() {
   return (
     <HoverCard>
-      <HoverCardTrigger>
-        <span className="text-xs font-medium underline underline-offset-4 cursor-pointer">
-          @celestia-core
-        </span>
+      <HoverCardTrigger render={<span className="text-xs font-medium underline underline-offset-4 cursor-pointer" />}>
+        @celestia-core
       </HoverCardTrigger>
       <HoverCardContent className="w-80 p-4">
         <div className="flex gap-3">
@@ -321,12 +311,12 @@ export function ProgressDemo() {
   const [progress, setProgress] = React.useState(68)
 
   return (
-    <div className="flex flex-col gap-3 max-w-sm w-full">
-      <div className="flex justify-between text-xs">
-        <span className="text-muted-foreground">Migration Status</span>
-        <span className="font-mono font-medium">{progress}%</span>
+    <div className="flex w-full max-w-sm flex-col gap-3">
+      <Progress value={progress} />
+      <div className="flex justify-between">
+        <Button size="xs" variant="outline" onClick={() => setProgress((p) => Math.max(0, p - 10))}>-10%</Button>
+        <Button size="xs" variant="outline" onClick={() => setProgress((p) => Math.min(100, p + 10))}>+10%</Button>
       </div>
-      <Progress value={progress} className="w-full" />
     </div>
   )
 }`
@@ -336,8 +326,8 @@ import { Spinner } from "@celestia-project/ui"
 
 export function SpinnerDemo() {
   return (
-    <div className="flex items-center gap-6">
-      <Spinner className="size-4 text-muted-foreground" />
+    <div className="flex items-center gap-4">
+      <Spinner className="size-4" />
       <Spinner className="size-6 text-primary" />
       <Spinner className="size-8 text-sky-500" />
     </div>
@@ -443,11 +433,9 @@ export function FeedbackSection() {
             codeExample={DIALOG_CODE}
           >
             <Dialog>
-              <DialogTrigger>
-                <Button variant="default" size="sm" className="gap-1.5">
-                  <GearIcon className="size-4" />
-                  Edit Profile Dialog
-                </Button>
+              <DialogTrigger render={<Button variant="default" size="sm" className="gap-1.5" />}>
+                <GearIcon className="size-4" />
+                Edit Profile Dialog
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
@@ -481,11 +469,9 @@ export function FeedbackSection() {
             codeExample={ALERT_DIALOG_CODE}
           >
             <AlertDialog>
-              <AlertDialogTrigger>
-                <Button variant="destructive" size="sm" className="gap-1.5">
-                  <WarningIcon className="size-4" />
-                  Delete Project
-                </Button>
+              <AlertDialogTrigger render={<Button variant="destructive" size="sm" className="gap-1.5" />}>
+                <WarningIcon className="size-4" />
+                Delete Project
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
@@ -515,11 +501,9 @@ export function FeedbackSection() {
             codeExample={SHEET_CODE}
           >
             <Sheet>
-              <SheetTrigger>
-                <Button variant="outline" size="sm" className="gap-1.5">
-                  <BellIcon className="size-4" />
-                  Open Side Sheet
-                </Button>
+              <SheetTrigger render={<Button variant="outline" size="sm" className="gap-1.5" />}>
+                <BellIcon className="size-4" />
+                Open Side Sheet
               </SheetTrigger>
               <SheetContent side="right" className="p-6">
                 <SheetHeader>
@@ -558,10 +542,8 @@ export function FeedbackSection() {
             codeExample={POPOVER_CODE}
           >
             <Popover>
-              <PopoverTrigger>
-                <Button variant="outline" size="sm">
-                  Customize Metrics
-                </Button>
+              <PopoverTrigger render={<Button variant="outline" size="sm" />}>
+                Customize Metrics
               </PopoverTrigger>
               <PopoverContent className="w-72 p-4">
                 <div className="flex flex-col gap-2.5">
@@ -590,10 +572,8 @@ export function FeedbackSection() {
           >
             <div className="flex items-center gap-3">
               <Tooltip>
-                <TooltipTrigger>
-                  <Button variant="outline" size="icon-sm">
-                    <SparkleIcon className="size-4 text-amber-400" weight="fill" />
-                  </Button>
+                <TooltipTrigger render={<Button variant="outline" size="icon-sm" />}>
+                  <SparkleIcon className="size-4 text-amber-400" weight="fill" />
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>AI Query Optimization Enabled</p>
@@ -601,10 +581,8 @@ export function FeedbackSection() {
               </Tooltip>
 
               <Tooltip>
-                <TooltipTrigger>
-                  <Button variant="secondary" size="sm">
-                    Hover for shortcut
-                  </Button>
+                <TooltipTrigger render={<Button variant="secondary" size="sm" />}>
+                  Hover for shortcut
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Press ⌘K to open command menu</p>
@@ -624,10 +602,8 @@ export function FeedbackSection() {
             codeExample={HOVER_CARD_CODE}
           >
             <HoverCard>
-              <HoverCardTrigger>
-                <span className="text-xs font-medium underline underline-offset-4 cursor-pointer hover:text-primary">
-                  @celestia-core
-                </span>
+              <HoverCardTrigger render={<span className="text-xs font-medium underline underline-offset-4 cursor-pointer hover:text-primary" />}>
+                @celestia-core
               </HoverCardTrigger>
               <HoverCardContent className="w-80 p-4">
                 <div className="flex justify-between space-x-4">

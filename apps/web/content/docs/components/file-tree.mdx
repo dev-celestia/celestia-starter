@@ -1,0 +1,45 @@
+---
+title: "File Tree"
+description: "An interactive directory hierarchy viewer with file-type icons and folder expansion states."
+---
+
+The `FileTree` component visualizes directory trees and code file structures generated or modified by AI agents.
+
+<FileTreePreview />
+
+## Usage
+
+```tsx
+import {
+  FileTree,
+  FileTreeFolder,
+  FileTreeFile,
+} from "@celestia-project/ui"
+
+export function MyFileTree() {
+  return (
+    <FileTree className="w-full max-w-sm rounded-lg border p-2">
+      <FileTreeFolder name="apps" defaultOpen>
+        <FileTreeFolder name="api" defaultOpen>
+          <FileTreeFile name="src/index.ts" />
+          <FileTreeFile name="src/auth.ts" />
+        </FileTreeFolder>
+        <FileTreeFolder name="web">
+          <FileTreeFile name="app/page.tsx" />
+        </FileTreeFolder>
+      </FileTreeFolder>
+      <FileTreeFolder name="packages">
+        <FileTreeFile name="db/src/schema.ts" />
+      </FileTreeFolder>
+    </FileTree>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `FileTreeFolder` | `name` | `string` | Folder name displayed next to folder icon. |
+| `FileTreeFolder` | `defaultOpen` | `boolean` | Initial expanded status. |
+| `FileTreeFile` | `name` | `string` | File name with automatic icon determination. |

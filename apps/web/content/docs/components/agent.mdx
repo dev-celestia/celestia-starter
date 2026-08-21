@@ -1,0 +1,43 @@
+---
+title: "Agent"
+description: "A visual AI agent card detailing system instructions, model identifiers, registered tool manifests, and output schemas."
+---
+
+The `Agent` component visualizes autonomous agent definitions, including tool configurations, input schemas, and expected outputs.
+
+<AgentPreview />
+
+## Usage
+
+```tsx
+import {
+  Agent,
+  AgentHeader,
+  AgentContent,
+  AgentInstructions,
+  AgentOutput,
+} from "@celestia-project/ui"
+
+export function MyAgent() {
+  return (
+    <Agent className="w-full max-w-md">
+      <AgentHeader name="Database Architect" model="Claude 3.7 Sonnet" />
+      <AgentContent>
+        <AgentInstructions>
+          Analyze SQL performance, suggest compound indexes, and create Drizzle ORM schema migrations.
+        </AgentInstructions>
+        <AgentOutput schema="interface MigrationResult { applied: number; durationMs: number; }" />
+      </AgentContent>
+    </Agent>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `AgentHeader` | `name` | `string` | Display name of the agent. |
+| `AgentHeader` | `model` | `string` | Associated LLM model tag. |
+| `AgentInstructions` | `children` | `string` | Agent system prompt or operating rules. |
+| `AgentOutput` | `schema` | `string` | TypeScript or JSON Schema describing output format. |

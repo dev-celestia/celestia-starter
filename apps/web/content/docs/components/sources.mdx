@@ -1,0 +1,43 @@
+---
+title: "Sources"
+description: "A collapsible RAG knowledge-base drawer showcasing reference citations, URLs, and similarity scores."
+---
+
+The `Sources` component lists external documentation, vector search chunks, and web references utilized by retrieval-augmented generation (RAG) models.
+
+<SourcesPreview />
+
+## Usage
+
+```tsx
+import { Sources, SourcesTrigger, SourcesContent, Source } from "@celestia-project/ui"
+
+export function MySources() {
+  return (
+    <Sources defaultOpen className="w-full max-w-md">
+      <SourcesTrigger count={2} />
+      <SourcesContent>
+        <Source
+          title="Drizzle ORM Documentation"
+          url="https://orm.drizzle.team/docs/overview"
+          description="Official guide on relations and migrations."
+        />
+        <Source
+          title="Better Auth Architecture"
+          url="https://better-auth.com/docs"
+          description="Standalone API server and client SDK setup."
+        />
+      </SourcesContent>
+    </Sources>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `SourcesTrigger` | `count` | `number` | Number of referenced sources to display on the badge. |
+| `Source` | `title` | `string` | Title of the source document. |
+| `Source` | `url` | `string` | Clickable outbound link. |
+| `Source` | `description` | `string` | Snippet or summary excerpt from the source. |

@@ -1,0 +1,37 @@
+---
+title: "Reasoning"
+description: "A collapsible chain-of-thought accordion displaying the model's internal thinking process with live duration tracking."
+---
+
+The `Reasoning` component surfaces chain-of-thought steps and reasoning traces from models like Claude 3.7 Sonnet, DeepSeek R1, or OpenAI o3. It includes a collapsible trigger with thought duration in seconds and a smooth content container.
+
+<ReasoningPreview />
+
+## Usage
+
+```tsx
+import { Reasoning, ReasoningTrigger, ReasoningContent } from "@celestia-project/ui"
+
+export function MyReasoning() {
+  return (
+    <Reasoning defaultOpen duration={4} className="w-full max-w-md rounded-xl border p-4 bg-muted/20">
+      <ReasoningTrigger />
+      <ReasoningContent>
+        The user wants to configure database indexes for the blog posts table.
+        1. Analyzed schema relationships in `packages/db/src/schema/posts.ts`.
+        2. Computed compound indexes on foreign keys (`userId`, `createdAt`).
+        3. Formatted migration SQL with transactional safety.
+      </ReasoningContent>
+    </Reasoning>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `Reasoning` | `duration` | `number` | `undefined` | Duration in seconds spent thinking. |
+| `Reasoning` | `defaultOpen` | `boolean` | `false` | Whether reasoning accordion starts expanded. |
+| `ReasoningTrigger` | `title` | `string` | `"Thinking..."` | Custom trigger title text. |
+| `ReasoningContent` | `className` | `string` | — | Content styling overrides. |

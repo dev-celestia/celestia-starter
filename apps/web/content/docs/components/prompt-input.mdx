@@ -1,0 +1,82 @@
+---
+title: "Prompt Input"
+description: "A rich AI prompt input bar with auto-expanding textarea, file dropzones, model selector, tool buttons, and action menu."
+---
+
+The `PromptInput` component is the primary user input container for conversational AI and generative agents. It supports multi-line expanding textareas, inline file upload triggers, model selection, keyboard shortcuts (`Enter` to submit, `Shift+Enter` for newline), and custom action buttons.
+
+<PromptInputPreview />
+
+## Usage
+
+```tsx
+import * as React from "react"
+import {
+  PromptInput,
+  PromptInputTextarea,
+  PromptInputHeader,
+  PromptInputFooter,
+  PromptInputTools,
+  PromptInputButton,
+  PromptInputSubmit,
+  PromptInputSelect,
+  PromptInputSelectTrigger,
+  PromptInputSelectContent,
+  PromptInputSelectItem,
+  PromptInputSelectValue,
+} from "@celestia-project/ui"
+import { SparkleIcon, PaperclipIcon } from "@phosphor-icons/react"
+
+export function MyPromptInput() {
+  const [prompt, setPrompt] = React.useState("")
+  const [model, setModel] = React.useState("claude-3-7-sonnet")
+
+  return (
+    <PromptInput
+      onSubmit={({ text }) => console.log("User submitted:", text)}
+      className="w-full max-w-lg rounded-xl border bg-background/95 shadow-sm"
+    >
+      <PromptInputHeader>
+        <PromptInputSelect value={model} onValueChange={setModel}>
+          <PromptInputSelectTrigger className="h-7 text-xs font-mono">
+            <SparkleIcon className="size-3 text-primary mr-1" weight="fill" />
+            <PromptInputSelectValue placeholder="Select model" />
+          </PromptInputSelectTrigger>
+          <PromptInputSelectContent>
+            <PromptInputSelectItem value="claude-3-7-sonnet">Claude 3.7 Sonnet</PromptInputSelectItem>
+            <PromptInputSelectItem value="gpt-4o">GPT-4o</PromptInputSelectItem>
+            <PromptInputSelectItem value="gemini-2-flash">Gemini 2.0 Flash</PromptInputSelectItem>
+          </PromptInputSelectContent>
+        </PromptInputSelect>
+      </PromptInputHeader>
+
+      <PromptInputTextarea
+        value={prompt}
+        onChange={(e) => setPrompt(e.target.value)}
+        placeholder="Ask a question or describe what to generate..."
+        className="min-h-[72px] text-sm"
+      />
+
+      <PromptInputFooter>
+        <PromptInputTools>
+          <PromptInputButton variant="ghost" size="icon-xs" aria-label="Attach file">
+            <PaperclipIcon className="size-4" />
+          </PromptInputButton>
+        </PromptInputTools>
+        <PromptInputSubmit disabled={!prompt.trim()} size="sm" className="rounded-lg">
+          Generate
+        </PromptInputSubmit>
+      </PromptInputFooter>
+    </PromptInput>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `PromptInput` | `onSubmit` | `(data: { text: string; files?: File[] }) => void` | Triggered when user presses Enter or clicks submit. |
+| `PromptInputTextarea` | `minHeight` | `number \| string` | Minimum height for auto-expanding textarea. |
+| `PromptInputSelect` | `value` | `string` | Controlled selected model or tool value. |
+| `PromptInputSubmit` | `disabled` | `boolean` | Disables submission when input is empty or loading. |

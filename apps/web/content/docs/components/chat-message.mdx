@@ -1,0 +1,32 @@
+---
+title: "Chat Message"
+description: "A role-based message container (user vs assistant) with distinct layout alignments."
+---
+
+The `ChatMessage` component differentiates between user queries and AI assistant outputs.
+
+<ChatMessagePreview />
+
+## Usage
+
+```tsx
+import { ChatMessage } from "@celestia-project/ui"
+
+export function MyChatMessage() {
+  return (
+    <div className="flex flex-col gap-3 w-full max-w-md">
+      <ChatMessage role="user">How does the Hono backend connect to Drizzle?</ChatMessage>
+      <ChatMessage role="assistant">
+        The backend imports the shared `@workspace/db` client and exports type-safe RPC route schemas.
+      </ChatMessage>
+    </div>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `ChatMessage` | `role` | `"user" \| "assistant" \| "system"` | Message author role. |
+| `ChatMessage` | `children` | `ReactNode` | Message text or components. |

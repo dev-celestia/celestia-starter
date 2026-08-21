@@ -1,0 +1,29 @@
+---
+title: "Image"
+description: "An AI-generated image viewer with lightbox magnification, prompt overlays, and download actions."
+---
+
+The `ImageZoom` / `ImagePreview` components render generative image outputs with modal magnification and generation metadata.
+
+## Usage
+
+```tsx
+import { ImageZoom } from "@celestia-project/ui"
+
+export function MyImage() {
+  return (
+    <ImageZoom
+      src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe"
+      alt="AI Generated Architecture Art"
+      className="rounded-xl max-w-sm"
+    />
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `ImageZoom` | `src` | `string` | Image source URL. |
+| `ImageZoom` | `alt` | `string` | Image description for accessibility. |

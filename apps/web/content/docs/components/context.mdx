@@ -1,0 +1,53 @@
+---
+title: "Context"
+description: "An LLM context window monitor displaying token usage, context limits, and KV cache utilization rates."
+---
+
+The `Context` component monitors model token consumption, context window exhaustion, and prompt cache hit rates during continuous agent sessions.
+
+<ContextPreview />
+
+## Usage
+
+```tsx
+import {
+  Context,
+  ContextTrigger,
+  ContextContent,
+  ContextContentHeader,
+  ContextContentBody,
+  ContextContentFooter,
+} from "@celestia-project/ui"
+
+export function MyContext() {
+  return (
+    <Context className="w-full max-w-sm">
+      <ContextTrigger />
+      <ContextContent>
+        <ContextContentHeader>Context Window</ContextContentHeader>
+        <ContextContentBody>
+          <div className="flex justify-between text-xs py-1">
+            <span>Tokens Used:</span>
+            <span className="font-mono font-medium">42,190 / 128,000</span>
+          </div>
+          <div className="flex justify-between text-xs py-1">
+            <span>Cache Hit Rate:</span>
+            <span className="font-mono text-emerald-500 font-medium">84.2%</span>
+          </div>
+        </ContextContentBody>
+        <ContextContentFooter>
+          <span className="text-[10px] text-muted-foreground">Updated live during streaming</span>
+        </ContextContentFooter>
+      </ContextContent>
+    </Context>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Purpose |
+| --- | --- |
+| `Context` | Root popover container for context statistics. |
+| `ContextTrigger` | Button indicator showing active token load. |
+| `ContextContentBody` | Breakdown list of input, output, and cached tokens. |

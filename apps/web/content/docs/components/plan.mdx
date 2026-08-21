@@ -1,0 +1,49 @@
+---
+title: "Plan"
+description: "A structured AI generation plan container displaying upcoming agent execution milestones."
+---
+
+The `Plan` component provides a collapsible high-level strategy overview that agents create before executing multi-step operations.
+
+<PlanPreview />
+
+## Usage
+
+```tsx
+import {
+  Plan,
+  PlanHeader,
+  PlanTitle,
+  PlanDescription,
+  PlanContent,
+  PlanTrigger,
+} from "@celestia-project/ui"
+
+export function MyPlan() {
+  return (
+    <Plan defaultOpen className="w-full max-w-md">
+      <PlanHeader>
+        <PlanTitle>Refactor Backend Architecture</PlanTitle>
+        <PlanDescription>Decouple Better Auth server to standalone API</PlanDescription>
+        <PlanTrigger />
+      </PlanHeader>
+      <PlanContent>
+        <div className="space-y-2 text-xs text-muted-foreground">
+          <p>1. Isolate auth instance in `apps/api/src/auth.ts`.</p>
+          <p>2. Mount Hono route handlers for session endpoints.</p>
+          <p>3. Update Next.js rewrite proxy in `next.config.ts`.</p>
+        </div>
+      </PlanContent>
+    </Plan>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `Plan` | `defaultOpen` | `boolean` | Initial expanded state. |
+| `PlanTitle` | `children` | `ReactNode` | Primary title of the proposed plan. |
+| `PlanDescription` | `children` | `ReactNode` | Short summary of what the plan will achieve. |
+| `PlanTrigger` | `className` | `string` | Chevron toggle button. |

@@ -1,0 +1,34 @@
+---
+title: "Shimmer"
+description: "A streaming text shimmer loading effect that animates during LLM generation."
+---
+
+The `Shimmer` component creates an animated light beam effect over text while waiting for AI generation or streaming responses.
+
+<ShimmerPreview />
+
+## Usage
+
+```tsx
+import { Shimmer } from "@celestia-project/ui"
+
+export function MyShimmer() {
+  return (
+    <div className="space-y-2">
+      <Shimmer className="text-sm font-medium">
+        Generating streaming response...
+      </Shimmer>
+      <Shimmer className="text-xs text-muted-foreground">
+        Indexing code across 12 packages in monorepo
+      </Shimmer>
+    </div>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `Shimmer` | `children` | `ReactNode` | Text or element over which shimmer is applied. |
+| `Shimmer` | `duration` | `number` | Duration of shimmer animation cycle in seconds. |

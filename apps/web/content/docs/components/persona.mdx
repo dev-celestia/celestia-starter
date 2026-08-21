@@ -1,0 +1,39 @@
+---
+title: "Persona"
+description: "An AI assistant persona badge with avatar, name, specialty, and role title."
+---
+
+The `Persona` component presents the identity and capabilities of an AI assistant personality.
+
+<PersonaPreview />
+
+## Usage
+
+```tsx
+import {
+  Persona,
+  PersonaAvatar,
+  PersonaName,
+  PersonaRole,
+} from "@celestia-project/ui"
+
+export function MyPersona() {
+  return (
+    <Persona className="w-full max-w-sm rounded-xl border p-4 flex items-center gap-3">
+      <PersonaAvatar fallback="CA" />
+      <div>
+        <PersonaName>Celestia Assistant</PersonaName>
+        <PersonaRole>Full-Stack Monorepo Architect</PersonaRole>
+      </div>
+    </Persona>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `PersonaAvatar` | `fallback` | `string` | Fallback initials when no image URL is provided. |
+| `PersonaName` | `children` | `ReactNode` | Name of the persona. |
+| `PersonaRole` | `children` | `ReactNode` | Role description or specialty. |

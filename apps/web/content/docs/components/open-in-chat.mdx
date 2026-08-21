@@ -1,0 +1,40 @@
+---
+title: "Open In Chat"
+description: "A quick-launch menu to transfer queries and prompts directly into ChatGPT, Claude, or Perplexity."
+---
+
+The `OpenIn` component generates deep-links to launch conversational prompts into external AI providers.
+
+<OpenInChatPreview />
+
+## Usage
+
+```tsx
+import {
+  OpenIn,
+  OpenInTrigger,
+  OpenInContent,
+  OpenInChatGPT,
+  OpenInClaude,
+} from "@celestia-project/ui"
+
+export function MyOpenInChat() {
+  return (
+    <OpenIn query="How to configure Better Auth in Hono?">
+      <OpenInTrigger className="h-8 text-xs" />
+      <OpenInContent>
+        <OpenInChatGPT />
+        <OpenInClaude />
+      </OpenInContent>
+    </OpenIn>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `OpenIn` | `query` | `string` | The prompt query string encoded into external URLs. |
+| `OpenInChatGPT` | — | — | Outbound action targeting ChatGPT web app. |
+| `OpenInClaude` | — | — | Outbound action targeting Claude.ai. |

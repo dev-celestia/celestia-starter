@@ -1,0 +1,39 @@
+---
+title: "Checkpoint"
+description: "A version checkpoint and rollback manager for tracking iterative AI generations."
+---
+
+The `Checkpoint` component allows users to save and restore past iterations of generated code, diagrams, or content.
+
+<CheckpointPreview />
+
+## Usage
+
+```tsx
+import {
+  Checkpoint,
+  CheckpointBadge,
+  CheckpointRestore,
+} from "@celestia-project/ui"
+
+export function MyCheckpoint() {
+  return (
+    <Checkpoint className="w-full max-w-md rounded-lg border p-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <CheckpointBadge>v1.4.0</CheckpointBadge>
+          <span className="text-xs text-muted-foreground">Snapshot saved 2m ago</span>
+        </div>
+        <CheckpointRestore onRestore={() => console.log("Restored v1.4.0")} />
+      </div>
+    </Checkpoint>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `CheckpointBadge` | `children` | `string` | Version or tag label. |
+| `CheckpointRestore` | `onRestore` | `() => void` | Callback triggered when user clicks restore. |

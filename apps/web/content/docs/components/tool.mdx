@@ -1,0 +1,39 @@
+---
+title: "Tool"
+description: "An agent tool execution card with collapsible parameters, status badges, and output results."
+---
+
+The `Tool` component renders function calls and tool executions initiated by LLMs and autonomous agents. It displays parameter inputs, live progress states (`call`, `executing`, `output-available`), and structured JSON or text outputs.
+
+<ToolPreview />
+
+## Usage
+
+```tsx
+import { Tool, ToolHeader, ToolContent, ToolInput, ToolOutput } from "@celestia-project/ui"
+
+export function MyTool() {
+  return (
+    <Tool defaultOpen className="w-full max-w-md rounded-xl border bg-card/60">
+      <ToolHeader
+        toolName="executeSqlMigration"
+        type="dynamic-tool"
+        state="output-available"
+      />
+      <ToolContent>
+        <ToolInput input={{ migration: "0002_add_posts_idx.sql", target: "postgresql" }} />
+        <ToolOutput output={{ applied: 3, durationMs: 42, status: "SUCCESS" }} />
+      </ToolContent>
+    </Tool>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `ToolHeader` | `toolName` | `string` | Name of the tool or function called by the agent. |
+| `ToolHeader` | `state` | `"call" \| "input-available" \| "output-available" \| "executing"` | Current execution status. |
+| `ToolInput` | `input` | `Record<string, any> \| string` | Input arguments passed to the tool. |
+| `ToolOutput` | `output` | `Record<string, any> \| string` | Return value / output from the tool execution. |

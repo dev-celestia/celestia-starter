@@ -1,0 +1,34 @@
+---
+title: "Sandbox"
+description: "A live code execution environment and interactive evaluation container."
+---
+
+The `Sandbox` component provides a playground for executing generated TypeScript and JavaScript code safely in the browser.
+
+<SandboxPreview />
+
+## Usage
+
+```tsx
+import {
+  Sandbox,
+  SandboxHeader,
+  SandboxContent,
+} from "@celestia-project/ui"
+
+export function MySandbox() {
+  return (
+    <Sandbox className="w-full max-w-md">
+      <SandboxHeader title="Live TS Execution" />
+      <SandboxContent code="console.log('Hello from Celestia Sandbox!')" />
+    </Sandbox>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `SandboxHeader` | `title` | `string` | Header title of the sandbox container. |
+| `SandboxContent` | `code` | `string` | Initial executable code string. |

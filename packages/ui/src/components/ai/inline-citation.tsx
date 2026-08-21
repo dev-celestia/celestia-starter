@@ -42,6 +42,19 @@ export const InlineCitationCard = (props: InlineCitationCardProps) => (
   <HoverCard {...props} />
 );
 
+const formatCitationSource = (source?: string): string => {
+  if (!source) return "unknown"
+  try {
+    if (source.includes("://")) {
+      return new URL(source).hostname || source
+    }
+    // Return filename or path
+    return source.split("/").pop() || source
+  } catch {
+    return source
+  }
+}
+
 export type InlineCitationCardTriggerProps = ComponentProps<typeof Badge> & {
   sources: string[];
 };
@@ -50,24 +63,24 @@ export const InlineCitationCardTrigger = ({
   sources,
   className,
   ...props
-}: InlineCitationCardTriggerProps) => (
-  <HoverCardTrigger >
-    <Badge
-      className={cn("ml-1 rounded-full", className)}
-      variant="secondary"
-      {...props}
+}: InlineCitationCardTriggerProps) => {
+  const primarySource = sources[0]
+  const label = formatCitationSource(primarySource)
+
+  return (
+    <HoverCardTrigger
+      render={
+        <Badge
+          className={cn("ml-1 rounded-full cursor-pointer", className)}
+          variant="secondary"
+          {...props}
+        />
+      }
     >
-      {sources[0] ? (
-        <>
-          {new URL(sources[0]).hostname}{" "}
-          {sources.length > 1 && `+${sources.length - 1}`}
-        </>
-      ) : (
-        "unknown"
-      )}
-    </Badge>
-  </HoverCardTrigger>
-);
+      {label} {sources.length > 1 && `+${sources.length - 1}`}
+    </HoverCardTrigger>
+  )
+};
 
 export type InlineCitationCardBodyProps = ComponentProps<"div">;
 

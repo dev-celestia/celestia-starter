@@ -1,0 +1,36 @@
+---
+title: "Chat Input"
+description: "An auto-resizing multi-line text input tailored for conversational chat prompts."
+---
+
+The `ChatInput` component is a streamlined textarea that automatically grows with input height and handles Enter submission.
+
+<ChatInputPreview />
+
+## Usage
+
+```tsx
+import * as React from "react"
+import { ChatInput } from "@celestia-project/ui"
+
+export function MyChatInput() {
+  const [text, setText] = React.useState("")
+
+  return (
+    <ChatInput
+      value={text}
+      onChange={(e) => setText(e.target.value)}
+      placeholder="Type a message..."
+      className="w-full max-w-md"
+    />
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `ChatInput` | `value` | `string` | Controlled textarea text. |
+| `ChatInput` | `onChange` | `(e: ChangeEvent<HTMLTextAreaElement>) => void` | Change event handler. |
+| `ChatInput` | `placeholder` | `string` | Placeholder prompt hint. |

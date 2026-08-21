@@ -1,0 +1,27 @@
+---
+title: "Connection"
+description: "A node connection routing line for AI graph workflows and visual pipelines."
+---
+
+The `Connection` component draws bezier and orthogonal connection paths between workflow canvas ports.
+
+## Usage
+
+```tsx
+import { Connection } from "@celestia-project/ui"
+
+export function MyConnection() {
+  return (
+    <svg className="w-64 h-32">
+      <Connection from={{ x: 10, y: 10 }} to={{ x: 200, y: 80 }} />
+    </svg>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `Connection` | `from` | `{ x: number; y: number }` | Starting coordinate point. |
+| `Connection` | `to` | `{ x: number; y: number }` | Ending coordinate point. |

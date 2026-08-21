@@ -1,0 +1,33 @@
+---
+title: "Test Results"
+description: "A test runner execution breakdown component with pass, fail, skip counters and duration timers."
+---
+
+The `TestResults` component summarizes test suite execution runs conducted by code-generation and testing agents.
+
+<TestResultsPreview />
+
+## Usage
+
+```tsx
+import {
+  TestResults,
+  TestResultSummary,
+} from "@celestia-project/ui"
+
+export function MyTestResults() {
+  return (
+    <TestResults className="w-full max-w-md">
+      <TestResultSummary passed={14} failed={0} durationMs={890} />
+    </TestResults>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `TestResultSummary` | `passed` | `number` | Count of passing test cases. |
+| `TestResultSummary` | `failed` | `number` | Count of failing test cases. |
+| `TestResultSummary` | `durationMs` | `number` | Total test execution time in milliseconds. |

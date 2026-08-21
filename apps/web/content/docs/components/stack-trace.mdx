@@ -1,0 +1,39 @@
+---
+title: "Stack Trace"
+description: "A formatted error stack trace analyzer with collapsible frames and clickable source files."
+---
+
+The `StackTrace` component formats runtime errors, exceptions, and stack frames for AI debugging agents.
+
+<StackTracePreview />
+
+## Usage
+
+```tsx
+import {
+  StackTrace,
+  StackTraceHeader,
+  StackTraceFrames,
+} from "@celestia-project/ui"
+
+export function MyStackTrace() {
+  const frames = [
+    { file: "packages/db/src/client.ts", line: 24, column: 12, method: "createPool" },
+    { file: "apps/api/src/index.ts", line: 12, column: 5, method: "initServer" },
+  ]
+
+  return (
+    <StackTrace className="w-full max-w-md">
+      <StackTraceHeader error="Error: Connection refused on postgres:5432" />
+      <StackTraceFrames frames={frames} />
+    </StackTrace>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `StackTraceHeader` | `error` | `string` | Primary error message string. |
+| `StackTraceFrames` | `frames` | `Array<{ file: string; line: number; column?: number; method?: string }>` | Stack frame list. |

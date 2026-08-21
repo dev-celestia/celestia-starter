@@ -1,0 +1,41 @@
+---
+title: "Toolbar"
+description: "A floating action toolbar for contextual AI actions on text selections or visual canvas nodes."
+---
+
+The `Toolbar` component presents floating AI assistance triggers when users select code or text.
+
+<ToolbarPreview />
+
+## Usage
+
+```tsx
+import {
+  Toolbar,
+  ToolbarGroup,
+  ToolbarButton,
+  ToolbarSeparator,
+} from "@celestia-project/ui"
+import { SparkleIcon, CodeIcon, CopyIcon } from "@phosphor-icons/react"
+
+export function MyToolbar() {
+  return (
+    <Toolbar>
+      <ToolbarGroup>
+        <ToolbarButton icon={SparkleIcon} label="Improve with AI" onClick={() => console.log("Improve")} />
+        <ToolbarButton icon={CodeIcon} label="Convert to TypeScript" onClick={() => console.log("Convert")} />
+        <ToolbarSeparator />
+        <ToolbarButton icon={CopyIcon} label="Copy snippet" onClick={() => console.log("Copy")} />
+      </ToolbarGroup>
+    </Toolbar>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `ToolbarButton` | `icon` | `Icon` | Phosphor icon component. |
+| `ToolbarButton` | `label` | `string` | Accessible tooltip or button label. |
+| `ToolbarButton` | `onClick` | `() => void` | Action trigger. |

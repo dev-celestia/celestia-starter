@@ -1,21 +1,43 @@
 ---
 title: "Message"
-description: "AI chat message container primitives for building conversational interfaces."
+description: "AI chat message container primitives for building conversational interfaces with branch history switching and action toolbars."
 ---
 
-AI chat message container primitives for building conversational interfaces.
+The `Message` (`AiMessage`) component provides role-based chat bubbles, markdown rendering, message branching history navigation, and quick reaction/copy action bars.
+
+<MessagePreview />
+
+## Usage
 
 ```tsx
-import { Message, MessageBubble } from "@celestia-project/ui/components/message"
+import {
+  AiMessage,
+  AiMessageContent,
+  MessageActions,
+  MessageAction,
+} from "@celestia-project/ui"
+import { ThumbsUpIcon, CopyIcon } from "@phosphor-icons/react"
 
-<Message variant="user">
-  <MessageBubble>What features are included in Celestia UI?</MessageBubble>
-</Message>
+export function MyMessage() {
+  return (
+    <AiMessage from="assistant" className="w-full max-w-md">
+      <AiMessageContent>
+        Here is your configured Hono RPC client with end-to-end type safety across the monorepo.
+      </AiMessageContent>
+      <MessageActions>
+        <MessageAction icon={ThumbsUpIcon} label="Helpful" onClick={() => console.log("Liked")} />
+        <MessageAction icon={CopyIcon} label="Copy response" onClick={() => console.log("Copied")} />
+      </MessageActions>
+    </AiMessage>
+  )
+}
 ```
 
-### Components & Props
+## Props Reference
 
 | Component | Prop | Type | Default | Description |
-|-----------|------|------|---------|-------------|
-| `Message` | `variant` | `"user" \| "assistant"` | `"user"` | Message container role layout |
-| `MessageBubble` | `className` | `string` | `undefined` | Styled message text container |
+| --- | --- | --- | --- | --- |
+| `AiMessage` | `from` | `"user" \| "assistant" \| "system"` | `"user"` | Message sender role. |
+| `AiMessageContent` | `children` | `ReactNode` | — | Text or markdown content. |
+| `MessageAction` | `icon` | `Icon` | — | Phosphor action icon. |
+| `MessageAction` | `label` | `string` | — | Accessible label / tooltip. |

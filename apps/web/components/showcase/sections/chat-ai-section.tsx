@@ -228,11 +228,9 @@ export function ModelSelectorDemo() {
 
   return (
     <ModelSelector>
-      <ModelSelectorTrigger>
-        <Button variant="outline" size="sm" className="gap-2 font-mono text-xs">
-          <SparkleIcon className="size-3.5 text-primary" weight="fill" />
-          <span>{model}</span>
-        </Button>
+      <ModelSelectorTrigger render={<Button variant="outline" size="sm" className="gap-2 font-mono text-xs" />}>
+        <SparkleIcon className="size-3.5 text-primary" weight="fill" />
+        <span>{model}</span>
       </ModelSelectorTrigger>
       <ModelSelectorContent>
         <ModelSelectorInput placeholder="Search 50+ models..." />
@@ -446,7 +444,7 @@ export function ChatAiSection() {
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
         <div className="flex items-center gap-2.5">
           <h2 className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
-            AI & Conversational Primitives
+            AI Components
           </h2>
           <Badge variant="outline" className="gap-1.5 border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs text-primary font-mono">
             <SparkleIcon className="size-3 text-primary" weight="fill" />
@@ -585,11 +583,9 @@ export function ChatAiSection() {
         >
           <div className="flex flex-col items-center gap-3">
             <ModelSelector>
-              <ModelSelectorTrigger>
-                <Button variant="outline" size="sm" className="gap-2 font-mono text-xs rounded-xl transition-all active:scale-95 shadow-xs">
-                  <SparkleIcon className="size-3.5 text-primary" weight="fill" />
-                  <span>Switch LLM Model</span>
-                </Button>
+              <ModelSelectorTrigger render={<Button variant="outline" size="sm" className="gap-2 font-mono text-xs rounded-xl transition-all active:scale-95 shadow-xs" />}>
+                <SparkleIcon className="size-3.5 text-primary" weight="fill" />
+                <span>Switch LLM Model</span>
               </ModelSelectorTrigger>
               <ModelSelectorContent className="rounded-2xl">
                 <ModelSelectorInput placeholder="Search 50+ models (Claude, OpenAI, Gemini)..." />

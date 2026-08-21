@@ -1,0 +1,38 @@
+---
+title: "Conversation"
+description: "A pinned auto-scrolling chat stream container with empty state cards and stick-to-bottom behavior."
+---
+
+The `Conversation` component encapsulates a complete chat session feed with stick-to-bottom auto-scrolling and empty states.
+
+<ConversationPreview />
+
+## Usage
+
+```tsx
+import {
+  Conversation,
+  ConversationContent,
+  ConversationEmptyState,
+} from "@celestia-project/ui"
+
+export function MyConversation() {
+  return (
+    <Conversation className="w-full max-w-md h-48 border rounded-lg">
+      <ConversationContent>
+        <ConversationEmptyState
+          title="No active conversations"
+          description="Type a prompt below to begin chatting with the agent."
+        />
+      </ConversationContent>
+    </Conversation>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Purpose |
+| --- | --- |
+| `Conversation` | Root session wrapper with scroll management. |
+| `ConversationEmptyState` | Welcome / placeholder card shown when conversation has zero messages. |

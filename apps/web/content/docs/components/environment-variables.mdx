@@ -1,0 +1,32 @@
+---
+title: "Environment Variables"
+description: "A key-value environment variable manager with secret masking and validation."
+---
+
+The `EnvironmentVariables` component manages `.env` configuration sets for AI tool sandboxes and deployments.
+
+<EnvironmentVariablesPreview />
+
+## Usage
+
+```tsx
+import { EnvironmentVariables } from "@celestia-project/ui"
+
+export function MyEnvironmentVariables() {
+  const vars = [
+    { key: "DATABASE_URL", value: "postgresql://postgres:secret@localhost:5432/celestia", isSecret: true },
+    { key: "PORT", value: "4000", isSecret: false },
+  ]
+
+  return (
+    <EnvironmentVariables defaultVariables={vars} className="w-full max-w-md" />
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `EnvironmentVariables` | `defaultVariables` | `Array<{ key: string; value: string; isSecret?: boolean }>` | Initial list of environment variables. |
+| `EnvironmentVariables` | `onChange` | `(variables: Array<{ key: string; value: string }>) => void` | Change notification callback. |

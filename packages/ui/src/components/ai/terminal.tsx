@@ -268,3 +268,6 @@ export const TerminalIcon = ({
     </TerminalContext.Provider>
   );
 };
+
+export const Terminal = TerminalIcon;
+

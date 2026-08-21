@@ -1,0 +1,36 @@
+---
+title: "Schema Display"
+description: "An interactive JSON Schema explorer with collapsible objects, property types, and validation tags."
+---
+
+The `SchemaDisplay` component renders JSON Schemas and function definitions in a readable interactive tree format.
+
+<SchemaDisplayPreview />
+
+## Usage
+
+```tsx
+import { SchemaDisplay } from "@celestia-project/ui"
+
+export function MySchemaDisplay() {
+  const schema = {
+    type: "object",
+    properties: {
+      userId: { type: "string", description: "Unique user identifier" },
+      role: { type: "string", enum: ["admin", "member", "guest"] },
+    },
+    required: ["userId", "role"],
+  }
+
+  return (
+    <SchemaDisplay schema={schema} className="w-full max-w-md" />
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `SchemaDisplay` | `schema` | `Record<string, any>` | JSON Schema definition object to visualize. |
+| `SchemaDisplay` | `defaultExpanded` | `boolean` | Whether nested sub-schemas expand by default. |

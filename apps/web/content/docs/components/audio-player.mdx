@@ -1,0 +1,51 @@
+---
+title: "Audio Player"
+description: "An AI voice and speech synthesis audio playback bar built with MediaChrome controls."
+---
+
+The `AudioPlayer` component provides a compact, modern media controller for playing text-to-speech outputs, synthesized audio, and voice recordings.
+
+<AudioPlayerPreview />
+
+## Usage
+
+```tsx
+import {
+  AudioPlayer,
+  AudioPlayerControlBar,
+  AudioPlayerPlayButton,
+  AudioPlayerSeekBackwardButton,
+  AudioPlayerSeekForwardButton,
+  AudioPlayerTimeDisplay,
+  AudioPlayerTimeRange,
+  AudioPlayerDurationDisplay,
+  AudioPlayerMuteButton,
+} from "@celestia-project/ui"
+
+export function MyAudioPlayer() {
+  return (
+    <AudioPlayer className="w-full max-w-md">
+      <audio src="/speech-sample.mp3" />
+      <AudioPlayerControlBar>
+        <AudioPlayerPlayButton />
+        <AudioPlayerSeekBackwardButton />
+        <AudioPlayerSeekForwardButton />
+        <AudioPlayerTimeDisplay />
+        <AudioPlayerTimeRange />
+        <AudioPlayerDurationDisplay />
+        <AudioPlayerMuteButton />
+      </AudioPlayerControlBar>
+    </AudioPlayer>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Purpose |
+| --- | --- |
+| `AudioPlayer` | Root audio container with media state synchronization. |
+| `AudioPlayerControlBar` | Horizontal flex container holding player buttons and timeline. |
+| `AudioPlayerPlayButton` | Toggle between play and pause states. |
+| `AudioPlayerTimeRange` | Scrubbable timeline slider. |
+| `AudioPlayerMuteButton` | Toggle audio mute / volume levels. |

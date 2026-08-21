@@ -1,0 +1,26 @@
+---
+title: "Controls"
+description: "Zoom, pan, and fit-to-view navigation controls for canvas workflows."
+---
+
+The `Controls` component gives users interactive control over 2D AI canvases.
+
+## Usage
+
+```tsx
+import { Controls } from "@celestia-project/ui"
+
+export function MyControls() {
+  return (
+    <div className="relative h-48 w-full border rounded-lg bg-muted/20">
+      <Controls />
+    </div>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Purpose |
+| --- | --- |
+| `Controls` | Floating panel containing Zoom In, Zoom Out, and Fit to Screen buttons. |

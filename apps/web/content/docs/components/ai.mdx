@@ -1,0 +1,138 @@
+---
+title: "AI Components Overview"
+description: "A comprehensive suite of 54 modern AI primitives, conversation bubbles, streaming reasoning, tool inspectors, and agent execution interfaces."
+---
+
+The `@celestia-project/ui` library ships with a comprehensive suite of **54 production-ready AI components** built to power generative AI applications, agent workflows, LLM chat interfaces, multi-modal audio/speech interactions, and live sandbox executions.
+
+All AI components are fully styled with Tailwind CSS v4, support light and dark theme OKLCH tokens, and provide keyboard and screen-reader accessibility.
+
+---
+
+## Installation & Import Conventions
+
+You can import AI components from the main package barrel `@celestia-project/ui` or via deep imports `@celestia-project/ui/components/ai/<name>`:
+
+```tsx
+// Package root import
+import {
+  PromptInput,
+  Reasoning,
+  Tool,
+  ModelSelector,
+  Plan,
+  Task,
+} from "@celestia-project/ui"
+
+// Dedicated AI submodule import
+import {
+  PromptInput,
+  Reasoning,
+  Tool,
+} from "@celestia-project/ui/ai"
+
+// Deep component import
+import { PromptInput } from "@celestia-project/ui/components/ai/prompt-input"
+```
+
+---
+
+## Live Showcase
+
+Below is a quick interactive preview of key AI components composed together in an agent interaction loop:
+
+<PromptInputPreview />
+
+<ReasoningPreview />
+
+<ToolPreview />
+
+---
+
+## Component Taxonomy
+
+The 54 AI components are organized into 6 core functional domains:
+
+### 1. Prompts, Inputs & Voice
+
+| Component | Description |
+| --- | --- |
+| [`prompt-input`](/docs/components/prompt-input) | Expandable AI prompt bar with file dropzone, model selector, tool buttons, and action menu. |
+| [`chat-input`](/docs/components/chat-input) | Auto-resizing textarea specialized for standard chat input prompts. |
+| [`speech-input`](/docs/components/speech-input) | Microphone voice recording input with real-time waveform visualizer. |
+| [`suggestion`](/docs/components/suggestion) | Quick-prompt recommendation pills and action chips. |
+| [`mic-selector`](/docs/components/mic-selector) | Input audio device selection dropdown. |
+| [`voice-selector`](/docs/components/voice-selector) | Voice profile picker with audio test samples and gender indicators. |
+
+### 2. Chat & Streaming Message Experience
+
+| Component | Description |
+| --- | --- |
+| [`message`](/docs/components/message) | Full-featured message container with markdown rendering, branching history, and action toolbars. |
+| [`chat-message`](/docs/components/chat-message) | Role-based message container (user vs assistant) with distinct styling. |
+| [`chat-message-area`](/docs/components/chat-message-area) | Message feed scroll layout with automatic message stacking. |
+| [`message-scroller`](/docs/components/message-scroller) | Sticky auto-scrolling viewport with pinned bottom stream anchor. |
+| [`conversation`](/docs/components/conversation) | Complete chat conversation feed with empty states and scroll buttons. |
+| [`bubble`](/docs/components/bubble) | Chat speech bubble with sentiment reactions and tail variants. |
+| [`shimmer`](/docs/components/shimmer) | Loading placeholder shimmer text animation during LLM token streaming. |
+| [`open-in-chat`](/docs/components/open-in-chat) | Quick-launch menu to transfer prompts directly to ChatGPT, Claude, or Perplexity. |
+
+### 3. Reasoning, Tools & Autonomous Agents
+
+| Component | Description |
+| --- | --- |
+| [`reasoning`](/docs/components/reasoning) | Collapsible chain-of-thought accordion with live thought duration timer. |
+| [`chain-of-thought`](/docs/components/chain-of-thought) | Step-by-step reasoning timeline with search queries and image badges. |
+| [`tool`](/docs/components/tool) | Agent tool call inspection card with dynamic inputs, outputs, and execution states. |
+| [`agent`](/docs/components/agent) | Visual agent profile card with instructions, registered tool manifests, and schema outputs. |
+| [`plan`](/docs/components/plan) | Collapsible execution plan breakdown with active progress shimmers. |
+| [`task`](/docs/components/task) | Multi-step agent task list with file references and progress counters. |
+| [`confirmation`](/docs/components/confirmation) | Human-in-the-loop approval dialog for dangerous actions and migrations. |
+| [`persona`](/docs/components/persona) | Assistant persona profile card with avatar, role, and capabilities. |
+| [`queue`](/docs/components/queue) | Background job queue and generation task progress monitor. |
+
+### 4. Code & Developer Workflows
+
+| Component | Description |
+| --- | --- |
+| [`code-block`](/docs/components/code-block) | Syntax-highlighted code block powered by Shiki with language picker and one-click copy. |
+| [`sandbox`](/docs/components/sandbox) | Interactive code execution sandbox with console output capture. |
+| [`terminal`](/docs/components/terminal) | Simulated CLI terminal window with ANSI colored output and streaming cursor. |
+| [`test-results`](/docs/components/test-results) | Test suite breakdown card with pass/fail summary and execution duration. |
+| [`stack-trace`](/docs/components/stack-trace) | Formatted exception stack trace analyzer with clickable file frame traces. |
+| [`commit`](/docs/components/commit) | Git commit change inspector with visual added/removed diff badges. |
+| [`checkpoint`](/docs/components/checkpoint) | State snapshot version tracker with one-click restore functionality. |
+| [`snippet`](/docs/components/snippet) | Compact code snippet card with quick copy button. |
+| [`schema-display`](/docs/components/schema-display) | Interactive JSON Schema tree explorer and schema validator. |
+| [`file-tree`](/docs/components/file-tree) | Interactive folder/file directory hierarchy browser. |
+| [`environment-variables`](/docs/components/environment-variables) | Key-value environment variable manager with secret masking. |
+
+### 5. Context, Artifacts & Canvas
+
+| Component | Description |
+| --- | --- |
+| [`artifact`](/docs/components/artifact) | Sidecar panel for displaying generated documents, code artifacts, and previews. |
+| [`context`](/docs/components/context) | LLM token usage counter, window limits, and prompt cache hit rate monitor. |
+| [`model-selector`](/docs/components/model-selector) | LLM model picker with provider logos (Anthropic, OpenAI, Google, Ollama) and keyboard shortcuts. |
+| [`sources`](/docs/components/sources) | Collapsible RAG knowledge base sources panel with reference badges. |
+| [`inline-citation`](/docs/components/inline-citation) | Per-sentence citation footnote with hover card preview. |
+| [`canvas`](/docs/components/canvas) | Infinite 2D workspace surface for AI workflow visual graphs. |
+| [`node`](/docs/components/node) | Workflow canvas node card with ports and actions. |
+| [`edge`](/docs/components/edge) | Visual edge connector connecting workflow nodes. |
+| [`connection`](/docs/components/connection) | Node connection routing line for AI graph workflows. |
+| [`controls`](/docs/components/controls) | Zoom, pan, and fit-to-view navigation controls for canvas workflows. |
+| [`panel`](/docs/components/panel) | Floating sidecar tool panel for canvas workspaces. |
+| [`toolbar`](/docs/components/toolbar) | Floating contextual action toolbar for text selection and canvas items. |
+
+### 6. Media & Rich Previews
+
+| Component | Description |
+| --- | --- |
+| [`attachments`](/docs/components/attachments) | Multi-file attachment carousel and thumbnail hover preview grid. |
+| [`attachment`](/docs/components/attachment) | Single file attachment badge with upload progress indicators. |
+| [`audio-player`](/docs/components/audio-player) | AI speech and voice synthesis audio playback controller powered by MediaChrome. |
+| [`transcription`](/docs/components/transcription) | Synchronized audio transcript viewer with timestamps and active segment highlighting. |
+| [`jsx-preview`](/docs/components/jsx-preview) | Safe JSX string sandbox renderer for live AI UI generation. |
+| [`web-preview`](/docs/components/web-preview) | Responsive viewport browser frame for previewing generated web pages. |
+| [`image`](/docs/components/image) | AI generated image viewer with lightbox magnification and metadata. |
+| [`package-info`](/docs/components/package-info) | Package manifest and npm dependency analyzer. |

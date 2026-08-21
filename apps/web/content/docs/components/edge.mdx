@@ -1,0 +1,27 @@
+---
+title: "Edge"
+description: "A visual workflow graph connector linking two canvas nodes."
+---
+
+The `Edge` component draws reactive connector lines between nodes on an AI workflow canvas.
+
+## Usage
+
+```tsx
+import { Edge } from "@celestia-project/ui"
+
+export function MyEdge() {
+  return (
+    <svg className="w-full h-32">
+      <Edge source="node-1" target="node-2" />
+    </svg>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `Edge` | `source` | `string` | Source node identifier. |
+| `Edge` | `target` | `string` | Target node identifier. |

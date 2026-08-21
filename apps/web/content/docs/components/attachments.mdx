@@ -1,0 +1,45 @@
+---
+title: "Attachments"
+description: "A multi-file attachment list and carousel with media category icons and hover cards."
+---
+
+The `Attachments` component manages multiple file uploads, displaying media categories (images, PDF documents, source code) and remove actions.
+
+<AttachmentsPreview />
+
+## Usage
+
+```tsx
+import {
+  Attachments,
+  AttachmentItem,
+  AttachmentPreview,
+  AttachmentRemove,
+} from "@celestia-project/ui"
+
+export function MyAttachments() {
+  const files = [
+    { id: "1", name: "design-system.png", type: "image/png", size: 524000, category: "image" as const },
+    { id: "2", name: "database.sql", type: "application/sql", size: 12000, category: "code" as const },
+  ]
+
+  return (
+    <Attachments data={files} className="w-full max-w-md">
+      {files.map((file) => (
+        <AttachmentItem key={file.id} data={file}>
+          <AttachmentPreview />
+          <AttachmentRemove onRemove={() => console.log("Removed:", file.id)} />
+        </AttachmentItem>
+      ))}
+    </Attachments>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `Attachments` | `data` | `AttachmentData[]` | Array of attached file records. |
+| `AttachmentItem` | `data` | `AttachmentData` | Single file data context. |
+| `AttachmentRemove` | `onRemove` | `() => void` | Remove callback. |

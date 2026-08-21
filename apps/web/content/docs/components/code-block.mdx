@@ -1,0 +1,41 @@
+---
+title: "Code Block"
+description: "A syntax-highlighted code block powered by Shiki with copy buttons and language selector dropdowns."
+---
+
+The `CodeBlock` component highlights code in over 100 languages with dark and light theme token syncing and one-click clipboard copying.
+
+<CodeBlockPreview />
+
+## Usage
+
+```tsx
+import { CodeBlock } from "@celestia-project/ui"
+
+export function MyCodeBlock() {
+  const code = `import { Hono } from "hono"
+const app = new Hono()
+
+app.get("/api/health", (c) => {
+  return c.json({ status: "healthy", timestamp: Date.now() })
+})
+
+export default app`
+
+  return (
+    <CodeBlock
+      code={code}
+      language="typescript"
+      className="w-full max-w-md"
+    />
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `CodeBlock` | `code` | `string` | `""` | Raw code string to format. |
+| `CodeBlock` | `language` | `string` | `"typescript"` | Programming language for Shiki tokenizer. |
+| `CodeBlock` | `filename` | `string` | `undefined` | Optional filename to display in header. |

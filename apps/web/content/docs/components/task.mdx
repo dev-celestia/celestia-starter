@@ -1,0 +1,49 @@
+---
+title: "Task"
+description: "A multi-step agent task item list with progress counters, status icons, and clickable file references."
+---
+
+The `Task` component tracks granular execution steps in agent workflows, complete with `in_progress`, `completed`, and `failed` status states.
+
+<TaskPreview />
+
+## Usage
+
+```tsx
+import {
+  Task,
+  TaskTrigger,
+  TaskContent,
+  TaskItem,
+  TaskItemFile,
+} from "@celestia-project/ui"
+
+export function MyTask() {
+  return (
+    <Task defaultOpen status="in_progress" completed={2} total={3} className="w-full max-w-md">
+      <TaskTrigger title="Execution Steps" status="in_progress" completed={2} total={3} />
+      <TaskContent>
+        <TaskItem status="completed">
+          Create schema in <TaskItemFile>packages/db/src/schema/auth.ts</TaskItemFile>
+        </TaskItem>
+        <TaskItem status="completed">
+          Export client in <TaskItemFile>packages/ui</TaskItemFile>
+        </TaskItem>
+        <TaskItem status="in_progress">
+          Verify Hono RPC type bindings
+        </TaskItem>
+      </TaskContent>
+    </Task>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `Task` | `status` | `"pending" \| "in_progress" \| "completed" \| "failed"` | Overall task progress state. |
+| `Task` | `completed` | `number` | Completed sub-task count. |
+| `Task` | `total` | `number` | Total sub-task count. |
+| `TaskItem` | `status` | `"pending" \| "in_progress" \| "completed" \| "failed"` | Individual item state. |
+| `TaskItemFile` | `children` | `string` | File path highlighted with monospace badge styling. |

@@ -1,0 +1,40 @@
+---
+title: "Chain of Thought"
+description: "A step-by-step reasoning timeline with search badges, status indicators, and collapsible detail views."
+---
+
+The `ChainOfThought` component renders multi-stage reasoning workflows, web searches, and intermediate thoughts with connecting line graphics.
+
+<ChainOfThoughtPreview />
+
+## Usage
+
+```tsx
+import {
+  ChainOfThought,
+  ChainOfThoughtHeader,
+  ChainOfThoughtContent,
+  ChainOfThoughtStep,
+} from "@celestia-project/ui"
+
+export function MyChainOfThought() {
+  return (
+    <ChainOfThought defaultOpen className="w-full max-w-md rounded-xl border p-4">
+      <ChainOfThoughtHeader>Reasoning Pipeline</ChainOfThoughtHeader>
+      <ChainOfThoughtContent>
+        <ChainOfThoughtStep status="complete" label="Fetched table metadata" description="Examined PostgreSQL catalog" />
+        <ChainOfThoughtStep status="active" label="Computing foreign key constraints" description="Resolving many-to-many joins" />
+        <ChainOfThoughtStep status="pending" label="Generating TypeScript types" />
+      </ChainOfThoughtContent>
+    </ChainOfThought>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `ChainOfThoughtStep` | `status` | `"complete" \| "active" \| "pending"` | `"complete"` | Step progression status. |
+| `ChainOfThoughtStep` | `label` | `ReactNode` | — | Step header title. |
+| `ChainOfThoughtStep` | `description` | `ReactNode` | — | Secondary details or timestamp. |

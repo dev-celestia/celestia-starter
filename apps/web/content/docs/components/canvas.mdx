@@ -1,0 +1,37 @@
+---
+title: "Canvas"
+description: "An infinite 2D canvas surface for visual AI workflow node graphs and pipelines."
+---
+
+The `Canvas` component provides a zoomable, pannable surface for organizing visual nodes, agent connections, and prompt chains.
+
+## Usage
+
+```tsx
+import {
+  Canvas,
+  Node,
+  Edge,
+  Controls,
+  Panel,
+} from "@celestia-project/ui"
+
+export function MyCanvas() {
+  return (
+    <Canvas className="h-[400px] w-full rounded-xl border bg-muted/10">
+      <Controls />
+      <Panel position="top-right">
+        <span className="text-xs text-muted-foreground">Workflow Canvas</span>
+      </Panel>
+    </Canvas>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Purpose |
+| --- | --- |
+| `Canvas` | Root interactive 2D node surface. |
+| `Controls` | Zoom, pan, and center buttons. |
+| `Panel` | Floating header or sidecar utility panel on top of canvas. |

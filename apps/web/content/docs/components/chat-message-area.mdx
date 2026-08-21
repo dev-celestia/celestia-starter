@@ -1,0 +1,34 @@
+---
+title: "Chat Message Area"
+description: "A scrollable message container layout with automatic bubble stacking and vertical padding."
+---
+
+The `ChatMessageArea` component manages scroll behavior and responsive padding for conversation feeds.
+
+<ChatMessageAreaPreview />
+
+## Usage
+
+```tsx
+import {
+  ChatMessageArea,
+  ChatMessage,
+} from "@celestia-project/ui"
+
+export function MyChatMessageArea() {
+  return (
+    <ChatMessageArea className="h-96 w-full max-w-lg border rounded-xl p-4">
+      <ChatMessage role="user">What is Celestia Starter?</ChatMessage>
+      <ChatMessage role="assistant">
+        It is a decoupled Next.js + Hono monorepo starter with Better Auth and Drizzle.
+      </ChatMessage>
+    </ChatMessageArea>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `ChatMessageArea` | `children` | `ReactNode` | List of chat bubbles or messages. |

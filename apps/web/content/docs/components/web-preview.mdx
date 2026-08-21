@@ -1,0 +1,36 @@
+---
+title: "Web Preview"
+description: "A responsive simulated browser frame for previewing generated web pages and applications."
+---
+
+The `WebPreview` component simulates a browser window with URL address bar, navigation controls, and responsive viewport toggles for live-rendered web pages.
+
+<WebPreviewPreview />
+
+## Usage
+
+```tsx
+import {
+  WebPreview,
+  WebPreviewNavigation,
+  WebPreviewAddressBar,
+} from "@celestia-project/ui"
+
+export function MyWebPreview() {
+  return (
+    <WebPreview url="http://localhost:3000/dashboard" className="w-full max-w-md h-64">
+      <WebPreviewNavigation>
+        <WebPreviewAddressBar value="http://localhost:3000/dashboard" />
+      </WebPreviewNavigation>
+      <iframe src="/dashboard" className="w-full h-full border-0" title="Web Preview" />
+    </WebPreview>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `WebPreview` | `url` | `string` | Address bar preview URL. |
+| `WebPreviewAddressBar` | `value` | `string` | Displayed path or domain string. |

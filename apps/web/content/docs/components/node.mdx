@@ -1,0 +1,34 @@
+---
+title: "Node"
+description: "An interactive workflow canvas node card with input ports, headers, and actions."
+---
+
+The `Node` component represents a step or agent node in a visual AI canvas pipeline.
+
+## Usage
+
+```tsx
+import {
+  Node,
+  NodeHeader,
+  NodeContent,
+} from "@celestia-project/ui"
+
+export function MyNode() {
+  return (
+    <Node className="w-64 rounded-xl border bg-card p-3">
+      <NodeHeader title="LLM Transform Node" />
+      <NodeContent>
+        <p className="text-xs text-muted-foreground">Model: claude-3-7-sonnet</p>
+      </NodeContent>
+    </Node>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `NodeHeader` | `title` | `string` | Header text of the node. |
+| `NodeContent` | `children` | `ReactNode` | Body content of the node card. |

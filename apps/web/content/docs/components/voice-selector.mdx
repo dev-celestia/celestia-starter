@@ -1,0 +1,35 @@
+---
+title: "Voice Selector"
+description: "A voice selection popover menu with audio previews, gender badges, and provider tags."
+---
+
+The `VoiceSelector` component lets users select speech synthesis voices (e.g. OpenAI TTS, ElevenLabs).
+
+<VoiceSelectorPreview />
+
+## Usage
+
+```tsx
+import {
+  VoiceSelector,
+  VoiceSelectorTrigger,
+  VoiceSelectorContent,
+} from "@celestia-project/ui"
+
+export function MyVoiceSelector() {
+  return (
+    <VoiceSelector>
+      <VoiceSelectorTrigger className="h-8 text-xs" />
+      <VoiceSelectorContent />
+    </VoiceSelector>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Purpose |
+| --- | --- |
+| `VoiceSelector` | Root voice selection popover container. |
+| `VoiceSelectorTrigger` | Button showing current active voice name. |
+| `VoiceSelectorContent` | Dropdown panel with searchable voice profiles. |

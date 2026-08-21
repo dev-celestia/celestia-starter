@@ -1,0 +1,52 @@
+---
+title: "Artifact"
+description: "A sidecar artifact container for displaying generated code, markdown documents, and visual sandboxes."
+---
+
+The `Artifact` component renders isolated documents, generated code files, diagrams, and live components in a sidecar or dedicated view pane.
+
+<ArtifactPreview />
+
+## Usage
+
+```tsx
+import {
+  Artifact,
+  ArtifactHeader,
+  ArtifactTitle,
+  ArtifactDescription,
+  ArtifactActions,
+  ArtifactClose,
+  ArtifactContent,
+} from "@celestia-project/ui"
+
+export function MyArtifact() {
+  return (
+    <Artifact className="w-full max-w-md">
+      <ArtifactHeader>
+        <div>
+          <ArtifactTitle>schema.ts</ArtifactTitle>
+          <ArtifactDescription>Generated Drizzle ORM Schema</ArtifactDescription>
+        </div>
+        <ArtifactActions>
+          <ArtifactClose onClick={() => console.log("Closed artifact")} />
+        </ArtifactActions>
+      </ArtifactHeader>
+      <ArtifactContent>
+        <pre className="text-xs font-mono text-muted-foreground p-2">
+          {`export const users = pgTable("users", {\n  id: text("id").primaryKey(),\n  name: text("name").notNull(),\n});`}
+        </pre>
+      </ArtifactContent>
+    </Artifact>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Purpose |
+| --- | --- |
+| `Artifact` | Root artifact container with shadow and border framing. |
+| `ArtifactHeader` | Header bar with title, description, and action buttons. |
+| `ArtifactClose` | Close button with `X` icon and accessible label. |
+| `ArtifactContent` | Scrollable body for rendered markdown, code, or DOM components. |

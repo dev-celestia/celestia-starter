@@ -1,0 +1,34 @@
+---
+title: "Snippet"
+description: "A compact single-line or multi-line code snippet card with a copy-to-clipboard button."
+---
+
+The `Snippet` component presents terminal commands and code snippets in an attractive inline or block container.
+
+<SnippetPreview />
+
+## Usage
+
+```tsx
+import {
+  Snippet,
+  SnippetHeader,
+  SnippetContent,
+} from "@celestia-project/ui"
+
+export function MySnippet() {
+  return (
+    <Snippet className="w-full max-w-md">
+      <SnippetHeader title="Quick Install" />
+      <SnippetContent code="npx @celestia-project/create my-app" />
+    </Snippet>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `SnippetContent` | `code` | `string` | The code snippet string copied on click. |
+| `SnippetHeader` | `title` | `string` | Optional snippet title. |

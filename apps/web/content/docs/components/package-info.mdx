@@ -1,0 +1,39 @@
+---
+title: "Package Info"
+description: "A package manifest card displaying version, description, dependencies, and license."
+---
+
+The `PackageInfo` component inspects and displays NPM module metadata in AI workspace tooling.
+
+<PackageInfoPreview />
+
+## Usage
+
+```tsx
+import {
+  PackageInfo,
+  PackageInfoHeader,
+  PackageInfoContent,
+} from "@celestia-project/ui"
+
+export function MyPackageInfo() {
+  return (
+    <PackageInfo className="w-full max-w-md">
+      <PackageInfoHeader
+        name="@celestia-project/ui"
+        version="0.2.2"
+        description="Accessible Base UI primitives and 54 AI components"
+      />
+      <PackageInfoContent />
+    </PackageInfo>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `PackageInfoHeader` | `name` | `string` | Package NPM name. |
+| `PackageInfoHeader` | `version` | `string` | Semantic version string. |
+| `PackageInfoHeader` | `description` | `string` | Short summary from `package.json`. |

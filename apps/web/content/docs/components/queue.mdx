@@ -1,0 +1,39 @@
+---
+title: "Queue"
+description: "A background job execution and generation queue monitor with active job timers."
+---
+
+The `Queue` component tracks background AI generations, batch inference requests, and compile jobs.
+
+<QueuePreview />
+
+## Usage
+
+```tsx
+import {
+  Queue,
+  QueueHeader,
+  QueueContent,
+  QueueItem,
+} from "@celestia-project/ui"
+
+export function MyQueue() {
+  return (
+    <Queue defaultOpen className="w-full max-w-md">
+      <QueueHeader count={2} />
+      <QueueContent>
+        <QueueItem title="Building Next.js production bundle" status="running" duration="14s" />
+        <QueueItem title="Running typecheck across packages" status="queued" />
+      </QueueContent>
+    </Queue>
+  )
+}
+```
+
+## Props Reference
+
+| Component | Prop | Type | Description |
+| --- | --- | --- | --- |
+| `QueueHeader` | `count` | `number` | Total pending or active jobs. |
+| `QueueItem` | `status` | `"running" \| "queued" \| "completed" \| "failed"` | Individual job state. |
+| `QueueItem` | `duration` | `string` | Elapsed or estimated time. |
