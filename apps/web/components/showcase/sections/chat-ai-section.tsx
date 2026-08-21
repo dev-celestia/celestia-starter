@@ -69,6 +69,9 @@ import {
   SourcesTrigger,
   SourcesContent,
   Source,
+  InlineCitation,
+  InlineCitationCard,
+  InlineCitationCardTrigger,
   Suggestions,
   Suggestion,
   AudioPlayer,
@@ -90,8 +93,9 @@ import {
   Context,
   ContextTrigger,
   ContextContent,
-  ContextTokens,
-  ContextCacheUsage,
+  ContextContentHeader,
+  ContextContentBody,
+  ContextContentFooter,
   ModelSelector,
   ModelSelectorTrigger,
   ModelSelectorContent,
@@ -129,9 +133,7 @@ export function PromptInputDemo() {
 
   return (
     <PromptInput
-      value={prompt}
-      onValueChange={setPrompt}
-      onSubmit={() => console.log("Submit:", prompt)}
+      onSubmit={({ text }) => console.log("Submit:", text)}
       className="w-full max-w-lg rounded-xl border bg-background/95 backdrop-blur-md shadow-xs"
     >
       <PromptInputHeader>
@@ -149,6 +151,8 @@ export function PromptInputDemo() {
       </PromptInputHeader>
 
       <PromptInputTextarea
+        value={prompt}
+        onChange={(e) => setPrompt(e.target.value)}
         placeholder="Ask anything or request agent refactoring..."
         className="min-h-[72px] text-sm"
       />
@@ -415,18 +419,17 @@ export function ConfirmationDemo() {
 }`
 
 const CONTEXT_CODE = `import * as React from "react"
-import { Context, ContextTrigger, ContextContent, ContextTokens, ContextCacheUsage } from "@celestia-project/ui"
+import { Context, ContextTrigger, ContextContent, ContextContentHeader, ContextContentBody } from "@celestia-project/ui"
 
 export function ContextDemo() {
   return (
-    <Context className="w-full max-w-sm rounded-xl border p-3 bg-card/40">
-      <ContextTrigger className="flex items-center justify-between text-xs font-mono">
-        <span>Context Window</span>
-        <span className="text-primary font-semibold">12,450 / 128,000 tokens (9.7%)</span>
-      </ContextTrigger>
-      <ContextContent className="pt-2">
-        <ContextTokens used={12450} total={128000} />
-        <ContextCacheUsage cachedTokens={8200} promptTokens={4250} />
+    <Context usedTokens={14200} maxTokens={128000}>
+      <ContextTrigger />
+      <ContextContent>
+        <ContextContentHeader />
+        <ContextContentBody>
+          <p className="text-xs text-muted-foreground">Session token utilization & cache</p>
+        </ContextContentBody>
       </ContextContent>
     </Context>
   )
@@ -469,13 +472,11 @@ export function ChatAiSection() {
         >
           <div className="w-full max-w-xl">
             <PromptInput
-              value={promptText}
-              onValueChange={setPromptText}
               onSubmit={() => {}}
               className="w-full rounded-2xl border border-border/80 bg-background/90 p-3 shadow-sm backdrop-blur-md transition-all focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/20"
             >
               <PromptInputHeader className="flex items-center justify-between pb-2 border-b border-border/40">
-                <PromptInputSelect value={selectedModel} onValueChange={setSelectedModel}>
+                <PromptInputSelect value={selectedModel} onValueChange={(val) => { if (typeof val === "string") setSelectedModel(val) }}>
                   <PromptInputSelectTrigger className="h-7 rounded-lg border-border/60 bg-muted/40 px-2 text-xs font-medium text-foreground transition-all hover:bg-muted active:scale-[0.98]">
                     <SparkleIcon className="size-3.5 text-primary mr-1.5" weight="fill" />
                     <PromptInputSelectValue placeholder="Model" />
@@ -494,6 +495,8 @@ export function ChatAiSection() {
               </PromptInputHeader>
 
               <PromptInputTextarea
+                value={promptText}
+                onChange={(e) => setPromptText(e.target.value)}
                 placeholder="Ask Celestia AI a question or request code generation..."
                 className="min-h-[76px] resize-none border-0 bg-transparent text-xs sm:text-sm p-1 placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:ring-offset-0"
               />
@@ -823,18 +826,17 @@ export function ChatAiSection() {
           category="AI & Chat"
           description="Live LLM context window meter and prompt cache visualizer."
           docsSlug="context"
-          importSnippet={`import { Context, ContextTrigger, ContextContent, ContextTokens, ContextCacheUsage } from "@celestia-project/ui"`}
+          importSnippet={`import { Context, ContextTrigger, ContextContent, ContextContentHeader, ContextContentBody } from "@celestia-project/ui"`}
           codeExample={CONTEXT_CODE}
         >
-          <div className="w-full max-w-sm rounded-xl border border-border/80 bg-card/60 p-3.5">
-            <Context>
-              <ContextTrigger className="flex items-center justify-between text-xs font-mono">
-                <span>Context Window</span>
-                <span className="text-primary font-semibold">14,200 / 128,000 (11.1%)</span>
-              </ContextTrigger>
-              <ContextContent className="pt-2">
-                <ContextTokens used={14200} total={128000} />
-                <ContextCacheUsage cachedTokens={9100} promptTokens={5100} />
+          <div className="w-full max-w-sm flex items-center justify-center p-3.5">
+            <Context usedTokens={14200} maxTokens={128000}>
+              <ContextTrigger />
+              <ContextContent>
+                <ContextContentHeader />
+                <ContextContentBody>
+                  <p className="text-xs text-muted-foreground">Session token utilization & prompt cache</p>
+                </ContextContentBody>
               </ContextContent>
             </Context>
           </div>

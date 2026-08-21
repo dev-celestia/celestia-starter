@@ -4,7 +4,7 @@ import { cn } from "../../lib/utils";
 import { BookIcon, CaretDownIcon } from '@phosphor-icons/react';
 import type { ComponentProps } from "react";
 
-export type SourcesProps = ComponentProps<"div">;
+export type SourcesProps = ComponentProps<typeof Collapsible>;
 
 export const Sources = ({ className, ...props }: SourcesProps) => (
   <Collapsible
