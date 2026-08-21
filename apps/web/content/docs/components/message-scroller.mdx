@@ -8,16 +8,46 @@ Smooth autoscroll container for streaming chat messages. Automatically scrolls d
 <MessageScrollerPreview />
 
 ```tsx
-import { MessageScroller } from "@celestia-project/ui/components/message-scroller"
+import {
+  MessageScrollerProvider,
+  MessageScroller,
+  MessageScrollerViewport,
+  MessageScrollerContent,
+  MessageScrollerItem,
+  MessageScrollerButton,
+} from "@celestia-project/ui/components/message-scroller"
 
-<MessageScroller className="h-[400px]">
-  {/* List of chat messages */}
-</MessageScroller>
+export function ChatScroller() {
+  return (
+    <MessageScrollerProvider>
+      <MessageScroller className="h-[400px]">
+        <MessageScrollerViewport>
+          <MessageScrollerContent>
+            <MessageScrollerItem messageId="1">
+              {/* Chat message content */}
+            </MessageScrollerItem>
+          </MessageScrollerContent>
+        </MessageScrollerViewport>
+        <MessageScrollerButton />
+      </MessageScroller>
+    </MessageScrollerProvider>
+  )
+}
 ```
 
-### Props
+### Subcomponents
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `className` | `string` | `undefined` | Container class name (must specify explicit height e.g. `h-[500px]`) |
-| `children` | `React.ReactNode` | Required | Content area containing message stream |
+| Component | Description |
+|-----------|-------------|
+| `MessageScrollerProvider` | Context provider managing scroll positions and visibility state |
+| `MessageScroller` | Root container for the message scroller |
+| `MessageScrollerViewport` | Scrollable viewport element with overflow handling |
+| `MessageScrollerContent` | Inner content wrapper that manages spacer offsets |
+| `MessageScrollerItem` | Individual message item with optional `scrollAnchor` and `messageId` |
+| `MessageScrollerButton` | Floating scroll-to-bottom / scroll-to-top button |
+
+### Hooks
+
+- `useMessageScroller()` — returns `{ scrollToEnd, scrollToMessage, scrollToStart }`
+- `useMessageScrollerScrollable()` — returns `{ start: boolean, end: boolean }`
+- `useMessageScrollerVisibility()` — returns `{ currentAnchorId, visibleMessageIds }`

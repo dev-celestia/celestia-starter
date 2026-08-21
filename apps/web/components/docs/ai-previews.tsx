@@ -141,7 +141,12 @@ import {
   EnvironmentVariablesContent,
   EnvironmentVariable,
   JSXPreview,
+  MessageScrollerProvider,
   MessageScroller,
+  MessageScrollerViewport,
+  MessageScrollerContent,
+  MessageScrollerItem,
+  MessageScrollerButton,
   AiMessage,
   AiMessageContent,
   MessageActions,
@@ -905,9 +910,21 @@ export function ChatMessageAreaPreview() {
 export function MessageScrollerPreview() {
   return (
     <AiPreviewShell>
-      <MessageScroller className="w-full max-w-md h-28 border rounded-lg p-3">
-        <div className="text-xs text-muted-foreground">Pinned viewport maintaining stream anchor</div>
-      </MessageScroller>
+      <MessageScrollerProvider>
+        <MessageScroller className="w-full max-w-md h-36 border rounded-lg p-3">
+          <MessageScrollerViewport>
+            <MessageScrollerContent>
+              <MessageScrollerItem messageId="msg-1" className="p-2 text-xs bg-muted/40 rounded">
+                User: Can you explain the monorepo architecture?
+              </MessageScrollerItem>
+              <MessageScrollerItem messageId="msg-2" className="p-2 text-xs bg-card border rounded">
+                AI: Celestia Starter isolates backend Hono APIs from the Next.js UI client.
+              </MessageScrollerItem>
+            </MessageScrollerContent>
+          </MessageScrollerViewport>
+          <MessageScrollerButton />
+        </MessageScroller>
+      </MessageScrollerProvider>
     </AiPreviewShell>
   )
 }
@@ -964,3 +981,19 @@ export function JsxPreviewPreview() {
     </AiPreviewShell>
   )
 }
+
+export function ToolbarPreview() {
+  return (
+    <AiPreviewShell>
+      <div className="flex items-center gap-1 rounded-lg border bg-background p-1.5 shadow-xs">
+        <Button variant="ghost" size="icon-xs" aria-label="Improve with AI">
+          <SparkleIcon className="size-3.5 text-primary" weight="fill" />
+        </Button>
+        <Button variant="ghost" size="icon-xs" aria-label="Copy snippet">
+          <CopyIcon className="size-3.5" />
+        </Button>
+      </div>
+    </AiPreviewShell>
+  )
+}
+
