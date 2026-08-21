@@ -16,9 +16,6 @@ import {
 import {
   Button,
   Badge,
-  Input,
-  InputGroup,
-  InputGroupAddon,
   ButtonGroup,
 } from "@celestia-project/ui"
 import { LogoMark } from "@/components/landing/nav-bar"
@@ -52,24 +49,40 @@ export function Header({
   children,
 }: HeaderProps) {
   const [searchOpen, setSearchOpen] = React.useState(false)
+  const searchInputRef = React.useRef<HTMLInputElement>(null)
   const { resolvedTheme, setTheme } = useTheme()
   const [mounted, setMounted] = React.useState(false)
 
   React.useEffect(() => {
     setMounted(true)
 
-    // Only register keyboard shortcut if not using live input search
-    if (!setSearchQuery) {
-      const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Live search input shortcut: "/"
+      if (setSearchQuery) {
+        if (
+          e.key === "/" &&
+          !["INPUT", "TEXTAREA", "SELECT"].includes((e.target as HTMLElement)?.tagName) &&
+          !(e.target as HTMLElement)?.isContentEditable
+        ) {
+          e.preventDefault()
+          searchInputRef.current?.focus()
+          searchInputRef.current?.select()
+        }
+
+        if (e.key === "Escape" && document.activeElement === searchInputRef.current) {
+          searchInputRef.current?.blur()
+        }
+      } else {
+        // Modal search shortcut: ⌘K or Ctrl+K
         if ((e.metaKey || e.ctrlKey) && e.key === "k") {
           e.preventDefault()
           setSearchOpen((prev) => !prev)
         }
       }
-
-      window.addEventListener("keydown", handleKeyDown)
-      return () => window.removeEventListener("keydown", handleKeyDown)
     }
+
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
   }, [setSearchQuery])
 
   // Derive defaults based on variant
@@ -134,57 +147,50 @@ export function Header({
           {/* Center: Search (Live Input or Modal Trigger) */}
           <div className="flex flex-1 max-w-md items-center mx-2 sm:mx-6">
             {setSearchQuery ? (
-              <div className="relative w-full">
-                <InputGroup className="h-9 w-full border rounded-lg pr-[3px]">
-                  <InputGroupAddon>
-                    <MagnifyingGlassIcon className="size-3.5 text-muted-foreground" />
-                  </InputGroupAddon>
-                  <Input
-                    type="text"
-                    placeholder={
-                      searchPlaceholder ||
-                      `Search ${
-                        totalComponents ? `${totalComponents}+ ` : ""
-                      }components (e.g. Button, Dialog, Chart)...`
-                    }
-                    value={searchQuery || ""}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="rounded-md ml-1"
-                  />
-                  {searchQuery && (
-                    <button
-                      type="button"
-                      onClick={() => setSearchQuery("")}
-                      className="mr-2 text-xs text-muted-foreground hover:text-foreground px-1.5 py-0.5 rounded bg-muted text-[10px] cursor-pointer"
-                    >
-                      Clear
-                    </button>
-                  )}
-                </InputGroup>
+              <div className="relative flex w-full items-center rounded-lg border border-border/80 bg-muted/40 px-3 py-1.5 text-xs text-muted-foreground transition-all focus-within:border-primary/40 focus-within:bg-muted/70 focus-within:text-foreground shadow-xs">
+                <MagnifyingGlassIcon className="size-3.5 text-muted-foreground shrink-0 mr-2" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  placeholder={
+                    searchPlaceholder ||
+                    `Search ${
+                      totalComponents ? `${totalComponents}+ ` : ""
+                    }components (e.g. Button, Dialog, Chart)...`
+                  }
+                  value={searchQuery || ""}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none border-none p-0 focus:ring-0"
+                />
+                {searchQuery ? (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="ml-2 text-xs text-muted-foreground hover:text-foreground px-1.5 py-0.5 rounded bg-muted text-[10px] cursor-pointer"
+                  >
+                    Clear
+                  </button>
+                ) : (
+                  <kbd className="hidden sm:inline-block rounded-md border border-border bg-background px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground shadow-xs shrink-0 ml-2">
+                    /
+                  </kbd>
+                )}
               </div>
             ) : (
               <button
                 type="button"
                 onClick={() => setSearchOpen(true)}
-                className="w-full text-left cursor-pointer group"
+                className="flex w-full items-center justify-between rounded-lg border border-border/80 bg-muted/40 px-3 py-1.5 text-xs text-muted-foreground transition-all hover:border-primary/40 hover:bg-muted/70 hover:text-foreground cursor-pointer shadow-xs"
               >
-                <InputGroup className="h-9 w-full border rounded-lg pr-[3px] transition-colors hover:border-primary/40">
-                  <InputGroupAddon>
-                    <MagnifyingGlassIcon className="size-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
-                  </InputGroupAddon>
-                  <Input
-                    type="text"
-                    readOnly
-                    tabIndex={-1}
-                    placeholder={searchPlaceholder || "Search docs & components..."}
-                    className="rounded-md ml-1 pointer-events-none cursor-pointer text-xs"
-                  />
-                  <InputGroupAddon align="inline-end">
-                    <kbd className="hidden sm:inline-block rounded-md border border-border bg-muted/60 px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground shadow-xs">
-                      ⌘K
-                    </kbd>
-                  </InputGroupAddon>
-                </InputGroup>
+                <div className="flex items-center gap-2">
+                  <MagnifyingGlassIcon className="size-3.5 text-muted-foreground" />
+                  <span className="text-[12px]">
+                    {searchPlaceholder || "Search docs & components..."}
+                  </span>
+                </div>
+                <kbd className="hidden sm:inline-block rounded-md border border-border bg-background px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground shadow-xs">
+                  ⌘K
+                </kbd>
               </button>
             )}
           </div>
@@ -226,7 +232,7 @@ export function Header({
                 }
                 className="hidden md:inline-flex gap-1.5 text-xs text-muted-foreground hover:text-foreground"
               >
-                <GithubLogoIcon className="size-4" />
+                <GithubLogoIcon className="size-4 text-primary" />
                 <span>GitHub</span>
               </Button>
 
@@ -236,7 +242,7 @@ export function Header({
                 render={<Link href="/" />}
                 className="gap-1.5 text-xs text-muted-foreground hover:text-foreground"
               >
-                <HouseIcon className="size-3.5" />
+                <HouseIcon className="size-3.5 text-primary" />
                 <span>Landing</span>
               </Button>
             </ButtonGroup>
