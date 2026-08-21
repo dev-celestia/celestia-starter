@@ -135,7 +135,7 @@ export function Header({
           <div className="flex flex-1 max-w-md items-center mx-2 sm:mx-6">
             {setSearchQuery ? (
               <div className="relative w-full">
-                <InputGroup className="h-9 w-full bg-muted/40 border-border/80 focus-within:bg-background focus-within:ring-1 focus-within:ring-primary/40 rounded-lg">
+                <InputGroup className="h-9 w-full border rounded-lg pr-[3px]">
                   <InputGroupAddon>
                     <MagnifyingGlassIcon className="size-3.5 text-muted-foreground" />
                   </InputGroupAddon>
@@ -149,7 +149,7 @@ export function Header({
                     }
                     value={searchQuery || ""}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="h-9 text-xs border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-2"
+                    className="rounded-md ml-1"
                   />
                   {searchQuery && (
                     <button
@@ -166,17 +166,25 @@ export function Header({
               <button
                 type="button"
                 onClick={() => setSearchOpen(true)}
-                className="flex w-full items-center justify-between rounded-lg border border-border/80 bg-muted/40 px-3 py-1.5 text-xs text-muted-foreground transition-all hover:border-primary/40 hover:bg-muted/70 hover:text-foreground cursor-pointer shadow-xs"
+                className="w-full text-left cursor-pointer group"
               >
-                <div className="flex items-center gap-2">
-                  <MagnifyingGlassIcon className="size-3.5 text-muted-foreground" />
-                  <span className="text-[12px]">
-                    {searchPlaceholder || "Search docs & components..."}
-                  </span>
-                </div>
-                <kbd className="hidden sm:inline-block rounded-md border border-border bg-background px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground shadow-xs">
-                  ⌘K
-                </kbd>
+                <InputGroup className="h-9 w-full border rounded-lg pr-[3px] transition-colors hover:border-primary/40">
+                  <InputGroupAddon>
+                    <MagnifyingGlassIcon className="size-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  </InputGroupAddon>
+                  <Input
+                    type="text"
+                    readOnly
+                    tabIndex={-1}
+                    placeholder={searchPlaceholder || "Search docs & components..."}
+                    className="rounded-md ml-1 pointer-events-none cursor-pointer text-xs"
+                  />
+                  <InputGroupAddon align="inline-end">
+                    <kbd className="hidden sm:inline-block rounded-md border border-border bg-muted/60 px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground shadow-xs">
+                      ⌘K
+                    </kbd>
+                  </InputGroupAddon>
+                </InputGroup>
               </button>
             )}
           </div>
