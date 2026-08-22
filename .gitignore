@@ -46,3 +46,6 @@ next-env.d.ts
 
 #qoder
 .qoder
+
+# ai prompts
+.prompts/

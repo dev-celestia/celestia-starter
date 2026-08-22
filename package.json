@@ -13,6 +13,7 @@
     "add-feature": "tsx packages/feature-manager/src/cli/index.ts add",
     "remove-feature": "tsx packages/feature-manager/src/cli/index.ts remove",
     "list-features": "tsx packages/feature-manager/src/cli/index.ts list",
+    "prompt-feature": "tsx packages/feature-manager/src/cli/index.ts prompt",
     "publish:packages": "bash scripts/publish.sh",
     "publish:dry-run": "bash scripts/publish.sh --dry-run",
     "publish:ui": "bash scripts/publish.sh --pkg ui",

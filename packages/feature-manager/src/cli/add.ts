@@ -2,6 +2,12 @@ import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync
 import { dirname, join, resolve } from "node:path"
 
 import { insertIntoRegion, jsonAppend } from "../markers.js"
+import {
+  generateVerificationPrompt,
+  saveVerificationPrompt,
+  type InsertionReport,
+  type WarningReport,
+} from "../prompt.js"
 import type {
   FeatureCopy,
   FeatureInsertion,
@@ -13,7 +19,7 @@ import type {
 const WEB = join("apps", "web")
 
 /** A manifest normalized to the current schema (legacy fields folded in). */
-interface NormalizedManifest {
+export interface NormalizedManifest {
   name: string
   version: string
   description: string
@@ -132,6 +138,13 @@ export function addFeature(name: string | undefined) {
   console.log(`\n⚡ Installing feature: ${manifest.name} (v${manifest.version})`)
   console.log(`   ${manifest.description}\n`)
 
+  const copiedFiles: string[] = []
+  const appliedInsertions: InsertionReport[] = []
+  const warnings: WarningReport[] = []
+  const updatedJsonFiles: { file: string; path: string; value: string }[] = []
+  const addedDeps: Record<string, string[]> = {}
+  const addedDevDeps: Record<string, string[]> = {}
+
   // 1. Copy files (multi-target).
   if (manifest.copies.length) {
     console.log("  Copying files...")
@@ -140,12 +153,15 @@ export function addFeature(name: string | undefined) {
       const destPath = join(root, to)
 
       if (!existsSync(srcPath)) {
-        console.warn(`  ⚠ Template file not found: ${from}`)
+        const msg = `Template file not found: ${from}`
+        console.warn(`  ⚠ ${msg}`)
+        warnings.push({ type: "missing_file", file: from, message: msg })
         continue
       }
 
       mkdirSync(dirname(destPath), { recursive: true })
       cpSync(srcPath, destPath, { recursive: true })
+      copiedFiles.push(to)
       console.log(`    + ${to}`)
     }
   }
@@ -158,24 +174,56 @@ export function addFeature(name: string | undefined) {
       const snippetPath = join(featureDir, ins.snippet)
 
       if (!existsSync(targetPath)) {
-        console.warn(`  ⚠ Target file not found: ${ins.file}`)
+        const msg = `Target file not found: ${ins.file}`
+        console.warn(`  ⚠ ${msg}`)
+        warnings.push({
+          type: "missing_file",
+          file: ins.file,
+          marker: ins.marker,
+          message: msg,
+          snippet: existsSync(snippetPath) ? readFileSync(snippetPath, "utf-8") : undefined,
+        })
         continue
       }
       if (!existsSync(snippetPath)) {
-        console.warn(`  ⚠ Snippet not found: ${ins.snippet}`)
+        const msg = `Snippet not found: ${ins.snippet}`
+        console.warn(`  ⚠ ${msg}`)
+        warnings.push({
+          type: "missing_file",
+          file: ins.snippet,
+          marker: ins.marker,
+          message: msg,
+        })
         continue
       }
 
       const snippet = readFileSync(snippetPath, "utf-8").replace(/\n$/, "")
-      const updated = insertIntoRegion(
-        readFileSync(targetPath, "utf-8"),
-        ins.marker,
-        name,
-        snippet,
-        ins.file,
-      )
-      writeFileSync(targetPath, updated)
-      console.log(`    ~ ${ins.file} [${ins.marker}]`)
+      try {
+        const updated = insertIntoRegion(
+          readFileSync(targetPath, "utf-8"),
+          ins.marker,
+          name,
+          snippet,
+          ins.file,
+        )
+        writeFileSync(targetPath, updated)
+        appliedInsertions.push({
+          file: ins.file,
+          marker: ins.marker,
+          snippetFile: ins.snippet,
+        })
+        console.log(`    ~ ${ins.file} [${ins.marker}]`)
+      } catch (err: unknown) {
+        const errMsg = err instanceof Error ? err.message : String(err)
+        console.warn(`  ⚠ Insertion warning on ${ins.file} [${ins.marker}]: ${errMsg}`)
+        warnings.push({
+          type: "missing_marker",
+          file: ins.file,
+          marker: ins.marker,
+          message: errMsg,
+          snippet,
+        })
+      }
     }
   }
 
@@ -185,11 +233,20 @@ export function addFeature(name: string | undefined) {
     for (const ja of manifest.jsonAppends) {
       const targetPath = join(root, ja.file)
       if (!existsSync(targetPath)) {
-        console.warn(`  ⚠ JSON file not found: ${ja.file}`)
+        const msg = `JSON file not found: ${ja.file}`
+        console.warn(`  ⚠ ${msg}`)
+        warnings.push({ type: "missing_json", file: ja.file, message: msg })
         continue
       }
-      jsonAppend(targetPath, ja.path, ja.value)
-      console.log(`    ~ ${ja.file} [+${ja.path}: ${ja.value}]`)
+      try {
+        jsonAppend(targetPath, ja.path, ja.value)
+        updatedJsonFiles.push({ file: ja.file, path: ja.path, value: ja.value })
+        console.log(`    ~ ${ja.file} [+${ja.path}: ${ja.value}]`)
+      } catch (err: unknown) {
+        const errMsg = err instanceof Error ? err.message : String(err)
+        console.warn(`  ⚠ JSON update error on ${ja.file}: ${errMsg}`)
+        warnings.push({ type: "missing_json", file: ja.file, message: errMsg })
+      }
     }
   }
 
@@ -201,10 +258,12 @@ export function addFeature(name: string | undefined) {
     for (const target of depTargets) {
       console.log(`  ${target}:`)
       mergeDeps(join(root, target, "package.json"), "dependencies", manifest.dependencies[target]!)
+      addedDeps[target] = Object.keys(manifest.dependencies[target]!)
     }
     for (const target of devDepTargets) {
       console.log(`  ${target}:`)
       mergeDeps(join(root, target, "package.json"), "devDependencies", manifest.devDependencies[target]!)
+      addedDevDeps[target] = Object.keys(manifest.devDependencies[target]!)
     }
   }
 
@@ -215,7 +274,19 @@ export function addFeature(name: string | undefined) {
   }
   writeFileSync(trackerPath, `${JSON.stringify(tracker, null, 2)}\n`)
 
-  // 6. Print next steps.
+  // 6. Generate AI verification prompt.
+  const promptContent = generateVerificationPrompt({
+    manifest,
+    copiedFiles,
+    appliedInsertions,
+    warnings,
+    updatedJsonFiles,
+    addedDeps,
+    addedDevDeps,
+  })
+  saveVerificationPrompt(root, name, promptContent)
+
+  // 7. Print next steps.
   console.log("\n✅ Feature installed!\n")
   console.log("  Next steps:")
 
@@ -241,7 +312,17 @@ export function addFeature(name: string | undefined) {
     console.log(`\n  📝 ${manifest.notes}`)
   }
 
+  // Polite optional AI verification notice
+  console.log("\n────────────────────────────────────────────────────────────────────────")
+  console.log(`🤖 (Optional) AI Verification Prompt:`)
+  console.log(`   Saved to: .prompts/verify-${name}.md`)
   console.log("")
+  console.log(`   If you would like to sanity check this installation or if you have`)
+  console.log(`   customized files, please feel free to copy the prompt from:`)
+  console.log(`     .prompts/verify-${name}.md`)
+  console.log(`   and paste it into your AI assistant (e.g. Antigravity, Cursor, etc.)`)
+  console.log(`   to verify that everything fits cleanly into your project.`)
+  console.log("────────────────────────────────────────────────────────────────────────\n")
 }
 
 function printAvailable(featuresDir: string, trackerPath: string) {

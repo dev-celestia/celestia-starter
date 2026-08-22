@@ -24,3 +24,13 @@ export {
   registerFeature,
   unregisterFeature,
 } from "./registry.js"
+
+export {
+  generateVerificationPrompt,
+  saveVerificationPrompt,
+} from "./prompt.js"
+export type {
+  InsertionReport,
+  PromptGenerationParams,
+  WarningReport,
+} from "./prompt.js"
