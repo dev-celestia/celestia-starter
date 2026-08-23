@@ -68,6 +68,7 @@ function CommandDialog({
 
 function CommandInput({
   className,
+  autoFocus = false,
   ...props
 }: React.ComponentProps<typeof CommandPrimitive.Input>) {
   return (
@@ -75,6 +76,7 @@ function CommandInput({
       <InputGroup className="h-8! bg-input/20 dark:bg-input/30">
         <CommandPrimitive.Input
           data-slot="command-input"
+          autoFocus={autoFocus}
           className={cn(
             "w-full text-xs/relaxed outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
             className

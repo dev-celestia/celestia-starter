@@ -170,18 +170,16 @@ export const FileTreeFolder = ({
               isSelected && "bg-muted"
             )}
           >
-            <CollapsibleTrigger >
-              <button
-                className="flex shrink-0 cursor-pointer items-center border-none bg-transparent p-0"
-                type="button"
-              >
-                <CaretRightIcon
-                  className={cn(
-                    "size-4 shrink-0 text-muted-foreground transition-transform",
-                    isExpanded && "rotate-90"
-                  )}
-                />
-              </button>
+            <CollapsibleTrigger
+              className="flex shrink-0 cursor-pointer items-center border-none bg-transparent p-0"
+              type="button"
+            >
+              <CaretRightIcon
+                className={cn(
+                  "size-4 shrink-0 text-muted-foreground transition-transform",
+                  isExpanded && "rotate-90"
+                )}
+              />
             </CollapsibleTrigger>
             <button
               className="flex min-w-0 flex-1 cursor-pointer items-center gap-1 border-none bg-transparent p-0 text-left"

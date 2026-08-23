@@ -73,35 +73,6 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
     }
   }, [])
 
-  // Track active category on scroll when on components tab
-  React.useEffect(() => {
-    if (activeSection !== "components") return
-
-    const handleScroll = () => {
-      // If at or near top of the page, keep first category active
-      if (window.scrollY < 350) {
-        setActiveCategory("buttons")
-        return
-      }
-
-      const categoryIds = CATEGORIES.map((c) => c.id)
-      for (let i = categoryIds.length - 1; i >= 0; i--) {
-        const id = categoryIds[i]
-        if (!id) continue
-        const el = document.getElementById(id)
-        if (el) {
-          const rect = el.getBoundingClientRect()
-          if (rect.top <= 180) {
-            setActiveCategory(id)
-            break
-          }
-        }
-      }
-    }
-
-    window.addEventListener("scroll", handleScroll, { passive: true })
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [activeSection])
 
   const normalizedQuery = searchQuery.trim().toLowerCase()
 

@@ -10,13 +10,13 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-background border-primary text-primary hover:bg-primary/10 shadow-[0_2px_0_0_var(--primary)] active:shadow-none",
+          "bg-background border-primary text-primary hover:bg-primary/10 shadow-[0_3.5px_0_0_var(--primary)] active:shadow-none",
         destructive:
-          "bg-destructive border-destructive text-white hover:bg-destructive/90 shadow-[0_2px_0_0_color-mix(in_oklch,var(--destructive),black_30%)] active:shadow-none focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
+          "bg-destructive border-destructive text-white hover:bg-destructive/90 shadow-[0_3.5px_0_0_color-mix(in_oklch,var(--destructive),black_30%)] active:shadow-none focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
         outline:
-          "border-border bg-background hover:bg-accent hover:text-accent-foreground shadow-[0_2px_0_0_rgba(0,0,0,0.15)] dark:shadow-[0_2px_0_0_rgba(0,0,0,0.5)] active:shadow-none dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
+          "border-border bg-background hover:bg-accent hover:text-accent-foreground shadow-[0_3.5px_0_0_rgba(0,0,0,0.15)] dark:shadow-[0_3.5px_0_0_rgba(0,0,0,0.5)] active:shadow-none dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
         secondary:
-          "bg-secondary border-secondary text-secondary-foreground hover:bg-secondary/80 shadow-[0_2px_0_0_rgba(0,0,0,0.15)] dark:shadow-[0_2px_0_0_rgba(0,0,0,0.5)] active:shadow-none",
+          "bg-secondary border-secondary text-secondary-foreground hover:bg-secondary/80 shadow-[0_3.5px_0_0_rgba(0,0,0,0.15)] dark:shadow-[0_3.5px_0_0_rgba(0,0,0,0.5)] active:shadow-none",
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline active:scale-100",

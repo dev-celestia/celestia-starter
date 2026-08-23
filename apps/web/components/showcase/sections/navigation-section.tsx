@@ -715,7 +715,7 @@ export function NavigationSection() {
         >
           <div className="w-full max-w-md rounded-lg border border-border shadow-md">
             <Command className="rounded-lg">
-              <CommandInput placeholder="Type a command or search documentation..." />
+              <CommandInput autoFocus={false} placeholder="Type a command or search documentation..." />
               <CommandList className="max-h-44">
                 <CommandEmpty>No results found.</CommandEmpty>
                 <CommandGroup heading="Suggestions">
