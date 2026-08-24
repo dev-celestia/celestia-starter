@@ -17,12 +17,52 @@ import {
 } from "@celestia-project/ui/components/input-group"
 import { MagnifyingGlassIcon, CheckIcon } from "@phosphor-icons/react"
 
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? React.useLayoutEffect : React.useEffect
+
+function patchCmdkScroll(element: HTMLElement | null) {
+  if (!element) return
+  const items = element.querySelectorAll<HTMLElement>("[cmdk-item], [cmdk-group-heading]")
+  items.forEach((item) => {
+    if (!item.dataset.scrollPatched) {
+      item.dataset.scrollPatched = "true"
+      item.scrollIntoView = () => {
+        const list = item.closest("[cmdk-list]") as HTMLElement | null
+        if (list) {
+          const listRect = list.getBoundingClientRect()
+          const itemRect = item.getBoundingClientRect()
+          if (itemRect.top < listRect.top) {
+            list.scrollTop -= listRect.top - itemRect.top
+          } else if (itemRect.bottom > listRect.bottom) {
+            list.scrollTop += itemRect.bottom - listRect.bottom
+          }
+        }
+      }
+    }
+  })
+}
+
 function Command({
   className,
   ...props
 }: React.ComponentProps<typeof CommandPrimitive>) {
+  const containerRef = React.useRef<HTMLDivElement | null>(null)
+
+  useIsomorphicLayoutEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+
+    patchCmdkScroll(el)
+    const observer = new MutationObserver(() => {
+      patchCmdkScroll(el)
+    })
+    observer.observe(el, { childList: true, subtree: true })
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <CommandPrimitive
+      ref={containerRef}
       data-slot="command"
       className={cn(
         "flex size-full flex-col overflow-hidden rounded-xl bg-popover p-1 text-popover-foreground",
@@ -156,6 +196,23 @@ function CommandItem({
 }: React.ComponentProps<typeof CommandPrimitive.Item>) {
   return (
     <CommandPrimitive.Item
+      ref={(node: HTMLElement | null) => {
+        if (node) {
+          node.dataset.scrollPatched = "true"
+          node.scrollIntoView = () => {
+            const list = node.closest("[cmdk-list]") as HTMLElement | null
+            if (list) {
+              const listRect = list.getBoundingClientRect()
+              const nodeRect = node.getBoundingClientRect()
+              if (nodeRect.top < listRect.top) {
+                list.scrollTop -= listRect.top - nodeRect.top
+              } else if (nodeRect.bottom > listRect.bottom) {
+                list.scrollTop += nodeRect.bottom - listRect.bottom
+              }
+            }
+          }
+        }
+      }}
       data-slot="command-item"
       className={cn(
         "group/command-item relative flex min-h-7 cursor-default items-center gap-2 rounded-md px-2.5 py-1.5 text-xs/relaxed outline-hidden select-none in-data-[slot=dialog-content]:rounded-md data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-selected:bg-muted data-selected:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5 data-selected:*:[svg]:text-foreground",

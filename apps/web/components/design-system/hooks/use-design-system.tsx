@@ -33,12 +33,6 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
   const [searchQuery, setSearchQuery] = React.useState("")
   const [activeCategory, setActiveCategory] = React.useState("buttons")
 
-  // Ensure clean scroll position at top on initial mount if no hash is present
-  React.useEffect(() => {
-    if (typeof window !== "undefined" && !window.location.hash) {
-      window.scrollTo({ top: 0, left: 0, behavior: "instant" })
-    }
-  }, [])
 
   // Sync tab with URL search parameter if changed externally
   React.useEffect(() => {
