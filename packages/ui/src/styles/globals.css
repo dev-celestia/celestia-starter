@@ -23,6 +23,7 @@
     --color-chart-1: var(--chart-1);
     --color-ring: var(--ring);
     --color-input: var(--input);
+    --shadow-destructive-3d: 0 2px 0 0 color-mix(in oklch, var(--destructive), black 30%);
     --color-border: var(--border);
     --color-destructive: var(--destructive);
     --color-accent-foreground: var(--accent-foreground);
