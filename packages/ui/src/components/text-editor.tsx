@@ -1,176 +1,119 @@
 "use client"
 
-import { useEffect, useRef } from 'react';
-import { basicSetup } from 'codemirror';
-import { EditorState, Compartment, Prec, Range } from '@codemirror/state';
-import { EditorView, keymap, ViewPlugin, Decoration, DecorationSet } from '@codemirror/view';
-import type { ViewUpdate } from '@codemirror/view';
-import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
-import { tags as t } from '@lezer/highlight';
-import type { Extension } from '@codemirror/state';
-import { javascript } from '@codemirror/lang-javascript';
-import { json } from '@codemirror/lang-json';
-import { markdown } from '@codemirror/lang-markdown';
+import * as React from "react"
+import Editor, { type OnMount, type OnChange, type Monaco } from "@monaco-editor/react"
+import type * as monacoEditor from "monaco-editor"
+import { cn } from "../lib/utils"
 
 async function openExternalUrl(url: string) {
   try {
-    const { openUrl } = await import('@tauri-apps/plugin-opener');
-    await openUrl(url);
+    const { openUrl } = await import("@tauri-apps/plugin-opener")
+    await openUrl(url)
   } catch {
-    window.open(url, '_blank', 'noopener,noreferrer');
+    if (typeof window !== "undefined") {
+      window.open(url, "_blank", "noopener,noreferrer")
+    }
   }
 }
 
 // ---------------------------------------------------------------------------
-// Theme definitions
+// Themes & Options
 // ---------------------------------------------------------------------------
 
-const darkBase = EditorView.theme(
-  {
-    '&': { backgroundColor: 'oklch(23.639% 0.00479 145.683)', color: 'oklch(0.985 0 0)' },
-    '.cm-gutters': { backgroundColor: 'oklch(23.639% 0.00479 145.683)', color: '#7f848e', border: 'none' },
-  },
-  { dark: true },
-);
+function defineMonacoThemes(monaco: Monaco) {
+  monaco.editor.defineTheme("celestia-dark", {
+    base: "vs-dark",
+    inherit: true,
+    rules: [
+      { token: "keyword", foreground: "c678dd" },
+      { token: "string", foreground: "98c379" },
+      { token: "number", foreground: "d19a66" },
+      { token: "comment", foreground: "7f848e", fontStyle: "italic" },
+      { token: "type", foreground: "e5c07b" },
+      { token: "variable", foreground: "e06c75" },
+      { token: "delimiter", foreground: "abb2bf" },
+      { token: "tag", foreground: "e06c75" },
+      { token: "attribute.name", foreground: "d19a66" },
+      { token: "attribute.value", foreground: "98c379" },
+    ],
+    colors: {
+      "editor.background": "#18181b",
+      "editor.foreground": "#f4f4f5",
+      "editorGutter.background": "#18181b",
+      "editorLineNumber.foreground": "#71717a",
+      "editorLineNumber.activeForeground": "#a1a1aa",
+      "editor.lineHighlightBackground": "#27272a40",
+      "editorIndentGuide.background": "#27272a",
+      "editorIndentGuide.activeBackground": "#3f3f46",
+    },
+  })
 
-const darkHighlight = HighlightStyle.define([
-  { tag: t.keyword, color: '#c678dd' },
-  { tag: t.atom, color: '#d19a66' },
-  { tag: t.number, color: '#d19a66' },
-  { tag: t.string, color: '#98c379' },
-  { tag: t.variableName, color: '#e06c75' },
-  { tag: t.propertyName, color: '#61afef' },
-  { tag: t.function(t.variableName), color: '#61afef' },
-  { tag: t.lineComment, color: '#7f848e' },
-  { tag: t.blockComment, color: '#7f848e' },
-  { tag: t.typeName, color: '#e5c07b' },
-  { tag: t.bool, color: '#d19a66' },
-  { tag: t.operator, color: '#56b6c2' },
-  { tag: t.punctuation, color: '#abb2bf' },
-  { tag: t.paren, color: '#abb2bf' },
-  { tag: t.bracket, color: '#abb2bf' },
-  { tag: t.brace, color: '#abb2bf' },
-  { tag: t.tagName, color: '#e06c75' },
-  { tag: t.attributeName, color: '#d19a66' },
-  { tag: t.attributeValue, color: '#98c379' },
-]);
-
-const themeDark: Extension = [darkBase, Prec.highest(syntaxHighlighting(darkHighlight))];
-
-// ---------------------------------------------------------------------------
-
-const lightBase = EditorView.theme(
-  {
-    '&': { backgroundColor: '#ffffffff', color: '#000000ff' },
-    '.cm-gutters': { backgroundColor: '#f0efefff', color: '#6c6c6cff', border: 'none' },
-    '.cm-cursor': { borderLeftColor: '#528bff' },
-  },
-  { dark: false },
-);
-
-const lightHighlight = HighlightStyle.define([
-  { tag: t.keyword, color: '#bf00f9ff' },
-  { tag: t.atom, color: '#d19a66' },
-  { tag: t.number, color: '#d19a66' },
-  { tag: t.string, color: '#4fbd00ff' },
-  { tag: t.variableName, color: '#95000cff' },
-  { tag: t.propertyName, color: '#0382e9ff' },
-  { tag: t.function(t.variableName), color: '#00a100ff' },
-  { tag: t.lineComment, color: '#5c6370' },
-  { tag: t.blockComment, color: '#3f4653ff' },
-  { tag: t.typeName, color: '#f7a000ff' },
-  { tag: t.bool, color: '#c08751ff' },
-  { tag: t.operator, color: '#2e6f78ff' },
-  { tag: t.punctuation, color: '#abb2bf' },
-  { tag: t.paren, color: '#abb2bf' },
-  { tag: t.bracket, color: '#abb2bf' },
-  { tag: t.brace, color: '#abb2bf' },
-  { tag: t.tagName, color: '#e06c75' },
-  { tag: t.attributeName, color: '#d19a66' },
-  { tag: t.attributeValue, color: '#53ae12ff' },
-]);
-
-const themeLight: Extension = [lightBase, Prec.highest(syntaxHighlighting(lightHighlight))];
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function buildLinkDecorations(view: EditorView) {
-  const builder: Range<Decoration>[] = [];
-  const urlRegex = /https?:\/\/[^\s'"()[\]{}]+/g;
-
-  for (const { from, to } of view.visibleRanges) {
-    const text = view.state.doc.sliceString(from, to);
-    let match;
-    while ((match = urlRegex.exec(text)) !== null) {
-      const start = from + match.index;
-      const end = start + match[0].length;
-      
-      builder.push(
-        Decoration.mark({
-          class: 'cm-link',
-          attributes: {
-            'data-url': match[0],
-            'title': 'Click to open link in browser'
-          }
-        }).range(start, end)
-      );
-    }
-  }
-  return Decoration.set(builder);
+  monaco.editor.defineTheme("celestia-light", {
+    base: "vs",
+    inherit: true,
+    rules: [
+      { token: "keyword", foreground: "bf00f9" },
+      { token: "string", foreground: "4fbd00" },
+      { token: "number", foreground: "d19a66" },
+      { token: "comment", foreground: "5c6370", fontStyle: "italic" },
+      { token: "type", foreground: "f7a000" },
+      { token: "variable", foreground: "95000c" },
+      { token: "delimiter", foreground: "abb2bf" },
+      { token: "tag", foreground: "e06c75" },
+      { token: "attribute.name", foreground: "d19a66" },
+      { token: "attribute.value", foreground: "53ae12" },
+    ],
+    colors: {
+      "editor.background": "#ffffff",
+      "editor.foreground": "#09090b",
+      "editorGutter.background": "#f4f4f5",
+      "editorLineNumber.foreground": "#a1a1aa",
+      "editorLineNumber.activeForeground": "#71717a",
+      "editor.lineHighlightBackground": "#f4f4f580",
+      "editorIndentGuide.background": "#e4e4e7",
+      "editorIndentGuide.activeBackground": "#d4d4d8",
+    },
+  })
 }
 
-const linkPlugin = ViewPlugin.fromClass(
-  class {
-    decorations: DecorationSet;
-    constructor(view: EditorView) {
-      this.decorations = buildLinkDecorations(view);
-    }
-    update(update: ViewUpdate) {
-      if (update.docChanged || update.viewportChanged) {
-        this.decorations = buildLinkDecorations(update.view);
-      }
-    }
-  },
-  {
-    decorations: (v: { decorations: DecorationSet }) => v.decorations,
-  }
-);
-
-interface TextEditorOptions {
-  readOnly?: boolean;
+function normalizeLanguage(lang?: string): string {
+  if (!lang) return "typescript"
+  const l = lang.toLowerCase().trim()
+  if (l === "tsx" || l === "ts") return "typescript"
+  if (l === "jsx" || l === "js") return "javascript"
+  if (l === "md" || l === "mdx") return "markdown"
+  return l
 }
 
-function buildOptionsExtensions(opts?: TextEditorOptions): Extension {
-  if (!opts?.readOnly) return [];
-
-  return Prec.highest(keymap.of([
-    { key: 'Backspace', run: () => true },
-    { key: 'Delete', run: () => true },
-    { key: 'Enter', run: () => true },
-    { key: 'Cut', run: () => true },
-    { key: 'Paste', run: () => true },
-  ]));
+function getMonacoTheme(theme?: string): string {
+  if (!theme || theme === "dark" || theme === "vs-dark") return "celestia-dark"
+  if (theme === "light" || theme === "vs" || theme === "vs-light") return "celestia-light"
+  return theme
 }
 
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
+export type TextEditorInstance = monacoEditor.editor.IStandaloneCodeEditor
+export type MonacoInstance = Monaco
+export type TextEditorOptions = monacoEditor.editor.IStandaloneEditorConstructionOptions
+
 export interface TextEditorProps {
-  value?: string;
-  onChange?: (value: string | undefined) => void;
-  onMount?: (view: EditorView) => void;
-  options?: TextEditorOptions;
-  height?: string | number;
-  minHeight?: string | number;
-  maxHeight?: string | number;
-  path?: string;
-  theme?: 'dark' | 'light';
-  className?: string;
-  language?: 'javascript' | 'typescript' | 'tsx' | 'json' | 'markdown';
-  detectLinks?: boolean;
+  value?: string
+  onChange?: (value: string | undefined) => void
+  onMount?: (editor: TextEditorInstance, monaco: MonacoInstance) => void
+  options?: TextEditorOptions
+  height?: string | number
+  minHeight?: string | number
+  maxHeight?: string | number
+  path?: string
+  theme?: "dark" | "light" | "vs-dark" | "vs" | "vs-light" | string
+  className?: string
+  language?: "javascript" | "typescript" | "tsx" | "json" | "markdown" | string
+  detectLinks?: boolean
+  disableValidation?: boolean
+  loading?: React.ReactNode
 }
 
 export function TextEditor({
@@ -178,148 +121,128 @@ export function TextEditor({
   onChange,
   onMount,
   options,
-  height = '100%',
+  height = "100%",
   minHeight,
   maxHeight,
   className,
-  theme = 'dark',
-  language = 'typescript',
-  detectLinks = false,
+  theme = "dark",
+  language = "typescript",
+  detectLinks = true,
+  disableValidation,
+  path,
+  loading,
 }: TextEditorProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const viewRef = useRef<EditorView | null>(null);
-  const onChangeRef = useRef(onChange);
-  const isExternalUpdate = useRef(false);
+  const editorRef = React.useRef<TextEditorInstance | null>(null)
+  const isLinkOpenerRegistered = React.useRef(false)
 
-  const optionsCompartment = useRef(new Compartment());
+  const isValidationDisabled = disableValidation ?? (options?.readOnly === true)
 
-  useEffect(() => {
-    onChangeRef.current = onChange;
-  }, [onChange]);
+  const handleBeforeMount = React.useCallback(
+    (monaco: Monaco) => {
+      defineMonacoThemes(monaco)
 
-  useEffect(() => {
-    if (!containerRef.current) return;
+      if (isValidationDisabled) {
+        monaco.languages.typescript?.typescriptDefaults?.setDiagnosticsOptions({
+          noSemanticValidation: true,
+          noSyntaxValidation: true,
+        })
+        monaco.languages.typescript?.javascriptDefaults?.setDiagnosticsOptions({
+          noSemanticValidation: true,
+          noSyntaxValidation: true,
+        })
+        monaco.languages.json?.jsonDefaults?.setDiagnosticsOptions({
+          validate: false,
+        })
+      }
+    },
+    [isValidationDisabled]
+  )
 
-    const langMap: Record<'javascript' | 'typescript' | 'tsx' | 'json' | 'markdown', () => Extension> = {
-      javascript: () => javascript({ jsx: true }),
-      typescript: () => javascript({ typescript: true, jsx: true }),
-      tsx: () => javascript({ typescript: true, jsx: true }),
-      json: () => json(),
-      markdown: () => markdown(),
-    };
-    const getLang = langMap[language] ?? (() => javascript({ typescript: true, jsx: true }));
-    const langExt = getLang();
+  const handleEditorDidMount: OnMount = React.useCallback(
+    (editor, monacoInstance) => {
+      editorRef.current = editor
 
-    const view = new EditorView({
-      parent: containerRef.current,
-      state: EditorState.create({
-        doc: value ?? '',
-        extensions: [
-          basicSetup,
-          langExt,
-          EditorView.lineWrapping,
-          EditorView.theme({
-            '&': {
-              height: '100%',
-              fontSize: '12px',
-              fontFamily: 'var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace)',
+      if (!isLinkOpenerRegistered.current) {
+        try {
+          monacoInstance.editor.registerLinkOpener({
+            async open(resource: monacoEditor.Uri) {
+              await openExternalUrl(resource.toString())
+              return true
             },
-            '.cm-scroller': {
-              overflow: 'auto',
-              fontFamily: 'inherit',
-            },
-            '.cm-content': {
-              userSelect: 'text',
-              fontSize: '12.5px',
-              lineHeight: '1.6',
-              padding: '8px 0',
-            },
-            '.cm-line': {
-              userSelect: 'text',
-              padding: '0 8px',
-            },
-            '.cm-gutters': {
-              fontSize: '11px',
-              lineHeight: '1.6',
-              paddingTop: '8px',
-            },
-            '.cm-link': {
-              color: 'var(--primary, #00c950)',
-              textDecoration: 'underline',
-              cursor: 'pointer',
-            },
-            '.cm-link:hover': {
-              opacity: 0.8,
-            },
-          }),
+          })
+          isLinkOpenerRegistered.current = true
+        } catch {
+          // Opener already registered or fallback
+        }
+      }
 
-          optionsCompartment.current.of(buildOptionsExtensions(options)),
-          theme === 'dark' ? themeDark : themeLight,
-          EditorView.updateListener.of((update: ViewUpdate) => {
-            if (update.docChanged && !isExternalUpdate.current) {
-              onChangeRef.current?.(update.state.doc.toString());
-            }
-          }),
+      onMount?.(editor, monacoInstance)
+    },
+    [onMount]
+  )
 
-          ...(detectLinks ? [
-            linkPlugin,
-            EditorView.domEventHandlers({
-              click: (event: MouseEvent, _view: EditorView) => {
-                const target = event.target as HTMLElement;
-                const linkEl = target.closest('.cm-link');
-                if (linkEl) {
-                  const url = linkEl.getAttribute('data-url');
-                  if (url) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    openExternalUrl(url);
-                  }
-                }
-              }
-            })
-          ] : [])
-        ],
-      }),
-    });
+  const handleEditorChange: OnChange = React.useCallback(
+    (val) => {
+      onChange?.(val)
+    },
+    [onChange]
+  )
 
-    viewRef.current = view;
-    onMount?.(view);
-
-    return () => {
-      view.destroy();
-      viewRef.current = null;
-    };
-  }, [theme, language]);
-
-  useEffect(() => {
-    const view = viewRef.current;
-    if (!view || value === undefined) return;
-
-    const currentValue = view.state.doc.toString();
-    if (value !== currentValue) {
-      isExternalUpdate.current = true;
-      view.dispatch({
-        changes: { from: 0, to: view.state.doc.length, insert: value },
-      });
-      isExternalUpdate.current = false;
-    }
-  }, [value]);
-
-  useEffect(() => {
-    viewRef.current?.dispatch({
-      effects: optionsCompartment.current.reconfigure(buildOptionsExtensions(options)),
-    });
-  }, [options]);
+  const mergedOptions: monacoEditor.editor.IStandaloneEditorConstructionOptions = React.useMemo(
+    () => ({
+      fontSize: 12.5,
+      fontFamily: "var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace)",
+      tabSize: 2,
+      minimap: { enabled: false },
+      scrollBeyondLastLine: false,
+      wordWrap: "on",
+      automaticLayout: true,
+      links: detectLinks,
+      renderValidationDecorations: isValidationDisabled ? "off" : (options?.renderValidationDecorations ?? "on"),
+      padding: { top: 8, bottom: 8 },
+      overviewRulerBorder: false,
+      hideCursorInOverviewRuler: true,
+      renderLineHighlight: "line",
+      lineNumbersMinChars: 3,
+      scrollbar: {
+        verticalScrollbarSize: 8,
+        horizontalScrollbarSize: 8,
+        alwaysConsumeMouseWheel: false,
+      },
+      ...options,
+    }),
+    [detectLinks, isValidationDisabled, options]
+  )
 
   return (
     <div
-      ref={containerRef}
       style={{
-        height: typeof height === 'number' ? `${height}px` : height,
-        minHeight: typeof minHeight === 'number' ? `${minHeight}px` : minHeight,
-        maxHeight: typeof maxHeight === 'number' ? `${maxHeight}px` : maxHeight,
+        height: typeof height === "number" ? `${height}px` : height,
+        minHeight: typeof minHeight === "number" ? `${minHeight}px` : minHeight,
+        maxHeight: typeof maxHeight === "number" ? `${maxHeight}px` : maxHeight,
       }}
-      className={className}
-    />
-  );
+      className={cn("w-full overflow-hidden", className)}
+    >
+      <Editor
+        value={value}
+        language={normalizeLanguage(language)}
+        theme={getMonacoTheme(theme)}
+        path={path}
+        options={mergedOptions}
+        beforeMount={handleBeforeMount}
+        onMount={handleEditorDidMount}
+        onChange={handleEditorChange}
+        loading={
+          loading ?? (
+            <div className="flex h-full w-full items-center justify-center gap-2 p-4 font-mono text-xs text-muted-foreground bg-background/50">
+              <div className="size-3.5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              <span>Loading editor...</span>
+            </div>
+          )
+        }
+      />
+    </div>
+  )
 }
+
+export { loader as monacoLoader } from "@monaco-editor/react"

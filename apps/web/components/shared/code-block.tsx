@@ -156,13 +156,14 @@ export function CodeBlock({
         </div>
       )}
 
-      {/* Code Content using CodeMirror TextEditor */}
+      {/* Code Content using Monaco TextEditor */}
       {mounted ? (
         <TextEditor
           value={rawCode}
           language={editorLang}
           theme={resolvedTheme === "light" ? "light" : "dark"}
-          options={{ readOnly: true }}
+          options={{ readOnly: true, renderValidationDecorations: "off" }}
+          disableValidation
           height={height}
           minHeight={minHeight}
           maxHeight={maxHeight}

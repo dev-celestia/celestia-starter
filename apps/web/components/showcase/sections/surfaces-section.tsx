@@ -43,11 +43,11 @@ const SAMPLE_CHART_DATA = [
 const CHART_CONFIG = {
   requests: {
     label: "API Requests",
-    color: "hsl(var(--primary))",
+    color: "var(--primary)",
   },
   latency: {
     label: "Latency (ms)",
-    color: "hsl(var(--muted-foreground))",
+    color: "var(--muted-foreground)",
   },
 } satisfies ChartConfig
 
@@ -143,7 +143,7 @@ const data = [
 ]
 
 const config = {
-  requests: { label: "API Requests", color: "hsl(var(--primary))" },
+  requests: { label: "API Requests", color: "var(--primary)" },
 } satisfies ChartConfig
 
 export function ChartDemo() {
@@ -358,12 +358,12 @@ export function SurfacesSection() {
           </div>
         </ShowcaseCard>
 
-        {/* 5. Text & Code Editor (Interactive CodeMirror Playground) */}
+        {/* 5. Text & Code Editor (Interactive Monaco Playground) */}
         <ShowcaseCard
           id="text-editor"
           title="Text & Code Editor"
           category="Surfaces"
-          description="Full-featured CodeMirror editor supporting live typing, syntax highlighting, line wrapping, and URL detection."
+          description="Full-featured Monaco editor supporting live typing, syntax highlighting, line wrapping, and URL detection."
           docsSlug="other-components"
           importSnippet={`import { TextEditor } from "@celestia-project/ui"`}
           codeExample={TEXT_EDITOR_USAGE_CODE}
@@ -406,7 +406,7 @@ export function SurfacesSection() {
               </Badge>
             </div>
 
-            {/* Interactive CodeMirror TextEditor */}
+            {/* Interactive Monaco TextEditor */}
             <TextEditor
               value={currentCode}
               onChange={handleEditorChange}
@@ -414,6 +414,7 @@ export function SurfacesSection() {
               theme={resolvedTheme === "dark" ? "dark" : "light"}
               height={180}
               detectLinks
+              disableValidation
               className="w-full text-xs font-mono"
             />
           </div>
