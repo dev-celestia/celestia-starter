@@ -1,6 +1,6 @@
 # @celestia-project/ui
 
-> Shadcn-style React component primitives built on **Base UI** and **Tailwind CSS v4** — part of the [Celestia Starter](https://github.com/celestia-realm/celestia-starter) monorepo.
+> Shadcn-style React component primitives built on **Base UI** and **Tailwind CSS v4** — part of the [Celestia Starter](https://github.com/dev-celestia/celestia-starter) monorepo.
 
 [![npm version](https://img.shields.io/npm/v/@celestia-project/ui)](https://www.npmjs.com/package/@celestia-project/ui)
 [![license](https://img.shields.io/npm/l/@celestia-project/ui)](./LICENSE)
@@ -113,19 +113,35 @@ Instead, add the `@source` directive in your main CSS file (e.g., `src/styles/gl
   --animate-gradient-shift: gradient-shift 6s ease infinite;
 
   @keyframes scroll-down {
-    0% { transform: translateY(-100%); }
-    100% { transform: translateY(200%); }
+    0% {
+      transform: translateY(-100%);
+    }
+    100% {
+      transform: translateY(200%);
+    }
   }
 
   @keyframes role-fade-in {
-    from { opacity: 0; transform: translateY(8px) scale(0.98); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
   }
 
   @keyframes gradient-shift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
   }
 }
 ```
@@ -136,7 +152,7 @@ If your app doesn't already have a PostCSS config, you can re-export the one bun
 
 ```js
 // postcss.config.mjs
-export { default } from "@celestia-project/ui/postcss.config";
+export { default } from "@celestia-project/ui/postcss.config"
 ```
 
 ### Dark Mode Setup
@@ -193,118 +209,118 @@ import { cn } from "@celestia-project/ui";
 <details>
 <summary><strong>Layout & Structure</strong></summary>
 
-| Component | Import |
-|-----------|--------|
-| `AspectRatio` | `aspect-ratio` |
-| `Card`, `CardHeader`, `CardContent`, `CardFooter`, `CardTitle`, `CardDescription` | `card` |
-| `Resizable`, `ResizablePanel`, `ResizablePanelGroup`, `ResizableHandle` | `resizable` |
-| `Separator` | `separator` |
-| `Sidebar` (+ 20 sub-parts) | `sidebar` |
+| Component                                                                         | Import         |
+| --------------------------------------------------------------------------------- | -------------- |
+| `AspectRatio`                                                                     | `aspect-ratio` |
+| `Card`, `CardHeader`, `CardContent`, `CardFooter`, `CardTitle`, `CardDescription` | `card`         |
+| `Resizable`, `ResizablePanel`, `ResizablePanelGroup`, `ResizableHandle`           | `resizable`    |
+| `Separator`                                                                       | `separator`    |
+| `Sidebar` (+ 20 sub-parts)                                                        | `sidebar`      |
 
 </details>
 
 <details>
 <summary><strong>Typography & Display</strong></summary>
 
-| Component | Import |
-|-----------|--------|
-| `Alert`, `AlertTitle`, `AlertDescription` | `alert` |
-| `Badge` | `badge` |
-| `Breadcrumb` (+ parts) | `breadcrumb` |
-| `Empty` | `empty` |
-| `Item` | `item` |
-| `Kbd` | `kbd` |
-| `Marker` | `marker` |
-| `Message`, `MessageBubble` | `message` |
-| `Skeleton` | `skeleton` |
-| `Table` (+ parts) | `table` |
+| Component                                 | Import       |
+| ----------------------------------------- | ------------ |
+| `Alert`, `AlertTitle`, `AlertDescription` | `alert`      |
+| `Badge`                                   | `badge`      |
+| `Breadcrumb` (+ parts)                    | `breadcrumb` |
+| `Empty`                                   | `empty`      |
+| `Item`                                    | `item`       |
+| `Kbd`                                     | `kbd`        |
+| `Marker`                                  | `marker`     |
+| `Message`, `MessageBubble`                | `message`    |
+| `Skeleton`                                | `skeleton`   |
+| `Table` (+ parts)                         | `table`      |
 
 </details>
 
 <details>
 <summary><strong>Forms & Inputs</strong></summary>
 
-| Component | Import |
-|-----------|--------|
-| `Button` | `button` |
-| `ButtonGroup` | `button-group` |
-| `Checkbox` | `checkbox` |
-| `Combobox` | `combobox` |
-| `Field`, `FieldLabel`, `FieldDescription`, `FieldError` | `field` |
-| `Input` | `input` |
-| `InputGroup` | `input-group` |
-| `InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator` | `input-otp` |
-| `Label` | `label` |
-| `NativeSelect` | `native-select` |
-| `RadioGroup`, `RadioGroupItem` | `radio-group` |
-| `Select` (+ parts) | `select` |
-| `Slider` | `slider` |
-| `Switch` | `switch` |
-| `Textarea` | `textarea` |
-| `Toggle` | `toggle` |
-| `ToggleGroup`, `ToggleGroupItem` | `toggle-group` |
+| Component                                                        | Import          |
+| ---------------------------------------------------------------- | --------------- |
+| `Button`                                                         | `button`        |
+| `ButtonGroup`                                                    | `button-group`  |
+| `Checkbox`                                                       | `checkbox`      |
+| `Combobox`                                                       | `combobox`      |
+| `Field`, `FieldLabel`, `FieldDescription`, `FieldError`          | `field`         |
+| `Input`                                                          | `input`         |
+| `InputGroup`                                                     | `input-group`   |
+| `InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator` | `input-otp`     |
+| `Label`                                                          | `label`         |
+| `NativeSelect`                                                   | `native-select` |
+| `RadioGroup`, `RadioGroupItem`                                   | `radio-group`   |
+| `Select` (+ parts)                                               | `select`        |
+| `Slider`                                                         | `slider`        |
+| `Switch`                                                         | `switch`        |
+| `Textarea`                                                       | `textarea`      |
+| `Toggle`                                                         | `toggle`        |
+| `ToggleGroup`, `ToggleGroupItem`                                 | `toggle-group`  |
 
 </details>
 
 <details>
 <summary><strong>Overlays & Popups</strong></summary>
 
-| Component | Import |
-|-----------|--------|
-| `AlertDialog` (+ parts) | `alert-dialog` |
-| `ContextMenu` (+ parts) | `context-menu` |
-| `Dialog` (+ parts) | `dialog` |
-| `Drawer` (+ parts) | `drawer` |
-| `DropdownMenu` (+ parts) | `dropdown-menu` |
-| `HoverCard`, `HoverCardTrigger`, `HoverCardContent` | `hover-card` |
-| `Popover`, `PopoverTrigger`, `PopoverContent` | `popover` |
-| `Sheet` (+ parts) | `sheet` |
-| `Tooltip`, `TooltipTrigger`, `TooltipContent`, `TooltipProvider` | `tooltip` |
+| Component                                                        | Import          |
+| ---------------------------------------------------------------- | --------------- |
+| `AlertDialog` (+ parts)                                          | `alert-dialog`  |
+| `ContextMenu` (+ parts)                                          | `context-menu`  |
+| `Dialog` (+ parts)                                               | `dialog`        |
+| `Drawer` (+ parts)                                               | `drawer`        |
+| `DropdownMenu` (+ parts)                                         | `dropdown-menu` |
+| `HoverCard`, `HoverCardTrigger`, `HoverCardContent`              | `hover-card`    |
+| `Popover`, `PopoverTrigger`, `PopoverContent`                    | `popover`       |
+| `Sheet` (+ parts)                                                | `sheet`         |
+| `Tooltip`, `TooltipTrigger`, `TooltipContent`, `TooltipProvider` | `tooltip`       |
 
 </details>
 
 <details>
 <summary><strong>Navigation</strong></summary>
 
-| Component | Import |
-|-----------|--------|
-| `Menubar` (+ parts) | `menubar` |
-| `Menu` (+ parts) | `menu` |
-| `NavigationMenu` (+ parts) | `navigation-menu` |
-| `Pagination` (+ parts) | `pagination` |
-| `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` | `tabs` |
+| Component                                        | Import            |
+| ------------------------------------------------ | ----------------- |
+| `Menubar` (+ parts)                              | `menubar`         |
+| `Menu` (+ parts)                                 | `menu`            |
+| `NavigationMenu` (+ parts)                       | `navigation-menu` |
+| `Pagination` (+ parts)                           | `pagination`      |
+| `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` | `tabs`            |
 
 </details>
 
 <details>
 <summary><strong>Data & Media</strong></summary>
 
-| Component | Import |
-|-----------|--------|
-| `Attachment` | `attachment` |
-| `Avatar`, `AvatarImage`, `AvatarFallback` | `avatar` |
-| `Bubble` | `bubble` |
-| `Calendar` | `calendar` |
-| `Carousel` (+ parts) | `carousel` |
-| `Chart` (+ parts) | `chart` |
-| `Progress` | `progress` |
-| `ScrollArea` | `scroll-area` |
+| Component                                 | Import        |
+| ----------------------------------------- | ------------- |
+| `Attachment`                              | `attachment`  |
+| `Avatar`, `AvatarImage`, `AvatarFallback` | `avatar`      |
+| `Bubble`                                  | `bubble`      |
+| `Calendar`                                | `calendar`    |
+| `Carousel` (+ parts)                      | `carousel`    |
+| `Chart` (+ parts)                         | `chart`       |
+| `Progress`                                | `progress`    |
+| `ScrollArea`                              | `scroll-area` |
 
 </details>
 
 <details>
 <summary><strong>Feedback & Utilities</strong></summary>
 
-| Component | Import |
-|-----------|--------|
-| `Accordion`, `AccordionItem`, `AccordionTrigger`, `AccordionContent` | `accordion` |
-| `Collapsible`, `CollapsibleTrigger`, `CollapsibleContent` | `collapsible` |
-| `Command` (+ parts) | `command` |
-| `Direction` | `direction` |
-| `MessageScroller` | `message-scroller` |
-| `Spinner` | `spinner` |
-| `SonnerToaster` (re-exported as to avoid collision with `Toaster`) | barrel `index` |
-| `Toast`, `Toaster` (+ parts) | `toast` |
+| Component                                                            | Import             |
+| -------------------------------------------------------------------- | ------------------ |
+| `Accordion`, `AccordionItem`, `AccordionTrigger`, `AccordionContent` | `accordion`        |
+| `Collapsible`, `CollapsibleTrigger`, `CollapsibleContent`            | `collapsible`      |
+| `Command` (+ parts)                                                  | `command`          |
+| `Direction`                                                          | `direction`        |
+| `MessageScroller`                                                    | `message-scroller` |
+| `Spinner`                                                            | `spinner`          |
+| `SonnerToaster` (re-exported as to avoid collision with `Toaster`)   | barrel `index`     |
+| `Toast`, `Toaster` (+ parts)                                         | `toast`            |
 
 </details>
 
@@ -312,8 +328,8 @@ import { cn } from "@celestia-project/ui";
 
 ## Hooks
 
-| Hook | Description |
-|------|-------------|
+| Hook            | Description                                                       |
+| --------------- | ----------------------------------------------------------------- |
 | `useIsMobile()` | Returns `true` when viewport width is below the mobile breakpoint |
 
 ---
@@ -330,13 +346,13 @@ Used by dashboard components, forms, and overlays. Variables like `--background`
 
 A forced-dark palette with literal tokens:
 
-| Token | Utility | Value |
-|-------|---------|-------|
-| `--bg` | `bg-bg` | `hsl(0 0% 4%)` — page background |
-| `--surface` | `bg-surface` | `hsl(0 0% 8%)` — cards, raised panels |
-| `--text` | `text-text-primary` | `hsl(0 0% 96%)` — headings |
-| *(literal)* | `text-fog` | `hsl(0 0% 53%)` — muted copy |
-| `--stroke` | `border-stroke` | `hsl(0 0% 12%)` — borders |
+| Token       | Utility             | Value                                 |
+| ----------- | ------------------- | ------------------------------------- |
+| `--bg`      | `bg-bg`             | `hsl(0 0% 4%)` — page background      |
+| `--surface` | `bg-surface`        | `hsl(0 0% 8%)` — cards, raised panels |
+| `--text`    | `text-text-primary` | `hsl(0 0% 96%)` — headings            |
+| _(literal)_ | `text-fog`          | `hsl(0 0% 53%)` — muted copy          |
+| `--stroke`  | `border-stroke`     | `hsl(0 0% 12%)` — borders             |
 
 Brand accent gradient: `#89aacc → #4e85bf`.
 
@@ -344,7 +360,7 @@ Brand accent gradient: `#89aacc → #4e85bf`.
 
 ## Development
 
-This package lives at `packages/ui` inside the [celestia-starter](https://github.com/celestia-realm/celestia-starter) monorepo.
+This package lives at `packages/ui` inside the [celestia-starter](https://github.com/dev-celestia/celestia-starter) monorepo.
 
 ```bash
 # Install all dependencies from the monorepo root
@@ -364,4 +380,4 @@ pnpm --filter @celestia-project/ui typecheck
 
 ## License
 
-MIT © [celestia-realm](https://github.com/celestia-realm)
+MIT © [dev-celestia](https://github.com/dev-celestia)

@@ -6,10 +6,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/celestia-realm/celestia-starter.git",
+    "url": "https://github.com/dev-celestia/celestia-starter.git",
     "directory": "packages/cli"
   },
-  "homepage": "https://github.com/celestia-realm/celestia-starter#readme",
+  "homepage": "https://github.com/dev-celestia/celestia-starter#readme",
   "bin": {
     "create-celestia": "./src/index.js"
   },

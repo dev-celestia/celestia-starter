@@ -22,7 +22,7 @@ import {
 } from "@celestia-project/ui"
 import { cn } from "@celestia-project/ui/lib/utils"
 
-const GITHUB_URL = "https://github.com/celestia-realm/celestia-starter"
+const GITHUB_URL = "https://github.com/dev-celestia/celestia-starter"
 
 export function LogoMark({ className }: Readonly<{ className?: string }>) {
   return (

@@ -225,7 +225,7 @@ export function Header({
                 size="sm"
                 render={
                   <Link
-                    href="https://github.com/celestia-realm/celestia-starter"
+                    href="https://github.com/dev-celestia/celestia-starter"
                     target="_blank"
                     rel="noreferrer"
                   />

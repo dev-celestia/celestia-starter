@@ -9,8 +9,8 @@ import {
   BellSimpleRingingIcon,
   CompassIcon,
   StackIcon,
-  CaretRightIcon,
 } from "@phosphor-icons/react"
+import { NavSidebar, type NavSidebarGroup } from "@/components/shared/nav-sidebar"
 import { cn } from "@celestia-project/ui/lib/utils"
 
 export interface CategoryItem {
@@ -151,120 +151,62 @@ export const CATEGORIES: CategoryItem[] = [
   },
 ]
 
-interface ComponentsSidebarProps {
+export interface ComponentsSidebarProps {
   activeCategory: string
   onSelectCategory: (id: string) => void
+  className?: string
 }
 
 export function ComponentsSidebar({
   activeCategory,
   onSelectCategory,
+  className,
 }: ComponentsSidebarProps) {
-  // Track open categories with support for toggling
-  const [openCategories, setOpenCategories] = React.useState<Record<string, boolean>>({
-    buttons: true,
-  })
-
-  // Sync if activeCategory changes externally
-  React.useEffect(() => {
-    if (activeCategory) {
-      setOpenCategories((prev) => ({ ...prev, [activeCategory]: true }))
-    }
-  }, [activeCategory])
-
-  const toggleCategory = (catId: string) => {
-    onSelectCategory(catId)
-    setOpenCategories((prev) => ({
-      ...prev,
-      [catId]: !prev[catId],
-    }))
-
-    const element = document.getElementById(catId)
-    if (element) {
-      const yOffset = -90
-      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset
-      window.scrollTo({ top: y, behavior: "smooth" })
-    }
-  }
-
-  const scrollToItem = (itemId: string) => {
+  const scrollToItem = React.useCallback((itemId: string) => {
     const element = document.getElementById(itemId)
     if (element) {
-      const yOffset = -90
+      const yOffset = -120
       const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset
       window.scrollTo({ top: y, behavior: "smooth" })
     }
-  }
+  }, [])
+
+  const handleSelectGroup = React.useCallback(
+    (groupId: string) => {
+      onSelectCategory(groupId)
+      const element = document.getElementById(groupId)
+      if (element) {
+        const yOffset = -120
+        const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset
+        window.scrollTo({ top: y, behavior: "smooth" })
+      }
+    },
+    [onSelectCategory]
+  )
+
+  const sidebarGroups: NavSidebarGroup[] = React.useMemo(() => {
+    return CATEGORIES.map((cat) => ({
+      id: cat.id,
+      name: cat.name,
+      icon: cat.icon,
+      items: cat.items.map((item) => ({
+        id: item.id,
+        title: item.name,
+      })),
+    }))
+  }, [])
 
   return (
-    <aside className="sticky top-50 hidden w-64 shrink-0 lg:block self-start max-h-[calc(100vh-6rem)] overflow-y-auto pr-3 py-2 scrollbar-none">
-      <div className="flex flex-col gap-6">
-        <div>
-          <div className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-            Categories
-          </div>
-          <nav className="flex flex-col gap-1">
-            {CATEGORIES.map((cat) => {
-              const Icon = cat.icon
-              const isOpen = !!openCategories[cat.id]
-              const isSelected = activeCategory === cat.id
-
-              return (
-                <div key={cat.id} className="flex flex-col">
-                  <button
-                    type="button"
-                    onClick={() => toggleCategory(cat.id)}
-                    className={cn(
-                      "flex items-center justify-between rounded-lg px-2.5 py-2 text-xs font-medium transition-all text-left group cursor-pointer select-none",
-                      isSelected
-                        ? "bg-primary/10 text-primary"
-                        : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
-                    )}
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <CaretRightIcon
-                        className={cn(
-                          "size-3.5 shrink-0 transition-transform duration-200 text-muted-foreground/60",
-                          isOpen && "rotate-90 text-foreground"
-                        )}
-                      />
-                      <Icon className={cn("size-4 shrink-0", isSelected ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
-                      <span className="truncate">{cat.name}</span>
-                    </div>
-                    <span
-                      className={cn(
-                        "font-mono text-[10px] rounded-md px-1.5 py-0.5 shrink-0 ml-1.5",
-                        isSelected ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
-                      )}
-                    >
-                      {cat.count}
-                    </span>
-                  </button>
-
-                  {/* Sub components list */}
-                  {isOpen && (
-                    <div className="ml-5 mt-1 mb-1 flex flex-col gap-0.5 border-l border-border/60 pl-3.5">
-                      {cat.items.map((item) => (
-                        <a
-                          key={item.id}
-                          href={`#${item.id}`}
-                          onClick={(e) => {
-                            e.preventDefault()
-                            scrollToItem(item.id)
-                          }}
-                          className="py-1 text-[11px] text-muted-foreground transition-colors hover:text-primary"
-                        >
-                          {item.name}
-                        </a>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )
-            })}
-          </nav>
-        </div>
-      </div>
-    </aside>
+    <NavSidebar
+      groups={sidebarGroups}
+      activeGroupId={activeCategory}
+      searchPlaceholder="Filter components..."
+      onSelectGroup={handleSelectGroup}
+      onSelectItem={(item) => scrollToItem(item.id)}
+      isSticky
+      stickyTopClass="top-24"
+      maxHeightClass="max-h-[calc(100vh-7rem)]"
+      className={cn("hidden w-64 shrink-0 lg:flex lg:flex-col", className)}
+    />
   )
 }
