@@ -1,6 +1,6 @@
 {
   "name": "@celestia-project/ui",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Celestia UI — React component primitives built on Base UI and Tailwind CSS v4",
   "type": "module",
   "license": "MIT",
