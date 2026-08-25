@@ -15,7 +15,7 @@ function Tabs({
       data-slot="tabs"
       data-orientation={orientation}
       className={cn(
-        "group/tabs flex gap-2 data-horizontal:flex-col",
+        "group/tabs flex gap-2 data-[orientation=horizontal]:flex-col",
         className
       )}
       {...props}
@@ -24,12 +24,12 @@ function Tabs({
 }
 
 const tabsListVariants = cva(
-  "group/tabs-list relative inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground group-data-horizontal/tabs:h-8 group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col data-[variant=line]:rounded-none",
+  "group/tabs-list relative inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground group-data-[orientation=horizontal]/tabs:h-8 group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col data-[variant=line]:rounded-none",
   {
     variants: {
       variant: {
         default: "bg-muted",
-        line: "gap-1 bg-transparent border-b border-border/50 group-data-vertical/tabs:border-b-0 group-data-vertical/tabs:border-e",
+        line: "gap-1 bg-transparent border-b border-border/50 group-data-[orientation=vertical]/tabs:border-b-0 group-data-[orientation=vertical]/tabs:border-e",
       },
     },
     defaultVariants: {
@@ -49,7 +49,7 @@ function TabsIndicator({
         "pointer-events-none absolute z-0 transition-[left,top,width,height] duration-200 [transition-timing-function:cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none",
         "top-[var(--active-tab-top)] left-[var(--active-tab-left)] w-[var(--active-tab-width)] h-[var(--active-tab-height)]",
         "group-data-[variant=default]/tabs-list:rounded-md group-data-[variant=default]/tabs-list:bg-background group-data-[variant=default]/tabs-list:shadow-xs dark:group-data-[variant=default]/tabs-list:border dark:group-data-[variant=default]/tabs-list:border-input/40 dark:group-data-[variant=default]/tabs-list:bg-input/30",
-        "group-data-[variant=line]/tabs-list:rounded-full group-data-[variant=line]/tabs-list:bg-foreground group-data-[variant=line]/tabs-list:group-data-horizontal/tabs:top-auto group-data-[variant=line]/tabs-list:group-data-horizontal/tabs:bottom-0 group-data-[variant=line]/tabs-list:group-data-horizontal/tabs:h-0.5 group-data-[variant=line]/tabs-list:group-data-vertical/tabs:left-auto group-data-[variant=line]/tabs-list:group-data-vertical/tabs:end-0 group-data-[variant=line]/tabs-list:group-data-vertical/tabs:w-0.5",
+        "group-data-[variant=line]/tabs-list:rounded-full group-data-[variant=line]/tabs-list:bg-foreground group-data-[variant=line]/tabs-list:group-data-[orientation=horizontal]/tabs:top-auto group-data-[variant=line]/tabs-list:group-data-[orientation=horizontal]/tabs:bottom-0 group-data-[variant=line]/tabs-list:group-data-[orientation=horizontal]/tabs:h-0.5 group-data-[variant=line]/tabs-list:group-data-[orientation=vertical]/tabs:left-auto group-data-[variant=line]/tabs-list:group-data-[orientation=vertical]/tabs:end-0 group-data-[variant=line]/tabs-list:group-data-[orientation=vertical]/tabs:w-0.5",
         className
       )}
       {...props}
@@ -87,7 +87,7 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
         "data-active:text-foreground",
         "focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30",
         "disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50",
-        "group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start group-data-vertical/tabs:py-[calc(--spacing(1.25))]",
+        "group-data-[orientation=vertical]/tabs:w-full group-data-[orientation=vertical]/tabs:justify-start group-data-[orientation=vertical]/tabs:py-[calc(--spacing(1.25))]",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
         className
       )}

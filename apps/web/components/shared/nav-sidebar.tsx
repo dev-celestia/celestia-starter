@@ -79,10 +79,13 @@ export function NavSidebar({
 
   const toggleGroup = (groupId: string) => {
     onSelectGroup?.(groupId)
-    setOpenGroups((prev) => ({
-      ...prev,
-      [groupId]: !prev[groupId],
-    }))
+    setOpenGroups((prev) => {
+      const currentIsOpen = prev[groupId] ?? !defaultFolded
+      return {
+        ...prev,
+        [groupId]: !currentIsOpen,
+      }
+    })
   }
 
   // Filter groups and items
@@ -140,8 +143,8 @@ export function NavSidebar({
       {/* Navigation Groups List */}
       <nav className="flex flex-col gap-4 overflow-y-auto flex-1 min-h-0 pr-2 pb-8 [scrollbar-width:thin]">
         {filteredGroups.map((group) => {
-          // Default folded unless filtering, explicitly opened, or contains active route
-          const isOpen = Boolean(filter) || Boolean(openGroups[group.id])
+          // Default folded unless filtering, explicitly opened/closed, or contains active route
+          const isOpen = Boolean(filter) || (openGroups[group.id] ?? !defaultFolded)
           const isCollapsed = !isOpen
           const isGroupActive = activeGroupId === group.id
           const GroupIcon = group.icon
