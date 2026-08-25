@@ -9,9 +9,22 @@ import {
   BoundingBoxIcon,
   DropIcon,
   CodeIcon,
-  SlidersHorizontalIcon,
 } from "@phosphor-icons/react"
-import { Badge, Button } from "@celestia-project/ui"
+import {
+  Badge,
+  Button,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  TextEditor,
+} from "@celestia-project/ui"
+import { useTheme } from "next-themes"
 
 // Semantic Color Tokens definition
 export const COLOR_TOKENS = [
@@ -101,7 +114,7 @@ export const COLOR_TOKENS = [
     token: "border-input",
     lightVal: "oklch(0.922 0 0)",
     darkVal: "oklch(0.269 0 0)",
-    description: "Form input boundaries, checkboxes, switches outlines.",
+    description: "Borders of input fields, checkboxes, and form controls.",
   },
   {
     name: "Ring",
@@ -109,95 +122,174 @@ export const COLOR_TOKENS = [
     token: "ring-ring",
     lightVal: "oklch(0.708 0 0)",
     darkVal: "oklch(0.439 0 0)",
-    description: "Accessible focus rings and keyboard navigation outlines.",
+    description: "Accessible focus rings applied during keyboard navigation.",
   },
   {
     name: "Card",
     cssVar: "--card",
     token: "bg-card",
     lightVal: "oklch(1 0 0)",
-    darkVal: "oklch(0.145 0 0)",
-    description: "Surface background for cards, modals, sheets, and popovers.",
+    darkVal: "oklch(0.205 0 0)",
+    description: "Elevated surfaces, card panels, modals, dropdown containers.",
+  },
+  {
+    name: "Card Foreground",
+    cssVar: "--card-foreground",
+    token: "text-card-foreground",
+    lightVal: "oklch(0.145 0 0)",
+    darkVal: "oklch(0.985 0 0)",
+    description: "Text and icon elements placed on top of card surfaces.",
+  },
+  {
+    name: "Popover",
+    cssVar: "--popover",
+    token: "bg-popover",
+    lightVal: "oklch(1 0 0)",
+    darkVal: "oklch(0.205 0 0)",
+    description: "Floating tooltips, dropdown popovers, select menus.",
   },
 ]
 
+// Typography Scale Definition
 export const TYPOGRAPHY_SCALE = [
   {
-    label: "Display / H1",
-    tag: "h1",
-    size: "36px - 48px",
+    label: "Display 2XL",
     token: "text-4xl sm:text-5xl font-bold tracking-tight",
-    sample: "Building resilient design systems",
-    specs: "font-weight: 700 • line-height: 1.1 • tracking: -0.025em",
+    specs: "3rem / 48px · Leading 1.1 · Tracking -0.02em",
+    size: "48px",
+    sample: "Celestia Starter UI",
   },
   {
-    label: "Heading 2",
-    tag: "h2",
-    size: "28px - 32px",
+    label: "Display XL",
+    token: "text-3xl sm:text-4xl font-bold tracking-tight",
+    specs: "2.25rem / 36px · Leading 1.2 · Tracking -0.02em",
+    size: "36px",
+    sample: "High-Performance Full-Stack Starter",
+  },
+  {
+    label: "Heading Large (H1)",
     token: "text-2xl sm:text-3xl font-semibold tracking-tight",
-    sample: "Modular architecture for modern web applications",
-    specs: "font-weight: 600 • line-height: 1.2 • tracking: -0.02em",
+    specs: "1.875rem / 30px · Leading 1.25 · Tracking -0.015em",
+    size: "30px",
+    sample: "Production-Grade Design Engineering",
   },
   {
-    label: "Heading 3",
-    tag: "h3",
-    size: "20px - 24px",
+    label: "Heading Medium (H2)",
     token: "text-xl sm:text-2xl font-semibold tracking-tight",
-    sample: "Accessible primitives built on Base UI",
-    specs: "font-weight: 600 • line-height: 1.3 • tracking: -0.015em",
+    specs: "1.5rem / 24px · Leading 1.3 · Tracking -0.01em",
+    size: "24px",
+    sample: "Unstyled Base UI Primitives",
   },
   {
-    label: "Body Large / Lead",
-    tag: "p",
-    size: "18px",
-    token: "text-lg text-muted-foreground",
-    sample: "Tailwind CSS v4 zero-runtime design tokens coupled with full type safety.",
-    specs: "font-weight: 400 • line-height: 1.6 • tracking: normal",
+    label: "Heading Small (H3)",
+    token: "text-lg sm:text-xl font-semibold",
+    specs: "1.25rem / 20px · Leading 1.4 · Tracking -0.005em",
+    size: "20px",
+    sample: "Zero Runtime CSS Overhead",
   },
   {
-    label: "Body Standard",
-    tag: "p",
-    size: "14px - 16px",
-    token: "text-sm sm:text-base leading-relaxed text-foreground",
-    sample: "Components are decoupled from framework runtime specifics and consume standardized CSS custom properties.",
-    specs: "font-weight: 400 • line-height: 1.5 • tracking: normal",
+    label: "Body Large",
+    token: "text-base leading-relaxed",
+    specs: "1rem / 16px · Leading 1.625 · Tracking normal",
+    size: "16px",
+    sample: "Accessible WAI-ARIA 2.1 component architecture engineered for scale.",
   },
   {
-    label: "Caption / Muted",
-    tag: "span",
-    size: "12px",
+    label: "Body Default",
+    token: "text-sm leading-relaxed",
+    specs: "0.875rem / 14px · Leading 1.5 · Tracking normal",
+    size: "14px",
+    sample: "Tailwind CSS v4 custom variables mapped at build time.",
+  },
+  {
+    label: "Caption / Microcopy",
     token: "text-xs text-muted-foreground",
-    sample: "Last updated 2 hours ago • Apache-2.0 / MIT Licensed",
-    specs: "font-weight: 400 • line-height: 1.4 • tracking: normal",
+    specs: "0.75rem / 12px · Leading 1.4 · Tracking normal",
+    size: "12px",
+    sample: "MIT License © 2026 Celestia Project",
   },
   {
-    label: "Monospace / Code",
-    tag: "code",
-    size: "13px",
-    token: "font-mono text-xs bg-muted/60 px-1.5 py-0.5 rounded",
-    sample: "import { Button } from '@celestia-project/ui'",
-    specs: "font-family: var(--font-geist-mono) • font-weight: 500",
+    label: "Monospace Code",
+    token: "font-mono text-xs",
+    specs: "0.75rem / 12px · Geist Mono · Tab 2",
+    size: "12px",
+    sample: "const tokens = oklch(0.205 0 0);",
   },
 ]
 
+// Radii Scale Definition
 export const RADIUS_TOKENS = [
-  { name: "Small", token: "rounded-sm", var: "--radius-sm", px: "calc(var(--radius) - 4px)", rem: "~4px", usage: "Badges, tooltips, tags" },
-  { name: "Medium", token: "rounded-md", var: "--radius-md", px: "calc(var(--radius) - 2px)", rem: "~6px", usage: "Buttons, inputs, selects, dropdown items" },
-  { name: "Large", token: "rounded-lg", var: "--radius-lg", px: "var(--radius)", rem: "~8px", usage: "Cards, dialogs, sheets, containers" },
-  { name: "Extra Large", token: "rounded-xl", var: "--radius-xl", px: "calc(var(--radius) + 4px)", rem: "~12px", usage: "Hero cards, floating banners" },
-  { name: "Full / Pill", token: "rounded-full", var: "9999px", px: "9999px", rem: "Pill", usage: "Avatars, status chips, icon action buttons" },
+  {
+    name: "Small (sm)",
+    token: "rounded-sm",
+    px: "calc(var(--radius) - 4px)",
+    rem: "0.375rem (6px)",
+    usage: "Small badges, inner chips, tooltips, tags.",
+  },
+  {
+    name: "Medium (md)",
+    token: "rounded-md",
+    px: "calc(var(--radius) - 2px)",
+    rem: "0.5rem (8px)",
+    usage: "Inputs, textareas, select menus, standard buttons.",
+  },
+  {
+    name: "Large (lg - default)",
+    token: "rounded-lg",
+    px: "var(--radius)",
+    rem: "0.625rem (10px)",
+    usage: "Standard cards, modals, sheets, accordions, popovers.",
+  },
+  {
+    name: "Extra Large (xl)",
+    token: "rounded-xl",
+    px: "calc(var(--radius) + 4px)",
+    rem: "0.875rem (14px)",
+    usage: "Floating hero containers, featured cards, drawers.",
+  },
+  {
+    name: "Full / Pill",
+    token: "rounded-full",
+    px: "9999px",
+    rem: "Pill",
+    usage: "Avatars, status pills, circular icon action buttons.",
+  },
 ]
 
+// Shadow & Elevation Definition
 export const SHADOW_TOKENS = [
-  { name: "Shadow XS", token: "shadow-xs", desc: "Subtle 1px border elevation for flat buttons and inputs" },
-  { name: "Shadow SM", token: "shadow-sm", desc: "Cards, list items, subtle hover states" },
-  { name: "Shadow MD", token: "shadow-md", desc: "Dropdown menus, popovers, contextual toolbars" },
-  { name: "Shadow LG", token: "shadow-lg", desc: "Modals, dialogs, drawers, floating command palettes" },
-  { name: "Shadow 2XL", token: "shadow-2xl", desc: "Floating overlays, global alerts, lightbox viewports" },
+  {
+    name: "Shadow Extra-Small (xs)",
+    token: "shadow-xs",
+    desc: "Subtle baseline border reinforcement on inputs and badges.",
+  },
+  {
+    name: "Shadow Small (sm)",
+    token: "shadow-sm",
+    desc: "Slight elevation for buttons, chips, and small interactive cards.",
+  },
+  {
+    name: "Shadow Medium (md)",
+    token: "shadow-md",
+    desc: "Elevated surfaces, dropdown menus, context menus, and toolbars.",
+  },
+  {
+    name: "Shadow Large (lg)",
+    token: "shadow-lg",
+    desc: "High-elevation floating dialogs, floating action sheets, and drawers.",
+  },
+  {
+    name: "Shadow Extra-Large (xl)",
+    token: "shadow-xl",
+    desc: "Modal overlays, command palettes, and primary floating alert dialogs.",
+  },
 ]
 
 export function TokensViewer() {
-  const [activeTab, setActiveTab] = React.useState<"colors" | "typography" | "radius" | "shadows" | "exporter">("colors")
+  const { resolvedTheme } = useTheme()
+  const editorTheme = resolvedTheme === "light" ? "light" : "dark"
+
+  const [activeTab, setActiveTab] = React.useState("colors")
   const [copiedKey, setCopiedKey] = React.useState<string | null>(null)
   const [exportFormat, setExportFormat] = React.useState<"tailwind-v4" | "css-vars" | "json">("tailwind-v4")
 
@@ -298,8 +390,8 @@ export function TokensViewer() {
             full: "9999px",
           },
           typography: {
-            fontFamilySans: "var(--font-geist-sans), system-ui, sans-serif",
-            fontFamilyMono: "var(--font-geist-mono), monospace",
+            fontSans: "Geist Sans",
+            fontMono: "Geist Mono",
           },
         },
       },
@@ -309,82 +401,55 @@ export function TokensViewer() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Tab Navigation */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-border/80 pb-3">
-        <Button
-          variant={activeTab === "colors" ? "default" : "ghost"}
-          size="sm"
-          onClick={() => setActiveTab("colors")}
-          className="gap-2"
-        >
-          <PaletteIcon className="size-4" />
-          <span>Colors & Semantic Tokens</span>
-        </Button>
-        <Button
-          variant={activeTab === "typography" ? "default" : "ghost"}
-          size="sm"
-          onClick={() => setActiveTab("typography")}
-          className="gap-2"
-        >
-          <TextTIcon className="size-4" />
-          <span>Typography Scale</span>
-        </Button>
-        <Button
-          variant={activeTab === "radius" ? "default" : "ghost"}
-          size="sm"
-          onClick={() => setActiveTab("radius")}
-          className="gap-2"
-        >
-          <BoundingBoxIcon className="size-4" />
-          <span>Radius & Spacing</span>
-        </Button>
-        <Button
-          variant={activeTab === "shadows" ? "default" : "ghost"}
-          size="sm"
-          onClick={() => setActiveTab("shadows")}
-          className="gap-2"
-        >
-          <DropIcon className="size-4" />
-          <span>Elevation & Shadows</span>
-        </Button>
-        <Button
-          variant={activeTab === "exporter" ? "default" : "outline"}
-          size="sm"
-          onClick={() => setActiveTab("exporter")}
-          className="gap-2 ml-auto"
-        >
-          <CodeIcon className="size-4" />
-          <span>Export Tokens</span>
-        </Button>
-      </div>
+    <div className="space-y-6">
+      {/* Token Tabs Strip */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-2">
+          <TabsList className="flex-wrap h-auto p-1 gap-1">
+            <TabsTrigger value="colors" className="gap-2 text-xs">
+              <PaletteIcon className="size-4" />
+              <span>Colors & Semantic Tokens</span>
+            </TabsTrigger>
+            <TabsTrigger value="typography" className="gap-2 text-xs">
+              <TextTIcon className="size-4" />
+              <span>Typography Scale</span>
+            </TabsTrigger>
+            <TabsTrigger value="radius" className="gap-2 text-xs">
+              <BoundingBoxIcon className="size-4" />
+              <span>Radius & Spacing</span>
+            </TabsTrigger>
+            <TabsTrigger value="shadows" className="gap-2 text-xs">
+              <DropIcon className="size-4" />
+              <span>Elevation & Shadows</span>
+            </TabsTrigger>
+            <TabsTrigger value="exporter" className="gap-2 text-xs">
+              <CodeIcon className="size-4" />
+              <span>Export Tokens</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
-      {/* 1. Colors Tab */}
-      {activeTab === "colors" && (
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-foreground">Semantic Color Palette</h3>
-              <p className="text-sm text-muted-foreground">
-                All colors use the high-gamut <strong>OKLCH</strong> color space for uniform lightness and contrast parity across dark and light modes.
-              </p>
-            </div>
+        {/* 1. Colors Tab */}
+        <TabsContent value="colors" className="space-y-6 pt-4">
+          <div>
+            <h3 className="text-lg font-semibold text-foreground">Semantic Color Palette</h3>
+            <p className="text-sm text-muted-foreground">
+              All colors use the high-gamut <strong>OKLCH</strong> color space for uniform lightness and contrast parity across dark and light modes.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {COLOR_TOKENS.map((c) => (
-              <div
-                key={c.cssVar}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-border/80 bg-card p-4 transition-all hover:border-border hover:shadow-md"
-              >
-                <div className="flex items-start justify-between gap-2 mb-3">
+              <Card key={c.cssVar} className="group relative flex flex-col justify-between overflow-hidden shadow-xs hover:shadow-md transition-all">
+                <CardHeader className="flex flex-row items-start justify-between gap-2 p-4 pb-2">
                   <div>
-                    <h4 className="font-semibold text-foreground text-sm">{c.name}</h4>
-                    <span className="font-mono text-xs text-muted-foreground">{c.token}</span>
+                    <CardTitle className="text-sm font-semibold">{c.name}</CardTitle>
+                    <CardDescription className="font-mono text-xs">{c.token}</CardDescription>
                   </div>
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
                     onClick={() => copyToClipboard(`var(${c.cssVar})`, c.cssVar)}
-                    className="rounded-md border border-border/60 p-1.5 text-muted-foreground transition hover:bg-muted hover:text-foreground cursor-pointer"
                     title="Copy CSS variable"
                   >
                     {copiedKey === c.cssVar ? (
@@ -392,45 +457,45 @@ export function TokensViewer() {
                     ) : (
                       <CopyIcon className="size-3.5" />
                     )}
-                  </button>
-                </div>
+                  </Button>
+                </CardHeader>
 
-                {/* Swatch Previews */}
-                <div className="my-2 grid grid-cols-2 gap-2">
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Light</span>
-                    <div
-                      className="h-10 w-full rounded-lg border border-border/40 shadow-inner flex items-center justify-center font-mono text-[10px] text-muted-foreground/80"
-                      style={{ backgroundColor: c.lightVal }}
-                    >
-                      preview
+                <CardContent className="p-4 pt-0">
+                  {/* Swatch Previews */}
+                  <div className="my-2 grid grid-cols-2 gap-2">
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Light</span>
+                      <div
+                        className="h-10 w-full rounded-lg border border-border/40 shadow-inner flex items-center justify-center font-mono text-[10px] text-muted-foreground/80"
+                        style={{ backgroundColor: c.lightVal }}
+                      >
+                        preview
+                      </div>
+                      <span className="font-mono text-[10px] text-muted-foreground truncate">{c.lightVal}</span>
                     </div>
-                    <span className="font-mono text-[10px] text-muted-foreground truncate">{c.lightVal}</span>
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Dark</span>
-                    <div
-                      className="h-10 w-full rounded-lg border border-border/40 shadow-inner flex items-center justify-center font-mono text-[10px] text-muted-foreground/80"
-                      style={{ backgroundColor: c.darkVal }}
-                    >
-                      preview
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Dark</span>
+                      <div
+                        className="h-10 w-full rounded-lg border border-border/40 shadow-inner flex items-center justify-center font-mono text-[10px] text-muted-foreground/80"
+                        style={{ backgroundColor: c.darkVal }}
+                      >
+                        preview
+                      </div>
+                      <span className="font-mono text-[10px] text-muted-foreground truncate">{c.darkVal}</span>
                     </div>
-                    <span className="font-mono text-[10px] text-muted-foreground truncate">{c.darkVal}</span>
                   </div>
-                </div>
 
-                <p className="mt-3 text-xs leading-relaxed text-muted-foreground border-t border-border/50 pt-2.5">
-                  {c.description}
-                </p>
-              </div>
+                  <p className="mt-3 text-xs leading-relaxed text-muted-foreground border-t border-border/50 pt-2.5">
+                    {c.description}
+                  </p>
+                </CardContent>
+              </Card>
             ))}
           </div>
-        </div>
-      )}
+        </TabsContent>
 
-      {/* 2. Typography Tab */}
-      {activeTab === "typography" && (
-        <div className="space-y-6">
+        {/* 2. Typography Tab */}
+        <TabsContent value="typography" className="space-y-6 pt-4">
           <div>
             <h3 className="text-lg font-semibold text-foreground">Typographic Hierarchy</h3>
             <p className="text-sm text-muted-foreground">
@@ -438,7 +503,7 @@ export function TokensViewer() {
             </p>
           </div>
 
-          <div className="divide-y divide-border/60 rounded-xl border border-border/80 bg-card overflow-hidden">
+          <Card className="divide-y divide-border/60 overflow-hidden">
             {TYPOGRAPHY_SCALE.map((t, idx) => (
               <div key={idx} className="p-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div className="w-full lg:w-1/3">
@@ -455,13 +520,11 @@ export function TokensViewer() {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      )}
+          </Card>
+        </TabsContent>
 
-      {/* 3. Radius & Spacing Tab */}
-      {activeTab === "radius" && (
-        <div className="space-y-6">
+        {/* 3. Radius & Spacing Tab */}
+        <TabsContent value="radius" className="space-y-6 pt-4">
           <div>
             <h3 className="text-lg font-semibold text-foreground">Corner Radii & Shape System</h3>
             <p className="text-sm text-muted-foreground">
@@ -471,35 +534,38 @@ export function TokensViewer() {
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {RADIUS_TOKENS.map((r) => (
-              <div key={r.name} className="flex flex-col items-center justify-between rounded-xl border border-border/80 bg-card p-5 text-center">
-                <div className="flex w-full items-center justify-between">
-                  <span className="font-semibold text-foreground text-sm">{r.name}</span>
+              <Card key={r.name} className="flex flex-col items-center justify-between p-5 text-center">
+                <CardHeader className="flex flex-row w-full items-center justify-between p-0">
+                  <CardTitle className="text-sm font-semibold">{r.name}</CardTitle>
                   <Badge variant="outline" className="font-mono text-xs">{r.token}</Badge>
-                </div>
+                </CardHeader>
 
-                {/* Visual Representation Box */}
-                <div className="my-6 flex h-24 w-24 items-center justify-center border-2 border-primary bg-primary/10 shadow-sm transition-all" style={{ borderRadius: r.rem === "Pill" ? "9999px" : r.rem }}>
-                  <span className="font-mono text-[11px] font-medium text-primary">{r.rem}</span>
-                </div>
-
-                <div className="w-full border-t border-border/50 pt-3 text-left">
-                  <div className="flex justify-between font-mono text-[11px] text-muted-foreground">
-                    <span>Formula:</span>
-                    <span>{r.px}</span>
+                <CardContent className="w-full p-0">
+                  {/* Visual Representation Box */}
+                  <div
+                    className="my-6 mx-auto flex h-24 w-24 items-center justify-center border-2 border-primary bg-primary/10 shadow-xs transition-all"
+                    style={{ borderRadius: r.rem === "Pill" ? "9999px" : r.rem }}
+                  >
+                    <span className="font-mono text-[11px] font-medium text-primary">{r.rem}</span>
                   </div>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    <strong className="text-foreground">Usage:</strong> {r.usage}
-                  </p>
-                </div>
-              </div>
+
+                  <div className="w-full border-t border-border/50 pt-3 text-left">
+                    <div className="flex justify-between font-mono text-[11px] text-muted-foreground">
+                      <span>Formula:</span>
+                      <span>{r.px}</span>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      <strong className="text-foreground">Usage:</strong> {r.usage}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
-        </div>
-      )}
+        </TabsContent>
 
-      {/* 4. Shadows & Elevation Tab */}
-      {activeTab === "shadows" && (
-        <div className="space-y-6">
+        {/* 4. Shadows & Elevation Tab */}
+        <TabsContent value="shadows" className="space-y-6 pt-4">
           <div>
             <h3 className="text-lg font-semibold text-foreground">Elevation & Depth Layers</h3>
             <p className="text-sm text-muted-foreground">
@@ -509,88 +575,78 @@ export function TokensViewer() {
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {SHADOW_TOKENS.map((s) => (
-              <div
-                key={s.name}
-                className={`flex flex-col justify-between rounded-xl border border-border/60 bg-card p-6 ${s.token} transition-all`}
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-semibold text-foreground text-sm">{s.name}</h4>
+              <Card key={s.name} className={`flex flex-col justify-between p-6 ${s.token} transition-all`}>
+                <CardHeader className="p-0 mb-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <CardTitle className="text-sm font-semibold">{s.name}</CardTitle>
                     <span className="font-mono text-xs text-primary">{s.token}</span>
                   </div>
-                  <p className="text-xs leading-relaxed text-muted-foreground">{s.desc}</p>
-                </div>
+                  <CardDescription className="text-xs">{s.desc}</CardDescription>
+                </CardHeader>
 
-                <div className="mt-6 flex items-center justify-center rounded-lg border border-border/40 bg-muted/40 py-4">
-                  <span className="text-xs font-medium text-muted-foreground">Interactive Surface Element</span>
-                </div>
-              </div>
+                <CardContent className="p-0 mt-4">
+                  <div className="flex items-center justify-center rounded-lg border border-border/40 bg-muted/40 py-4">
+                    <span className="text-xs font-medium text-muted-foreground">Interactive Surface Element</span>
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
-        </div>
-      )}
+        </TabsContent>
 
-      {/* 5. Exporter Tab */}
-      {activeTab === "exporter" && (
-        <div className="space-y-5 rounded-xl border border-border/80 bg-card p-6">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-foreground">Export Design Tokens</h3>
-              <p className="text-sm text-muted-foreground">
-                Copy and integrate these tokens into any external project instantly.
-              </p>
-            </div>
+        {/* 5. Exporter Tab */}
+        <TabsContent value="exporter" className="space-y-5 pt-4">
+          <Card>
+            <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pb-4">
+              <div>
+                <CardTitle className="text-lg">Export Design Tokens</CardTitle>
+                <CardDescription className="text-sm">
+                  Copy and integrate these tokens into any external project instantly.
+                </CardDescription>
+              </div>
 
-            <div className="flex items-center gap-1.5 rounded-lg border border-border/80 bg-muted/40 p-1">
-              <Button
-                variant={exportFormat === "tailwind-v4" ? "default" : "ghost"}
-                size="xs"
-                onClick={() => setExportFormat("tailwind-v4")}
-              >
-                Tailwind v4
-              </Button>
-              <Button
-                variant={exportFormat === "css-vars" ? "default" : "ghost"}
-                size="xs"
-                onClick={() => setExportFormat("css-vars")}
-              >
-                CSS Variables
-              </Button>
-              <Button
-                variant={exportFormat === "json" ? "default" : "ghost"}
-                size="xs"
-                onClick={() => setExportFormat("json")}
-              >
-                Tokens JSON
-              </Button>
-            </div>
-          </div>
+              <Tabs value={exportFormat} onValueChange={(v) => setExportFormat(v as "tailwind-v4" | "css-vars" | "json")}>
+                <TabsList>
+                  <TabsTrigger value="tailwind-v4">Tailwind v4</TabsTrigger>
+                  <TabsTrigger value="css-vars">CSS Variables</TabsTrigger>
+                  <TabsTrigger value="json">JSON</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </CardHeader>
 
-          <div className="relative">
-            <pre className="max-h-96 overflow-x-auto rounded-lg border border-border/80 bg-muted/70 p-4 font-mono text-xs leading-relaxed text-foreground">
-              {getExportCode()}
-            </pre>
-            <Button
-              variant="secondary"
-              size="xs"
-              onClick={() => copyToClipboard(getExportCode(), "export-all")}
-              className="absolute right-3 top-3 gap-1.5"
-            >
-              {copiedKey === "export-all" ? (
-                <>
-                  <CheckIcon className="size-3 text-green-500" />
-                  <span>Copied!</span>
-                </>
-              ) : (
-                <>
-                  <CopyIcon className="size-3" />
-                  <span>Copy Code</span>
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
-      )}
+            <CardContent className="pt-0">
+              <div className="relative rounded-lg border border-border/80 overflow-hidden bg-background">
+                <TextEditor
+                  value={getExportCode()}
+                  language={exportFormat === "json" ? "json" : "css"}
+                  theme={editorTheme}
+                  height={320}
+                  disableValidation
+                  options={{
+                    readOnly: true,
+                    lineNumbers: "on",
+                    lineNumbersMinChars: 3,
+                    folding: false,
+                    padding: { top: 12, bottom: 12 },
+                  }}
+                />
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  onClick={() => copyToClipboard(getExportCode(), "export-all")}
+                  className="absolute right-2 top-2 z-10 bg-background/80 backdrop-blur-xs text-muted-foreground hover:text-foreground"
+                >
+                  {copiedKey === "export-all" ? (
+                    <CheckIcon className="size-3.5 text-green-500" />
+                  ) : (
+                    <CopyIcon className="size-3.5" />
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

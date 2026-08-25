@@ -9,7 +9,20 @@ import {
   SparkleIcon,
   LightningIcon,
 } from "@phosphor-icons/react"
-import { Badge, Button, TextEditor } from "@celestia-project/ui"
+import {
+  Badge,
+  Button,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  TextEditor,
+} from "@celestia-project/ui"
 import { useTheme } from "next-themes"
 
 const INSTALL_PNPM = `pnpm add @celestia-project/ui @phosphor-icons/react @base-ui/react`
@@ -114,8 +127,8 @@ export function ExternalGuide() {
   const { resolvedTheme } = useTheme()
   const editorTheme = resolvedTheme === "light" ? "light" : "dark"
 
-  const [activePm, setActivePm] = React.useState<"pnpm" | "npm" | "yarn">("pnpm")
-  const [activeStyleOption, setActiveStyleOption] = React.useState<"quickstart" | "source">("quickstart")
+  const [activePm, setActivePm] = React.useState("pnpm")
+  const [activeStyleOption, setActiveStyleOption] = React.useState("quickstart")
   const [copiedSection, setCopiedSection] = React.useState<string | null>(null)
 
   const copyCode = (code: string, id: string) => {
@@ -124,7 +137,7 @@ export function ExternalGuide() {
     setTimeout(() => setCopiedSection(null), 2000)
   }
 
-  const installCmds = {
+  const installCmds: Record<string, string> = {
     pnpm: INSTALL_PNPM,
     npm: INSTALL_NPM,
     yarn: INSTALL_YARN,
@@ -133,124 +146,181 @@ export function ExternalGuide() {
   return (
     <div className="space-y-8">
       {/* 1. Quick Install */}
-      <div className="rounded-xl border border-border/80 bg-card p-6 shadow-xs">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
-          <div className="flex items-center gap-2.5">
-            <div className="grid size-8 place-items-center rounded-lg bg-primary/10 text-primary">
-              <PackageIcon className="size-4" />
+      <Card>
+        <Tabs value={activePm} onValueChange={(val) => setActivePm(val as string)}>
+          <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pb-4">
+            <div className="flex items-center gap-2.5">
+              <div className="grid size-8 place-items-center rounded-lg bg-primary/10 text-primary">
+                <PackageIcon className="size-4" />
+              </div>
+              <div>
+                <CardTitle className="text-sm sm:text-base">1. Install Package & Dependencies</CardTitle>
+                <CardDescription className="text-xs">Add the UI library and base peer dependencies to your repository</CardDescription>
+              </div>
             </div>
-            <div>
-              <h3 className="font-semibold text-foreground text-sm sm:text-base">1. Install Package & Dependencies</h3>
-              <p className="text-xs text-muted-foreground">Add the UI library and base peer dependencies to your repository</p>
-            </div>
-          </div>
 
-          <div className="flex items-center gap-1 rounded-lg border border-border/80 bg-muted/40 p-1">
-            <Button
-              variant={activePm === "pnpm" ? "default" : "ghost"}
-              size="xs"
-              onClick={() => setActivePm("pnpm")}
-            >
-              pnpm
-            </Button>
-            <Button
-              variant={activePm === "npm" ? "default" : "ghost"}
-              size="xs"
-              onClick={() => setActivePm("npm")}
-            >
-              npm
-            </Button>
-            <Button
-              variant={activePm === "yarn" ? "default" : "ghost"}
-              size="xs"
-              onClick={() => setActivePm("yarn")}
-            >
-              yarn
-            </Button>
-          </div>
-        </div>
+            <TabsList>
+              <TabsTrigger value="pnpm">pnpm</TabsTrigger>
+              <TabsTrigger value="npm">npm</TabsTrigger>
+              <TabsTrigger value="yarn">yarn</TabsTrigger>
+            </TabsList>
+          </CardHeader>
 
-        <div className="relative rounded-lg border border-border/80 overflow-hidden bg-background">
-          <TextEditor
-            value={installCmds[activePm]}
-            language="bash"
-            theme={editorTheme}
-            height={52}
-            disableValidation
-            options={{
-              readOnly: true,
-              lineNumbers: "off",
-              glyphMargin: false,
-              folding: false,
-              lineDecorationsWidth: 10,
-              padding: { top: 14, bottom: 14 },
-            }}
-          />
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            onClick={() => copyCode(installCmds[activePm], "install")}
-            className="absolute right-2 top-2 z-10 bg-background/80 backdrop-blur-xs text-muted-foreground hover:text-foreground"
-          >
-            {copiedSection === "install" ? (
-              <CheckIcon className="size-3.5 text-green-500" />
-            ) : (
-              <CopyIcon className="size-3.5" />
-            )}
-          </Button>
-        </div>
-      </div>
+          <CardContent className="pt-0">
+            {["pnpm", "npm", "yarn"].map((pm) => (
+              <TabsContent key={pm} value={pm}>
+                <div className="relative rounded-lg border border-border/80 overflow-hidden bg-background">
+                  <TextEditor
+                    value={installCmds[pm] ?? ""}
+                    language="bash"
+                    theme={editorTheme}
+                    height={52}
+                    disableValidation
+                    options={{
+                      readOnly: true,
+                      lineNumbers: "off",
+                      glyphMargin: false,
+                      folding: false,
+                      lineDecorationsWidth: 10,
+                      padding: { top: 14, bottom: 14 },
+                    }}
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    onClick={() => copyCode(installCmds[pm] ?? "", `install-${pm}`)}
+                    className="absolute right-2 top-2 z-10 bg-background/80 backdrop-blur-xs text-muted-foreground hover:text-foreground"
+                  >
+                    {copiedSection === `install-${pm}` ? (
+                      <CheckIcon className="size-3.5 text-green-500" />
+                    ) : (
+                      <CopyIcon className="size-3.5" />
+                    )}
+                  </Button>
+                </div>
+              </TabsContent>
+            ))}
+          </CardContent>
+        </Tabs>
+      </Card>
 
       {/* 2. Global CSS & Theme Setup */}
-      <div className="rounded-xl border border-border/80 bg-card p-6 shadow-xs">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
+      <Card>
+        <Tabs value={activeStyleOption} onValueChange={(val) => setActiveStyleOption(val as string)}>
+          <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pb-4">
+            <div className="flex items-center gap-2.5">
+              <div className="grid size-8 place-items-center rounded-lg bg-primary/10 text-primary">
+                <FileCodeIcon className="size-4" />
+              </div>
+              <div>
+                <CardTitle className="text-sm sm:text-base">2. Styles & Tailwind v4 Configuration</CardTitle>
+                <CardDescription className="text-xs">Choose between standalone quickstart or integrating with an existing Tailwind v4 app</CardDescription>
+              </div>
+            </div>
+
+            <TabsList>
+              <TabsTrigger value="quickstart">Option A: Quickstart</TabsTrigger>
+              <TabsTrigger value="source">Option B: @source Directive</TabsTrigger>
+            </TabsList>
+          </CardHeader>
+
+          <CardContent className="space-y-3 pt-0">
+            <TabsContent value="quickstart" className="space-y-3">
+              <p className="text-xs text-muted-foreground">
+                <strong>Option A (Quickstart):</strong> Import the pre-built stylesheet in your root layout (<code className="font-mono text-primary font-medium">app/layout.tsx</code> or <code className="font-mono text-primary font-medium">src/main.tsx</code>). Includes all tokens, resets, and animations.
+              </p>
+              <div className="relative rounded-lg border border-border/80 overflow-hidden bg-background">
+                <TextEditor
+                  value={QUICKSTART_CODE}
+                  language="typescript"
+                  theme={editorTheme}
+                  height={220}
+                  disableValidation
+                  options={{
+                    readOnly: true,
+                    lineNumbers: "on",
+                    lineNumbersMinChars: 3,
+                    folding: false,
+                    padding: { top: 12, bottom: 12 },
+                  }}
+                />
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  onClick={() => copyCode(QUICKSTART_CODE, "style-quickstart")}
+                  className="absolute right-2 top-2 z-10 bg-background/80 backdrop-blur-xs text-muted-foreground hover:text-foreground"
+                >
+                  {copiedSection === "style-quickstart" ? (
+                    <CheckIcon className="size-3.5 text-green-500" />
+                  ) : (
+                    <CopyIcon className="size-3.5" />
+                  )}
+                </Button>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="source" className="space-y-3">
+              <p className="text-xs text-muted-foreground">
+                <strong>Option B (Existing Tailwind v4 App):</strong> Use Tailwind v4&apos;s <code className="font-mono text-primary font-medium">@source</code> directive in your project&apos;s <code className="font-mono text-primary font-medium">globals.css</code> to scan the UI package without conflicting with your app&apos;s custom theme variables.
+              </p>
+              <div className="relative rounded-lg border border-border/80 overflow-hidden bg-background">
+                <TextEditor
+                  value={SOURCE_DIRECTIVE_CODE}
+                  language="css"
+                  theme={editorTheme}
+                  height={340}
+                  disableValidation
+                  options={{
+                    readOnly: true,
+                    lineNumbers: "on",
+                    lineNumbersMinChars: 3,
+                    folding: false,
+                    padding: { top: 12, bottom: 12 },
+                  }}
+                />
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  onClick={() => copyCode(SOURCE_DIRECTIVE_CODE, "style-source")}
+                  className="absolute right-2 top-2 z-10 bg-background/80 backdrop-blur-xs text-muted-foreground hover:text-foreground"
+                >
+                  {copiedSection === "style-source" ? (
+                    <CheckIcon className="size-3.5 text-green-500" />
+                  ) : (
+                    <CopyIcon className="size-3.5" />
+                  )}
+                </Button>
+              </div>
+            </TabsContent>
+          </CardContent>
+        </Tabs>
+      </Card>
+
+      {/* 3. Component Usage Example */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between pb-4">
           <div className="flex items-center gap-2.5">
             <div className="grid size-8 place-items-center rounded-lg bg-primary/10 text-primary">
-              <FileCodeIcon className="size-4" />
+              <SparkleIcon className="size-4" />
             </div>
             <div>
-              <h3 className="font-semibold text-foreground text-sm sm:text-base">2. Styles & Tailwind v4 Configuration</h3>
-              <p className="text-xs text-muted-foreground">Choose between standalone quickstart or integrating with an existing Tailwind v4 app</p>
+              <CardTitle className="text-sm sm:text-base">3. Consume Components in Your Views</CardTitle>
+              <CardDescription className="text-xs">Import typed primitives with full tree-shaking support</CardDescription>
             </div>
           </div>
 
-          <div className="flex items-center gap-1 rounded-lg border border-border/80 bg-muted/40 p-1">
-            <Button
-              variant={activeStyleOption === "quickstart" ? "default" : "ghost"}
-              size="xs"
-              onClick={() => setActiveStyleOption("quickstart")}
-            >
-              Option A: Quickstart
-            </Button>
-            <Button
-              variant={activeStyleOption === "source" ? "default" : "ghost"}
-              size="xs"
-              onClick={() => setActiveStyleOption("source")}
-            >
-              Option B: @source Directive
-            </Button>
-          </div>
-        </div>
+          <Badge variant="secondary" className="font-mono text-[11px]">
+            React 19 + TypeScript
+          </Badge>
+        </CardHeader>
 
-        <div className="space-y-3">
-          <p className="text-xs text-muted-foreground">
-            {activeStyleOption === "quickstart" ? (
-              <>
-                <strong>Option A (Quickstart):</strong> Import the pre-built stylesheet in your root layout (<code className="font-mono text-primary font-medium">app/layout.tsx</code> or <code className="font-mono text-primary font-medium">src/main.tsx</code>). Includes all tokens, resets, and animations.
-              </>
-            ) : (
-              <>
-                <strong>Option B (Existing Tailwind v4 App):</strong> Use Tailwind v4's <code className="font-mono text-primary font-medium">@source</code> directive in your project's <code className="font-mono text-primary font-medium">globals.css</code> to scan the UI package without conflicting with your app's custom theme variables.
-              </>
-            )}
-          </p>
-
+        <CardContent className="pt-0">
           <div className="relative rounded-lg border border-border/80 overflow-hidden bg-background">
             <TextEditor
-              value={activeStyleOption === "quickstart" ? QUICKSTART_CODE : SOURCE_DIRECTIVE_CODE}
-              language={activeStyleOption === "quickstart" ? "typescript" : "css"}
+              value={COMPONENT_USAGE_CODE}
+              language="typescript"
               theme={editorTheme}
-              height={activeStyleOption === "quickstart" ? 220 : 340}
+              height={360}
               disableValidation
               options={{
                 readOnly: true,
@@ -263,119 +333,68 @@ export function ExternalGuide() {
             <Button
               variant="ghost"
               size="icon-xs"
-              onClick={() =>
-                copyCode(
-                  activeStyleOption === "quickstart" ? QUICKSTART_CODE : SOURCE_DIRECTIVE_CODE,
-                  "style-code"
-                )
-              }
+              onClick={() => copyCode(COMPONENT_USAGE_CODE, "import-comp")}
               className="absolute right-2 top-2 z-10 bg-background/80 backdrop-blur-xs text-muted-foreground hover:text-foreground"
             >
-              {copiedSection === "style-code" ? (
+              {copiedSection === "import-comp" ? (
                 <CheckIcon className="size-3.5 text-green-500" />
               ) : (
                 <CopyIcon className="size-3.5" />
               )}
             </Button>
           </div>
-        </div>
-      </div>
-
-      {/* 3. Component Usage Example */}
-      <div className="rounded-xl border border-border/80 bg-card p-6 shadow-xs">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2.5">
-            <div className="grid size-8 place-items-center rounded-lg bg-primary/10 text-primary">
-              <SparkleIcon className="size-4" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-foreground text-sm sm:text-base">3. Consume Components in Your Views</h3>
-              <p className="text-xs text-muted-foreground">Import typed primitives with full tree-shaking support</p>
-            </div>
-          </div>
-
-          <Badge variant="secondary" className="font-mono text-[11px]">
-            React 19 + TypeScript
-          </Badge>
-        </div>
-
-        <div className="relative rounded-lg border border-border/80 overflow-hidden bg-background">
-          <TextEditor
-            value={COMPONENT_USAGE_CODE}
-            language="typescript"
-            theme={editorTheme}
-            height={360}
-            disableValidation
-            options={{
-              readOnly: true,
-              lineNumbers: "on",
-              lineNumbersMinChars: 3,
-              folding: false,
-              padding: { top: 12, bottom: 12 },
-            }}
-          />
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            onClick={() => copyCode(COMPONENT_USAGE_CODE, "import-comp")}
-            className="absolute right-2 top-2 z-10 bg-background/80 backdrop-blur-xs text-muted-foreground hover:text-foreground"
-          >
-            {copiedSection === "import-comp" ? (
-              <CheckIcon className="size-3.5 text-green-500" />
-            ) : (
-              <CopyIcon className="size-3.5" />
-            )}
-          </Button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* 4. Deep Imports & Tree-shaking */}
-      <div className="rounded-xl border border-border/80 bg-card p-6 shadow-xs">
-        <div className="flex items-center justify-between mb-4">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between pb-4">
           <div className="flex items-center gap-2.5">
             <div className="grid size-8 place-items-center rounded-lg bg-primary/10 text-primary">
               <LightningIcon className="size-4" />
             </div>
             <div>
-              <h3 className="font-semibold text-foreground text-sm sm:text-base">4. Deep Imports for Minimal Bundle Budgets</h3>
-              <p className="text-xs text-muted-foreground">Direct subpath exports for fine-grained tree-shaking and micro-frontends</p>
+              <CardTitle className="text-sm sm:text-base">4. Deep Imports for Minimal Bundle Budgets</CardTitle>
+              <CardDescription className="text-xs">Direct subpath exports for fine-grained tree-shaking and micro-frontends</CardDescription>
             </div>
           </div>
 
           <Badge variant="outline" className="font-mono text-[11px]">
             Subpath Exports
           </Badge>
-        </div>
+        </CardHeader>
 
-        <div className="relative rounded-lg border border-border/80 overflow-hidden bg-background">
-          <TextEditor
-            value={DEEP_IMPORTS_CODE}
-            language="typescript"
-            theme={editorTheme}
-            height={160}
-            disableValidation
-            options={{
-              readOnly: true,
-              lineNumbers: "on",
-              lineNumbersMinChars: 3,
-              folding: false,
-              padding: { top: 12, bottom: 12 },
-            }}
-          />
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            onClick={() => copyCode(DEEP_IMPORTS_CODE, "deep-imports")}
-            className="absolute right-2 top-2 z-10 bg-background/80 backdrop-blur-xs text-muted-foreground hover:text-foreground"
-          >
-            {copiedSection === "deep-imports" ? (
-              <CheckIcon className="size-3.5 text-green-500" />
-            ) : (
-              <CopyIcon className="size-3.5" />
-            )}
-          </Button>
-        </div>
-      </div>
+        <CardContent className="pt-0">
+          <div className="relative rounded-lg border border-border/80 overflow-hidden bg-background">
+            <TextEditor
+              value={DEEP_IMPORTS_CODE}
+              language="typescript"
+              theme={editorTheme}
+              height={160}
+              disableValidation
+              options={{
+                readOnly: true,
+                lineNumbers: "on",
+                lineNumbersMinChars: 3,
+                folding: false,
+                padding: { top: 12, bottom: 12 },
+              }}
+            />
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              onClick={() => copyCode(DEEP_IMPORTS_CODE, "deep-imports")}
+              className="absolute right-2 top-2 z-10 bg-background/80 backdrop-blur-xs text-muted-foreground hover:text-foreground"
+            >
+              {copiedSection === "deep-imports" ? (
+                <CheckIcon className="size-3.5 text-green-500" />
+              ) : (
+                <CopyIcon className="size-3.5" />
+              )}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

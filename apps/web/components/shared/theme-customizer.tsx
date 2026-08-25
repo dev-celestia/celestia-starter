@@ -220,7 +220,7 @@ export function ThemeCustomizer() {
   if (!mounted) return null
 
   return (
-    <div className="w-full rounded-2xl border border-border/50 bg-card/40 backdrop-blur-xl p-2.5 sm:px-4 sm:py-2.5 shadow-xs transition-all">
+    <div className="w-full backdrop-blur-xl p-2.5 sm:px-4 sm:py-2.5 shadow-xs transition-all">
       <div className="flex flex-wrap items-center justify-between gap-3">
         {/* Color Palette Swatches */}
         <div className="flex items-center gap-1.5 overflow-x-auto py-1 scrollbar-none">

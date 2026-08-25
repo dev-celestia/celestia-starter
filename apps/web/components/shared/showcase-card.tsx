@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { useTheme } from "next-themes"
 import {
   CopyIcon,
   CheckIcon,
@@ -23,6 +22,10 @@ import {
   DialogTitle,
   DialogDescription,
   DialogClose,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
 } from "@celestia-project/ui"
 import { CodeBlock } from "@/components/shared/code-block"
 import { toast } from "@celestia-project/ui/components/sonner"
@@ -51,12 +54,11 @@ export function ShowcaseCard({
   className,
   children,
 }: ShowcaseCardProps) {
-  const [activeTab, setActiveTab] = React.useState<"preview" | "code">("preview")
-  const [modalActiveTab, setModalActiveTab] = React.useState<"preview" | "code">("preview")
-  const [viewport, setViewport] = React.useState<"desktop" | "tablet" | "mobile">("desktop")
+  const [activeTab, setActiveTab] = React.useState("preview")
+  const [modalActiveTab, setModalActiveTab] = React.useState("preview")
+  const [viewport, setViewport] = React.useState("desktop")
   const [copied, setCopied] = React.useState(false)
   const [isModalOpen, setIsModalOpen] = React.useState(false)
-  const { resolvedTheme } = useTheme()
 
   const defaultSnippet = `import { ${title.replace(/\s+/g, "")} } from "@celestia-project/ui"`
   const fullCode =
@@ -93,266 +95,209 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
         className
       )}
     >
-      {/* Card Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/50 px-4 py-3 sm:px-5">
-        <div className="flex flex-col gap-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <h3 className="text-sm sm:text-base text-foreground tracking-tight">
-              {title}
-            </h3>
-            <Badge
-              variant="secondary"
-              className="text-[10px] uppercase tracking-wider font-mono px-1.5 py-0 bg-muted text-muted-foreground"
-            >
-              {category}
-            </Badge>
-          </div>
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            {description}
-          </p>
-        </div>
-
-        {/* View Switcher Tabs & Actions */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          {/* Segmented Control [Preview | Code] */}
-          <div className="flex items-center rounded-lg bg-muted/60 p-0.5 border border-border/50">
-            <button
-              onClick={() => setActiveTab("preview")}
-              className={cn(
-                "flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-all cursor-pointer active:scale-97",
-                activeTab === "preview"
-                  ? "bg-background text-foreground shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <EyeIcon className="size-3.5" />
-              <span>Preview</span>
-            </button>
-            <button
-              onClick={() => setActiveTab("code")}
-              className={cn(
-                "flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-all cursor-pointer active:scale-97",
-                activeTab === "code"
-                  ? "bg-background text-foreground shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <CodeIcon className="size-3.5" />
-              <span>Code</span>
-            </button>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        {/* Card Header */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/50 px-4 py-3 sm:px-5">
+          <div className="flex flex-col gap-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm sm:text-base font-semibold text-foreground tracking-tight">
+                {title}
+              </h3>
+              <Badge
+                variant="secondary"
+                className="text-[10px] uppercase tracking-wider font-mono px-1.5 py-0 bg-muted text-muted-foreground"
+              >
+                {category}
+              </Badge>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              {description}
+            </p>
           </div>
 
-          {/* Copy Full Code Action */}
-          <Button
-            variant="ghost"
-            size="xs"
-            onClick={() => handleCopy(fullCode, "TypeScript example")}
-            className="h-7 gap-1 text-[11px] text-muted-foreground hover:text-foreground border border-border/40 active:scale-97 transition-transform"
-            title="Copy TypeScript code example"
-          >
-            {copied ? (
-              <CheckIcon className="size-3.5 text-green-500" />
-            ) : (
-              <CopyIcon className="size-3.5" />
-            )}
-            <span className="hidden sm:inline">{copied ? "Copied" : "Copy"}</span>
-          </Button>
+          {/* View Switcher Tabs & Actions */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Native Celestia Tabs [Preview | Code] */}
+            <TabsList className="h-8">
+              <TabsTrigger value="preview" className="gap-1.5 text-xs">
+                <EyeIcon className="size-3.5" />
+                <span>Preview</span>
+              </TabsTrigger>
+              <TabsTrigger value="code" className="gap-1.5 text-xs">
+                <CodeIcon className="size-3.5" />
+                <span>Code</span>
+              </TabsTrigger>
+            </TabsList>
 
-          {/* Expand to Wide Modal View */}
-          <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-            <DialogTrigger
-              render={
-                <Button
-                  variant="ghost"
-                  size="icon-xs"
-                  className="h-7 w-7 text-muted-foreground hover:text-foreground border border-border/40 active:scale-97 transition-transform"
-                  title="Expand to wide canvas view"
-                >
-                  <ArrowsOutSimpleIcon className="size-3.5" />
-                </Button>
-              }
-            />
-
-            <DialogContent
-              showCloseButton={false}
-              className="max-w-6xl w-[95vw] h-[88vh] p-0 flex flex-col rounded-2xl overflow-hidden sm:max-w-6xl bg-card text-card-foreground border border-border shadow-2xl"
+            {/* Copy Full Code Action */}
+            <Button
+              variant="outline"
+              size="xs"
+              onClick={() => handleCopy(fullCode, "TypeScript example")}
+              className="h-8 gap-1 text-[11px] text-muted-foreground hover:text-foreground active:scale-97 transition-transform"
+              title="Copy TypeScript code example"
             >
-              {/* Modal Header */}
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-muted/30 px-5 py-3.5 shrink-0">
-                <div className="flex flex-col gap-0.5">
-                  <div className="flex items-center gap-2">
-                    <DialogTitle className="text-base font-bold text-foreground">
-                      {title}
-                    </DialogTitle>
-                    <Badge variant="secondary" className="font-mono text-[10px] uppercase">
-                      {category}
-                    </Badge>
-                  </div>
-                  <DialogDescription className="text-xs text-muted-foreground">
-                    {description}
-                  </DialogDescription>
-                </div>
+              {copied ? (
+                <CheckIcon className="size-3.5 text-green-500" />
+              ) : (
+                <CopyIcon className="size-3.5" />
+              )}
+              <span className="hidden sm:inline">{copied ? "Copied" : "Copy"}</span>
+            </Button>
 
-                {/* Modal Controls */}
-                <div className="flex items-center gap-2">
-                  {/* [Preview | Code] Tabs */}
-                  <div className="flex items-center rounded-lg bg-muted/80 p-0.5 border border-border/60">
-                    <button
-                      onClick={() => setModalActiveTab("preview")}
-                      className={cn(
-                        "flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-all cursor-pointer active:scale-97",
-                        modalActiveTab === "preview"
-                          ? "bg-background text-foreground shadow-xs"
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      <EyeIcon className="size-3.5" />
-                      <span>Preview</span>
-                    </button>
-                    <button
-                      onClick={() => setModalActiveTab("code")}
-                      className={cn(
-                        "flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-all cursor-pointer active:scale-97",
-                        modalActiveTab === "code"
-                          ? "bg-background text-foreground shadow-xs"
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      <CodeIcon className="size-3.5" />
-                      <span>Code</span>
-                    </button>
-                  </div>
-
-                  {/* Responsive Viewport Switcher (Only visible in Preview tab) */}
-                  {modalActiveTab === "preview" && (
-                    <div className="hidden sm:flex items-center rounded-lg bg-muted/80 p-0.5 border border-border/60">
-                      <button
-                        onClick={() => setViewport("desktop")}
-                        className={cn(
-                          "flex items-center gap-1 rounded-md px-2 py-1 text-xs transition-all cursor-pointer active:scale-97",
-                          viewport === "desktop"
-                            ? "bg-background text-foreground shadow-xs"
-                            : "text-muted-foreground hover:text-foreground"
-                        )}
-                        title="Desktop (100%)"
-                      >
-                        <DesktopIcon className="size-3.5" />
-                        <span className="text-[11px]">100%</span>
-                      </button>
-                      <button
-                        onClick={() => setViewport("tablet")}
-                        className={cn(
-                          "flex items-center gap-1 rounded-md px-2 py-1 text-xs transition-all cursor-pointer active:scale-97",
-                          viewport === "tablet"
-                            ? "bg-background text-foreground shadow-xs"
-                            : "text-muted-foreground hover:text-foreground"
-                        )}
-                        title="Tablet (768px)"
-                      >
-                        <DeviceTabletIcon className="size-3.5" />
-                        <span className="text-[11px]">768px</span>
-                      </button>
-                      <button
-                        onClick={() => setViewport("mobile")}
-                        className={cn(
-                          "flex items-center gap-1 rounded-md px-2 py-1 text-xs transition-all cursor-pointer active:scale-97",
-                          viewport === "mobile"
-                            ? "bg-background text-foreground shadow-xs"
-                            : "text-muted-foreground hover:text-foreground"
-                        )}
-                        title="Mobile (375px)"
-                      >
-                        <DeviceMobileIcon className="size-3.5" />
-                        <span className="text-[11px]">375px</span>
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Copy Code */}
+            {/* Expand to Wide Modal View */}
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+              <DialogTrigger
+                render={
                   <Button
                     variant="outline"
-                    size="xs"
-                    onClick={() => handleCopy(fullCode, "TypeScript example")}
-                    className="h-7 gap-1 text-[11px] active:scale-97 transition-transform"
+                    size="icon-xs"
+                    className="h-8 w-8 text-muted-foreground hover:text-foreground active:scale-97 transition-transform"
+                    title="Expand to wide canvas view"
                   >
-                    {copied ? <CheckIcon className="size-3.5 text-green-500" /> : <CopyIcon className="size-3.5" />}
-                    <span className="hidden sm:inline">Copy Code</span>
+                    <ArrowsOutSimpleIcon className="size-3.5" />
                   </Button>
+                }
+              />
 
-                  {/* Docs Link */}
-                  <a href={docsUrl}>
-                    <Button variant="outline" size="icon-xs" className="h-7 w-7 active:scale-97 transition-transform">
-                      <ArrowSquareOutIcon className="size-3.5" />
-                    </Button>
-                  </a>
+              <DialogContent
+                showCloseButton={false}
+                className="max-w-6xl w-[95vw] h-[88vh] p-0 flex flex-col rounded-2xl overflow-hidden sm:max-w-6xl bg-card text-card-foreground border border-border shadow-2xl"
+              >
+                <Tabs value={modalActiveTab} onValueChange={setModalActiveTab} className="h-full flex flex-col">
+                  {/* Modal Header */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-muted/30 px-5 py-3.5 shrink-0">
+                    <div className="flex flex-col gap-0.5">
+                      <div className="flex items-center gap-2">
+                        <DialogTitle className="text-base font-bold text-foreground">
+                          {title}
+                        </DialogTitle>
+                        <Badge variant="secondary" className="font-mono text-[10px] uppercase">
+                          {category}
+                        </Badge>
+                      </div>
+                      <DialogDescription className="text-xs text-muted-foreground">
+                        {description}
+                      </DialogDescription>
+                    </div>
 
-                  {/* Close Dialog Button */}
-                  <DialogClose
-                    render={
-                      <Button variant="ghost" size="icon-xs" className="h-7 w-7 active:scale-97 transition-transform">
-                        <XIcon className="size-4" />
-                      </Button>
-                    }
-                  />
-                </div>
-              </div>
+                    {/* Modal Controls */}
+                    <div className="flex items-center gap-2">
+                      {/* [Preview | Code] Tabs */}
+                      <TabsList className="h-8">
+                        <TabsTrigger value="preview" className="gap-1.5 text-xs">
+                          <EyeIcon className="size-3.5" />
+                          <span>Preview</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="code" className="gap-1.5 text-xs">
+                          <CodeIcon className="size-3.5" />
+                          <span>Code</span>
+                        </TabsTrigger>
+                      </TabsList>
 
-              {/* Modal Body */}
-              <div className="flex-1 overflow-hidden relative flex flex-col bg-background/50">
-                {modalActiveTab === "preview" ? (
-                  <div className="flex-1 w-full overflow-auto p-4 sm:p-8 flex items-center justify-center bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-muted/20 via-background to-background">
-                    <div
-                      className={cn(
-                        "transition-all duration-300 flex items-center justify-center p-6 rounded-xl",
-                        viewport === "desktop" && "w-full",
-                        viewport === "tablet" && "w-[768px] max-w-full border border-dashed border-border/80 bg-card/40 shadow-sm",
-                        viewport === "mobile" && "w-[375px] max-w-full border-2 border-border/80 rounded-2xl bg-card shadow-lg min-h-[400px]"
+                      {/* Responsive Viewport Switcher (Only visible in Preview tab) */}
+                      {modalActiveTab === "preview" && (
+                        <Tabs value={viewport} onValueChange={setViewport} className="hidden sm:inline-flex">
+                          <TabsList className="h-8">
+                            <TabsTrigger value="desktop" className="gap-1 text-xs px-2" title="Desktop (100%)">
+                              <DesktopIcon className="size-3.5" />
+                              <span className="text-[11px]">100%</span>
+                            </TabsTrigger>
+                            <TabsTrigger value="tablet" className="gap-1 text-xs px-2" title="Tablet (768px)">
+                              <DeviceTabletIcon className="size-3.5" />
+                              <span className="text-[11px]">768px</span>
+                            </TabsTrigger>
+                            <TabsTrigger value="mobile" className="gap-1 text-xs px-2" title="Mobile (375px)">
+                              <DeviceMobileIcon className="size-3.5" />
+                              <span className="text-[11px]">375px</span>
+                            </TabsTrigger>
+                          </TabsList>
+                        </Tabs>
                       )}
-                    >
-                      {children}
+
+                      {/* Copy Code */}
+                      <Button
+                        variant="outline"
+                        size="xs"
+                        onClick={() => handleCopy(fullCode, "TypeScript example")}
+                        className="h-8 gap-1 text-[11px] active:scale-97 transition-transform"
+                      >
+                        {copied ? <CheckIcon className="size-3.5 text-green-500" /> : <CopyIcon className="size-3.5" />}
+                        <span className="hidden sm:inline">Copy Code</span>
+                      </Button>
+
+                      {/* Docs Link */}
+                      <a href={docsUrl}>
+                        <Button variant="outline" size="icon-xs" className="h-8 w-8 active:scale-97 transition-transform">
+                          <ArrowSquareOutIcon className="size-3.5" />
+                        </Button>
+                      </a>
+
+                      {/* Close Dialog Button */}
+                      <DialogClose
+                        render={
+                          <Button variant="ghost" size="icon-xs" className="h-8 w-8 active:scale-97 transition-transform">
+                            <XIcon className="size-4" />
+                          </Button>
+                        }
+                      />
                     </div>
                   </div>
-                ) : (
-                  <div className="flex-1 flex flex-col h-full overflow-hidden">
-                    <CodeBlock
-                      code={fullCode}
-                      language="tsx"
-                      title={`${title.toLowerCase().replace(/\s+/g, "-")}.tsx`}
-                      badge="TypeScript / React 19"
-                      showCopy={false}
-                      className="my-0 border-0 rounded-none bg-transparent h-full flex flex-col shadow-none"
-                      preClassName="flex-1 max-h-none h-full bg-background/70"
-                    />
+
+                  {/* Modal Body */}
+                  <div className="flex-1 overflow-hidden relative flex flex-col bg-background/50">
+                    <TabsContent value="preview" className="flex-1 h-full w-full overflow-auto p-4 sm:p-8 flex items-center justify-center bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-muted/20 via-background to-background">
+                      <div
+                        className={cn(
+                          "transition-all duration-300 flex items-center justify-center p-6 rounded-xl",
+                          viewport === "desktop" && "w-full",
+                          viewport === "tablet" && "w-[768px] max-w-full border border-dashed border-border/80 bg-card/40 shadow-sm",
+                          viewport === "mobile" && "w-[375px] max-w-full border-2 border-border/80 rounded-2xl bg-card shadow-lg min-h-[400px]"
+                        )}
+                      >
+                        {children}
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="code" className="flex-1 flex flex-col h-full overflow-hidden">
+                      <CodeBlock
+                        code={fullCode}
+                        language="tsx"
+                        title={`${title.toLowerCase().replace(/\s+/g, "-")}.tsx`}
+                        badge="TypeScript / React 19"
+                        showCopy={false}
+                        className="my-0 border-0 rounded-none bg-transparent h-full flex flex-col shadow-none"
+                        preClassName="flex-1 max-h-none h-full bg-background/70"
+                      />
+                    </TabsContent>
                   </div>
-                )}
-              </div>
-            </DialogContent>
-          </Dialog>
+                </Tabs>
+              </DialogContent>
+            </Dialog>
 
-          {/* Docs Link */}
-          <a
-            href={docsUrl}
-            className="inline-flex"
-            title={`View ${title} documentation`}
-          >
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              className="h-7 w-7 text-muted-foreground hover:text-foreground active:scale-97 transition-transform"
+            {/* Docs Link */}
+            <a
+              href={docsUrl}
+              className="inline-flex"
+              title={`View ${title} documentation`}
             >
-              <ArrowSquareOutIcon className="size-3.5" />
-            </Button>
-          </a>
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                className="h-8 w-8 text-muted-foreground hover:text-foreground active:scale-97 transition-transform"
+              >
+                <ArrowSquareOutIcon className="size-3.5" />
+              </Button>
+            </a>
+          </div>
         </div>
-      </div>
 
-      {/* Main Card Body */}
-      {activeTab === "preview" ? (
-        <div className="flex flex-1 items-center justify-center p-4 sm:p-6 bg-background/40 rounded-b-xl overflow-x-auto min-h-[160px]">
+        {/* Main Card Body */}
+        <TabsContent value="preview" className="flex flex-1 items-center justify-center p-4 sm:p-6 bg-background/40 rounded-b-xl overflow-x-auto min-h-[160px]">
           {children}
-        </div>
-      ) : (
-        <div className="relative flex flex-col flex-1 rounded-b-xl overflow-hidden bg-background">
+        </TabsContent>
+
+        <TabsContent value="code" className="relative flex flex-col flex-1 rounded-b-xl overflow-hidden bg-background">
           <CodeBlock
             code={fullCode}
             language="tsx"
@@ -363,8 +308,8 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
             className="my-0 border-0 rounded-none bg-transparent shadow-none"
             preClassName="bg-background/70"
           />
-        </div>
-      )}
+        </TabsContent>
+      </Tabs>
     </section>
   )
 }

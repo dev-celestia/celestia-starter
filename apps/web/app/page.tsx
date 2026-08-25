@@ -13,7 +13,7 @@ import { StackSection } from "@/components/landing/stack-section"
 import "./landing.css"
 
 export const metadata: Metadata = {
-  title: "Celestia Starter — Production-ready full-stack monorepo",
+  title: "Celestia",
   description:
     "Next.js 16 frontend, Hono backend, Better Auth, Drizzle ORM — a decoupled full-stack starter installed in one command.",
 }

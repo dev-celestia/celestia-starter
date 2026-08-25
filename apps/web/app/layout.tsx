@@ -1,8 +1,9 @@
+import type { Metadata } from "next"
 import { Inter, Geist_Mono } from "next/font/google"
 
 import "@celestia-project/ui/globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
-import { cn } from "@celestia-project/ui/lib/utils";
+import { cn } from "@celestia-project/ui/lib/utils"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -13,6 +14,14 @@ const fontMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
 })
+
+export const metadata: Metadata = {
+  title: {
+    default: "Celestia",
+    template: "%s — Celestia",
+  },
+  description: "A decoupled full-stack monorepo with Next.js 16, Hono, Better Auth, and Drizzle ORM.",
+}
 
 export default function RootLayout({
   children,

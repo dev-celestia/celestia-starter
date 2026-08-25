@@ -142,12 +142,6 @@ export function NavBar() {
                 <div className="flex flex-1 flex-col gap-0.5 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <span className="font-medium text-xs text-foreground">Hexbuffer</span>
-                    <Badge
-                      variant="outline"
-                      className="h-4 px-1.5 text-[9px] font-mono border-amber-500/30 bg-amber-500/10 text-amber-300"
-                    >
-                      ALPHA
-                    </Badge>
                     <ArrowSquareOutIcon className="size-3 ml-auto text-muted-foreground shrink-0" />
                   </div>
                   <span className="text-[11px] text-muted-foreground leading-normal">
@@ -265,12 +259,6 @@ export function NavBar() {
                   <div className="flex flex-col">
                     <div className="flex items-center gap-1.5">
                       <span className="text-sm font-medium text-text-primary">Hexbuffer</span>
-                      <Badge
-                        variant="outline"
-                        className="h-4 px-1.5 text-[9px] font-mono border-amber-500/30 bg-amber-500/10 text-amber-300"
-                      >
-                        ALPHA
-                      </Badge>
                     </div>
                     <span className="text-xs text-fog">
                       Modern security & application toolkit

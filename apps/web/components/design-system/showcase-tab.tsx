@@ -1,7 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { MagnifyingGlassIcon } from "@phosphor-icons/react"
+import { MagnifyingGlassIcon, XIcon } from "@phosphor-icons/react"
+import { Badge, Button, Card, CardContent } from "@celestia-project/ui"
 import { ComponentsSidebar, CATEGORIES } from "@/components/showcase/components-sidebar"
 import { ButtonsSection } from "@/components/showcase/sections/buttons-section"
 import { InputsSection } from "@/components/showcase/sections/inputs-section"
@@ -26,20 +27,19 @@ export function ShowcaseTab() {
     <div className="pt-8">
       {/* Mobile Category Navigation Pills */}
       <div className="flex w-full items-center gap-1.5 overflow-x-auto pb-3 mb-4 lg:hidden scrollbar-none">
-        {CATEGORIES.map((cat) => (
-          <button
-            type="button"
-            key={cat.id}
-            onClick={() => scrollToCategory(cat.id)}
-            className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors cursor-pointer ${
-              activeCategory === cat.id
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {cat.name}
-          </button>
-        ))}
+        {CATEGORIES.map((cat) => {
+          const isActive = activeCategory === cat.id
+          return (
+            <Badge
+              key={cat.id}
+              variant={isActive ? "default" : "secondary"}
+              onClick={() => scrollToCategory(cat.id)}
+              className="shrink-0 cursor-pointer text-xs py-1 px-3"
+            >
+              {cat.name}
+            </Badge>
+          )
+        })}
       </div>
 
       <div className="flex gap-8">
@@ -53,21 +53,25 @@ export function ShowcaseTab() {
         <div className="flex-1 min-w-0 flex flex-col gap-10">
           {/* Search banner if searching */}
           {searchQuery && (
-            <div className="flex items-center justify-between rounded-lg border border-primary/20 bg-primary/5 px-4 py-2.5 text-xs">
-              <div className="flex items-center gap-2">
-                <MagnifyingGlassIcon className="size-4 text-primary" />
-                <span>
-                  Filtering components matching: <strong className="text-foreground">"{searchQuery}"</strong>
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={resetSearch}
-                className="text-xs text-primary underline hover:opacity-80 cursor-pointer"
-              >
-                Reset filter
-              </button>
-            </div>
+            <Card className="border-primary/20 bg-primary/5">
+              <CardContent className="flex items-center justify-between p-3.5 text-xs">
+                <div className="flex items-center gap-2">
+                  <MagnifyingGlassIcon className="size-4 text-primary" />
+                  <span>
+                    Filtering components matching: <strong className="text-foreground">&quot;{searchQuery}&quot;</strong>
+                  </span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  onClick={resetSearch}
+                  className="gap-1 text-primary hover:text-primary/80"
+                >
+                  <XIcon className="size-3" />
+                  <span>Reset filter</span>
+                </Button>
+              </CardContent>
+            </Card>
           )}
 
           {/* Show sections based on search */}
