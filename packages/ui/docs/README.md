@@ -17,8 +17,18 @@ This folder contains implementation guides, import conventions, component module
 ## Quick Import Summary
 
 ### Styles
+
+**Option A: Quickstart (Standalone apps)**
 ```tsx
 import "@celestia-project/ui/globals.css"
+```
+
+**Option B: Existing Tailwind v4 Apps (Custom Themes)**
+```css
+/* In your app's globals.css */
+@import "tailwindcss";
+@source "../../node_modules/@celestia-project/ui";
+@source "../**";
 ```
 
 ### Barrel Imports

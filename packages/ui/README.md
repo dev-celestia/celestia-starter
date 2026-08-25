@@ -40,17 +40,97 @@ pnpm add react@^19 react-dom@^19
 
 ## Setup
 
-### 1. Import the global stylesheet
+Choose the integration method that fits your project setup:
 
-In your app entry point (e.g. `app/layout.tsx` for Next.js):
+### Option A: Quickstart (New or standalone apps)
+
+If you do not have an existing Tailwind v4 configuration and want an all-in-one setup, import the global stylesheet directly in your app entry point (e.g. `app/layout.tsx` for Next.js or `main.tsx` for Vite):
 
 ```tsx
 import "@celestia-project/ui/globals.css";
 ```
 
-This imports Tailwind CSS v4, `tw-animate-css`, the shadcn base styles, and all CSS design tokens (light + dark themes).
+This imports Tailwind CSS v4, `tw-animate-css`, shadcn base styles, animations, and all CSS design tokens (light + dark themes).
 
-### 2. Configure PostCSS (if needed)
+### Option B: Existing Tailwind v4 App (`@source` directive)
+
+If your app already has an existing Tailwind CSS v4 setup (`@import "tailwindcss";`) and custom CSS variables, do **not** import `@celestia-project/ui/globals.css` to prevent stylesheet collisions or theme variable overrides.
+
+Instead, add the `@source` directive in your main CSS file (e.g., `src/styles/globals.css`) so Tailwind v4 scans the UI package for utility classes, and map the shadcn theme variables in `@theme inline`:
+
+```css
+@import "tailwindcss";
+
+/* 1. Point Tailwind v4 to scan @celestia-project/ui */
+@source "../../node_modules/@celestia-project/ui";
+@source "../**";
+
+@custom-variant dark (&:is(.dark *));
+
+/* 2. Map shadcn tokens to CSS variables */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Optional: Celestia UI tokens & motion */
+  --color-bg: hsl(var(--bg, 0 0% 4%));
+  --color-surface: hsl(var(--surface, 0 0% 8%));
+  --color-text-primary: hsl(var(--text, 0 0% 96%));
+  --color-fog: hsl(0 0% 53%);
+  --color-stroke: hsl(var(--stroke, 0 0% 12%));
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --animate-scroll-down: scroll-down 1.5s ease-in-out infinite;
+  --animate-role-fade-in: role-fade-in 0.4s cubic-bezier(0.23, 1, 0.32, 1) both;
+  --animate-gradient-shift: gradient-shift 6s ease infinite;
+
+  @keyframes scroll-down {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(200%); }
+  }
+
+  @keyframes role-fade-in {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+}
+```
+
+### PostCSS Configuration (if needed)
 
 If your app doesn't already have a PostCSS config, you can re-export the one bundled with this package:
 
@@ -59,9 +139,9 @@ If your app doesn't already have a PostCSS config, you can re-export the one bun
 export { default } from "@celestia-project/ui/postcss.config";
 ```
 
-### 3. Configure the dark mode class (optional)
+### Dark Mode Setup
 
-The dark theme activates on `.dark` class. Use [next-themes](https://github.com/pacocoursey/next-themes) or set the class manually:
+The dark theme activates on the `.dark` class. Use [next-themes](https://github.com/pacocoursey/next-themes) or set the class manually:
 
 ```tsx
 <html className="dark">...</html>

@@ -112,13 +112,95 @@ The `@celestia-project/ui` library supports both **barrel imports** and **deep i
 
 ### 1. Styles & CSS Variables
 
-Import the global stylesheet once in your top-level application file (`app/layout.tsx` or `pages/_app.tsx`):
+Choose the integration method based on whether the consuming project already configures Tailwind CSS v4:
+
+#### Option A: Quickstart (Standalone or new apps)
+
+Import the global stylesheet once in your top-level application file (`app/layout.tsx` or `pages/_app.tsx` / `main.tsx`):
 
 ```tsx
 import "@celestia-project/ui/globals.css"
 ```
 
 This stylesheet injects Tailwind CSS v4, `tw-animate-css`, shadcn base styles, and oklch theme variables (light + dark mode).
+
+#### Option B: Existing Tailwind v4 Apps (`@source` directive)
+
+In existing Tailwind v4 applications that define their own CSS variables, color palettes, or `@theme` blocks, **do not import `@celestia-project/ui/globals.css`** directly. Doing so can cause duplicate utility injection or overwrite app-level theme variables.
+
+Instead, add the `@source` directive in your project's main stylesheet (e.g. `src/styles/globals.css`):
+
+```css
+@import "tailwindcss";
+
+/* 1. Instruct Tailwind to scan the UI package for used class names */
+@source "../../node_modules/@celestia-project/ui";
+@source "../**";
+
+@custom-variant dark (&:is(.dark *));
+
+/* 2. Map shadcn & Celestia design tokens to Tailwind theme utilities */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Celestia UI tokens & motion */
+  --color-bg: hsl(var(--bg, 0 0% 4%));
+  --color-surface: hsl(var(--surface, 0 0% 8%));
+  --color-text-primary: hsl(var(--text, 0 0% 96%));
+  --color-fog: hsl(0 0% 53%);
+  --color-stroke: hsl(var(--stroke, 0 0% 12%));
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --animate-scroll-down: scroll-down 1.5s ease-in-out infinite;
+  --animate-role-fade-in: role-fade-in 0.4s cubic-bezier(0.23, 1, 0.32, 1) both;
+  --animate-gradient-shift: gradient-shift 6s ease infinite;
+
+  @keyframes scroll-down {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(200%); }
+  }
+
+  @keyframes role-fade-in {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+}
+```
 
 ### 2. Barrel Imports (Recommended)
 

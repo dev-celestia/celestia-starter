@@ -40,14 +40,27 @@ The package is published to npm and can be installed in any React 19 + Tailwind 
 pnpm add @celestia-project/ui
 ```
 
-Import the global stylesheet in your app entry point:
+#### Integration Option A: Quickstart (All-in-one)
 
-```css
-/* app/layout.tsx or global.css */
-@import "@celestia-project/ui/globals.css";
+Import the global stylesheet in your app entry point (`app/layout.tsx` or `globals.css`):
+
+```tsx
+import "@celestia-project/ui/globals.css";
 ```
 
-See the [full component reference](https://www.npmjs.com/package/@celestia-project/ui) on npm.
+#### Integration Option B: Existing Tailwind v4 App (`@source` directive)
+
+If your app already has an existing Tailwind v4 setup and custom theme variables, add the `@source` directive in your main CSS file so Tailwind scans the package without double-importing or overriding styles:
+
+```css
+@import "tailwindcss";
+@source "../../node_modules/@celestia-project/ui";
+@source "../**";
+
+@custom-variant dark (&:is(.dark *));
+```
+
+See the [Components docs](/docs/components) and the [npm package](https://www.npmjs.com/package/@celestia-project/ui) for details.
 
 ---
 
