@@ -26,12 +26,6 @@ const STACK = [
       "pnpm add-feature <name> copies templates, wires imports, installs dependencies. Removing is one command too.",
   },
   {
-    name: "Documentation",
-    tag: "fumadocs",
-    description:
-      "A Fumadocs site, pre-wired with search, MDX pages, and LLM-friendly text endpoints.",
-  },
-  {
     name: "Monorepo",
     tag: "turborepo",
     description:

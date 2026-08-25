@@ -35,7 +35,11 @@ npm install @celestia-project/ui @phosphor-icons/react @base-ui/react
 
 ---
 
-### 2. Import Global Stylesheet
+### 2. Styles & Tailwind v4 Integration
+
+Choose the integration method based on whether your application already configures Tailwind CSS v4:
+
+#### Option A: Quickstart (Standalone or new projects)
 
 In your application's root entry point (e.g. `app/layout.tsx` for Next.js App Router or `src/main.tsx` for Vite):
 
@@ -43,7 +47,58 @@ In your application's root entry point (e.g. `app/layout.tsx` for Next.js App Ro
 import "@celestia-project/ui/globals.css";
 ```
 
-This brings in all OKLCH design tokens, CSS variable definitions, base reset styles, and animations.
+This brings in Tailwind CSS v4, `tw-animate-css`, base styles, animations, and light/dark theme variables.
+
+#### Option B: Existing Tailwind v4 Apps (`@source` directive)
+
+If your app already has an existing Tailwind v4 setup and custom CSS variables, do **not** import `@celestia-project/ui/globals.css` directly to prevent style conflicts or theme variable overrides.
+
+Instead, add the `@source` directive in your main CSS file (`globals.css`):
+
+```css
+@import "tailwindcss";
+
+/* Scan the UI package for utility classes */
+@source "../../node_modules/@celestia-project/ui";
+@source "../**";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Map shadcn tokens to your CSS variables */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Optional: Celestia UI tokens & motion */
+  --color-bg: hsl(var(--bg, 0 0% 4%));
+  --color-surface: hsl(var(--surface, 0 0% 8%));
+  --color-text-primary: hsl(var(--text, 0 0% 96%));
+  --color-fog: hsl(0 0% 53%);
+  --color-stroke: hsl(var(--stroke, 0 0% 12%));
+}
+```
 
 ---
 
@@ -53,8 +108,6 @@ The design system uses standard class-based dark mode (`.dark`):
 
 ```tsx
 // Next.js App Router layout.tsx
-import "@celestia-project/ui/globals.css";
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
