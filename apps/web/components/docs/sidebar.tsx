@@ -36,7 +36,6 @@ export function DocsSidebar({ groups, onSelect }: DocsSidebarProps) {
   return (
     <NavSidebar
       groups={sidebarGroups}
-      searchPlaceholder="Filter docs pages..."
       onSelectItem={() => onSelect?.()}
     />
   )

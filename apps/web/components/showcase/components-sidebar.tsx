@@ -200,7 +200,6 @@ export function ComponentsSidebar({
     <NavSidebar
       groups={sidebarGroups}
       activeGroupId={activeCategory}
-      searchPlaceholder="Filter components..."
       onSelectGroup={handleSelectGroup}
       onSelectItem={(item) => scrollToItem(item.id)}
       isSticky

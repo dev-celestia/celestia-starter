@@ -2,11 +2,8 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useTheme } from "next-themes"
 import {
   MagnifyingGlassIcon,
-  SunIcon,
-  MoonIcon,
   GithubLogoIcon,
   ListIcon,
   SparkleIcon,
@@ -15,11 +12,11 @@ import {
 } from "@phosphor-icons/react"
 import {
   Button,
-  Badge,
   ButtonGroup,
 } from "@celestia-project/ui"
 import { LogoMark } from "@/components/landing/nav-bar"
 import { SearchDialog } from "@/components/docs/search-dialog"
+import { ThemeCustomizer } from "@/components/shared/theme-customizer"
 
 export interface HeaderProps {
   variant?: "docs" | "showcase"
@@ -38,8 +35,6 @@ export interface HeaderProps {
 export function Header({
   variant = "docs",
   brandTitle,
-  badgeLabel,
-  badgeHref,
   onToggleMobileMenu,
   searchQuery,
   setSearchQuery,
@@ -50,11 +45,8 @@ export function Header({
 }: Readonly<HeaderProps>) {
   const [searchOpen, setSearchOpen] = React.useState(false)
   const searchInputRef = React.useRef<HTMLInputElement>(null)
-  const { resolvedTheme, setTheme } = useTheme()
-  const [mounted, setMounted] = React.useState(false)
 
   React.useEffect(() => {
-    setMounted(true)
 
     const handleKeyDown = (e: KeyboardEvent) => {
       // Live search input shortcut: "/"
@@ -85,15 +77,6 @@ export function Header({
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [setSearchQuery])
 
-  // Derive defaults based on variant
-  const isShowcase = variant === "showcase"
-  const defaultBrandTitle = isShowcase ? "Celestia UI" : "Celestia"
-  const resolvedBrandTitle = brandTitle ?? defaultBrandTitle
-  const defaultBadgeLabel = isShowcase ? "Showcase" : "Docs"
-  const resolvedBadgeLabel = badgeLabel ?? defaultBadgeLabel
-  const defaultBadgeHref = isShowcase ? "/design-system" : "/docs"
-  const resolvedBadgeHref = badgeHref ?? defaultBadgeHref
-
   return (
     <>
       <header
@@ -116,31 +99,12 @@ export function Header({
 
             <Link
               href="/"
-              className="flex items-center gap-2.5 transition-opacity hover:opacity-85"
+              className="flex items-center gap-2 transition-opacity hover:opacity-85"
             >
               <LogoMark className="size-6" />
-              <span className="font-bold tracking-tight text-foreground text-sm sm:text-base">
-                {resolvedBrandTitle}
+              <span className="tracking-tight text-foreground text-sm sm:text-base">
+                Celestia
               </span>
-            </Link>
-
-            <span className="text-muted-foreground/40 font-mono text-sm hidden sm:inline">
-              /
-            </span>
-
-            <Link href={resolvedBadgeHref}>
-              <Badge
-                variant="outline"
-                className="gap-1 font-mono text-xs font-normal border-primary/20 bg-primary/5 text-primary"
-              >
-                {isShowcase && (
-                  <SparkleIcon
-                    className="size-3 text-primary"
-                    weight="fill"
-                  />
-                )}
-                {resolvedBadgeLabel}
-              </Badge>
             </Link>
           </div>
 
@@ -247,23 +211,7 @@ export function Header({
               </Button>
             </ButtonGroup>
 
-            {mounted && (
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                onClick={() =>
-                  setTheme(resolvedTheme === "dark" ? "light" : "dark")
-                }
-                aria-label="Toggle theme"
-                title="Toggle theme"
-              >
-                {resolvedTheme === "dark" ? (
-                  <SunIcon className="size-4" />
-                ) : (
-                  <MoonIcon className="size-4" />
-                )}
-              </Button>
-            )}
+            <ThemeCustomizer />
           </div>
         </div>
       </header>

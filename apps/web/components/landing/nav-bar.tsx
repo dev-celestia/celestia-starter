@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import * as React from "react"
 import {
@@ -26,17 +27,14 @@ const GITHUB_URL = "https://github.com/dev-celestia/celestia-starter"
 
 export function LogoMark({ className }: Readonly<{ className?: string }>) {
   return (
-    <span
-      aria-hidden
-      className={cn(
-        "accent-gradient grid size-7 place-items-center rounded-full shrink-0 shadow-sm",
-        className,
-      )}
-    >
-      <span className="grid size-[22px] place-items-center rounded-full bg-bg">
-        <span className="size-1.5 rounded-full bg-[#89aacc]" />
-      </span>
-    </span>
+    <Image
+      src="/celestia-icon.png"
+      alt="Celestia Logo"
+      width={28}
+      height={28}
+      className={cn("size-7 object-contain shrink-0 rounded-md", className)}
+      priority
+    />
   )
 }
 

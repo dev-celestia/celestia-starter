@@ -8,8 +8,15 @@ import {
   DesktopIcon,
   ArrowsClockwiseIcon,
   CheckIcon,
+  PaletteIcon,
 } from "@phosphor-icons/react"
-import { Button } from "@celestia-project/ui"
+import {
+  Button,
+  Separator,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@celestia-project/ui"
 import { toast } from "@celestia-project/ui/components/sonner"
 import { cn } from "@celestia-project/ui/lib/utils"
 
@@ -156,14 +163,26 @@ export const RADII = [
   { label: "0", value: "0rem" },
   { label: "0.3", value: "0.3rem" },
   { label: "0.5", value: "0.5rem" },
+  { label: "0.625", value: "0.625rem" },
   { label: "0.75", value: "0.75rem" },
   { label: "1.0", value: "1.0rem" },
 ]
 
+const PALETTE_BG_CLASSES: Record<string, string> = {
+  zinc: "bg-zinc-500",
+  emerald: "bg-emerald-500",
+  violet: "bg-violet-500",
+  blue: "bg-blue-500",
+  rose: "bg-rose-500",
+  orange: "bg-orange-500",
+  teal: "bg-teal-500",
+  yellow: "bg-yellow-500",
+}
+
 export function ThemeCustomizer() {
   const { theme, setTheme, resolvedTheme } = useTheme()
   const [selectedPalette, setSelectedPalette] = React.useState<string>("emerald")
-  const [selectedRadius, setSelectedRadius] = React.useState<string>("0.5rem")
+  const [selectedRadius, setSelectedRadius] = React.useState<string>("0.625rem")
   const [mounted, setMounted] = React.useState(false)
 
   // Load from LocalStorage on mount
@@ -212,132 +231,176 @@ export function ThemeCustomizer() {
 
   const handleReset = () => {
     setSelectedPalette("emerald")
-    setSelectedRadius("0.5rem")
+    setSelectedRadius("0.625rem")
     setTheme("system")
-    toast.success("Reset to defaults")
+    toast.success("Theme reset to defaults")
   }
 
-  if (!mounted) return null
+  if (!mounted) {
+    return (
+      <Button variant="ghost" size="icon-sm" aria-label="Customize Theme" title="Customize Theme">
+        <PaletteIcon className="size-4 text-muted-foreground" />
+      </Button>
+    )
+  }
+
+  const activePalette = (PALETTES.find((p) => p.id === selectedPalette) ?? PALETTES[1])!
 
   return (
-    <div className="w-full backdrop-blur-xl p-2.5 sm:px-4 sm:py-2.5 shadow-xs transition-all">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        {/* Color Palette Swatches */}
-        <div className="flex items-center gap-1.5 overflow-x-auto py-1 scrollbar-none">
-          <span className="text-[11px] font-medium text-muted-foreground mr-1 hidden sm:inline">
-            Theme:
-          </span>
-          {PALETTES.map((palette) => {
-            const isActive = selectedPalette === palette.id
-            return (
-              <button
-                key={palette.id}
-                onClick={() => handlePaletteSelect(palette)}
-                title={palette.name}
-                aria-label={`Select ${palette.name} palette`}
-                className={cn(
-                  "group flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium transition-all duration-150 active:scale-95 cursor-pointer shrink-0",
-                  isActive
-                    ? "border-primary bg-primary/10 text-foreground shadow-xs ring-1 ring-primary/40"
-                    : "border-border/60 bg-muted/30 text-muted-foreground hover:border-border hover:bg-muted/70 hover:text-foreground"
-                )}
-              >
-                <span
-                  className="size-2.5 rounded-xs shrink-0 shadow-xs"
-                  style={{ backgroundColor: palette.colorHex }}
-                />
-                <span className="text-[11px]">{palette.name}</span>
-                {isActive && (
-                  <CheckIcon className="size-3 text-primary animate-in fade-in zoom-in-75 duration-150" weight="bold" />
-                )}
-              </button>
-            )
-          })}
-        </div>
+    <Popover>
+      <PopoverTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-1.5 px-2 text-xs text-muted-foreground hover:text-foreground active:scale-95 transition-all cursor-pointer"
+            aria-label="Customize Theme"
+            title="Theme Customizer"
+          />
+        }
+      >
+        <span
+          className={cn(
+            "size-3 rounded-full shrink-0 shadow-xs ring-1 ring-black/10 dark:ring-white/20 transition-transform group-hover:scale-110",
+            PALETTE_BG_CLASSES[activePalette.id] || "bg-primary"
+          )}
+        />
+        <span className="hidden sm:inline font-medium text-xs">Theme</span>
+        {resolvedTheme === "dark" ? (
+          <MoonIcon className="size-3.5 text-muted-foreground ml-0.5" />
+        ) : resolvedTheme === "light" ? (
+          <SunIcon className="size-3.5 text-muted-foreground ml-0.5" />
+        ) : (
+          <DesktopIcon className="size-3.5 text-muted-foreground ml-0.5" />
+        )}
+      </PopoverTrigger>
 
-        {/* Right Controls: Radius, Mode & Reset */}
-        <div className="flex items-center gap-2 shrink-0">
-          {/* Radius Segmented Control */}
-          <div className="hidden md:flex items-center gap-1">
-            <span className="text-[11px] font-medium text-muted-foreground mr-0.5">
-              Radius:
-            </span>
-            <div className="flex items-center rounded-lg bg-muted/60 p-0.5 border border-border/40">
-              {RADII.map((r) => {
-                const isActive = selectedRadius === r.value
-                return (
-                  <button
-                    key={r.value}
-                    onClick={() => handleRadiusSelect(r.value, r.label)}
-                    className={cn(
-                      "px-2 py-0.5 text-[11px] font-medium rounded-md transition-all active:scale-95 cursor-pointer",
-                      isActive
-                        ? "bg-background text-foreground shadow-xs"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    {r.label}
-                  </button>
-                )
-              })}
-            </div>
+      <PopoverContent
+        align="end"
+        side="bottom"
+        sideOffset={8}
+        className="w-80 rounded-2xl bg-popover/90 backdrop-blur-2xl p-3.5 shadow-2xl ring-1 ring-foreground/10 outline-none space-y-3 animate-in fade-in-0 zoom-in-95"
+      >
+        {/* Section 1: Color Accent Palette */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-muted-foreground">Accent Color</span>
+            <Button
+              variant="ghost"
+              size="xs"
+              onClick={handleReset}
+              className="h-5 gap-1 text-xs text-muted-foreground hover:text-foreground active:scale-95 transition-transform cursor-pointer px-1"
+              title="Reset theme settings"
+            >
+              <ArrowsClockwiseIcon className="size-3" />
+              <span>Reset</span>
+            </Button>
           </div>
 
-          {/* Mode Switcher */}
-          <div className="flex items-center rounded-lg bg-muted/60 p-0.5 border border-border/40">
+          <div className="grid grid-cols-4 gap-1.5">
+            {PALETTES.map((palette) => {
+              const isActive = selectedPalette === palette.id
+              return (
+                <button
+                  key={palette.id}
+                  onClick={() => handlePaletteSelect(palette)}
+                  title={palette.name}
+                  className={cn(
+                    "group relative flex items-center justify-start gap-1.5 rounded-lg border px-2 py-1.5 text-xs transition-all active:scale-95 cursor-pointer",
+                    isActive
+                      ? "border-primary bg-primary/15 text-foreground font-semibold shadow-xs ring-1 ring-primary/40"
+                      : "border-border/50 bg-muted/20 text-muted-foreground hover:border-border hover:bg-muted/60 hover:text-foreground"
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "size-2.5 rounded-full shrink-0 shadow-xs ring-1 ring-black/10 dark:ring-white/10",
+                      PALETTE_BG_CLASSES[palette.id] || "bg-primary"
+                    )}
+                  />
+                  <span className="text-xs truncate">{palette.name}</span>
+                  {isActive && (
+                    <CheckIcon className="size-3 text-primary ml-auto shrink-0 animate-in fade-in zoom-in-75 duration-150" weight="bold" />
+                  )}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        <Separator className="my-1 opacity-60" />
+
+        {/* Section 2: Appearance Mode (Apple Segmented Control) */}
+        <div className="space-y-2">
+          <span className="text-xs font-medium text-muted-foreground mb-2">Interface Mode</span>
+          <div className="grid grid-cols-3 gap-1 rounded-xl bg-muted/60 p-1 border border-border/40">
             <button
               onClick={() => setTheme("light")}
               className={cn(
-                "p-1.5 rounded-md text-xs transition-all active:scale-90 cursor-pointer",
+                "flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-medium transition-all active:scale-95 cursor-pointer",
                 theme === "light"
-                  ? "bg-background text-foreground shadow-xs"
+                  ? "bg-background text-foreground shadow-xs ring-1 ring-border/50 font-semibold"
                   : "text-muted-foreground hover:text-foreground"
               )}
-              title="Light mode"
-              aria-label="Light mode"
             >
-              <SunIcon className="size-3.5" />
+              <span className="text-xs">Light</span>
             </button>
             <button
               onClick={() => setTheme("dark")}
               className={cn(
-                "p-1.5 rounded-md text-xs transition-all active:scale-90 cursor-pointer",
+                "flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-medium transition-all active:scale-95 cursor-pointer",
                 theme === "dark"
-                  ? "bg-background text-foreground shadow-xs"
+                  ? "bg-background text-foreground shadow-xs ring-1 ring-border/50 font-semibold"
                   : "text-muted-foreground hover:text-foreground"
               )}
-              title="Dark mode"
-              aria-label="Dark mode"
             >
-              <MoonIcon className="size-3.5" />
+              <span className="text-xs">Dark</span>
             </button>
             <button
               onClick={() => setTheme("system")}
               className={cn(
-                "p-1.5 rounded-md text-xs transition-all active:scale-90 cursor-pointer",
+                "flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-medium transition-all active:scale-95 cursor-pointer",
                 theme === "system"
-                  ? "bg-background text-foreground shadow-xs"
+                  ? "bg-background text-foreground shadow-xs ring-1 ring-border/50 font-semibold"
                   : "text-muted-foreground hover:text-foreground"
               )}
-              title="System mode"
-              aria-label="System mode"
             >
-              <DesktopIcon className="size-3.5" />
+              <span className="text-xs">System</span>
             </button>
           </div>
-
-          {/* Reset Button */}
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            onClick={handleReset}
-            className="size-7 text-muted-foreground hover:text-foreground active:scale-90 transition-transform"
-            title="Reset theme to default"
-          >
-            <ArrowsClockwiseIcon className="size-3.5" />
-          </Button>
         </div>
-      </div>
-    </div>
+
+        <Separator className="my-1 opacity-60" />
+
+        {/* Section 3: Corner Radius (Apple Segmented Control) */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-muted-foreground">Corner Radius</span>
+            <span className="text-xs font-mono text-muted-foreground">{selectedRadius}</span>
+          </div>
+
+          <div className="grid grid-cols-6 gap-1 rounded-xl bg-muted/60 p-1 border border-border/40">
+            {RADII.map((r) => {
+              const isActive = selectedRadius === r.value
+              return (
+                <button
+                  key={r.value}
+                  onClick={() => handleRadiusSelect(r.value, r.label)}
+                  className={cn(
+                    "py-1 text-center text-xs font-medium rounded-md transition-all active:scale-95 cursor-pointer",
+                    isActive
+                      ? "bg-background text-foreground shadow-xs ring-1 ring-border/50 font-semibold"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {r.label}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
   )
 }
+

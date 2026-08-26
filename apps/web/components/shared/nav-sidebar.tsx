@@ -6,10 +6,8 @@ import { usePathname } from "next/navigation"
 import {
   CaretDownIcon,
   CaretRightIcon,
-  MagnifyingGlassIcon,
-  XIcon,
 } from "@phosphor-icons/react"
-import { Badge, Button } from "@celestia-project/ui"
+import { Badge } from "@celestia-project/ui"
 import { cn } from "@celestia-project/ui/lib/utils"
 
 export interface NavSidebarItem {
@@ -49,14 +47,12 @@ export function NavSidebar({
   defaultFolded = true,
   onSelectItem,
   onSelectGroup,
-  searchPlaceholder = "Filter...",
   className,
   isSticky = false,
   stickyTopClass = "top-20",
   maxHeightClass = "max-h-[calc(100vh-5.5rem)]",
 }: NavSidebarProps) {
   const pathname = usePathname()
-  const [filter, setFilter] = React.useState("")
   const [openGroups, setOpenGroups] = React.useState<Record<string, boolean>>({})
 
   // Automatically keep the group that contains the current active item or activeGroupId open
@@ -88,25 +84,6 @@ export function NavSidebar({
     })
   }
 
-  // Filter groups and items
-  const filteredGroups = React.useMemo(() => {
-    const q = filter.trim().toLowerCase()
-    if (!q) return groups
-
-    return groups
-      .map((group) => ({
-        ...group,
-        items: group.items.filter(
-          (item) =>
-            item.title.toLowerCase().includes(q) ||
-            item.id.toLowerCase().includes(q) ||
-            (item.slug && item.slug.toLowerCase().includes(q)) ||
-            (item.description && item.description.toLowerCase().includes(q))
-        ),
-      }))
-      .filter((group) => group.items.length > 0)
-  }, [groups, filter])
-
   return (
     <aside
       className={cn(
@@ -115,36 +92,11 @@ export function NavSidebar({
         className
       )}
     >
-      {/* Quick Search Filter */}
-      <div className="pb-3 px-1 shrink-0">
-        <div className="relative flex items-center">
-          <MagnifyingGlassIcon className="absolute left-2.5 size-3.5 text-muted-foreground/70 pointer-events-none" />
-          <input
-            type="text"
-            placeholder={searchPlaceholder}
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="h-8 w-full rounded-lg border border-border/70 bg-muted/30 pl-8 pr-7 text-xs text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 focus:bg-background transition-all"
-          />
-          {filter && (
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              onClick={() => setFilter("")}
-              className="absolute right-1.5 size-5 text-muted-foreground hover:text-foreground"
-              aria-label="Clear filter"
-            >
-              <XIcon className="size-3" />
-            </Button>
-          )}
-        </div>
-      </div>
-
       {/* Navigation Groups List */}
       <nav className="flex flex-col gap-4 overflow-y-auto flex-1 min-h-0 pr-2 pb-8 [scrollbar-width:thin]">
-        {filteredGroups.map((group) => {
-          // Default folded unless filtering, explicitly opened/closed, or contains active route
-          const isOpen = Boolean(filter) || (openGroups[group.id] ?? !defaultFolded)
+        {groups.map((group) => {
+          // Default folded unless explicitly opened/closed, or contains active route
+          const isOpen = openGroups[group.id] ?? !defaultFolded
           const isCollapsed = !isOpen
           const isGroupActive = activeGroupId === group.id
           const GroupIcon = group.icon

@@ -83,10 +83,6 @@ export function HeroSection() {
 
       {/* Sticky Controls & Tab Navigation Toolbar */}
       <div className="sticky top-14 z-30 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 border-b border-border/60 bg-background/90 backdrop-blur-xl py-3 shadow-xs space-y-2.5">
-        <div className="mx-auto max-w-7xl">
-          <ThemeCustomizer />
-        </div>
-
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3">
           <Tabs
             value={activeSection}

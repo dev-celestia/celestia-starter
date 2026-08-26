@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { Button } from "@celestia-project/ui"
 
-import { LogoMark } from "./nav-bar"
 import { Reveal } from "./reveal"
 
 export function CtaSection() {
@@ -9,7 +8,6 @@ export function CtaSection() {
     <section className="border-t border-stroke">
       <div className="mx-auto w-full max-w-4xl px-5 py-28 text-center sm:px-8 sm:py-36">
         <Reveal>
-          <LogoMark className="mx-auto" />
           <h2 className="mt-8 text-3xl tracking-[-0.02em] text-balance sm:text-5xl">
             Start from architecture, not setup.
           </h2>

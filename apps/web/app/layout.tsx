@@ -21,6 +21,11 @@ export const metadata: Metadata = {
     template: "%s — Celestia",
   },
   description: "A decoupled full-stack monorepo with Next.js 16, Hono, Better Auth, and Drizzle ORM.",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/celestia-icon.png",
+  },
 }
 
 export default function RootLayout({
