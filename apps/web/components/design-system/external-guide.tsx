@@ -218,9 +218,9 @@ export function ExternalGuide() {
               </div>
             </div>
 
-            <TabsList>
-              <TabsTrigger value="quickstart">Option A: Quickstart</TabsTrigger>
-              <TabsTrigger value="source">Option B: @source Directive</TabsTrigger>
+            <TabsList className="max-w-full overflow-x-auto shrink-0 flex-nowrap">
+              <TabsTrigger value="quickstart" className="whitespace-nowrap">Option A: Quickstart</TabsTrigger>
+              <TabsTrigger value="source" className="whitespace-nowrap">Option B: @source Directive</TabsTrigger>
             </TabsList>
           </CardHeader>
 

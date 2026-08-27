@@ -14,8 +14,7 @@ export function DesignSystemHeader() {
       badgeHref="/design-system"
       searchQuery={searchQuery}
       setSearchQuery={handleSearchChange}
-      searchPlaceholder="Search 110+ UI & AI components, tokens, guides..."
-      totalComponents={110}
+      searchPlaceholder="Search UI & AI components, tokens, guides..."
     />
   )
 }

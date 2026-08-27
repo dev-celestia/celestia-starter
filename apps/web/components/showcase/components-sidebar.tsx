@@ -205,7 +205,7 @@ export function ComponentsSidebar({
       isSticky
       stickyTopClass="top-24"
       maxHeightClass="max-h-[calc(100vh-7rem)]"
-      className={cn("hidden w-64 shrink-0 lg:flex lg:flex-col", className)}
+      className={cn("w-64 shrink-0", className)}
     />
   )
 }

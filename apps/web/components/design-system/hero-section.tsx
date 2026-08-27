@@ -45,9 +45,6 @@ export function HeroSection() {
     <>
       <section className="relative flex flex-col items-start gap-5 py-10 sm:py-14">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary" className="font-mono text-xs">
-            110+ Components (63 Base UI + 54 AI)
-          </Badge>
           <Badge variant="outline" className="text-xs text-muted-foreground font-mono">
             Tailwind CSS v4 + OKLCH
           </Badge>
@@ -58,8 +55,8 @@ export function HeroSection() {
         </h1>
 
         <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-          An industry-grade, token-driven design system and component library engineered for high performance, accessibility,
-          and multi-framework integration. Powered by unstyled <strong>Base UI</strong> primitives, 54 <strong>AI & agent development primitives</strong>, modern <strong>OKLCH color scales</strong>, and zero-runtime Tailwind CSS v4.
+          A token-driven design system and component library engineered for high performance, accessibility,
+          and multi-framework integration. Powered by unstyled <strong>Base UI</strong> primitives, <strong>AI & agent development primitives</strong>, modern <strong>OKLCH color scales</strong>, and zero-runtime Tailwind CSS v4.
         </p>
 
         {/* Quick Pillars */}
@@ -91,25 +88,28 @@ export function HeroSection() {
                 val as "components" | "tokens" | "guide" | "principles"
               )
             }
+            className="w-full max-w-full min-w-0 overflow-hidden"
           >
-            <TabsList className="flex-wrap h-auto p-1 gap-1">
-              <TabsTrigger value="components" className="gap-2 text-xs">
-                <CursorClickIcon className="size-4" />
-                <span>1. Components Showcase (110+)</span>
-              </TabsTrigger>
-              <TabsTrigger value="tokens" className="gap-2 text-xs">
-                <PaletteIcon className="size-4" />
-                <span>2. Design Tokens</span>
-              </TabsTrigger>
-              <TabsTrigger value="guide" className="gap-2 text-xs">
-                <PackageIcon className="size-4" />
-                <span>3. External Usage Guide</span>
-              </TabsTrigger>
-              <TabsTrigger value="principles" className="gap-2 text-xs">
-                <ShieldCheckIcon className="size-4" />
-                <span>4. Architecture & Principles</span>
-              </TabsTrigger>
-            </TabsList>
+            <div className="w-full max-w-full overflow-x-auto overscroll-x-contain [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden py-0.5">
+              <TabsList className="inline-flex w-max flex-nowrap h-9 p-1 gap-1">
+                <TabsTrigger value="components" className="gap-2 text-xs shrink-0 whitespace-nowrap">
+                  <CursorClickIcon className="size-4 shrink-0" />
+                  <span>1. Components Showcase</span>
+                </TabsTrigger>
+                <TabsTrigger value="tokens" className="gap-2 text-xs shrink-0 whitespace-nowrap">
+                  <PaletteIcon className="size-4 shrink-0" />
+                  <span>2. Design Tokens</span>
+                </TabsTrigger>
+                <TabsTrigger value="guide" className="gap-2 text-xs shrink-0 whitespace-nowrap">
+                  <PackageIcon className="size-4 shrink-0" />
+                  <span>3. External Usage Guide</span>
+                </TabsTrigger>
+                <TabsTrigger value="principles" className="gap-2 text-xs shrink-0 whitespace-nowrap">
+                  <ShieldCheckIcon className="size-4 shrink-0" />
+                  <span>4. Architecture & Principles</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
           </Tabs>
 
           <Link href="/docs/design-system" className="ml-auto hidden md:inline-flex">

@@ -24,25 +24,8 @@ export function ShowcaseTab() {
   } = useDesignSystem()
 
   return (
-    <div className="pt-8">
-      {/* Mobile Category Navigation Pills */}
-      <div className="flex w-full items-center gap-1.5 overflow-x-auto pb-3 mb-4 lg:hidden scrollbar-none">
-        {CATEGORIES.map((cat) => {
-          const isActive = activeCategory === cat.id
-          return (
-            <Badge
-              key={cat.id}
-              variant={isActive ? "default" : "secondary"}
-              onClick={() => scrollToCategory(cat.id)}
-              className="shrink-0 cursor-pointer text-xs py-1 px-3"
-            >
-              {cat.name}
-            </Badge>
-          )
-        })}
-      </div>
-
-      <div className="flex gap-8">
+    <div className="pt-4 lg:pt-8">
+      <div className="flex flex-col lg:flex-row gap-8">
         {/* Sticky Left Sidebar */}
         <ComponentsSidebar
           activeCategory={activeCategory}

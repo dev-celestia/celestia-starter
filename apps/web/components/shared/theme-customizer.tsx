@@ -16,6 +16,9 @@ import {
   Popover,
   PopoverTrigger,
   PopoverContent,
+  Tabs,
+  TabsList,
+  TabsTrigger,
 } from "@celestia-project/ui"
 import { toast } from "@celestia-project/ui/components/sonner"
 import { cn } from "@celestia-project/ui/lib/utils"
@@ -330,74 +333,43 @@ export function ThemeCustomizer() {
 
         <Separator className="my-1 opacity-60" />
 
-        {/* Section 2: Appearance Mode (Apple Segmented Control) */}
+        {/* Section 2: Appearance Mode */}
         <div className="space-y-2">
-          <span className="text-xs font-medium text-muted-foreground mb-2">Interface Mode</span>
-          <div className="grid grid-cols-3 gap-1 rounded-xl bg-muted/60 p-1 border border-border/40">
-            <button
-              onClick={() => setTheme("light")}
-              className={cn(
-                "flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-medium transition-all active:scale-95 cursor-pointer",
-                theme === "light"
-                  ? "bg-background text-foreground shadow-xs ring-1 ring-border/50 font-semibold"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <span className="text-xs">Light</span>
-            </button>
-            <button
-              onClick={() => setTheme("dark")}
-              className={cn(
-                "flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-medium transition-all active:scale-95 cursor-pointer",
-                theme === "dark"
-                  ? "bg-background text-foreground shadow-xs ring-1 ring-border/50 font-semibold"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <span className="text-xs">Dark</span>
-            </button>
-            <button
-              onClick={() => setTheme("system")}
-              className={cn(
-                "flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-medium transition-all active:scale-95 cursor-pointer",
-                theme === "system"
-                  ? "bg-background text-foreground shadow-xs ring-1 ring-border/50 font-semibold"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <span className="text-xs">System</span>
-            </button>
-          </div>
+          <span className="text-xs font-medium text-muted-foreground">Interface Mode</span>
+          <Tabs value={theme} onValueChange={(val) => val && setTheme(val as string)}>
+            <TabsList className="w-full grid grid-cols-3">
+              <TabsTrigger value="light">Light</TabsTrigger>
+              <TabsTrigger value="dark">Dark</TabsTrigger>
+              <TabsTrigger value="system">System</TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
 
         <Separator className="my-1 opacity-60" />
 
-        {/* Section 3: Corner Radius (Apple Segmented Control) */}
+        {/* Section 3: Corner Radius */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">Corner Radius</span>
             <span className="text-xs font-mono text-muted-foreground">{selectedRadius}</span>
           </div>
 
-          <div className="grid grid-cols-6 gap-1 rounded-xl bg-muted/60 p-1 border border-border/40">
-            {RADII.map((r) => {
-              const isActive = selectedRadius === r.value
-              return (
-                <button
-                  key={r.value}
-                  onClick={() => handleRadiusSelect(r.value, r.label)}
-                  className={cn(
-                    "py-1 text-center text-xs font-medium rounded-md transition-all active:scale-95 cursor-pointer",
-                    isActive
-                      ? "bg-background text-foreground shadow-xs ring-1 ring-border/50 font-semibold"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
+          <Tabs
+            value={selectedRadius}
+            onValueChange={(val) => {
+              if (!val) return
+              const item = RADII.find((r) => r.value === val)
+              if (item) handleRadiusSelect(item.value, item.label)
+            }}
+          >
+            <TabsList className="w-full grid grid-cols-6">
+              {RADII.map((r) => (
+                <TabsTrigger key={r.value} value={r.value}>
                   {r.label}
-                </button>
-              )
-            })}
-          </div>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
         </div>
       </PopoverContent>
     </Popover>

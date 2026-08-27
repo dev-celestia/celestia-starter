@@ -403,27 +403,27 @@ export function TokensViewer() {
   return (
     <div className="space-y-6">
       {/* Token Tabs Strip */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-2">
-          <TabsList className="flex-wrap h-auto p-1 gap-1">
-            <TabsTrigger value="colors" className="gap-2 text-xs">
-              <PaletteIcon className="size-4" />
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-full overflow-hidden">
+        <div className="w-full max-w-full overflow-x-auto overscroll-x-contain [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden py-0.5 pb-2">
+          <TabsList className="inline-flex w-max flex-nowrap h-9 p-1 gap-1">
+            <TabsTrigger value="colors" className="gap-2 text-xs shrink-0 whitespace-nowrap">
+              <PaletteIcon className="size-4 shrink-0" />
               <span>Colors & Semantic Tokens</span>
             </TabsTrigger>
-            <TabsTrigger value="typography" className="gap-2 text-xs">
-              <TextTIcon className="size-4" />
+            <TabsTrigger value="typography" className="gap-2 text-xs shrink-0 whitespace-nowrap">
+              <TextTIcon className="size-4 shrink-0" />
               <span>Typography Scale</span>
             </TabsTrigger>
-            <TabsTrigger value="radius" className="gap-2 text-xs">
-              <BoundingBoxIcon className="size-4" />
+            <TabsTrigger value="radius" className="gap-2 text-xs shrink-0 whitespace-nowrap">
+              <BoundingBoxIcon className="size-4 shrink-0" />
               <span>Radius & Spacing</span>
             </TabsTrigger>
-            <TabsTrigger value="shadows" className="gap-2 text-xs">
-              <DropIcon className="size-4" />
+            <TabsTrigger value="shadows" className="gap-2 text-xs shrink-0 whitespace-nowrap">
+              <DropIcon className="size-4 shrink-0" />
               <span>Elevation & Shadows</span>
             </TabsTrigger>
-            <TabsTrigger value="exporter" className="gap-2 text-xs">
-              <CodeIcon className="size-4" />
+            <TabsTrigger value="exporter" className="gap-2 text-xs shrink-0 whitespace-nowrap">
+              <CodeIcon className="size-4 shrink-0" />
               <span>Export Tokens</span>
             </TabsTrigger>
           </TabsList>
