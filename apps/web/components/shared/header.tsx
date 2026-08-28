@@ -18,7 +18,9 @@ import {
 import {
   Badge,
   Button,
-  ButtonGroup,
+  Tabs,
+  TabsList,
+  TabsTrigger,
 } from "@celestia-project/ui"
 import { cn } from "@celestia-project/ui/lib/utils"
 import { LogoMark } from "@/components/landing/nav-bar"
@@ -210,42 +212,48 @@ export function Header({
           <div className="flex items-center gap-1.5 shrink-0">
             {children}
 
-            <ButtonGroup className="hidden md:inline-flex">
-              <Button
-                variant="outline"
-                size="sm"
-                render={<Link href="/design-system" />}
-                className="gap-1.5 text-xs text-muted-foreground hover:text-foreground"
-              >
-                <SparkleIcon className="size-3.5 text-primary" />
-                <span>Design System</span>
-              </Button>
+            <Tabs
+              value={
+                pathname?.startsWith("/design-system")
+                  ? "/design-system"
+                  : pathname?.startsWith("/docs")
+                    ? "/docs"
+                    : pathname === "/"
+                      ? "/"
+                      : undefined
+              }
+              className="hidden md:inline-flex"
+            >
+              <TabsList>
+                <TabsTrigger
+                  value="/design-system"
+                  render={<Link href="/design-system" />}
+                >
+                  <SparkleIcon className="size-3.5 text-primary" />
+                  <span>Design System</span>
+                </TabsTrigger>
 
-              <Button
-                variant="outline"
-                size="sm"
-                render={<Link href="/docs" />}
-                className="gap-1.5 text-xs text-muted-foreground hover:text-foreground"
-              >
-                <BookOpenIcon className="size-3.5 text-primary" />
-                <span>Docs</span>
-              </Button>
+                <TabsTrigger
+                  value="/docs"
+                  render={<Link href="/docs" />}
+                >
+                  <BookOpenIcon className="size-3.5 text-primary" />
+                  <span>Docs</span>
+                </TabsTrigger>
 
-              <Button
-                variant="outline"
-                size="sm"
-                render={<Link href="/" />}
-                className="gap-1.5 text-xs text-muted-foreground hover:text-foreground"
-              >
-                <HouseIcon className="size-3.5 text-primary" />
-                <span>Landing</span>
-              </Button>
-            </ButtonGroup>
+                <TabsTrigger
+                  value="/"
+                  render={<Link href="/" />}
+                >
+                  <HouseIcon className="size-3.5 text-primary" />
+                  <span>Landing</span>
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
 
             {/* Upper Header GitHub Icon Button */}
             <Button
-              variant="outline"
-              size="icon-xs"
+              variant="ghost"
               render={
                 <Link
                   href="https://github.com/dev-celestia/celestia-starter"
@@ -356,6 +364,17 @@ export function Header({
                   className="flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted/60 active:bg-muted"
                 >
                   <span>Hexbuffer (Products)</span>
+                  <ArrowSquareOutIcon className="size-3.5 text-muted-foreground" />
+                </Link>
+
+                <Link
+                  href="http://localhost:1212/nuclei-run"
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted/60 active:bg-muted"
+                >
+                  <span>nuclei-run</span>
                   <ArrowSquareOutIcon className="size-3.5 text-muted-foreground" />
                 </Link>
 

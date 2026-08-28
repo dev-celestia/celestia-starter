@@ -309,7 +309,7 @@ export function ThemeCustomizer() {
                   onClick={() => handlePaletteSelect(palette)}
                   title={palette.name}
                   className={cn(
-                    "group relative flex items-center justify-start gap-1.5 rounded-lg border px-2 py-1.5 text-xs transition-all active:scale-95 cursor-pointer",
+                    "group relative flex items-center justify-start gap-1.5 rounded-sm border px-2 py-1.5 text-xs transition-all active:scale-95 cursor-pointer",
                     isActive
                       ? "border-primary bg-primary/15 text-foreground font-semibold shadow-xs ring-1 ring-primary/40"
                       : "border-border/50 bg-muted/20 text-muted-foreground hover:border-border hover:bg-muted/60 hover:text-foreground"
@@ -317,11 +317,11 @@ export function ThemeCustomizer() {
                 >
                   <span
                     className={cn(
-                      "size-2.5 rounded-full shrink-0 shadow-xs ring-1 ring-black/10 dark:ring-white/10",
+                      "size-2.5  w-8 h-4 rounded-xs shrink-0 shadow-xs ring-1 ring-black/10 dark:ring-white/10",
                       PALETTE_BG_CLASSES[palette.id] || "bg-primary"
                     )}
                   />
-                  <span className="text-xs truncate">{palette.name}</span>
+                  {/* <span className="text-xs truncate">{palette.name}</span> */}
                   {isActive && (
                     <CheckIcon className="size-3 text-primary ml-auto shrink-0 animate-in fade-in zoom-in-75 duration-150" weight="bold" />
                   )}
@@ -336,11 +336,28 @@ export function ThemeCustomizer() {
         {/* Section 2: Appearance Mode */}
         <div className="space-y-2">
           <span className="text-xs font-medium text-muted-foreground">Interface Mode</span>
-          <Tabs value={theme} onValueChange={(val) => val && setTheme(val as string)}>
+          <Tabs
+            value={theme ?? "system"}
+            onValueChange={(val) => {
+              if (val) {
+                setTheme(val as string)
+                toast.success(`Theme: ${String(val).charAt(0).toUpperCase() + String(val).slice(1)}`)
+              }
+            }}
+          >
             <TabsList className="w-full grid grid-cols-3">
-              <TabsTrigger value="light">Light</TabsTrigger>
-              <TabsTrigger value="dark">Dark</TabsTrigger>
-              <TabsTrigger value="system">System</TabsTrigger>
+              <TabsTrigger value="light" className="gap-1.5 text-xs cursor-pointer">
+                <SunIcon className="size-3.5" />
+                <span>Light</span>
+              </TabsTrigger>
+              <TabsTrigger value="dark" className="gap-1.5 text-xs cursor-pointer">
+                <MoonIcon className="size-3.5" />
+                <span>Dark</span>
+              </TabsTrigger>
+              <TabsTrigger value="system" className="gap-1.5 text-xs cursor-pointer">
+                <DesktopIcon className="size-3.5" />
+                <span>System</span>
+              </TabsTrigger>
             </TabsList>
           </Tabs>
         </div>

@@ -203,7 +203,7 @@ export function ComponentsSidebar({
       onSelectGroup={handleSelectGroup}
       onSelectItem={(item) => scrollToItem(item.id)}
       isSticky
-      stickyTopClass="top-24"
+      stickyTopClass="top-34"
       maxHeightClass="max-h-[calc(100vh-7rem)]"
       className={cn("w-64 shrink-0", className)}
     />

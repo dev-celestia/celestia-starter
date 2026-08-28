@@ -11,6 +11,7 @@ import {
   GithubLogoIcon,
   ListIcon,
   SparkleIcon,
+  TerminalWindowIcon,
   TriangleDashedIcon,
   WarningIcon,
   XIcon,
@@ -124,6 +125,7 @@ export function NavBar() {
               }
             />
             <DropdownMenuContent align="start" className="w-72 p-2 border-stroke/80 bg-bg shadow-xl">
+              {/* Hexbuffer */}
               <DropdownMenuItem
                 render={
                   <Link
@@ -147,6 +149,31 @@ export function NavBar() {
                   </span>
                 </div>
               </DropdownMenuItem>
+
+              {/* nuclei-run */}
+              <DropdownMenuItem
+                render={
+                  <Link
+                    href="http://localhost:1212/nuclei-run"
+                    target="_blank"
+                    rel="noreferrer"
+                  />
+                }
+                className="cursor-pointer items-start gap-2.5 p-2 rounded-lg transition-colors hover:bg-surface active:scale-[0.99]"
+              >
+                <div className="flex size-7 shrink-0 items-center justify-center rounded-md border border-primary/30 bg-primary/10 text-primary mt-0.5">
+                  <TerminalWindowIcon className="size-3.5" weight="bold" />
+                </div>
+                <div className="flex flex-1 flex-col gap-0.5 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-medium text-xs text-foreground">Nuclei Run</span>
+                    <ArrowSquareOutIcon className="size-3 ml-auto text-muted-foreground shrink-0" />
+                  </div>
+                  <span className="text-[11px] text-muted-foreground leading-normal">
+                    High-performance vulnerability scanner & docs
+                  </span>
+                </div>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -157,14 +184,6 @@ export function NavBar() {
             render={<Link href="/design-system" />}
           >
             Design System
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="cursor-pointer active:scale-[0.98] transition-transform"
-            render={<Link href="/docs/libs/nuclei-run" />}
-          >
-            Libraries
           </Button>
           <Button
             variant="ghost"
@@ -232,15 +251,6 @@ export function NavBar() {
               >
                 Design System
               </Link>
-
-              <Link
-                href="/docs/libs/nuclei-run"
-                onClick={closeMobileMenu}
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface/60 active:bg-surface"
-              >
-                Libraries
-              </Link>
-
               <Link
                 href="/docs"
                 onClick={closeMobileMenu}
@@ -257,6 +267,17 @@ export function NavBar() {
                 className="flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface/60 active:bg-surface"
               >
                 <span>Hexbuffer (Products)</span>
+                <ArrowSquareOutIcon className="size-3.5 text-fog" />
+              </Link>
+
+              <Link
+                href="http://localhost:1212/nuclei-run"
+                target="_blank"
+                rel="noreferrer"
+                onClick={closeMobileMenu}
+                className="flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface/60 active:bg-surface"
+              >
+                <span>Nuclei Run</span>
                 <ArrowSquareOutIcon className="size-3.5 text-fog" />
               </Link>
 

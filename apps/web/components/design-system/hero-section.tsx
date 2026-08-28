@@ -79,7 +79,7 @@ export function HeroSection() {
       </section>
 
       {/* Sticky Controls & Tab Navigation Toolbar */}
-      <div className="sticky top-14 z-30 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 border-b border-border/60 bg-background/90 backdrop-blur-xl py-3 shadow-xs space-y-2.5">
+      <div className="sticky top-14 z-30 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 border-border/60 bg-background/90 backdrop-blur-xl py-3 shadow-xs space-y-2.5">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3">
           <Tabs
             value={activeSection}
@@ -111,14 +111,6 @@ export function HeroSection() {
               </TabsList>
             </div>
           </Tabs>
-
-          <Link href="/docs/design-system" className="ml-auto hidden md:inline-flex">
-            <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-primary">
-              <BookOpenIcon className="size-3.5" />
-              <span>Documentation</span>
-              <ArrowRightIcon className="size-3.5" />
-            </Button>
-          </Link>
         </div>
       </div>
     </>
