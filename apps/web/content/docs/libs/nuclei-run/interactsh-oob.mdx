@@ -1,0 +1,83 @@
+---
+title: "Interactsh Out-of-Band (OOB) Engine"
+description: "Native RSA-OAEP / AES-CTR client for blind SSRF, blind RCE, and DNS interaction detection"
+icon: "radar"
+---
+
+The **Interactsh** integration enables detection of blind vulnerabilities (such as blind SSRF, blind RCE, blind XXE, and DNS log4j injections) where the target server does not return output in its HTTP response but instead generates external network traffic.
+
+---
+
+## How Interactsh Works in `nuclei-run`
+
+`nuclei-run` features a full native implementation of the Interactsh client protocol:
+
+```mermaid
+sequenceDiagram
+    participant N as nuclei-run Client
+    participant IS as Interactsh Server
+    participant T as Vulnerable Target
+    
+    N->>IS: 1. Register RSA Public Key (PKCS#1) + Secret Key + Correlation ID
+    IS-->>N: 2. Registration Confirmed (Heartbeat every 60s)
+    
+    N->>T: 3. Send Exploit with payload `http://{{interactsh-url}}`
+    Note over T: Target evaluates payload and performs outbound DNS/HTTP request
+    T->>IS: 4. DNS / HTTP / SMTP Interaction Triggered
+    
+    loop Every 5 Seconds Polling
+        N->>IS: 5. Poll for encrypted interaction events
+        IS-->>N: 6. Returns encrypted payload
+    end
+    
+    Note over N: N decrypts using RSA-OAEP-SHA256 & AES-CTR
+    Note over N: Correlates subdomain nonce to matching template
+    N->>N: 7. Evaluates `interactsh_*` matchers -> Emits Finding
+```
+
+---
+
+## Example: Blind SSRF with Interactsh
+
+```yaml
+id: blind-ssrf-webhook-test
+
+info:
+  name: Blind Out-of-Band SSRF Detection
+  author: security-researcher
+  severity: high
+  tags: ssrf,blind,oob
+
+http:
+  - method: POST
+    path:
+      - "{{BaseURL}}/api/subscribe"
+    headers:
+      Content-Type: application/json
+    body: '{"webhook_url":"http://{{interactsh-url}}"}'
+
+    matchers-condition: and
+    matchers:
+      - type: word
+        part: interactsh_protocol # Asserts that an actual OOB interaction arrived
+        words:
+          - "http"
+          - "dns"
+        condition: or
+```
+
+---
+
+## Zero False-Positive Guarantee
+
+In `nuclei-run`, matcher parts starting with `interactsh_` (`interactsh_protocol`, `interactsh_request`, `interactsh_response`) **only** resolve against real, decrypted interaction data from the Interactsh server. If no interaction was recorded, they evaluate strictly to `false` and can never accidentally match strings in the target's regular HTTP response body.
+
+---
+
+## Custom Self-Hosted Interactsh Server
+
+To use your own self-hosted Interactsh server instance:
+
+```bash
+nuclei-run -u https://target.com -t ./templates/ --interactsh-server oob.mycorp.internal
+```

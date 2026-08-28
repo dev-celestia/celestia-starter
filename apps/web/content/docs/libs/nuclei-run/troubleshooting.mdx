@@ -1,0 +1,40 @@
+---
+title: "Troubleshooting & FAQ"
+description: "Solutions to common issues, OS descriptor tuning, Docker tips, and FAQ"
+icon: "question"
+---
+
+Frequently asked questions, performance tuning suggestions, and solutions to common issues encountered when using `nuclei-run`.
+
+---
+
+## Frequently Asked Questions
+
+### Q: Why do code templates not execute?
+**A**: For security reasons, templates with `code:` execution blocks are disabled by default. You must explicitly pass the `--enable-code-templates` CLI flag to enable them.
+
+### Q: How do I resolve `too many open files` errors?
+**A**: When scanning with high concurrency (`-c 100+`), your operating system might hit the default file descriptor limit. Increase your `ulimit`:
+```bash
+ulimit -n 65535
+```
+
+### Q: How do I test headless templates in Docker or headless Linux?
+**A**: Install Chromium and font packages, and ensure sandbox flags are satisfied:
+```bash
+apt-get update && apt-get install -y chromium-browser fonts-liberation
+```
+
+### Q: Why does `interactsh` fail to match?
+**A**: Ensure your network allows outbound DNS and HTTP connections to the Interactsh server. If you are in an isolated internal network, deploy a self-hosted Interactsh server and specify it using `--interactsh-server <IP/Domain>`.
+
+---
+
+## Common Error Messages & Solutions
+
+| Error Message | Cause | Resolution |
+| :--- | :--- | :--- |
+| `Unsigned template rejected` | `--disable-unsigned-templates` is active and template lacks valid signature. | Sign the template with `nuclei-run -t <file> --sign` or supply `--signing-key`. |
+| `Host dropped due to excessive errors` | Host exceeded `--max-host-error` (default 30) consecutive failures. | Target is offline, rate limiting, or blocking. Increase `--timeout` or check connectivity. |
+| `Browser binary not found` | `--headless` enabled but Chrome/Chromium not found in standard paths. | Set the `CHROME_PATH` environment variable pointing to the Chrome binary. |
+| `Rate limit exceeded / 429 Too Many Requests` | Outbound request rate too aggressive for the target web application. | Decrease `--rate-limit` (e.g. `-r 20`) and concurrency (`-c 5`). |

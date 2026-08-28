@@ -162,6 +162,14 @@ export function NavBar() {
             variant="ghost"
             size="sm"
             className="cursor-pointer active:scale-[0.98] transition-transform"
+            render={<Link href="/docs/libs/nuclei-run" />}
+          >
+            Libraries
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="cursor-pointer active:scale-[0.98] transition-transform"
             render={<Link href="/docs" />}
           >
             Docs
@@ -223,6 +231,14 @@ export function NavBar() {
                 className="rounded-lg px-3 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface/60 active:bg-surface"
               >
                 Design System
+              </Link>
+
+              <Link
+                href="/docs/libs/nuclei-run"
+                onClick={closeMobileMenu}
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface/60 active:bg-surface"
+              >
+                Libraries
               </Link>
 
               <Link

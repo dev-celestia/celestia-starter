@@ -1,0 +1,53 @@
+---
+title: "Introduction to nuclei-run"
+description: "What is nuclei-run, why Rust, and key architectural highlights"
+icon: "book-open"
+---
+
+**nuclei-run** is a high-performance, Nuclei-compatible vulnerability scanner written from the ground up in Rust. It interprets and executes official ProjectDiscovery Nuclei YAML templates with async I/O, SIMD-accelerated pattern matching, and structured report generation.
+
+---
+
+## Why nuclei-run?
+
+Traditional Go-based scanners encounter performance bottlenecks when running high-volume scans with tens of thousands of templates across large target surfaces. `nuclei-run` was created to deliver:
+
+1. **Massive Throughput & Low Latency**: Powered by Tokio's work-stealing async runtime and zero-copy byte buffers.
+2. **SIMD-Accelerated Matchers**: Pattern evaluation uses Aho-Corasick SIMD vectors to scan gigabytes of HTTP response data per second.
+3. **Deterministic Memory Footprint**: Minimal memory overhead, zero garbage collection pauses, and a static stripped binary size under 5MB.
+4. **Drop-in Nuclei Template Compatibility**: Supports standard Nuclei v2 and v3 template specifications, including complex operators, raw multiline HTTP payloads, request chaining, and DSL expressions.
+5. **Production Reliability**: Built-in host circuit breakers (`--max-host-error`), honeypot detection (`--honeypot-detect`), and strict cryptographic verification (`--disable-unsigned-templates`).
+
+---
+
+## Key Features
+
+| Capability | Description |
+| :--- | :--- |
+| **8 Protocol Engines** | HTTP (Standard & Raw), DNS (`hickory`), Network (TCP/UDP), SSL/TLS (`rustls`), WHOIS, File, Code, WebSocket, JavaScript (`boa_engine`), Headless Browser (`chromiumoxide` CDP). |
+| **5 Matcher Engines** | Word (Aho-Corasick SIMD), Regex (`regex`), Status Code, Binary Hex Sequences, and DSL boolean expressions. |
+| **3 Extractor Types** | Regex capture groups, Key-Value header lookups, and JSON dot-path queries. |
+| **Request Chaining** | Dynamic extraction from step $N$ and automatic interpolation into step $N+1$. |
+| **OOB Testing** | Native **Interactsh** client with RSA-OAEP / AES-CTR encryption and background correlation. |
+| **OSINT Discovery** | Integrated **Uncover** engine for querying Shodan, Censys, FOFA, and ZoomEye. |
+| **Standardized Output** | Colored terminal output, JSON Lines (`.jsonl`), OASIS SARIF v2.1.0, and Markdown reports. |
+| **Enterprise Exporters** | Direct streaming to Elasticsearch, Splunk HEC, generic Webhooks, and issue trackers (GitHub, GitLab, Jira, Linear). |
+
+---
+
+## Performance Comparison
+
+| Metric | Go Nuclei v3.11.1 | nuclei-run (Rust) |
+| :--- | :--- | :--- |
+| **Binary Size** | ~35 MB | **~4.3 MB** (LTO stripped) |
+| **Startup Overhead** | ~150 ms | **< 15 ms** |
+| **Memory per 10k Targets** | ~450 MB | **~65 MB** |
+| **Word Matcher Throughput** | ~800 MB/s | **> 3.2 GB/s** (SIMD AVX2/NEON) |
+| **Garbage Collection Pauses** | Yes (Go runtime) | **None (Zero GC)** |
+
+---
+
+## Next Steps
+
+- Proceed to the [Installation Guide](/docs/libs/nuclei-run/installation) to set up the binary.
+- Check out the [Quick Start](/docs/libs/nuclei-run/quickstart) to run your first vulnerability scan.

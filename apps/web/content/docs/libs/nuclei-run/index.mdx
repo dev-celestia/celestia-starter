@@ -1,0 +1,55 @@
+---
+title: "nuclei-run Documentation"
+description: "High-performance, Nuclei-compatible vulnerability scanner written in Rust"
+icon: "shield"
+---
+
+Welcome to the official documentation for **nuclei-run**, a high-performance, Nuclei-compatible vulnerability scanner written in Rust.
+
+## Documentation Index
+
+### 1. [Getting Started](/docs/libs/nuclei-run/introduction)
+- [Introduction & Overview](/docs/libs/nuclei-run/introduction) — What is nuclei-run, why Rust, key highlights.
+- [Installation Guide](/docs/libs/nuclei-run/installation) — Prerequisites, building from source, cargo installation.
+- [Quick Start Guide](/docs/libs/nuclei-run/quickstart) — Step-by-step first scan, common usage patterns.
+
+### 2. [Core Concepts](/docs/libs/nuclei-run/architecture)
+- [Architecture & Engine Design](/docs/libs/nuclei-run/architecture) — Tokio async model, SIMD Aho-Corasick, zero-overhead memory design.
+- [CLI Reference](/docs/libs/nuclei-run/cli-reference) — Complete command line flags, aliases, environment variables.
+- [Configuration](/docs/libs/nuclei-run/configuration) — Concurrency, rate limiting, connection pooling, proxies.
+
+### 3. [Template Authoring & Engine](/docs/libs/nuclei-run/template-structure)
+- [Template Structure & Metadata](/docs/libs/nuclei-run/template-structure) — YAML schema v2/v3, info blocks, classifications.
+- [Matchers & Extractors](/docs/libs/nuclei-run/matchers-and-extractors) — Word, Regex, Status, Binary, DSL, XPath, Size matchers and capture engines.
+- [DSL Standard Library](/docs/libs/nuclei-run/dsl-helpers) — 50+ built-in helper functions (crypto, hashing, encodings, random generators).
+- [Request Chaining & Variables](/docs/libs/nuclei-run/request-chaining) — Multi-step workflows and dynamic variable passing.
+- [Fuzzing Engine](/docs/libs/nuclei-run/fuzzing) — Sniper, Pitchfork, Clusterbomb attack modes and injection points.
+- [Flow-Based Execution](/docs/libs/nuclei-run/flow-scripting) — Conditional template execution with boolean logic and short-circuiting.
+
+### 4. [Supported Protocols](/docs/libs/nuclei-run/http)
+- [HTTP Protocol](/docs/libs/nuclei-run/http) — Standard HTTP, Raw HTTP, request clustering, redirects.
+- [DNS Protocol](/docs/libs/nuclei-run/dns) — Hickory DNS queries (A, AAAA, CNAME, TXT, MX, NS, PTR, SOA).
+- [Network Protocol](/docs/libs/nuclei-run/network) — TCP & UDP socket payloads, hex representations, TLS wrapping.
+- [SSL/TLS Protocol](/docs/libs/nuclei-run/ssl-tls) — Certificate inspection, SANs, CN, expiration, fingerprints.
+- [WebSocket Protocol](/docs/libs/nuclei-run/websocket) — WebSocket handshake and bidirectional messaging.
+- [WHOIS Protocol](/docs/libs/nuclei-run/whois) — Port 43 domain and IP WHOIS queries.
+- [File Protocol](/docs/libs/nuclei-run/file) — Local filesystem security analysis.
+- [Code Protocol](/docs/libs/nuclei-run/code) — Local system script execution with `--enable-code-templates`.
+- [JavaScript Protocol](/docs/libs/nuclei-run/javascript) — Embedded Boa JS engine with `nuclei/net` and `nuclei/bytes`.
+- [Headless Browser Protocol](/docs/libs/nuclei-run/headless) — Chromium CDP browser automation (DOM navigation, clicks, screenshots).
+
+### 5. [Advanced Features](/docs/libs/nuclei-run/interactsh-oob)
+- [Interactsh OOB Engine](/docs/libs/nuclei-run/interactsh-oob) — Out-of-band correlation with RSA-OAEP / AES-CTR encryption.
+- [Uncover OSINT Integration](/docs/libs/nuclei-run/uncover-osint) — Target discovery via Shodan, Censys, FOFA, ZoomEye, Netlas.
+- [Template Signing & Trust](/docs/libs/nuclei-run/template-signing) — Ed25519 signature generation and tamper verification.
+- [Honeypot & Circuit Breakers](/docs/libs/nuclei-run/honeypot-circuit-breaker) — Match concentration detection and host-error failover.
+- [Exporters & Issue Trackers](/docs/libs/nuclei-run/exporters-and-trackers) — Streaming to Elasticsearch, Splunk, Webhooks, GitHub, GitLab, Jira, Linear.
+
+### 6. [Integrations & CI/CD](/docs/libs/nuclei-run/output-formats)
+- [Output Formats](/docs/libs/nuclei-run/output-formats) — Terminal colors, JSON Lines (.jsonl), OASIS SARIF v2.1.0, Markdown (-me).
+- [CI/CD Pipelines](/docs/libs/nuclei-run/cicd-pipelines) — Automating security gates in GitHub Actions & GitLab CI.
+- [UI Bridge](/docs/libs/nuclei-run/ui-bridge) — Embedding `nuclei-run` into desktop (Tauri, egui) and WebAssembly UIs.
+
+### 7. [Reference & Scorecard](/docs/libs/nuclei-run/nuclei-v3-parity)
+- [Nuclei v3 Parity Scorecard](/docs/libs/nuclei-run/nuclei-v3-parity) — Verified behavioral parity against Go Nuclei v3.11.1.
+- [Troubleshooting & Tuning](/docs/libs/nuclei-run/troubleshooting) — Performance optimization, connection limits, and FAQ.

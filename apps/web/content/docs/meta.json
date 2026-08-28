@@ -12,6 +12,8 @@
     "backend",
     "dashboard",
     "blog",
-    "access"
+    "access",
+    "---Libraries---",
+    "libs/nuclei-run"
   ]
 }

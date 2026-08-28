@@ -1,0 +1,88 @@
+---
+title: "CI/CD Pipelines & DevSecOps"
+description: "Automate security scanning gates with exit codes in GitHub Actions and GitLab CI"
+icon: "gear"
+---
+
+Integrate `nuclei-run` into continuous integration and delivery pipelines to catch vulnerabilities and misconfigurations before deploying to production.
+
+---
+
+## Exit Codes & Build Breakage
+
+`nuclei-run` returns standard Unix exit codes to automatically fail builds when critical or high severity vulnerabilities are found:
+
+- `0` — Scan completed successfully with no critical/high findings.
+- `1` — One or more `high` or `critical` severity vulnerabilities were detected.
+- `2` — Fatal runtime or configuration error (invalid templates, network unreachable).
+
+---
+
+## GitHub Actions Workflow
+
+Here is a ready-to-use GitHub Actions workflow that runs `nuclei-run` against staging environments and uploads results directly to GitHub Security Code Scanning:
+
+```yaml
+name: Security DAST Scan
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * *' # Daily at 02:00 UTC
+
+jobs:
+  nuclei-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install nuclei-run
+        run: |
+          git clone https://github.com/dev-celestia/nuclei-run.git /tmp/nuclei-run
+          cd /tmp/nuclei-run && cargo build --release
+          sudo cp target/release/nuclei-run /usr/local/bin/
+
+      - name: Run nuclei-run Vulnerability Scan
+        continue-on-error: true # Let SARIF upload run even if findings exist
+        run: |
+          nuclei-run -u https://staging.mycorp.internal \
+            -t ./security-templates/ \
+            -s medium,high,critical \
+            --sarif \
+            -o nuclei-results.sarif.json \
+            --silent
+
+      - name: Upload SARIF Results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: nuclei-results.sarif.json
+```
+
+---
+
+## GitLab CI/CD Pipeline
+
+```yaml
+stages:
+  - test
+  - dast
+
+nuclei_dast_job:
+  stage: dast
+  image: rust:latest
+  before_script:
+    - cargo install --git https://github.com/dev-celestia/nuclei-run.git
+  script:
+    - nuclei-run -u "$STAGING_URL" -t ./templates/ -s high,critical --jsonl -o gl-dast-report.jsonl
+  artifacts:
+    when: always
+    paths:
+      - gl-dast-report.jsonl
+```

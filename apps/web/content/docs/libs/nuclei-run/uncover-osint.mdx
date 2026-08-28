@@ -1,0 +1,59 @@
+---
+title: "Uncover OSINT Integration"
+description: "Target discovery directly via Shodan, Censys, FOFA, ZoomEye, Netlas, Quake, and Hunter"
+icon: "binoculars"
+---
+
+The **Uncover** engine allows you to search internet-wide threat intelligence and asset discovery platforms (Shodan, Censys, FOFA, ZoomEye, Netlas, Quake, Hunter) directly from `nuclei-run` and feed discovered live assets straight into the scanner pipeline.
+
+---
+
+## Supported Search Engines
+
+| Engine | Flag Value (`-ue`) | Environment Variable |
+| :--- | :--- | :--- |
+| **Shodan** | `shodan` | `SHODAN_API_KEY` |
+| **Censys** | `censys` | `CENSYS_API_ID`, `CENSYS_API_SECRET` |
+| **FOFA** | `fofa` | `FOFA_EMAIL`, `FOFA_KEY` |
+| **ZoomEye** | `zoomeye` | `ZOOMEYE_API_KEY` |
+| **Netlas** | `netlas` | `NETLAS_API_KEY` |
+| **Quake** | `quake` | `QUAKE_API_KEY` |
+| **Hunter** | `hunter` | `HUNTER_API_KEY` |
+
+---
+
+## Usage Examples
+
+### 1. Find and Scan Apache Servers via Shodan
+
+```bash
+export SHODAN_API_KEY="your-api-key-here"
+
+nuclei-run --uncover \
+  --uncover-query "product:Apache port:80,443" \
+  --uncover-engine shodan \
+  -t ./cves/2023/ \
+  -s critical,high
+```
+
+### 2. Querying FOFA for Exposed Dashboards
+
+```bash
+export FOFA_EMAIL="user@example.com"
+export FOFA_KEY="your-fofa-key"
+
+nuclei-run -uc \
+  -uq 'app="Grafana" && country="US"' \
+  -ue fofa \
+  -t ./exposures/ \
+  -o grafana-results.jsonl --jsonl
+```
+
+### 3. Censys Asset Ingestion
+
+```bash
+export CENSYS_API_ID="your-censys-id"
+export CENSYS_API_SECRET="your-censys-secret"
+
+nuclei-run -uc -uq "services.service_name: HTTP and same_service(services.port: 8080)" -ue censys -t ./templates/
+```

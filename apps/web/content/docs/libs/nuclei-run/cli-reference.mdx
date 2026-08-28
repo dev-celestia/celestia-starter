@@ -1,0 +1,128 @@
+---
+title: "CLI Reference"
+description: "Comprehensive command-line flags, aliases, environment variables, and exit codes"
+icon: "terminal-window"
+---
+
+Comprehensive reference of all command-line flags, options, aliases, and environment variables supported by `nuclei-run`.
+
+---
+
+## Command Syntax
+
+```bash
+nuclei-run [OPTIONS] --templates <TEMPLATES>...
+```
+
+---
+
+## Target Specification
+
+| Flag | Short | Description | Default |
+| :--- | :--- | :--- | :--- |
+| `--url <URL>` | `-u` | Target URL or IP address to scan. | `None` |
+| `--list <PATH>` | `-l` | Path to a text file containing a list of target URLs (one per line). | `None` |
+| *(stdin)* | - | Reads target URLs from standard input if piped (`cat targets.txt \| nuclei-run ...`). | - |
+
+---
+
+## Template Specification & Filters
+
+| Flag | Short | Description | Default |
+| :--- | :--- | :--- | :--- |
+| `--templates <PATH>` | `-t` | Path to template file, folder, or remote GitHub URL (repeatable). | **Required** |
+| `--severity <SEV>` | `-s` | Comma-separated severity filter: `info,low,medium,high,critical`. | All severities |
+| `--tags <TAGS>` | - | Comma-separated template tag filter (e.g., `cve,rce,auth-bypass`). | All tags |
+| `--id <IDS>` | - | Comma-separated template ID filter (e.g., `CVE-2023-38606,apache-detect`). | All IDs |
+| `--update-templates` | `-U` | Force re-download and bypass cache for remote templates. | `false` |
+
+---
+
+## Performance & Networking
+
+| Flag | Short | Description | Default |
+| :--- | :--- | :--- | :--- |
+| `--concurrency <N>` | `-c` | Number of concurrent worker threads. | `25` |
+| `--rate-limit <RPS>` | `-r` | Maximum requests per second across all workers (`0` = unlimited). | `150` |
+| `--timeout <SECS>` | - | Protocol request timeout in seconds. | `10` |
+| `--retries <N>` | - | Number of retries on request failure. | `1` |
+| `--max-redirects <N>` | - | Maximum HTTP redirects to follow. | `10` |
+| `--proxy <URL>` | - | Upstream HTTP or SOCKS5 proxy URL (e.g., `socks5://127.0.0.1:9050`). | `None` |
+| `--header <H>` | `-H` | Custom HTTP header (format `"Key: Value"`, repeatable). | `None` |
+| `--cluster-requests` | - | Deduplicate identical HTTP requests across templates. | `false` |
+
+---
+
+## Protocol & Execution Controls
+
+| Flag | Alias | Description | Default |
+| :--- | :--- | :--- | :--- |
+| `--headless` | - | Enable headless browser protocol execution (uses Chrome/Chromium). | `false` |
+| `--enable-code-templates` | - | Enable execution of local code protocol templates. | `false` |
+| `--interactsh-server <URL>` | `--iserver` | Custom Interactsh server host. | Official Interactsh |
+
+---
+
+## Reliability & Honeypot Detection
+
+| Flag | Alias | Description | Default |
+| :--- | :--- | :--- | :--- |
+| `--max-host-error <N>` | `-mhe` | Maximum consecutive errors before aborting a host (circuit breaker). | `30` |
+| `--honeypot-detect` | `-hpd` | Detect potential honeypots based on abnormal match concentration. | `false` |
+| `--honeypot-threshold <N>` | `-hpt` | Number of distinct matching template IDs required to flag a honeypot. | `15` |
+| `--suppress-honeypot` | `-shp` | Automatically suppress output findings from flagged honeypot hosts. | `false` |
+
+---
+
+## Cryptographic Template Security
+
+| Flag | Alias | Description | Default |
+| :--- | :--- | :--- | :--- |
+| `--sign` | - | Cryptographically sign templates in-place with Ed25519. | `false` |
+| `--signing-key <KEY>` | - | Hex string or path to Ed25519 signing key. | `~/.nuclei-run/signing-key.hex` |
+| `--disable-unsigned-templates` | `-duts` | Refuse executing templates without valid cryptographic signatures. | `false` |
+
+---
+
+## OSINT Target Discovery (Uncover)
+
+| Flag | Alias | Description | Default |
+| :--- | :--- | :--- | :--- |
+| `--uncover` | `-uc` | Enable target discovery via Uncover OSINT search engines. | `false` |
+| `--uncover-query <Q>` | `-uq`, `-q` | Search query for OSINT engine (e.g., `"product:apache"`). | `None` |
+| `--uncover-engine <ENG>` | `-ue`, `-e` | Search engine name (`shodan`, `censys`, `fofa`, `zoomeye`, etc.). | `shodan` |
+
+---
+
+## Output & Exporters
+
+| Flag | Short | Description | Default |
+| :--- | :--- | :--- | :--- |
+| `--output <PATH>` | `-o` | Output file path for scan results. | `stdout` |
+| `--jsonl` | - | Emit results in JSON Lines format. | `false` |
+| `--sarif` | - | Emit results in OASIS SARIF v2.1.0 JSON format. | `false` |
+| `--markdown-export <PATH>` | `-m` | Export detailed scan summary to a Markdown file. | `None` |
+| `--silent` | - | Suppress terminal banner, stats, and non-finding messages. | `false` |
+| `--export-elasticsearch <URL>`| - | Stream findings to Elasticsearch cluster URL. | `None` |
+| `--es-index <NAME>` | - | Elasticsearch index name. | `nuclei-run` |
+| `--export-splunk <URL>` | - | Stream findings to Splunk HEC base URL. | `None` |
+| `--splunk-token <TOKEN>` | - | Splunk HEC authentication token. | `None` |
+| `--export-webhook <URL>` | - | POST finding JSON payloads to custom Webhook URL. | `None` |
+| `--tracker <TYPE>` | - | Automatically create issues: `github`, `gitlab`, `jira`, `linear`. | `None` |
+| `--tracker-project <NAME>` | - | Issue tracker project identifier / repo. | `None` |
+| `--tracker-url <URL>` | - | Self-hosted Jira/GitLab host URL. | `None` |
+
+---
+
+## Environment Variables
+
+| Variable | Description |
+| :--- | :--- |
+| `SHODAN_API_KEY` | API key for Shodan OSINT engine. |
+| `CENSYS_API_ID` / `CENSYS_API_SECRET` | Credentials for Censys OSINT engine. |
+| `FOFA_EMAIL` / `FOFA_KEY` | Credentials for FOFA search engine. |
+| `GITHUB_TOKEN` | GitHub Personal Access Token for issue tracker. |
+| `GITLAB_TOKEN` | GitLab API token for issue creation. |
+| `JIRA_EMAIL` / `JIRA_API_TOKEN` | Atlassian Jira credentials for issue tracker. |
+| `LINEAR_API_KEY` | Linear API key for issue tracker. |
+| `CHROME_PATH` | Path to Google Chrome / Chromium executable for headless scans. |

@@ -1,0 +1,79 @@
+---
+title: "Architecture & Engine Design"
+description: "Tokio async execution model, SIMD Aho-Corasick matching, and zero-overhead memory layout"
+icon: "cpu"
+---
+
+`nuclei-run` is built from the ground up to achieve maximum throughput, deterministic latency, and memory safety without garbage collection pauses.
+
+---
+
+## High-Level Architecture
+
+```mermaid
+graph TD
+    CLI[CLI / Input Targets / Uncover] --> Runner[Engine Runner & Tokio Pool]
+    Templates[YAML Templates Loader] --> Catalog[Template Catalog & Ed25519 Signer]
+    Catalog --> Filter[Severity / Tag / ID Filter]
+    Filter --> Runner
+    
+    subgraph "Execution Pipeline"
+        Runner --> RateLimiter[Governor Rate Limiter]
+        RateLimiter --> ProtocolRouter{Protocol Dispatcher}
+        
+        ProtocolRouter --> HTTP[HTTP Engine & Raw Socket]
+        ProtocolRouter --> DNS[DNS Engine - Hickory]
+        ProtocolRouter --> Network[Network Engine - TCP/UDP]
+        ProtocolRouter --> SSL[SSL/TLS Inspector]
+        ProtocolRouter --> WS[WebSocket Client]
+        ProtocolRouter --> JS[JavaScript - Boa Runtime]
+        ProtocolRouter --> Headless[Headless CDP - Chromium]
+        ProtocolRouter --> Code[Code Runner]
+        ProtocolRouter --> WHOIS[WHOIS Engine]
+        ProtocolRouter --> File[File Scanner]
+    end
+
+    subgraph "Operators & Matchers"
+        HTTP & DNS & Network & SSL & WS & JS & Headless & Code & WHOIS & File --> OpEval[Operator Evaluator]
+        OpEval --> AhoCorasick[SIMD Aho-Corasick]
+        OpEval --> RegexEngine[Regex Engine]
+        OpEval --> DSLEval[DSL Expression Engine]
+        OpEval --> Extractor[Extractor Engine]
+    end
+
+    subgraph "Output & Integrations"
+        OpEval --> FindingStream[Finding Event Stream]
+        FindingStream --> TerminalOut[CLI Colored Output]
+        FindingStream --> JSONL[JSON Lines Writer]
+        FindingStream --> SARIF[SARIF v2.1.0]
+        FindingStream --> Markdown[Markdown Exporter]
+        FindingStream --> RemoteExporters[Elasticsearch / Splunk / Webhook]
+        FindingStream --> Trackers[GitHub / GitLab / Jira / Linear]
+    end
+```
+
+---
+
+## Core Subsystems
+
+### 1. Tokio Async Work-Stealing Runtime
+- All protocol requests run within non-blocking Tokio async tasks.
+- Target URLs and templates are distributed across worker tasks dynamically without lock contention.
+- Work is bounded by `--concurrency` (default: 25 workers).
+
+### 2. Token-Bucket Rate Limiter (`governor`)
+- Global request throttling enforced across all concurrent tasks using a lock-free token-bucket algorithm.
+- Supports fractional refills to prevent traffic bursting on fragile endpoints.
+
+### 3. SIMD Pattern Matching (`aho-corasick`)
+- Word matchers utilize vectorized SIMD scanning (AVX2 on x86_64, NEON on ARM64).
+- Matches multiple search keywords across multi-megabyte response payloads in a single memory pass.
+
+### 4. Zero False-Positive Parity Design
+- Strict separation of protocol interaction state.
+- `interactsh_*` matcher parts only match against recorded Out-Of-Band interaction events, never against regular response bodies.
+- Flow templates support boolean short-circuit evaluation, skipping false matches when prerequisites fail.
+
+### 5. Memory Management & Zero-Copy Buffers
+- HTTP responses and template match buffers use reference-counted slices (`Arc<[u8]>` / `&str`).
+- No heap reallocation for intermediate matching passes.

@@ -1,0 +1,59 @@
+---
+title: "Template Signing & Cryptographic Trust"
+description: "Ed25519 cryptographic signature generation and tamper verification"
+icon: "certificate"
+---
+
+To prevent supply-chain attacks, malicious template tampering, and unauthorized code execution in enterprise CI/CD environments, `nuclei-run` provides cryptographic **Ed25519** template signing and verification.
+
+---
+
+## Why Sign Templates?
+
+When security teams run community or third-party templates, malicious code templates or malformed payloads could compromise the scanning runner. Cryptographic signing guarantees:
+
+1. **Integrity**: Templates have not been modified or corrupted.
+2. **Authenticity**: Templates originate from an authorized, trusted internal key.
+3. **Non-Repudiation**: Code templates cannot be injected by unauthorized actors.
+
+---
+
+## 1. Signing Templates (`--sign`)
+
+You can sign a single template file or an entire directory of templates recursively:
+
+```bash
+# Signs all templates in ./my-templates/ using the default key (~/.nuclei-run/signing-key.hex)
+nuclei-run -t ./my-templates/ --sign
+```
+
+If no signing key exists, `nuclei-run` automatically generates a secure random 256-bit Ed25519 keypair and saves it to `~/.nuclei-run/signing-key.hex`.
+
+### Specifying a Custom Key
+
+```bash
+nuclei-run -t ./my-templates/ --sign --signing-key /path/to/enterprise.key.hex
+```
+
+### Signature Format in Templates
+
+The cryptographic digest and signature are appended directly as comments at the bottom of the template file:
+
+```yaml
+# digest: 4a2f8b91c...
+# signature: 3045022100...
+```
+
+---
+
+## 2. Enforcing Signature Verification (`--disable-unsigned-templates`)
+
+In production runners or automated CI pipelines, enforce that only verified templates execute:
+
+```bash
+nuclei-run -u https://target.corp -t ./templates/ --disable-unsigned-templates
+```
+
+Alias: `-duts`.
+
+If any template lacks a valid signature matching the authorized public key, `nuclei-run` immediately skips the template and emits a security alert.

@@ -1,0 +1,46 @@
+---
+title: "WebSocket Protocol Engine"
+description: "RFC 6455 framed WebSocket handshake and bidirectional messaging testing"
+icon: "broadcast"
+---
+
+The WebSocket engine enables bidirectional, framed communication over `ws://` and `wss://` protocols, allowing automated testing of WebSocket APIs, real-time message brokers, and socket-based authentication bypasses.
+
+---
+
+## Capabilities
+
+- **Handshake Negotiation**: Performs standard RFC 6455 WebSocket handshakes with customizable request headers.
+- **Message Exchange**: Sends text or binary frames.
+- **Framed Matchers**: Matches server response frames using Word, Regex, and DSL operators.
+
+---
+
+## Example: WebSocket Authentication Bypass
+
+```yaml
+id: websocket-auth-bypass
+
+info:
+  name: Unprotected Admin WebSocket Endpoint
+  author: security-researcher
+  severity: high
+  tags: websocket,auth-bypass
+
+websocket:
+  - address: "wss://{{Host}}:8443/ws/admin"
+    headers:
+      Origin: "https://{{Host}}"
+    
+    inputs:
+      - data: '{"action":"get_system_info"}'
+    
+    matchers-condition: and
+    matchers:
+      - type: word
+        words:
+          - '"status":"ok"'
+          - '"cpu_usage":'
+          - '"kernel_version":'
+        part: data
+```

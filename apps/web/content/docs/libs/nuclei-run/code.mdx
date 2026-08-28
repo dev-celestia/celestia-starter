@@ -1,0 +1,62 @@
+---
+title: "Code Protocol Engine"
+description: "Local script and command execution sandbox gated by strict security flags"
+icon: "code"
+---
+
+The Code protocol engine allows templates to execute external scripts and system binaries (e.g., Python, Bash, Node.js) directly on the host running the scan.
+
+> [!WARNING]
+> Because code templates execute arbitrary commands with the privileges of the running process, they are **disabled by default** and require the explicit `--enable-code-templates` CLI flag.
+
+---
+
+## Security Safeguards
+
+1. **Explicit Enablement Required**: Running code templates without `--enable-code-templates` causes `nuclei-run` to safely skip them with a warning.
+2. **Template Signing**: Combine with `--disable-unsigned-templates` to ensure only cryptographically verified code templates execute.
+
+---
+
+## Example: Custom Python Script Proof-of-Concept
+
+```yaml
+id: custom-crypto-oracle-poc
+
+info:
+  name: Custom Padding Oracle PoC Script
+  author: research-team
+  severity: high
+  tags: code,custom-poc
+
+code:
+  - engine:
+      - python3
+      - python
+    source: |
+      import sys
+      import urllib.request
+      
+      target = "{{BaseURL}}"
+      req = urllib.request.Request(f"{target}/oracle?test=1")
+      try:
+          with urllib.request.urlopen(req, timeout=5) as res:
+              body = res.read().decode('utf-8')
+              if "DECRYPTION_FAILED" in body:
+                  print("VULNERABLE_ORACLE_FOUND")
+      except Exception:
+          pass
+
+    matchers:
+      - type: word
+        words:
+          - "VULNERABLE_ORACLE_FOUND"
+```
+
+---
+
+## CLI Flag Requirement
+
+```bash
+nuclei-run -u https://target.com -t ./code-templates/ --enable-code-templates
+```

@@ -1,0 +1,45 @@
+---
+title: "File Protocol Engine"
+description: "Local filesystem scanning with regex matching, extension filtering, and secret detection"
+icon: "folder-open"
+---
+
+The File protocol engine scans local filesystem files, configuration files, source code repositories, and filesystem snapshots to detect hardcoded credentials, API keys, and insecure configuration settings.
+
+---
+
+## Capabilities
+
+- Recursive directory scanning.
+- File path pattern matching (globs).
+- Word, Regex, and Binary matching against file contents.
+
+---
+
+## Example: Hardcoded Cloud Credentials in Config Files
+
+```yaml
+id: hardcoded-aws-credentials
+
+info:
+  name: Hardcoded AWS Access Keys in Configuration Files
+  author: devsecops
+  severity: high
+  tags: file,secrets,aws
+
+file:
+  - extensions:
+      - env
+      - json
+      - yml
+      - yaml
+      - toml
+      - conf
+      - cfg
+    
+    matchers-condition: and
+    matchers:
+      - type: regex
+        regex:
+          - "(?i)(aws_access_key_id|aws_secret_access_key)\\s*[:=]\\s*['\"][A-Za-z0-9/+=]{16,40}['\"]"
+```

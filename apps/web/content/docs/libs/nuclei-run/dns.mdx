@@ -1,0 +1,60 @@
+---
+title: "DNS Protocol Engine"
+description: "Hickory-resolver async DNS querying for A, AAAA, CNAME, TXT, MX, NS, PTR, and SOA records"
+icon: "tree-structure"
+---
+
+`nuclei-run` provides a native DNS protocol engine powered by the `hickory-resolver` async DNS library. It performs high-speed DNS queries against targets to discover misconfigurations, DNS takeovers, and dangling records.
+
+---
+
+## Supported Record Types
+
+- `A` (IPv4 address)
+- `AAAA` (IPv6 address)
+- `CNAME` (Canonical Name)
+- `TXT` (Text records, SPF, DKIM, verification tokens)
+- `MX` (Mail Exchange)
+- `NS` (Name Servers)
+- `PTR` (Pointer / Reverse DNS)
+- `SOA` (Start of Authority)
+- `SRV` (Service records)
+- `CAA` (Certification Authority Authorization)
+
+---
+
+## Example: CNAME Subdomain Takeover Check
+
+```yaml
+id: github-subdomain-takeover
+
+info:
+  name: GitHub Pages Subdomain Takeover Detection
+  author: security-team
+  severity: high
+  tags: dns,takeover,github
+
+dns:
+  - name: "{{Host}}"
+    type: CNAME
+    
+    matchers-condition: and
+    matchers:
+      - type: word
+        words:
+          - "github.io"
+        part: answer
+
+      - type: word
+        words:
+          - "There isn't a GitHub Pages site here."
+        part: all
+```
+
+---
+
+## DNS Matcher Parts
+
+- `answer` — Inspects returned DNS answer records.
+- `raw` / `all` — Full raw DNS wire response.
+- `rcode` — Response code (e.g., `NOERROR`, `NXDOMAIN`, `SERVFAIL`).

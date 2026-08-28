@@ -1,0 +1,81 @@
+---
+title: "Flow-Based Execution"
+description: "Conditional template execution logic, technology gatekeepers, and short-circuiting"
+icon: "git-fork"
+---
+
+Flow-based templates provide conditional branching, enabling `nuclei-run` to execute subsequent protocol checks only when prerequisite conditions or technology detection steps succeed.
+
+---
+
+## Why Use Flow Templates?
+
+Without flow templates, a complex multi-request check sends every probe regardless of whether the target runs the relevant technology. Flow templates eliminate wasted network requests:
+
+1. **Step 1**: Quick fingerprint probe (`http(1)`).
+2. **Evaluation**: If step 1 detects the target technology, evaluate step 2 (`http(2)`).
+3. **Short-Circuit**: If step 1 fails, step 2 is completely skipped.
+
+---
+
+## Boolean Logic Syntax
+
+The `flow` block accepts boolean expressions combining protocol steps:
+
+```yaml
+flow: http(1) && (http(2) || http(3))
+```
+
+Supported operators:
+- `&&` — Logical AND (both conditions must succeed).
+- `||` — Logical OR (evaluates the second only if the first fails).
+- `!` — Logical NOT (inverts condition).
+- `(...)` — Grouping expressions.
+
+---
+
+## Example: WordPress Plugin Vulnerability Check
+
+```yaml
+id: cve-2023-wp-plugin-rce
+
+info:
+  name: WordPress Plugin XYZ Remote Code Execution
+  author: researcher
+  severity: critical
+
+flow: http(1) && http(2)
+
+http:
+  # Step 1: Detect if WordPress and the plugin exist
+  - method: GET
+    path:
+      - "{{BaseURL}}/wp-content/plugins/vulnerable-plugin/readme.txt"
+    matchers:
+      - type: word
+        words:
+          - "=== Vulnerable Plugin ==="
+        internal: true
+
+  # Step 2: Exploit the vulnerability only if plugin is present
+  - method: POST
+    path:
+      - "{{BaseURL}}/wp-admin/admin-ajax.php?action=vuln_action"
+    body: "cmd=id"
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: regex
+        regex:
+          - "uid=[0-9]+\\([a-zA-Z0-9_-]+\\)"
+```
+
+---
+
+## Execution Semantics & Parity
+
+- **Lazy Evaluation**: Steps are executed in evaluation order. If `http(1)` returns `false` in `http(1) && http(2)`, `http(2)` is never dispatched over the network.
+- **Finding Emission**: Exactly one finding is emitted when the overall flow expression evaluates to `true`.
+- **False-Positive Prevention**: Negative matchers inside trailing blocks will not trigger false positives on unrelated endpoints.

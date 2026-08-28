@@ -1,0 +1,61 @@
+---
+title: "JavaScript Protocol Engine"
+description: "Embedded pure-Rust Boa JS engine with nuclei/net, nuclei/bytes, and global helpers"
+icon: "brackets-curly"
+---
+
+`nuclei-run` embeds the **Boa JavaScript engine**, a memory-safe, pure-Rust ECMAScript runtime. This enables running custom JS network logic, protocol handshakes, and cryptographic computations without spawning external Node.js processes.
+
+---
+
+## Key Capabilities
+
+- **Embedded Runtime**: High performance, zero process-fork overhead, sandboxed execution.
+- **Built-in Modules**:
+  - `require("nuclei/net")` — Low-level socket connections (`net.Open`, `net.OpenTLS`, `conn.Send`, `conn.Recv`).
+  - `require("nuclei/bytes")` — Binary buffer manipulation and hex encoding/decoding.
+- **Global Helper Utilities**: `atob()`, `btoa()`, `log()`, `isPortOpen(host, port)`, `isUDPPortOpen(host, port)`.
+- **Pre-Conditions & Arguments**: Supports `pre-condition` gating expressions and `args` parameter maps.
+
+---
+
+## Example: Custom Binary Protocol Fingerprinting
+
+```yaml
+id: custom-binary-handshake-js
+
+info:
+  name: Custom Proprietary Protocol Probe
+  author: security-researcher
+  severity: medium
+  tags: js,custom-protocol
+
+javascript:
+  - code: |
+      const net = require("nuclei/net");
+      const bytes = require("nuclei/bytes");
+
+      let conn = net.Open("tcp", Host + ":9999");
+      if (!conn) {
+          log("Could not connect");
+          false;
+      } else {
+          let packet = bytes.HexToBytes("deadbeef01020304");
+          conn.Send(packet);
+          let response = conn.Recv(64);
+          conn.Close();
+          bytes.BytesToHex(response);
+      }
+
+    matchers:
+      - type: word
+        words:
+          - "cafebabe" # Expected signature from target server
+```
+
+---
+
+## Execution Guarantees
+
+- **Completion Value Matching**: The return value of the script execution is matched against operators and exposed as `javascript_response` to subsequent requests.
+- **Parity Assured**: Templates are executed through real runtime evaluation—no placeholder strings.

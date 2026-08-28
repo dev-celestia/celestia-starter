@@ -173,26 +173,28 @@ export function getDocsNavigation(): NavGroup[] {
       continue
     }
 
-    if (item === "components") {
-      // Components sub-category
-      const compMetaPath = path.join(DOCS_DIRECTORY, "components/meta.json")
-      let compPages: string[] = []
-      if (fs.existsSync(compMetaPath)) {
-        try {
-          const parsed = JSON.parse(fs.readFileSync(compMetaPath, "utf8"))
-          compPages = parsed.pages || []
-        } catch {
-          compPages = []
-        }
+    // Check if item is a subfolder with its own meta.json (e.g., "components", "libs/nuclei-run")
+    const subMetaPath = path.join(DOCS_DIRECTORY, item, "meta.json")
+    if (fs.existsSync(subMetaPath)) {
+      let subPages: string[] = []
+      let subMetaTitle = ""
+      try {
+        const parsed = JSON.parse(fs.readFileSync(subMetaPath, "utf8"))
+        subPages = parsed.pages || []
+        subMetaTitle = parsed.title || ""
+      } catch {
+        subPages = []
       }
 
-      // Add Components Overview first if present
-      const compOverviewDoc = getDocBySlug(["components"])
+      // Add Subfolder Overview first if present
+      const itemSlugs = item.split("/")
+      const overviewDoc = getDocBySlug(itemSlugs)
       currentGroupItems.push({
-        title: compOverviewDoc?.meta.title || "Components Overview",
-        slug: "components",
-        href: "/docs/components",
-        description: compOverviewDoc?.meta.description,
+        title: overviewDoc?.meta.title || subMetaTitle || item,
+        slug: item,
+        href: `/docs/${item}`,
+        description: overviewDoc?.meta.description,
+        icon: overviewDoc?.meta.icon,
       })
 
       if (currentGroupItems.length > 0) {
@@ -200,34 +202,36 @@ export function getDocsNavigation(): NavGroup[] {
         currentGroupItems = []
       }
 
-      // Add other components into dedicated groups
-      let compGroupName = "UI Components"
-      let compItems: NavLink[] = []
+      // Add subfolder pages grouped by category headers
+      let subGroupName = subMetaTitle ? `${subMetaTitle}` : (item.charAt(0).toUpperCase() + item.slice(1))
+      let subItems: NavLink[] = []
 
-      for (const compSlug of compPages) {
-        if (compSlug === "index") continue
-        if (compSlug.startsWith("---") && compSlug.endsWith("---")) {
-          if (compItems.length > 0) {
-            groups.push({ name: compGroupName, items: compItems })
-            compItems = []
+      for (const subSlug of subPages) {
+        if (subSlug === "index") continue
+        if (subSlug.startsWith("---") && subSlug.endsWith("---")) {
+          if (subItems.length > 0) {
+            groups.push({ name: subGroupName, items: subItems })
+            subItems = []
           }
-          compGroupName = compSlug.replace(/^---+|---+$/g, "").trim()
+          const rawHeader = subSlug.replace(/^---+|---+$/g, "").trim()
+          subGroupName = subMetaTitle ? `${subMetaTitle}: ${rawHeader}` : rawHeader
           continue
         }
 
-        const doc = getDocBySlug(["components", compSlug])
-        compItems.push({
-          title: doc?.meta.title || compSlug,
-          slug: `components/${compSlug}`,
-          href: `/docs/components/${compSlug}`,
+        const doc = getDocBySlug([...itemSlugs, subSlug])
+        subItems.push({
+          title: doc?.meta.title || subSlug,
+          slug: `${item}/${subSlug}`,
+          href: `/docs/${item}/${subSlug}`,
           description: doc?.meta.description,
+          icon: doc?.meta.icon,
         })
       }
 
-      if (compItems.length > 0) {
+      if (subItems.length > 0) {
         groups.push({
-          name: compGroupName,
-          items: compItems,
+          name: subGroupName,
+          items: subItems,
         })
       }
       currentGroupName = "More"

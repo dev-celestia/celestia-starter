@@ -1,0 +1,75 @@
+---
+title: "DSL Helpers & Standard Library"
+description: "50+ built-in helper functions for cryptography, encoding, strings, and semver"
+icon: "function"
+---
+
+`nuclei-run` includes a standard library of 50+ built-in helper functions available in template payload interpolation `{{helper()}}`, DSL matchers, and extractors.
+
+---
+
+## Cryptographic & Hashing Functions
+
+| Function | Description | Example |
+| :--- | :--- | :--- |
+| `md5(str)` | Calculates hex-encoded MD5 digest. | `{{md5('admin')}}` $\rightarrow$ `21232f297a57a5a743894a0e4a801fc3` |
+| `sha1(str)` | Calculates hex-encoded SHA-1 digest. | `{{sha1('test')}}` |
+| `sha256(str)` | Calculates hex-encoded SHA-256 digest. | `{{sha256('payload')}}` |
+| `sha512(str)` | Calculates hex-encoded SHA-512 digest. | `{{sha512('payload')}}` |
+| `hmac_sha256(key, data)` | Generates HMAC-SHA256 signature. | `{{hmac_sha256('secret', 'data')}}` |
+
+---
+
+## Encoding & Decoding Functions
+
+| Function | Description | Example |
+| :--- | :--- | :--- |
+| `base64(str)` | Encodes string to Base64. | `{{base64('admin:admin')}}` $\rightarrow$ `YWRtaW46YWRtaW4=` |
+| `base64_decode(str)` | Decodes Base64 string to plaintext. | `{{base64_decode('YWRtaW4=')}}` $\rightarrow$ `admin` |
+| `url_encode(str)` | URL-encodes special characters. | `{{url_encode('foo bar&baz=1')}}` $\rightarrow$ `foo%20bar%26baz%3D1` |
+| `url_decode(str)` | Decodes percent-encoded URL string. | `{{url_decode('foo%20bar')}}` $\rightarrow$ `foo bar` |
+| `hex_encode(str)` | Converts text to hex byte sequence. | `{{hex_encode('admin')}}` $\rightarrow$ `61646d696e` |
+| `hex_decode(str)` | Decodes hex byte sequence to ASCII string. | `{{hex_decode('61646d696e')}}` $\rightarrow$ `admin` |
+| `html_escape(str)` | Converts characters to HTML entities (`<`, `>`, `&`). | `{{html_escape('<script>')}}` |
+
+---
+
+## Random Generators
+
+| Function | Description | Example |
+| :--- | :--- | :--- |
+| `randstr` / `rand_text_alphanumeric(n)` | Generates a random alphanumeric string of length $n$. | `{{rand_text_alphanumeric(8)}}` $\rightarrow$ `x9B4aL1z` |
+| `rand_int(min, max)` | Returns random integer between `min` and `max`. | `{{rand_int(1000, 9999)}}` $\rightarrow$ `4829` |
+| `rand_char(chars)` | Picks a random character from a given string. | `{{rand_char('abc123')}}` |
+
+---
+
+## String Manipulation
+
+| Function | Description | Example |
+| :--- | :--- | :--- |
+| `to_lower(str)` | Converts string to lowercase. | `{{to_lower('ADMIN')}}` $\rightarrow$ `admin` |
+| `to_upper(str)` | Converts string to uppercase. | `{{to_upper('root')}}` $\rightarrow$ `ROOT` |
+| `trim(str)` | Removes leading and trailing whitespace. | `{{trim('  test  ')}}` $\rightarrow$ `test` |
+| `replace(str, old, new)` | Replaces occurrences of `old` with `new`. | `{{replace('cat dog', 'dog', 'mouse')}}` |
+| `substr(str, start, length)` | Extracts substring from start offset. | `{{substr('nuclei', 0, 4)}}` $\rightarrow$ `nucl` |
+| `reverse(str)` | Reverses the characters in a string. | `{{reverse('abcd')}}` $\rightarrow$ `dcba` |
+| `len(str)` | Returns string length or byte size. | `len(body) > 100` |
+
+---
+
+## Semantic Version Comparison
+
+| Function | Description | Example |
+| :--- | :--- | :--- |
+| `compare_versions(ver, range)` | SemVer constraint check. | `compare_versions(version, '< 2.4.50')` |
+| `version_sort(list)` | Sorts a list of version numbers. | `version_sort(['1.2', '1.10', '1.1'])` |
+
+---
+
+## Network & IP Helpers
+
+| Function | Description | Example |
+| :--- | :--- | :--- |
+| `ip_format(ip, fmt)` | Converts IP to dotted decimal, integer, hex, or octal. | `ip_format('127.0.0.1', 'int')` $\rightarrow$ `2130706433` |
+| `is_ip(str)` | Validates whether string is a valid IPv4/IPv6 address. | `is_ip('192.168.1.1')` $\rightarrow$ `true` |

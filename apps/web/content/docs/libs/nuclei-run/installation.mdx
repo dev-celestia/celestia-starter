@@ -1,0 +1,93 @@
+---
+title: "Installation Guide"
+description: "Install prebuilt binaries, build from source with Cargo, or deploy via Docker"
+icon: "download-simple"
+---
+
+This guide covers the prerequisites and instructions for building and installing `nuclei-run` on Linux, macOS, and Windows.
+
+---
+
+## Prerequisites
+
+To build `nuclei-run` from source, ensure you have the following installed:
+
+- **Rust toolchain** (version 1.70 or newer, tested on Rust 1.94+):
+  ```bash
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+  ```
+- **C Compiler / Build Tools** (e.g., `build-essential` on Debian/Ubuntu, `Xcode Command Line Tools` on macOS).
+- **OpenSSL / pkg-config** (if building with system OpenSSL; `nuclei-run` defaults to `rustls` for SSL/TLS protocols).
+
+---
+
+## Building from Source
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/dev-celestia/nuclei-run.git
+   cd nuclei-run
+   ```
+
+2. Build the optimized release binary with Link-Time Optimization (LTO):
+   ```bash
+   cargo build --release
+   ```
+
+3. The compiled binary will be located at `target/release/nuclei-run`:
+   ```bash
+   ./target/release/nuclei-run --version
+   ```
+
+4. (Optional) Install the binary into your system `PATH`:
+   ```bash
+   cargo install --path .
+   ```
+   Or manually copy:
+   ```bash
+   sudo cp target/release/nuclei-run /usr/local/bin/
+   ```
+
+---
+
+## Optional Runtime Dependencies
+
+### 1. Headless Browser Testing
+If you intend to run headless browser templates using the `--headless` flag, ensure Google Chrome or Chromium is installed:
+
+- **Ubuntu/Debian**:
+  ```bash
+  sudo apt-get install chromium-browser
+  ```
+- **macOS**:
+  ```bash
+  brew install --cask google-chrome
+  ```
+
+`nuclei-run` will automatically detect the Chrome binary in standard paths or via the `CHROME_PATH` environment variable.
+
+### 2. Code Templates
+Local code template execution (`--enable-code-templates`) requires the appropriate script engines (e.g., `python3`, `bash`, `sh`, `node`) installed on your host system.
+
+---
+
+## Verifying the Installation
+
+Verify that the CLI runs cleanly and prints version information:
+
+```bash
+nuclei-run --help
+```
+
+Output:
+```text
+nuclei-run: High-performance Nuclei-compatible vulnerability scanner
+
+Usage: nuclei-run [OPTIONS] --templates <TEMPLATES>...
+
+Options:
+  -u, --url <URL>                      Target URL to scan
+  -l, --list <LIST>                    File containing list of target URLs
+  -t, --templates <TEMPLATES>...       Path to template file or directory
+  ...
+```
