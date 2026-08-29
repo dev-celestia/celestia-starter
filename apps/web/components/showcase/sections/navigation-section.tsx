@@ -262,7 +262,7 @@ export function DropdownMenuDemo() {
       <DropdownMenuTrigger
         render={
           <Button variant="outline" size="sm">
-            <GearIcon className="size-4 mr-2" />
+            <GearIcon className="size-4 me-2" />
             Workspace Options
           </Button>
         }
@@ -271,12 +271,12 @@ export function DropdownMenuDemo() {
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
-          <UserIcon className="size-4 mr-2" />
+          <UserIcon className="size-4 me-2" />
           Profile Details
           <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem className="text-destructive">
-          <SignOutIcon className="size-4 mr-2" />
+          <SignOutIcon className="size-4 me-2" />
           Log out
         </DropdownMenuItem>
       </DropdownMenuContent>
@@ -363,8 +363,8 @@ export function CommandDemo() {
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup heading="Suggestions">
-          <CommandItem><BookOpenIcon className="size-4 mr-2" />Documentation</CommandItem>
-          <CommandItem><CodeIcon className="size-4 mr-2" />Browse Components</CommandItem>
+          <CommandItem><BookOpenIcon className="size-4 me-2" />Documentation</CommandItem>
+          <CommandItem><CodeIcon className="size-4 me-2" />Browse Components</CommandItem>
         </CommandGroup>
       </CommandList>
     </Command>
@@ -575,11 +575,11 @@ export function NavigationSection() {
               />
             </div>
             <CollapsibleContent className="pt-2 flex flex-col gap-1.5 border-t border-border/50 mt-2">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground pl-2">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground ps-2">
                 <FileIcon className="size-3.5" />
                 <span>button.tsx</span>
               </div>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground pl-2">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground ps-2">
                 <FileIcon className="size-3.5" />
                 <span>dialog.tsx</span>
               </div>
@@ -610,12 +610,12 @@ export function NavigationSection() {
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => toast.info("Opening profile")}>
-                <UserIcon className="size-4 mr-2" />
+                <UserIcon className="size-4 me-2" />
                 Profile Details
                 <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => toast.info("Copied API Key")}>
-                <CopyIcon className="size-4 mr-2" />
+                <CopyIcon className="size-4 me-2" />
                 Copy API Key
                 <DropdownMenuShortcut>⌘C</DropdownMenuShortcut>
               </DropdownMenuItem>
@@ -625,7 +625,7 @@ export function NavigationSection() {
               </DropdownMenuCheckboxItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive">
-                <SignOutIcon className="size-4 mr-2" />
+                <SignOutIcon className="size-4 me-2" />
                 Log out
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -657,7 +657,7 @@ export function NavigationSection() {
               </ContextMenuItem>
               <ContextMenuSeparator />
               <ContextMenuItem className="text-destructive">
-                <TrashIcon className="size-3.5 mr-2" />
+                <TrashIcon className="size-3.5 me-2" />
                 Delete Node
               </ContextMenuItem>
             </ContextMenuContent>
@@ -720,18 +720,18 @@ export function NavigationSection() {
                 <CommandEmpty>No results found.</CommandEmpty>
                 <CommandGroup heading="Suggestions">
                   <CommandItem onSelect={() => toast.info("Opening Calendar")}>
-                    <BookOpenIcon className="size-4 mr-2" />
+                    <BookOpenIcon className="size-4 me-2" />
                     <span>View Docs Overview</span>
                   </CommandItem>
                   <CommandItem onSelect={() => toast.info("Opening Components")}>
-                    <CodeIcon className="size-4 mr-2" />
+                    <CodeIcon className="size-4 me-2" />
                     <span>Browse All Components</span>
                   </CommandItem>
                 </CommandGroup>
                 <CommandSeparator />
                 <CommandGroup heading="Settings">
                   <CommandItem onSelect={() => toast.info("Opening Profile")}>
-                    <UserIcon className="size-4 mr-2" />
+                    <UserIcon className="size-4 me-2" />
                     <span>Manage Profile</span>
                   </CommandItem>
                 </CommandGroup>

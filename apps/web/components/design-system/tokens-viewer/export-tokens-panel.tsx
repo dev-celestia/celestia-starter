@@ -77,7 +77,7 @@ export function ExportTokensPanel() {
               variant="ghost"
               size="icon-xs"
               onClick={() => copyToClipboard(getExportCode(), "export-all")}
-              className="absolute right-2 top-2 z-10 bg-background/80 backdrop-blur-xs text-muted-foreground hover:text-foreground"
+              className="absolute end-2 top-2 z-10 bg-background/80 backdrop-blur-xs text-muted-foreground hover:text-foreground"
             >
               {copiedKey === "export-all" ? (
                 <CheckIcon className="size-3.5 text-green-500" />

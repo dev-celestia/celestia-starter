@@ -98,7 +98,7 @@ export function ToastDemo() {
         size="xs"
         onClick={() => toast.success("Deployment finished successfully!")}
       >
-        <CheckCircleIcon className="size-3.5 mr-1" />
+        <CheckCircleIcon className="size-3.5 me-1" />
         Success Toast
       </Button>
 
@@ -107,7 +107,7 @@ export function ToastDemo() {
         size="xs"
         onClick={() => toast.error("Database connection timeout.")}
       >
-        <XCircleIcon className="size-3.5 mr-1" />
+        <XCircleIcon className="size-3.5 me-1" />
         Error Toast
       </Button>
 
@@ -116,7 +116,7 @@ export function ToastDemo() {
         size="xs"
         onClick={() => toast.info("New webhook event received.")}
       >
-        <InfoIcon className="size-3.5 mr-1" />
+        <InfoIcon className="size-3.5 me-1" />
         Info Toast
       </Button>
     </div>

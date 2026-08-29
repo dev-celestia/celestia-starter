@@ -21,7 +21,7 @@ function DesignSystemContent() {
       {/* Navigation Header */}
       <DesignSystemHeader />
 
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-24">
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-[calc(6rem+env(safe-area-inset-bottom,0px))]">
         {/* Hero & Navigation Section */}
         <HeroSection />
 

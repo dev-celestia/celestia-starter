@@ -189,7 +189,7 @@ export function ExternalGuide() {
                     variant="ghost"
                     size="icon-xs"
                     onClick={() => copyCode(installCmds[pm] ?? "", `install-${pm}`)}
-                    className="absolute right-2 top-2 z-10 bg-background/80 backdrop-blur-xs text-muted-foreground hover:text-foreground"
+                    className="absolute end-2 top-2 z-10 bg-background/80 backdrop-blur-xs text-muted-foreground hover:text-foreground"
                   >
                     {copiedSection === `install-${pm}` ? (
                       <CheckIcon className="size-3.5 text-green-500" />
@@ -248,7 +248,7 @@ export function ExternalGuide() {
                   variant="ghost"
                   size="icon-xs"
                   onClick={() => copyCode(QUICKSTART_CODE, "style-quickstart")}
-                  className="absolute right-2 top-2 z-10 bg-background/80 backdrop-blur-xs text-muted-foreground hover:text-foreground"
+                  className="absolute end-2 top-2 z-10 bg-background/80 backdrop-blur-xs text-muted-foreground hover:text-foreground"
                 >
                   {copiedSection === "style-quickstart" ? (
                     <CheckIcon className="size-3.5 text-green-500" />
@@ -282,7 +282,7 @@ export function ExternalGuide() {
                   variant="ghost"
                   size="icon-xs"
                   onClick={() => copyCode(SOURCE_DIRECTIVE_CODE, "style-source")}
-                  className="absolute right-2 top-2 z-10 bg-background/80 backdrop-blur-xs text-muted-foreground hover:text-foreground"
+                  className="absolute end-2 top-2 z-10 bg-background/80 backdrop-blur-xs text-muted-foreground hover:text-foreground"
                 >
                   {copiedSection === "style-source" ? (
                     <CheckIcon className="size-3.5 text-green-500" />
@@ -334,7 +334,7 @@ export function ExternalGuide() {
               variant="ghost"
               size="icon-xs"
               onClick={() => copyCode(COMPONENT_USAGE_CODE, "import-comp")}
-              className="absolute right-2 top-2 z-10 bg-background/80 backdrop-blur-xs text-muted-foreground hover:text-foreground"
+              className="absolute end-2 top-2 z-10 bg-background/80 backdrop-blur-xs text-muted-foreground hover:text-foreground"
             >
               {copiedSection === "import-comp" ? (
                 <CheckIcon className="size-3.5 text-green-500" />
@@ -384,7 +384,7 @@ export function ExternalGuide() {
               variant="ghost"
               size="icon-xs"
               onClick={() => copyCode(DEEP_IMPORTS_CODE, "deep-imports")}
-              className="absolute right-2 top-2 z-10 bg-background/80 backdrop-blur-xs text-muted-foreground hover:text-foreground"
+              className="absolute end-2 top-2 z-10 bg-background/80 backdrop-blur-xs text-muted-foreground hover:text-foreground"
             >
               {copiedSection === "deep-imports" ? (
                 <CheckIcon className="size-3.5 text-green-500" />

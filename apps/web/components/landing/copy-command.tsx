@@ -31,13 +31,13 @@ export function CopyCommand({ className }: Readonly<{ className?: string }>) {
   return (
     <div
       className={cn(
-        "group flex items-center gap-1 rounded-lg border border-stroke bg-surface p-1 pl-4 font-mono text-sm",
+        "group flex max-w-full min-w-0 items-center gap-1.5 rounded-lg border border-stroke bg-surface p-1 ps-3.5 pe-1 font-mono text-sm",
         "transition-[border-color,box-shadow] duration-200 hover:border-[#4e85bf66] motion-reduce:transition-none",
         className,
       )}
     >
-      <span className="select-none text-fog">$</span>
-      <code className="px-2 text-text-primary">
+      <span className="select-none text-fog shrink-0">$</span>
+      <code className="min-w-0 truncate px-1 text-text-primary">
         npx @celestia-project/create my-app
       </code>
       <Button
@@ -46,7 +46,7 @@ export function CopyCommand({ className }: Readonly<{ className?: string }>) {
         size="icon-sm"
         onClick={copy}
         aria-label={copied ? "Copied" : "Copy install command"}
-        className="shrink-0 text-fog hover:text-text-primary active:scale-90 motion-reduce:active:scale-100"
+        className="ms-auto shrink-0 text-fog hover:text-text-primary active:scale-90 motion-reduce:active:scale-100"
       >
         {copied ? (
           <Check size={15} weight="bold" className="text-[#89aacc] animate-in fade-in-0 zoom-in-75 duration-150" />

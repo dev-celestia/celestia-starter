@@ -214,7 +214,7 @@ export function PromptInputPreview() {
         <PromptInputHeader>
           <PromptInputSelect value={model} onValueChange={(v) => setModel(String(v))}>
             <PromptInputSelectTrigger className="h-7 text-xs font-mono">
-              <SparkleIcon className="size-3 text-primary mr-1" weight="fill" />
+              <SparkleIcon className="size-3 text-primary me-1" weight="fill" />
               <PromptInputSelectValue placeholder="Select model" />
             </PromptInputSelectTrigger>
             <PromptInputSelectContent>

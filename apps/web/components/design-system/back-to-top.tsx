@@ -27,7 +27,7 @@ export function BackToTop() {
       size="sm"
       onClick={scrollToTop}
       aria-label="Back to top"
-      className="fixed bottom-6 right-6 z-50 rounded-full shadow-lg bg-background/90 backdrop-blur-md gap-1.5 active:scale-95"
+      className="fixed z-50 rounded-full shadow-lg bg-background/90 backdrop-blur-md gap-1.5 active:scale-95 bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] end-[calc(1.5rem+env(safe-area-inset-right,0px))]"
     >
       <ArrowUpIcon className="size-3.5 text-primary" weight="bold" />
       <span className="hidden sm:inline">Back to top</span>

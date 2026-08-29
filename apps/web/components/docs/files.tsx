@@ -30,7 +30,7 @@ export function Folder({ name, defaultOpen = true, children, className, ...props
     <div className={cn("flex flex-col", className)} {...props}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 rounded-md px-2 py-1 text-left font-medium text-foreground hover:bg-muted/60 transition-colors cursor-pointer"
+        className="flex items-center gap-2 rounded-md px-2 py-1 text-start font-medium text-foreground hover:bg-muted/60 transition-colors cursor-pointer"
       >
         {isOpen ? (
           <FolderOpenIcon className="size-4 text-primary shrink-0" weight="fill" />
@@ -40,7 +40,7 @@ export function Folder({ name, defaultOpen = true, children, className, ...props
         <span>{name}</span>
       </button>
       {isOpen && (
-        <div className="ml-4 flex flex-col border-l border-border/60 pl-2 pt-0.5">
+        <div className="ms-4 flex flex-col border-s border-border/60 ps-2 pt-0.5">
           {children}
         </div>
       )}

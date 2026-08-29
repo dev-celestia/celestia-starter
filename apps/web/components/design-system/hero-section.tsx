@@ -67,7 +67,7 @@ export function HeroSection() {
               <Card key={pillar.title} className="p-3 shadow-xs">
                 <CardContent className="p-0 flex items-center gap-2.5">
                   <Icon className="size-5 text-primary shrink-0" weight="fill" />
-                  <div className="text-left">
+                  <div className="text-start">
                     <div className="text-xs font-semibold text-foreground">{pillar.title}</div>
                     <div className="text-[11px] text-muted-foreground">{pillar.description}</div>
                   </div>

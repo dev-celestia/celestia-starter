@@ -234,7 +234,7 @@ export function TableDemo() {
           <TableHead>Endpoint</TableHead>
           <TableHead>Method</TableHead>
           <TableHead>Status</TableHead>
-          <TableHead className="text-right">Latency</TableHead>
+          <TableHead className="text-end">Latency</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -242,7 +242,7 @@ export function TableDemo() {
           <TableCell className="font-mono text-xs font-medium">/api/v1/auth/session</TableCell>
           <TableCell><Badge variant="secondary">GET</Badge></TableCell>
           <TableCell className="text-green-500 font-medium">200 OK</TableCell>
-          <TableCell className="text-right font-mono">12 ms</TableCell>
+          <TableCell className="text-end font-mono">12 ms</TableCell>
         </TableRow>
       </TableBody>
     </Table>
@@ -290,9 +290,9 @@ export function EmptyDemo() {
         <EmptyDescription>Get started by creating your first migration.</EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        <Button size="xs" variant="default">
-          <PlusIcon className="size-3.5 mr-1" />
-          Create New Model
+        <Button variant="default" size="sm">
+          <PlusIcon className="size-3.5 me-1" />
+          Create First Project
         </Button>
       </EmptyContent>
     </Empty>
@@ -558,7 +558,7 @@ export function DataDisplaySection() {
                   <TableHead className="w-[180px]">Endpoint</TableHead>
                   <TableHead>Method</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Latency</TableHead>
+                  <TableHead className="text-end">Latency</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -566,19 +566,19 @@ export function DataDisplaySection() {
                   <TableCell className="font-mono text-xs font-medium">/api/v1/auth/session</TableCell>
                   <TableCell><Badge variant="secondary" className="font-mono text-[10px]">GET</Badge></TableCell>
                   <TableCell className="text-green-500 text-xs font-medium">200 OK</TableCell>
-                  <TableCell className="text-right font-mono text-xs">12 ms</TableCell>
+                  <TableCell className="text-end font-mono text-xs">12 ms</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-mono text-xs font-medium">/api/v1/users/create</TableCell>
                   <TableCell><Badge variant="default" className="font-mono text-[10px]">POST</Badge></TableCell>
                   <TableCell className="text-green-500 text-xs font-medium">201 Created</TableCell>
-                  <TableCell className="text-right font-mono text-xs">48 ms</TableCell>
+                  <TableCell className="text-end font-mono text-xs">48 ms</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-mono text-xs font-medium">/api/v1/posts/38</TableCell>
                   <TableCell><Badge variant="outline" className="font-mono text-[10px]">DELETE</Badge></TableCell>
                   <TableCell className="text-muted-foreground text-xs">204 No Content</TableCell>
-                  <TableCell className="text-right font-mono text-xs">22 ms</TableCell>
+                  <TableCell className="text-end font-mono text-xs">22 ms</TableCell>
                 </TableRow>
               </TableBody>
             </Table>

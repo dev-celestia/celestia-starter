@@ -34,7 +34,7 @@ export function RadiusTokensPanel() {
                 <span className="font-mono text-[11px] font-medium text-primary">{r.rem}</span>
               </div>
 
-              <div className="w-full border-t border-border/50 pt-3 text-left">
+              <div className="w-full border-t border-border/50 pt-3 text-start">
                 <div className="flex justify-between font-mono text-[11px] text-muted-foreground">
                   <span>Formula:</span>
                   <span>{r.px}</span>

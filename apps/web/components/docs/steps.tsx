@@ -7,7 +7,7 @@ export function Steps({ className, children, ...props }: React.HTMLAttributes<HT
   return (
     <div
       className={cn(
-        "my-6 ml-4 border-l-2 border-border/80 pl-6 [counter-reset:step] space-y-6",
+        "my-6 ms-4 border-s-2 border-border/80 ps-6 [counter-reset:step] space-y-6",
         className
       )}
       {...props}
@@ -21,7 +21,7 @@ export function Step({ className, title, children, ...props }: React.HTMLAttribu
   return (
     <div className={cn("relative [counter-increment:step]", className)} {...props}>
       {/* Number Badge */}
-      <div className="absolute -left-[35px] top-0 flex size-6 items-center justify-center rounded-full border-2 border-background bg-primary font-mono text-[11px] font-bold text-primary-foreground shadow-xs">
+      <div className="absolute -start-[35px] top-0 flex size-6 items-center justify-center rounded-full border-2 border-background bg-primary font-mono text-[11px] font-bold text-primary-foreground shadow-xs">
         <span className="before:content-[counter(step)]" />
       </div>
 

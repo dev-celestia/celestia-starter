@@ -24,7 +24,7 @@ export function DocsPagination({ prev, next, className = "" }: DocsPaginationPro
           className="flex items-center gap-2 rounded-xl border border-border/70 p-3.5 text-xs transition-all hover:border-primary/40 hover:bg-muted/40 active:scale-[0.98]"
         >
           <CaretLeftIcon className="size-4 text-muted-foreground" />
-          <div className="flex flex-col text-left">
+          <div className="flex flex-col text-start">
             <span className="text-[10px] text-muted-foreground uppercase font-mono">Previous</span>
             <span className="text-foreground font-medium">{prev.title}</span>
           </div>
@@ -36,9 +36,9 @@ export function DocsPagination({ prev, next, className = "" }: DocsPaginationPro
       {next && (
         <Link
           href={next.href}
-          className="flex items-center gap-2 rounded-xl border border-border/70 p-3.5 text-xs transition-all hover:border-primary/40 hover:bg-muted/40 active:scale-[0.98] ml-auto"
+          className="flex items-center gap-2 rounded-xl border border-border/70 p-3.5 text-xs transition-all hover:border-primary/40 hover:bg-muted/40 active:scale-[0.98] ms-auto"
         >
-          <div className="flex flex-col text-right">
+          <div className="flex flex-col text-end">
             <span className="text-[10px] text-muted-foreground uppercase font-mono">Next</span>
             <span className="text-foreground font-medium">{next.title}</span>
           </div>

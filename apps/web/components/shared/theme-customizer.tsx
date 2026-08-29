@@ -270,11 +270,11 @@ export function ThemeCustomizer() {
         />
         <span className="hidden sm:inline font-medium text-xs">Theme</span>
         {resolvedTheme === "dark" ? (
-          <MoonIcon className="size-3.5 text-muted-foreground ml-0.5" />
+          <MoonIcon className="size-3.5 text-muted-foreground ms-0.5" />
         ) : resolvedTheme === "light" ? (
-          <SunIcon className="size-3.5 text-muted-foreground ml-0.5" />
+          <SunIcon className="size-3.5 text-muted-foreground ms-0.5" />
         ) : (
-          <DesktopIcon className="size-3.5 text-muted-foreground ml-0.5" />
+          <DesktopIcon className="size-3.5 text-muted-foreground ms-0.5" />
         )}
       </PopoverTrigger>
 
@@ -323,7 +323,7 @@ export function ThemeCustomizer() {
                   />
                   {/* <span className="text-xs truncate">{palette.name}</span> */}
                   {isActive && (
-                    <CheckIcon className="size-3 text-primary ml-auto shrink-0 animate-in fade-in zoom-in-75 duration-150" weight="bold" />
+                    <CheckIcon className="size-3 text-primary ms-auto shrink-0 animate-in fade-in zoom-in-75 duration-150" weight="bold" />
                   )}
                 </button>
               )
