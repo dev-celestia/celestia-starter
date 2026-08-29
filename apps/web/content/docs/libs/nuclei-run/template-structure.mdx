@@ -1,0 +1,92 @@
+---
+title: "Template Structure & Metadata"
+description: "YAML schema v2/v3, info metadata blocks, severity classification, and tags"
+icon: "file-code"
+---
+
+`nuclei-run` templates are written in YAML and follow the official ProjectDiscovery Nuclei v2 / v3 format. Every template requires an `id`, an `info` metadata block, and at least one protocol execution block.
+
+---
+
+## Basic Template Anatomy
+
+```yaml
+id: apache-status-exposed
+
+info:
+  name: Apache Server Status Page Exposed
+  author: security-team
+  severity: low
+  description: Checks if the Apache mod_status page is publicly accessible.
+  reference:
+    - https://httpd.apache.org/docs/2.4/mod/mod_status.html
+    - https://cve.mitre.org/
+  tags: apache,status,misconfig,exposure
+  metadata:
+    max-request: 1
+    verified: true
+    shodan-query: "http.title:\"Apache Status\""
+  remediation: Disable mod_status or restrict access to localhost in httpd.conf.
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/server-status?auto"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: word
+        words:
+          - "Apache Server Status"
+          - "Total Accesses:"
+        condition: and
+```
+
+---
+
+## The `info` Block Specification
+
+| Field | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `name` | String | **Yes** | A human-readable descriptive title for the vulnerability/check. |
+| `author` | String / Array | **Yes** | Name(s) of template author(s). |
+| `severity` | String | **Yes** | `info`, `low`, `medium`, `high`, `critical`, or `unknown`. |
+| `description` | String | No | Detailed explanation of the vulnerability and risk. |
+| `tags` | String / Array | No | Comma-separated list or YAML list of categorization tags. |
+| `reference` | String / Array | No | External advisory URLs, blog posts, or CVE links. |
+| `remediation` | String | No | Recommended mitigation or patch instructions. |
+| `classification` | Map | No | Structured classification metrics (CVSS, CWE, CVE-ID). |
+| `metadata` | Map | No | Custom arbitrary key-value metadata. |
+
+---
+
+## Severity Levels
+
+Severity levels determine triage priority and exit codes in CI/CD pipelines:
+
+- `critical` — Remote Code Execution (RCE), full authentication bypass, unrestricted file upload.
+- `high` — SQL Injection (SQLi), Server-Side Request Forgery (SSRF), Local File Inclusion (LFI).
+- `medium` — Cross-Site Scripting (XSS), CSRF, sensitive data leakage.
+- `low` — Informational misconfigurations, verbose error messages, open redirects.
+- `info` — Technology detection, exposed status endpoints, banner grabbing.
+
+---
+
+## Protocol Blocks
+
+A single template can define execution steps for one of the following protocols:
+
+- `http:` — Standard or raw HTTP requests.
+- `dns:` — DNS query lookups.
+- `tcp:` / `network:` — Raw socket stream interactions.
+- `ssl:` — TLS certificate inspection.
+- `websocket:` — WebSocket connections.
+- `whois:` — Domain / IP registry lookups.
+- `file:` — Local filesystem path checking.
+- `code:` — Local shell / script execution.
+- `javascript:` — Embedded JavaScript engine scripts.
+- `headless:` — Headless Chrome browser navigation.

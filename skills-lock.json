@@ -13,6 +13,12 @@
       "skillPath": "security/SKILL.md",
       "computedHash": "7a230edf3a24ce18162cb4379f59b6a19b8d24ca04db530609d0f15cede556dc"
     },
+    "better-layout": {
+      "source": "jakubkrehel/skills",
+      "sourceType": "github",
+      "skillPath": "skills/better-layout/SKILL.md",
+      "computedHash": "75df358bc65382fbd9da570e98abd7aee9fbe582743ca4384882d9f9e9feac27"
+    },
     "create-auth": {
       "source": "better-auth/skills",
       "sourceType": "github",

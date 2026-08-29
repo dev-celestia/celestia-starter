@@ -1,0 +1,80 @@
+---
+title: "Fuzzing Engine"
+description: "Sniper, Pitchfork, and Clusterbomb attack modes with payload wordlist iteration"
+icon: "arrows-split"
+---
+
+`nuclei-run` includes a high-performance fuzzing engine supporting parameter injection, payload dictionary iteration, and multiple attack modes.
+
+---
+
+## Attack Modes
+
+| Mode | Behavior | Request Multiplier |
+| :--- | :--- | :--- |
+| **`sniper`** | Targets one parameter at a time with the payload list, keeping other parameters untouched. | $N_{params} \times N_{payloads}$ |
+| **`pitchfork`** | Iterates through multiple payload lists in lock-step (list 1 item 1 with list 2 item 1). | $\min(len(list_1), len(list_2))$ |
+| **`clusterbomb`** | Permutes all combinations of all payload lists across all parameters. | $len(list_1) \times len(list_2) \times \dots$ |
+
+---
+
+## Injection Points (`fuzzing.part`)
+
+Fuzzing payloads can be injected into any part of the HTTP request:
+
+- `query` — URL query string parameters (`?id=FUZZ`).
+- `header` — HTTP request headers (`User-Agent: FUZZ`).
+- `cookie` — Cookie name-value pairs (`Cookie: session=FUZZ`).
+- `body` — Request body (JSON, Form-data, XML, or raw body).
+
+---
+
+## Mutation Modes (`mode`)
+
+- `replace` — Replaces the entire parameter value with the payload.
+- `prefix` — Prepends payload before the existing value.
+- `postfix` — Appends payload after the existing value.
+- `infix` — Injects payload inside existing value.
+
+---
+
+## Example: SQL Injection Parameter Fuzzing
+
+```yaml
+id: generic-sqli-fuzz
+
+info:
+  name: Generic SQL Injection Parameter Fuzzing
+  author: security-researcher
+  severity: high
+
+http:
+  - raw:
+      - |
+        POST /api/v1/search HTTP/1.1
+        Host: {{Hostname}}
+        Content-Type: application/json
+
+        {"query": "admin", "sort": "date"}
+
+    fuzzing:
+      - part: body
+        type: replace
+        mode: sniper
+        keys:
+          - query
+          - sort
+        fuzz:
+          - "' OR '1'='1"
+          - "1' UNION SELECT NULL,NULL,version()--"
+          - "'; WAITFOR DELAY '0:0:5'--"
+
+    matchers-condition: or
+    matchers:
+      - type: word
+        words:
+          - "syntax error in SQL statement"
+          - "ODBC Driver 17 for SQL Server"
+          - "Unclosed quotation mark before the character string"
+        part: body
+```

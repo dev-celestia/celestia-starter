@@ -139,7 +139,7 @@ export function PromptInputDemo() {
       <PromptInputHeader>
         <PromptInputSelect value={model} onValueChange={setModel}>
           <PromptInputSelectTrigger className="h-7 text-xs font-mono">
-            <SparkleIcon className="size-3 text-primary mr-1" weight="fill" />
+            <SparkleIcon className="size-3 text-primary me-1" weight="fill" />
             <PromptInputSelectValue placeholder="Select model" />
           </PromptInputSelectTrigger>
           <PromptInputSelectContent>
@@ -476,7 +476,7 @@ export function ChatAiSection() {
               <PromptInputHeader className="flex items-center justify-between pb-2 border-b border-border/40">
                 <PromptInputSelect value={selectedModel} onValueChange={(val) => { if (typeof val === "string") setSelectedModel(val) }}>
                   <PromptInputSelectTrigger className="h-7 rounded-lg border-border/60 bg-muted/40 px-2 text-xs font-medium text-foreground transition-all hover:bg-muted active:scale-[0.98]">
-                    <SparkleIcon className="size-3.5 text-primary mr-1.5" weight="fill" />
+                    <SparkleIcon className="size-3.5 text-primary me-1.5" weight="fill" />
                     <PromptInputSelectValue placeholder="Model" />
                   </PromptInputSelectTrigger>
                   <PromptInputSelectContent>

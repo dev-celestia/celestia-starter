@@ -1,0 +1,70 @@
+---
+title: "Output Formats & Reporting"
+description: "Terminal colors, JSON Lines (.jsonl), OASIS SARIF v2.1.0, and Markdown reports"
+icon: "file-text"
+---
+
+`nuclei-run` produces standardized, machine-readable, and human-friendly output across 4 formats.
+
+---
+
+## 1. Colored Terminal Output (Default)
+
+Interactive colored terminal output with severity-coded badges:
+
+```text
+[2026-08-28 09:30:15] [apache-status-exposed] [http] [low] https://example.com/server-status
+[2026-08-28 09:30:18] [CVE-2023-38606] [http] [critical] https://api.example.com/oauth/token ["extracted_token=eyJhbG..."]
+```
+
+Use `--silent` to suppress ASCII banners and statistics when piping into text processing utilities.
+
+---
+
+## 2. JSON Lines Output (`--jsonl`)
+
+JSON Lines (`.jsonl`) produces a single valid JSON object per finding, ideal for parsing with `jq` or loading into data pipelines:
+
+```bash
+nuclei-run -u https://target.com -t ./templates/ --jsonl -o results.jsonl
+```
+
+### JSON Schema Example:
+
+```json
+{
+  "template_id": "cve-2023-38606",
+  "info": {
+    "name": "OAuth Authentication Bypass",
+    "author": ["researcher"],
+    "severity": "critical",
+    "tags": ["cve", "auth-bypass"]
+  },
+  "type": "http",
+  "host": "https://target.com",
+  "matched_at": "https://target.com/oauth/token",
+  "extracted_results": ["token=abc12345"],
+  "timestamp": "2026-08-28T09:30:18Z",
+  "curl_command": "curl -X POST 'https://target.com/oauth/token' -d 'grant_type=bypass'"
+}
+```
+
+---
+
+## 3. OASIS SARIF v2.1.0 (`--sarif`)
+
+SARIF (Static Analysis Results Interchange Format) is the industry standard format natively supported by **GitHub Advanced Security Code Scanning**, **GitLab Security Reports**, and **Azure DevOps**:
+
+```bash
+nuclei-run -u https://target.com -t ./templates/ --sarif -o results.sarif.json
+```
+
+---
+
+## 4. Markdown Report Export (`-m`, `--markdown-export`)
+
+Generates a formatted GitHub-Flavored Markdown summary report containing executive summaries, severity distribution tables, and full finding details:
+
+```bash
+nuclei-run -u https://target.com -t ./templates/ -m audit-report.md
+```

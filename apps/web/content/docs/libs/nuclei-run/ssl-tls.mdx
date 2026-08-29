@@ -1,0 +1,60 @@
+---
+title: "SSL / TLS Protocol Engine"
+description: "Certificate chain extraction, SANs, CN, expiration dates, cipher suites, and fingerprints"
+icon: "lock"
+---
+
+The SSL/TLS engine inspects certificate chains, public key parameters, certificate authority hierarchies, and cryptographic configurations without requiring external tools like OpenSSL.
+
+---
+
+## Capabilities
+
+- **X.509 Certificate Parsing**: Extracts Common Name (CN), Subject Alternative Names (SANs), Organization (O), and Issuer details.
+- **Validity & Expiration**: Verifies `not_before`, `not_after`, and remaining days until expiration.
+- **Cryptographic Fingerprints**: Calculates SHA-256 and SHA-1 certificate fingerprints.
+- **Cipher Suite Probing**: Inspects negotiated TLS protocol versions (TLS 1.0, 1.1, 1.2, 1.3).
+
+---
+
+## Example: Expired or Self-Signed Certificate Detection
+
+```yaml
+id: expired-ssl-certificate
+
+info:
+  name: Expired SSL/TLS Certificate Detected
+  author: security-team
+  severity: medium
+  tags: ssl,tls,certificate
+
+ssl:
+  - address: "{{Host}}:443"
+    
+    matchers-condition: and
+    matchers:
+      - type: dsl
+        dsl:
+          - "days_to_expire <= 0"
+        
+    extractors:
+      - type: dsl
+        dsl:
+          - "subject_cn"
+          - "issuer_cn"
+          - "expiration_date"
+```
+
+---
+
+## Available SSL DSL Variables
+
+| Variable | Description |
+| :--- | :--- |
+| `subject_cn` | Common Name in the Subject field. |
+| `subject_an` | List of Subject Alternative Names (SANs). |
+| `issuer_cn` | Common Name of the issuing Certificate Authority. |
+| `issuer_org` | Organization name of the CA. |
+| `fingerprint_sha256` | SHA-256 hex digest of the leaf certificate. |
+| `days_to_expire` | Number of days until certificate expires (negative if already expired). |
+| `tls_version` | Negotiated TLS version (`TLSv1.2`, `TLSv1.3`). |

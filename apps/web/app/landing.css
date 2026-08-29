@@ -7,7 +7,7 @@
 
 /* Anchor targets clear the fixed nav. */
 html {
-  scroll-padding-top: 5rem;
+  scroll-padding-top: calc(5rem + env(safe-area-inset-top, 0px));
 }
 
 @media (prefers-reduced-motion: no-preference) {

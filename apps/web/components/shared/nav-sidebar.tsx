@@ -167,7 +167,7 @@ export function MobileNavSidebar({
                         type="button"
                         onClick={handleItemClick}
                         className={cn(
-                          "flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors text-left w-full cursor-pointer",
+                          "flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors text-start w-full cursor-pointer",
                           isItemActive
                             ? "bg-primary/10 text-primary font-semibold"
                             : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
@@ -260,7 +260,7 @@ export function NavSidebar({
         )}
       >
         {/* Navigation Groups List */}
-        <nav className="flex flex-col gap-4 overflow-y-auto flex-1 min-h-0 pr-2 pb-8 [scrollbar-width:thin]">
+        <nav className="flex flex-col gap-4 overflow-y-auto flex-1 min-h-0 pe-2 pb-8 [scrollbar-width:thin]">
           {groups.map((group) => {
             // Default folded unless explicitly opened/closed, or contains active route
             const isOpen = openGroups[group.id] ?? !defaultFolded
@@ -275,7 +275,7 @@ export function NavSidebar({
                   type="button"
                   onClick={() => toggleGroup(group.id)}
                   className={cn(
-                    "flex items-center justify-between rounded-lg px-2 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground transition-all hover:bg-muted/50 hover:text-foreground cursor-pointer text-left group",
+                    "flex items-center justify-between rounded-lg px-2 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground transition-all hover:bg-muted/50 hover:text-foreground cursor-pointer text-start group",
                     isGroupActive && "text-foreground"
                   )}
                 >
@@ -300,7 +300,7 @@ export function NavSidebar({
 
                 {/* Group Items */}
                 {!isCollapsed && (
-                  <div className="flex flex-col gap-0.5 ml-2 border-l border-border/50 pl-2 mt-0.5 animate-in fade-in slide-in-from-top-1 duration-150">
+                  <div className="flex flex-col gap-0.5 ms-2 border-s border-border/50 ps-2 mt-0.5 animate-in fade-in slide-in-from-top-1 duration-150">
                     {group.items.map((item) => {
                       const isItemActive = activeItemId
                         ? activeItemId === item.id
@@ -320,7 +320,7 @@ export function NavSidebar({
                           {isItemActive && (
                             <span
                               aria-hidden
-                              className="bg-primary absolute inset-y-1.5 -left-2 w-0.5 rounded-full animate-in fade-in duration-200"
+                              className="bg-primary absolute inset-y-1.5 -start-2 w-0.5 rounded-full animate-in fade-in duration-200"
                             />
                           )}
                           <span className="truncate">{item.title}</span>
@@ -350,7 +350,7 @@ export function NavSidebar({
                           key={item.id}
                           type="button"
                           onClick={() => onSelectItem?.(item)}
-                          className="block w-full text-left cursor-pointer"
+                          className="block w-full text-start cursor-pointer"
                         >
                           {content}
                         </button>

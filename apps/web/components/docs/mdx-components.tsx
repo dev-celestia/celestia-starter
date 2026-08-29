@@ -74,10 +74,10 @@ export const mdxComponents = {
     />
   ),
   ul: ({ className, ...props }: React.HTMLAttributes<HTMLUListElement>) => (
-    <ul className={cn("my-4 ml-6 list-disc space-y-2 text-sm sm:text-base text-muted-foreground", className)} {...props} />
+    <ul className={cn("my-4 ms-6 list-disc space-y-2 text-sm sm:text-base text-muted-foreground", className)} {...props} />
   ),
   ol: ({ className, ...props }: React.HTMLAttributes<HTMLOListElement>) => (
-    <ol className={cn("my-4 ml-6 list-decimal space-y-2 text-sm sm:text-base text-muted-foreground", className)} {...props} />
+    <ol className={cn("my-4 ms-6 list-decimal space-y-2 text-sm sm:text-base text-muted-foreground", className)} {...props} />
   ),
   li: ({ className, ...props }: React.HTMLAttributes<HTMLLIElement>) => (
     <li className={cn("leading-relaxed", className)} {...props} />
@@ -85,7 +85,7 @@ export const mdxComponents = {
   blockquote: ({ className, ...props }: React.HTMLAttributes<HTMLQuoteElement>) => (
     <blockquote
       className={cn(
-        "my-4 border-l-2 border-primary/50 pl-4 italic text-muted-foreground",
+        "my-4 border-s-2 border-primary/50 ps-4 italic text-muted-foreground",
         className
       )}
       {...props}
@@ -106,7 +106,7 @@ export const mdxComponents = {
     <tr className={cn("border-b border-border/40 last:border-0 transition-colors hover:bg-muted/20", className)} {...props} />
   ),
   th: ({ className, ...props }: React.HTMLAttributes<HTMLTableCellElement>) => (
-    <th className={cn("px-4 py-3 text-left font-medium text-foreground", className)} {...props} />
+    <th className={cn("px-4 py-3 text-start font-medium text-foreground", className)} {...props} />
   ),
   td: ({ className, ...props }: React.HTMLAttributes<HTMLTableCellElement>) => (
     <td className={cn("px-4 py-3 text-muted-foreground", className)} {...props} />

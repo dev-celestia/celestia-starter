@@ -1,0 +1,78 @@
+---
+title: "Exporters & Issue Trackers"
+description: "Real-time streaming to Elasticsearch, Splunk, Webhooks, GitHub, GitLab, Jira, and Linear"
+icon: "export"
+---
+
+`nuclei-run` provides enterprise-grade streaming exporters and automated issue tracker integrations to dispatch findings directly to SIEMs, data lakes, and ticketing boards in real time.
+
+---
+
+## 1. Remote SIEM Exporters
+
+### Elasticsearch Export
+Stream findings as indexed JSON documents directly into an Elasticsearch or OpenSearch cluster:
+
+```bash
+nuclei-run -u https://target.com -t ./templates/ \
+  --export-elasticsearch "https://elastic.corp.internal:9200" \
+  --es-index "security-vuln-findings"
+```
+
+### Splunk HEC (HTTP Event Collector)
+Stream findings to Splunk in real time:
+
+```bash
+nuclei-run -u https://target.com -t ./templates/ \
+  --export-splunk "https://splunk.corp.internal:8088" \
+  --splunk-token "12345678-1234-1234-1234-123456789abc"
+```
+
+### Generic Webhook Export
+POST JSON finding payloads to any HTTP endpoint (e.g., Slack webhook receiver, Zapier, custom backend):
+
+```bash
+nuclei-run -u https://target.com -t ./templates/ \
+  --export-webhook "https://api.mycorp.com/v1/nuclei-findings"
+```
+
+---
+
+## 2. Automated Issue Trackers
+
+Automatically open remediation tickets with finding details, curl repro commands, and vulnerability severity.
+
+### Supported Platforms
+
+| Platform | Flag (`--tracker`) | Project Flag (`--tracker-project`) | Required Env Vars |
+| :--- | :--- | :--- | :--- |
+| **GitHub** | `github` | `org/repository-name` | `GITHUB_TOKEN` |
+| **GitLab** | `gitlab` | Project ID (e.g., `123456`) | `GITLAB_TOKEN`, `--tracker-url` (for self-hosted) |
+| **Jira** | `jira` | Project Key (e.g., `SEC`) | `JIRA_EMAIL`, `JIRA_API_TOKEN`, `--tracker-url` |
+| **Linear** | `linear` | Team ID (UUID) | `LINEAR_API_KEY` |
+
+### Example: Auto-Filing GitHub Security Issues
+
+```bash
+export GITHUB_TOKEN="ghp_yourpersonalaccesstoken"
+
+nuclei-run -u https://target.com \
+  -t ./cves/ \
+  -s critical,high \
+  --tracker github \
+  --tracker-project "my-org/security-triage"
+```
+
+### Example: Auto-Filing Jira Tickets
+
+```bash
+export JIRA_EMAIL="secops@company.com"
+export JIRA_API_TOKEN="jira_api_token_here"
+
+nuclei-run -u https://target.com \
+  -t ./cves/ \
+  -s critical \
+  --tracker jira \
+  --tracker-project "VULN" \
+  --tracker-url "https://mycompany.atlassian.net"
+```

@@ -18,7 +18,9 @@ import {
 import {
   Badge,
   Button,
-  ButtonGroup,
+  Tabs,
+  TabsList,
+  TabsTrigger,
 } from "@celestia-project/ui"
 import { cn } from "@celestia-project/ui/lib/utils"
 import { LogoMark } from "@/components/landing/nav-bar"
@@ -27,7 +29,7 @@ import { ThemeCustomizer } from "@/components/shared/theme-customizer"
 
 export interface HeaderProps {
   variant?: "docs" | "showcase"
-  brandTitle?: string
+  brandTitle?: React.ReactNode
   badgeLabel?: string
   badgeHref?: string
   onToggleMobileMenu?: () => void
@@ -143,9 +145,24 @@ export function Header({
               className="flex items-center gap-2 transition-opacity hover:opacity-85"
             >
               <LogoMark className="size-6" />
-              <span className="tracking-tight font-semibold text-foreground text-sm sm:text-base">
-                {brandTitle}
-              </span>
+              {typeof brandTitle === "string" && brandTitle.includes(" / ") ? (
+                <span className="flex items-center gap-1.5 tracking-tight text-sm sm:text-base">
+                  {brandTitle.split(" / ").map((part, index, arr) => (
+                    <React.Fragment key={part}>
+                      <span className={index === 0 ? "font-semibold text-foreground" : "font-medium text-muted-foreground"}>
+                        {part}
+                      </span>
+                      {index < arr.length - 1 && (
+                        <span className="text-muted-foreground/40 font-normal select-none">/</span>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </span>
+              ) : (
+                <span className="tracking-tight font-semibold text-foreground text-sm sm:text-base">
+                  {brandTitle}
+                </span>
+              )}
               {badgeLabel && (
                 <Badge
                   variant="secondary"
@@ -161,7 +178,7 @@ export function Header({
           <div className="hidden md:flex flex-1 max-w-md items-center mx-2 sm:mx-6">
             {setSearchQuery ? (
               <div className="relative flex w-full items-center rounded-lg border border-border/80 bg-muted/40 px-3 py-1.5 text-xs text-muted-foreground transition-all focus-within:border-primary/40 focus-within:bg-muted/70 focus-within:text-foreground shadow-xs">
-                <MagnifyingGlassIcon className="size-3.5 text-muted-foreground shrink-0 mr-2" />
+                <MagnifyingGlassIcon className="size-3.5 text-muted-foreground shrink-0 me-2" />
                 <input
                   ref={searchInputRef}
                   type="text"
@@ -177,12 +194,12 @@ export function Header({
                   <button
                     type="button"
                     onClick={() => setSearchQuery("")}
-                    className="ml-2 text-xs text-muted-foreground hover:text-foreground px-1.5 py-0.5 rounded bg-muted text-[10px] cursor-pointer"
+                    className="ms-2 text-xs text-muted-foreground hover:text-foreground px-1.5 py-0.5 rounded bg-muted text-[10px] cursor-pointer"
                   >
                     Clear
                   </button>
                 ) : (
-                  <kbd className="hidden sm:inline-block rounded-md border border-border bg-background px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground shadow-xs shrink-0 ml-2">
+                  <kbd className="hidden sm:inline-block rounded-md border border-border bg-background px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground shadow-xs shrink-0 ms-2">
                     /
                   </kbd>
                 )}
@@ -199,7 +216,7 @@ export function Header({
                     {searchPlaceholder || "Search docs & components..."}
                   </span>
                 </div>
-                <kbd className="hidden sm:inline-block rounded-md border border-border bg-background px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground shadow-xs shrink-0 ml-2">
+                <kbd className="hidden sm:inline-block rounded-md border border-border bg-background px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground shadow-xs shrink-0 ms-2">
                   /
                 </kbd>
               </button>
@@ -210,42 +227,42 @@ export function Header({
           <div className="flex items-center gap-1.5 shrink-0">
             {children}
 
-            <ButtonGroup className="hidden md:inline-flex">
-              <Button
-                variant="outline"
-                size="sm"
-                render={<Link href="/design-system" />}
-                className="gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+            {!pathname?.startsWith("/nuclei-run") && (
+              <Tabs
+                value={
+                  pathname?.startsWith("/design-system")
+                    ? "/design-system"
+                    : pathname?.startsWith("/docs")
+                      ? "/docs"
+                      : pathname === "/"
+                        ? "/"
+                        : undefined
+                }
+                className="hidden md:inline-flex"
               >
-                <SparkleIcon className="size-3.5 text-primary" />
-                <span>Design System</span>
-              </Button>
+                <TabsList>
+                  <TabsTrigger
+                    value="/design-system"
+                    render={<Link href="/design-system" />}
+                  >
+                    <SparkleIcon className="size-3.5 text-primary" />
+                    <span>Design System</span>
+                  </TabsTrigger>
 
-              <Button
-                variant="outline"
-                size="sm"
-                render={<Link href="/docs" />}
-                className="gap-1.5 text-xs text-muted-foreground hover:text-foreground"
-              >
-                <BookOpenIcon className="size-3.5 text-primary" />
-                <span>Docs</span>
-              </Button>
-
-              <Button
-                variant="outline"
-                size="sm"
-                render={<Link href="/" />}
-                className="gap-1.5 text-xs text-muted-foreground hover:text-foreground"
-              >
-                <HouseIcon className="size-3.5 text-primary" />
-                <span>Landing</span>
-              </Button>
-            </ButtonGroup>
+                  <TabsTrigger
+                    value="/docs"
+                    render={<Link href="/docs" />}
+                  >
+                    <BookOpenIcon className="size-3.5 text-primary" />
+                    <span>Docs</span>
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            )}
 
             {/* Upper Header GitHub Icon Button */}
             <Button
-              variant="outline"
-              size="icon-xs"
+              variant="ghost"
               render={
                 <Link
                   href="https://github.com/dev-celestia/celestia-starter"
@@ -287,13 +304,13 @@ export function Header({
             role="dialog"
             aria-modal="true"
             aria-label="Mobile Navigation"
-            className="flex-1 w-full max-w-full min-w-0 overflow-x-hidden flex flex-col justify-between overflow-y-auto overscroll-contain px-4 sm:px-6 pt-4 pb-8 md:hidden animate-in fade-in-0 duration-200"
+            className="flex-1 w-full max-w-full min-w-0 overflow-x-hidden flex flex-col justify-between overflow-y-auto overscroll-contain px-4 sm:px-6 pt-4 pb-[calc(2rem+env(safe-area-inset-bottom,0px))] md:hidden animate-in fade-in-0 duration-200"
           >
             <div className="flex flex-col gap-5">
               {/* Mobile Search Input (live search or modal trigger) */}
               {setSearchQuery ? (
                 <div className="relative flex w-full items-center rounded-lg border border-border/80 bg-muted/40 px-3 py-2 text-xs text-muted-foreground transition-all focus-within:border-primary/40 focus-within:bg-muted/70">
-                  <MagnifyingGlassIcon className="size-4 text-muted-foreground shrink-0 mr-2" />
+                  <MagnifyingGlassIcon className="size-4 text-muted-foreground shrink-0 me-2" />
                   <input
                     type="text"
                     placeholder={searchPlaceholder || "Search components..."}
@@ -305,7 +322,7 @@ export function Header({
                     <button
                       type="button"
                       onClick={() => setSearchQuery("")}
-                      className="ml-2 text-xs text-muted-foreground hover:text-foreground px-1.5 py-0.5 rounded bg-muted cursor-pointer"
+                      className="ms-2 text-xs text-muted-foreground hover:text-foreground px-1.5 py-0.5 rounded bg-muted cursor-pointer"
                     >
                       Clear
                     </button>
@@ -324,7 +341,7 @@ export function Header({
                   <span className="text-xs font-medium">
                     {searchPlaceholder || "Search docs & components..."}
                   </span>
-                  <kbd className="ml-auto rounded-md border border-border bg-background px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">
+                  <kbd className="ms-auto rounded-md border border-border bg-background px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">
                     /
                   </kbd>
                 </button>
@@ -335,7 +352,7 @@ export function Header({
                 <Link
                   href="/design-system"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted/60 active:bg-muted"
+                  className="flex min-h-[44px] items-center rounded-lg px-3.5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted/60 active:bg-muted"
                 >
                   Design System
                 </Link>
@@ -343,7 +360,7 @@ export function Header({
                 <Link
                   href="/docs"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted/60 active:bg-muted"
+                  className="flex min-h-[44px] items-center rounded-lg px-3.5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted/60 active:bg-muted"
                 >
                   Documentation
                 </Link>
@@ -353,16 +370,27 @@ export function Header({
                   target="_blank"
                   rel="noreferrer"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted/60 active:bg-muted"
+                  className="flex min-h-[44px] items-center justify-between rounded-lg px-3.5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted/60 active:bg-muted"
                 >
                   <span>Hexbuffer (Products)</span>
                   <ArrowSquareOutIcon className="size-3.5 text-muted-foreground" />
                 </Link>
 
                 <Link
+                  href="http://localhost:1212/nuclei-run"
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex min-h-[44px] items-center justify-between rounded-lg px-3.5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted/60 active:bg-muted"
+                >
+                  <span>nuclei-run</span>
+                  <ArrowSquareOutIcon className="size-3.5 text-muted-foreground" />
+                </Link>
+
+                <Link
                   href="/"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted/60 active:bg-muted"
+                  className="flex min-h-[44px] items-center rounded-lg px-3.5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted/60 active:bg-muted"
                 >
                   Landing Page
                 </Link>

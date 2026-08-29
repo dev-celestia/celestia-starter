@@ -11,6 +11,7 @@ import {
   GithubLogoIcon,
   ListIcon,
   SparkleIcon,
+  TerminalWindowIcon,
   TriangleDashedIcon,
   WarningIcon,
   XIcon,
@@ -90,7 +91,7 @@ export function NavBar() {
       <div className="border-b border-amber-500/20 bg-amber-500/10 px-4 py-1.5 text-center text-xs text-amber-200/90 shrink-0">
         <div className="mx-auto flex max-w-6xl items-center justify-center gap-2">
           <WarningIcon className="size-4 shrink-0 text-amber-400" />
-          <span className="truncate">
+          <span className="text-pretty">
             <strong className="font-medium text-amber-300">Under Active Development:</strong> Features are undergoing testing and refinement.
           </span>
         </div>
@@ -124,6 +125,7 @@ export function NavBar() {
               }
             />
             <DropdownMenuContent align="start" className="w-72 p-2 border-stroke/80 bg-bg shadow-xl">
+              {/* Hexbuffer */}
               <DropdownMenuItem
                 render={
                   <Link
@@ -140,10 +142,35 @@ export function NavBar() {
                 <div className="flex flex-1 flex-col gap-0.5 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <span className="font-medium text-xs text-foreground">Hexbuffer</span>
-                    <ArrowSquareOutIcon className="size-3 ml-auto text-muted-foreground shrink-0" />
+                    <ArrowSquareOutIcon className="size-3 ms-auto text-muted-foreground shrink-0" />
                   </div>
                   <span className="text-[11px] text-muted-foreground leading-normal">
                     Modern security & application toolkit
+                  </span>
+                </div>
+              </DropdownMenuItem>
+
+              {/* nuclei-run */}
+              <DropdownMenuItem
+                render={
+                  <Link
+                    href="http://localhost:1212/nuclei-run"
+                    target="_blank"
+                    rel="noreferrer"
+                  />
+                }
+                className="cursor-pointer items-start gap-2.5 p-2 rounded-lg transition-colors hover:bg-surface active:scale-[0.99]"
+              >
+                <div className="flex size-7 shrink-0 items-center justify-center rounded-md border border-primary/30 bg-primary/10 text-primary mt-0.5">
+                  <TerminalWindowIcon className="size-3.5" weight="bold" />
+                </div>
+                <div className="flex flex-1 flex-col gap-0.5 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-medium text-xs text-foreground">Nuclei Run</span>
+                    <ArrowSquareOutIcon className="size-3 ms-auto text-muted-foreground shrink-0" />
+                  </div>
+                  <span className="text-[11px] text-muted-foreground leading-normal">
+                    High-performance vulnerability scanner & docs
                   </span>
                 </div>
               </DropdownMenuItem>
@@ -170,7 +197,7 @@ export function NavBar() {
           <Button
             size="icon-sm"
             aria-label="GitHub Repository"
-            className="cursor-pointer active:scale-95 transition-transform ml-2"
+            className="cursor-pointer active:scale-95 transition-transform ms-2"
             render={<Link href={GITHUB_URL} target="_blank" rel="noreferrer" />}
           >
             <GithubLogoIcon className="size-4" weight="fill" />
@@ -212,7 +239,7 @@ export function NavBar() {
           role="dialog"
           aria-modal="true"
           aria-label="Mobile Navigation"
-          className="flex-1 w-full max-w-full min-w-0 overflow-x-hidden flex flex-col justify-between overflow-y-auto overscroll-contain px-5 pt-4 pb-8 md:hidden animate-in fade-in-0 duration-200"
+          className="flex-1 w-full max-w-full min-w-0 overflow-x-hidden flex flex-col justify-between overflow-y-auto overscroll-contain px-5 pt-4 pb-[calc(2rem+env(safe-area-inset-bottom,0px))] md:hidden animate-in fade-in-0 duration-200"
         >
           <div className="flex flex-col gap-5">
             {/* Simple Text Navigation List */}
@@ -220,15 +247,14 @@ export function NavBar() {
               <Link
                 href="/design-system"
                 onClick={closeMobileMenu}
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface/60 active:bg-surface"
+                className="flex min-h-[44px] items-center rounded-lg px-3.5 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface/60 active:bg-surface"
               >
                 Design System
               </Link>
-
               <Link
                 href="/docs"
                 onClick={closeMobileMenu}
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface/60 active:bg-surface"
+                className="flex min-h-[44px] items-center rounded-lg px-3.5 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface/60 active:bg-surface"
               >
                 Documentation
               </Link>
@@ -238,16 +264,27 @@ export function NavBar() {
                 target="_blank"
                 rel="noreferrer"
                 onClick={closeMobileMenu}
-                className="flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface/60 active:bg-surface"
+                className="flex min-h-[44px] items-center justify-between rounded-lg px-3.5 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface/60 active:bg-surface"
               >
                 <span>Hexbuffer (Products)</span>
                 <ArrowSquareOutIcon className="size-3.5 text-fog" />
               </Link>
 
               <Link
+                href="http://localhost:1212/nuclei-run"
+                target="_blank"
+                rel="noreferrer"
+                onClick={closeMobileMenu}
+                className="flex min-h-[44px] items-center justify-between rounded-lg px-3.5 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface/60 active:bg-surface"
+              >
+                <span>Nuclei Run</span>
+                <ArrowSquareOutIcon className="size-3.5 text-fog" />
+              </Link>
+
+              <Link
                 href="/"
                 onClick={closeMobileMenu}
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface/60 active:bg-surface"
+                className="flex min-h-[44px] items-center rounded-lg px-3.5 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface/60 active:bg-surface"
               >
                 Landing Page
               </Link>

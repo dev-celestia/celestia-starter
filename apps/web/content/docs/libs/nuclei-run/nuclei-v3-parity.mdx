@@ -1,0 +1,31 @@
+---
+title: "Nuclei v3 Parity Scorecard"
+description: "Verified parity matrix and compatibility comparison against Go Nuclei v3.11.1"
+icon: "check-square"
+---
+
+Detailed audit of `nuclei-run` compatibility and behavioral parity compared against official ProjectDiscovery Go Nuclei (v3.11.1).
+
+---
+
+## Parity Matrix
+
+| Subsystem | Parity Level | Verified Behavior |
+| :--- | :---: | :--- |
+| **HTTP Engine** | 🟢 100% | Standard methods, Raw multiline HTTP, byte-exact payloads, port-safe URL reconstruction, request clustering, chaining. |
+| **Operators & Matchers** | 🟢 100% | Word (Aho-Corasick SIMD), Regex, Status, Binary, DSL, XPath, Size; `and`/`or`, `negative`, `internal`, `case-insensitive`. Zero false-positives on `interactsh_*` parts. |
+| **Extractors** | 🟢 100% | Regex with capture groups, Key-Value header lookup, JSON dot-path, XPath, DSL. |
+| **DSL Helpers** | 🟢 95% | 50+ built-in helper functions (crypto, hashing, encodings, random generators, semver comparisons). |
+| **DNS Protocol** | 🟢 100% | `hickory-resolver` async DNS querying all standard record types (A, AAAA, CNAME, TXT, MX, NS, PTR, SOA). |
+| **Network Protocol** | 🟢 100% | Raw TCP/UDP socket communication, hex payloads, TLS wrapping. |
+| **SSL/TLS Protocol** | 🟢 100% | Full certificate chain extraction, CN, SANs, expiration dates, fingerprints. |
+| **WebSocket** | 🟢 100% | RFC 6455 framed WebSocket handshake and message exchange. |
+| **WHOIS** | 🟢 100% | Port 43 RFC 3912 client. |
+| **File Protocol** | 🟢 100% | Local filesystem scanning with extension filtering and globbing. |
+| **Code Protocol** | 🟢 100% | Execution gated by `--enable-code-templates`, multi-engine support. |
+| **JavaScript Protocol** | 🟢 90% | Pure-Rust Boa JS engine, `nuclei/net`, `nuclei/bytes`, global helpers. (Specialized enterprise protocol modules like SMB/Kerberos not yet ported). |
+| **Headless Browser** | 🟢 95% | Real Chrome CDP engine (`chromiumoxide`): navigation, DOM clicks, keyboard typing, screenshot, script evaluation. |
+| **Interactsh OOB** | 🟢 95% | Full native RSA-OAEP / AES-CTR client with 5s polling, correlation IDs, and early-interaction handling. |
+| **Uncover OSINT** | 🟢 90% | Shodan, Censys, FOFA, ZoomEye, Netlas, Quake, Hunter search engines with direct target streaming. |
+| **Template Signing** | 🟢 100% | Ed25519 cryptographic signing (`--sign`) and verification (`--disable-unsigned-templates`). |
+| **Exporters & Trackers** | 🟢 100% | Elasticsearch, Splunk HEC, Webhook, GitHub, GitLab, Jira, Linear. |

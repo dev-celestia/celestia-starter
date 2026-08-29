@@ -11,7 +11,7 @@ export function HeroSection() {
 
       <div className="hero-stagger relative z-10 mx-auto w-full max-w-4xl px-5 text-center sm:px-8">
         <p className="font-mono text-[13px] text-fog">
-          <span className="mr-2 inline-block size-1.5 rounded-full align-middle accent-gradient" />
+          <span className="me-2 inline-block size-1.5 rounded-full align-middle accent-gradient" />
           <span>celestia-starter · production-ready</span>
         </p>
 
@@ -39,7 +39,7 @@ export function HeroSection() {
       {/* Scroll indicator */}
       <div
         aria-hidden
-        className="hero-scroll absolute bottom-7 left-1/2 z-10 -translate-x-1/2"
+        className="hero-scroll absolute bottom-7 inset-inline-1/2 z-10 -translate-x-1/2"
       >
         <div className="flex h-9 w-[22px] items-start justify-center overflow-hidden rounded-full border border-stroke bg-bg/40 p-1 backdrop-blur-sm">
           <span className="block h-2.5 w-[3px] rounded-full bg-[#89aacc] animate-scroll-down" />

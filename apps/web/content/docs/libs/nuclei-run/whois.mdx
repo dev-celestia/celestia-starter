@@ -1,0 +1,41 @@
+---
+title: "WHOIS Protocol Engine"
+description: "Port 43 RFC 3912 client for domain registration, contacts, and registrar inspection"
+icon: "identification-badge"
+---
+
+The WHOIS engine queries global Top-Level Domain (TLD) and Regional Internet Registry (RIR) databases over port 43 to gather domain registration data, registrant contacts, and nameserver configurations.
+
+---
+
+## Capabilities
+
+- Port 43 RFC 3912 client.
+- Automatic routing to target registrar WHOIS servers.
+- Matchers against raw registrar text bodies.
+
+---
+
+## Example: Expired Domain or Missing Contact WHOIS Check
+
+```yaml
+id: domain-whois-status
+
+info:
+  name: Domain Pending Delete Status Detection
+  author: security-team
+  severity: medium
+  tags: whois,osint,recon
+
+whois:
+  - query: "{{Host}}"
+    
+    matchers-condition: or
+    matchers:
+      - type: word
+        words:
+          - "Status: pendingDelete"
+          - "Domain Status: redemptionPeriod"
+          - "No match for domain"
+        case-insensitive: true
+```

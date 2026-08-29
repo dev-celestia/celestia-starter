@@ -42,7 +42,7 @@ export function ButtonDemo() {
       <Button variant="secondary">Secondary</Button>
       <Button variant="outline">Outline</Button>
       <Button variant="destructive">
-        <TrashIcon className="size-4 mr-1.5" />
+        <TrashIcon className="size-4 me-1.5" />
         Destructive
       </Button>
       <Button variant="ghost">Ghost</Button>
@@ -77,12 +77,12 @@ export function ButtonGroupDemo() {
       {/* Horizontal Action Group */}
       <ButtonGroup orientation="horizontal">
         <Button variant="outline" size="sm">
-          <PlusIcon className="size-3.5 mr-1" />
+          <PlusIcon className="size-3.5 me-1" />
           New File
         </Button>
         <ButtonGroupSeparator />
         <Button variant="outline" size="sm">
-          <DownloadSimpleIcon className="size-3.5 mr-1" />
+          <DownloadSimpleIcon className="size-3.5 me-1" />
           Export
         </Button>
         <ButtonGroupSeparator />

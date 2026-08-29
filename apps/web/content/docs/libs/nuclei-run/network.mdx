@@ -1,0 +1,77 @@
+---
+title: "Network (TCP / UDP) Protocol Engine"
+description: "Raw TCP and UDP socket probing, hex representations, banner grabbing, and TLS wrapping"
+icon: "plugs"
+---
+
+The Network protocol engine interacts directly with raw TCP and UDP sockets. It is designed for banner grabbing, service fingerprinting, and probing non-HTTP protocols (e.g., Redis, Memcached, MySQL, SMTP, FTP).
+
+---
+
+## Capabilities
+
+- **TCP & UDP Transport**: Open stream or datagram sockets.
+- **Hex Payloads**: Transmit raw binary sequences using `type: hex`.
+- **TLS Wrapping**: Establish raw TLS streams using `tls: true`.
+- **Read / Write Pipelines**: Send custom probe inputs and assert responses.
+
+---
+
+## Example: Redis Unauthenticated Access
+
+```yaml
+id: redis-unauthenticated-access
+
+info:
+  name: Redis Server Unauthenticated Access
+  author: security-researcher
+  severity: high
+  tags: redis,network,unauth
+
+network:
+  - host:
+      - "{{Hostname}}"
+      - "tcp://{{Host}}:6379"
+    
+    inputs:
+      - data: "INFO\r\n"
+    
+    matchers-condition: and
+    matchers:
+      - type: word
+        words:
+          - "redis_version:"
+          - "# Server"
+        part: data
+
+      - type: word
+        words:
+          - "-NOAUTH Authentication required"
+        negative: true
+```
+
+---
+
+## Example: Raw Hex Payloads & Binary Matching
+
+```yaml
+id: memcached-udp-exposure
+
+info:
+  name: Memcached UDP Amplification Exposure
+  author: security-team
+  severity: medium
+
+network:
+  - host:
+      - "udp://{{Host}}:11211"
+    
+    inputs:
+      - data: "000000000001000073746174730d0a" # "stats\r\n" encapsulated in memcached UDP header
+        type: hex
+    
+    matchers:
+      - type: binary
+        binary:
+          - "5354415420706964" # "STAT pid" in hex
+```

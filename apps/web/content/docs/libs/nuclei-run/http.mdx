@@ -1,0 +1,64 @@
+---
+title: "HTTP Protocol Engine"
+description: "High-level structured and raw multiline byte-exact HTTP scanning with request clustering"
+icon: "globe"
+---
+
+The HTTP protocol engine is the core execution path of `nuclei-run`. It supports both high-level structured HTTP requests and low-level byte-exact raw HTTP requests.
+
+---
+
+## 1. Standard HTTP Requests
+
+Standard HTTP templates define methods, URL paths, headers, and request bodies cleanly:
+
+```yaml
+http:
+  - method: POST
+    path:
+      - "{{BaseURL}}/api/v1/user/reset"
+    headers:
+      Content-Type: application/json
+      X-Requested-With: XMLHttpRequest
+    body: '{"email":"admin@target.local"}'
+    
+    matchers:
+      - type: status
+        status:
+          - 200
+```
+
+---
+
+## 2. Raw Multiline HTTP Requests
+
+For testing HTTP request smuggling, header injection, malformed line endings, or CRLF vulnerabilities, `nuclei-run` provides a byte-exact raw HTTP engine:
+
+```yaml
+http:
+  - raw:
+      - |
+        POST /transfer.do HTTP/1.1
+        Host: {{Hostname}}
+        User-Agent: Mozilla/5.0
+        Content-Type: application/x-www-form-urlencoded
+        Content-Length: 42
+        Transfer-Encoding: chunked
+
+        0
+
+        GET /admin HTTP/1.1
+        Foo: x
+```
+
+### Key Capabilities:
+- **Port-Safe Host Resolution**: Reconstructs destination URLs with explicit ports preserved (e.g. `target.com:8443`).
+- **Byte-Exact Payloads**: Spaces, tabs, and multiline linefeeds are preserved exactly as defined without automatic sanitization or header reordering.
+
+---
+
+## 3. Request Clustering (`--cluster-requests`)
+
+When scanning thousands of templates that query the same root path (e.g., `GET /`), running each request independently wastes bandwidth.
+
+When enabled with `--cluster-requests`, `nuclei-run` clusters identical HTTP requests across different templates into a single outbound network request, distributing the response to all corresponding matchers simultaneously.

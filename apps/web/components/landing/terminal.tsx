@@ -78,13 +78,13 @@ export function InstallTerminal({ className }: Readonly<{ className?: string }>)
         <span className="size-2.5 rounded-full bg-stroke" />
         <span className="size-2.5 rounded-full bg-stroke" />
         <span className="size-2.5 rounded-full bg-stroke" />
-        <span className="ml-3 font-mono text-xs text-fog">
+        <span className="ms-3 font-mono text-xs text-fog">
           celestia — zsh
         </span>
       </div>
 
       {/* Session */}
-      <div className="terminal-session bg-surface p-5 font-mono text-[13px] leading-7 sm:p-6 sm:text-sm">
+      <div className="terminal-session overflow-x-auto bg-surface p-5 font-mono text-[13px] leading-7 sm:p-6 sm:text-sm">
         {LINES.map((line) => (
           <p
             key={line.text}
@@ -99,7 +99,7 @@ export function InstallTerminal({ className }: Readonly<{ className?: string }>)
             ) : (
               <>
                 {line.ok !== false && (
-                  <span className="mr-2 inline-block text-[#89aacc]">✔</span>
+                  <span className="me-2 inline-block text-[#89aacc]">✔</span>
                 )}
                 <span className={cn(line.ok ? "text-fog" : "text-text-primary")}>
                   {line.text}

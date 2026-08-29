@@ -1,0 +1,72 @@
+---
+title: "Headless Browser Protocol Engine"
+description: "Real Chromium CDP browser automation for DOM actions, screenshotting, and SPA testing"
+icon: "browser"
+---
+
+`nuclei-run` integrates a real headless Chrome/Chromium automation engine powered by `chromiumoxide` over the Chrome DevTools Protocol (CDP).
+
+> [!NOTE]
+> Headless scans require Chrome/Chromium installed on the system and the `--headless` CLI flag.
+
+---
+
+## Supported Action Set
+
+| Action | Description | Parameters |
+| :--- | :--- | :--- |
+| `navigate` | Navigates the browser page to a target URL. | `url: "https://..."` |
+| `waitload` | Waits until the DOM `load` event finishes. | - |
+| `wait-for` | Waits for a CSS selector or XPath element to appear. | `to: "#app-ready"`, `timeout: 10` |
+| `click` | Simulates a mouse click on a DOM element. | `to: "button.login-btn"` |
+| `rightclick`| Simulates a right-click context menu trigger. | `to: ".item"` |
+| `text` / `type`| Types text into an input element. | `to: "#username"`, `value: "admin"` |
+| `keyboard` | Sends keyboard events (e.g., `Enter`, `Tab`, `Escape`). | `value: "Enter"` |
+| `sleep` | Delays execution for a specified duration in seconds. | `value: 3` |
+| `screenshot` | Captures a viewport or full-page PNG screenshot. | `to: "screenshot.png"` |
+| `setheader` | Sets custom HTTP request headers for browser requests. | `name: "X-Auth"`, `value: "secret"` |
+| `select` | Selects an option from a `<select>` dropdown. | `to: "#role"`, `value: "admin"` |
+| `script` | Executes arbitrary JavaScript inside the page context. | `code: "document.title"` |
+| `extract` | Extracts DOM text or attributes into a named variable. | `to: "#secret-token"`, `name: "token"` |
+
+---
+
+## Example: Stored XSS & DOM Execution Check
+
+```yaml
+id: stored-xss-headless-verification
+
+info:
+  name: Stored DOM XSS Verification
+  author: security-researcher
+  severity: high
+  tags: headless,xss,dom
+
+headless:
+  - steps:
+      - action: navigate
+        args:
+          url: "{{BaseURL}}/feedback?msg=<script>window.pwned=1337</script>"
+      - action: waitload
+      - action: sleep
+        args:
+          value: 2
+      - action: script
+        name: xss_probe
+        args:
+          code: "window.pwned"
+
+    matchers:
+      - type: word
+        part: xss_probe
+        words:
+          - "1337"
+```
+
+---
+
+## CLI Usage
+
+```bash
+nuclei-run -u https://target.com -t ./headless-templates/ --headless
+```

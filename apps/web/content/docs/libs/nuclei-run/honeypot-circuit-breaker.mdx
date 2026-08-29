@@ -1,0 +1,39 @@
+---
+title: "Honeypot Detection & Circuit Breakers"
+description: "Match concentration detection, threshold limits, and host-error failover mechanisms"
+icon: "shield-warning"
+---
+
+Running scans against unstable servers, rate-limited APIs, or deceptive security honeypots can waste scan hours and generate thousands of false alerts. `nuclei-run` includes automated defensive resilience mechanisms.
+
+---
+
+## 1. Host-Error Circuit Breaker (`--max-host-error`)
+
+When scanning thousands of hosts from a target list, network outages or firewall blocks can cause repeated connection timeouts on dead hosts.
+
+```bash
+nuclei-run -l targets.txt -t ./templates/ --max-host-error 25
+```
+
+- Every failed request (connection timeout, TCP reset, DNS failure, 502/503/504 errors) increments the host's error counter.
+- Any successful response resets the error counter to zero.
+- When the consecutive error count reaches the threshold (default: 30), `nuclei-run` terminates the scan for that target and moves to the next host.
+
+---
+
+## 2. Honeypot Detection (`--honeypot-detect`)
+
+Deceptive honeypots (e.g., Cowrie, Dionaea, HTTP tarpits) deliberately return false-positive matching tokens (such as returning 200 OK or generic banners to every single HTTP request), causing a single IP to trigger hundreds of CVE alerts.
+
+```bash
+nuclei-run -l targets.txt -t ./templates/ \
+  --honeypot-detect \
+  --honeypot-threshold 15 \
+  --suppress-honeypot
+```
+
+### Detection Logic:
+1. `nuclei-run` tracks the number of **distinct template IDs** matched per target host.
+2. If a single target triggers more than `--honeypot-threshold` distinct templates (default: 15), it is flagged as an active honeypot.
+3. With `--suppress-honeypot` (`-shp`), findings for that host are automatically filtered out from console output and exported reports.

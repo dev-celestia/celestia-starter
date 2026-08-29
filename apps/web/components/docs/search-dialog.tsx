@@ -193,7 +193,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                     }}
                     onMouseEnter={() => setSelectedIndex(idx)}
                     className={cn(
-                      "flex items-center justify-between rounded-xl px-3 py-2.5 text-left text-xs transition-all cursor-pointer",
+                      "flex items-center justify-between rounded-xl px-3 py-2.5 text-start text-xs transition-all cursor-pointer",
                       isSelected
                         ? "bg-primary/10 text-primary font-medium shadow-xs"
                         : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -207,7 +207,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                         )}
                       >
                         {item.category === "Components" ? (
-                          <CubeIcon className="size-3.5" />
+                           <CubeIcon className="size-3.5" />
                         ) : (
                           <BookOpenIcon className="size-3.5" />
                         )}
@@ -220,7 +220,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 shrink-0 ml-3">
+                    <div className="flex items-center gap-2 shrink-0 ms-3">
                       <span className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
                         {item.category}
                       </span>

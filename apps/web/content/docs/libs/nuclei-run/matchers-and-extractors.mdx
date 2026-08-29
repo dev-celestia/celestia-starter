@@ -1,0 +1,159 @@
+---
+title: "Matchers & Extractors"
+description: "Word, Regex, Status, Binary, DSL, XPath, and Size matchers and dynamic value extractors"
+icon: "crosshair"
+---
+
+Matchers determine whether a response indicates a vulnerability, while extractors pull dynamic tokens, secrets, or values from responses.
+
+---
+
+## Matcher Types
+
+`nuclei-run` supports 7 distinct matcher types:
+
+### 1. Word Matcher (`type: word`)
+Performs SIMD-accelerated substring search:
+
+```yaml
+matchers:
+  - type: word
+    words:
+      - "root:x:0:0:"
+      - "bin:x:1:1:"
+    condition: or
+    part: body  # body, header, all, or custom extractor key
+    case-insensitive: true
+```
+
+### 2. Regex Matcher (`type: regex`)
+Evaluates regular expressions against response data:
+
+```yaml
+matchers:
+  - type: regex
+    regex:
+      - "AWS_ACCESS_KEY_ID=[A-Z0-9]{20}"
+      - "AKIA[0-9A-Z]{16}"
+    part: body
+```
+
+### 3. Status Code Matcher (`type: status`)
+Asserts expected HTTP response status codes:
+
+```yaml
+matchers:
+  - type: status
+    status:
+      - 200
+      - 301
+```
+
+### 4. Binary Matcher (`type: binary`)
+Matches raw binary hex sequences (essential for TCP/UDP and binary payloads):
+
+```yaml
+matchers:
+  - type: binary
+    binary:
+      - "504B0304" # Zip file magic bytes
+      - "89504E47" # PNG header
+    condition: or
+```
+
+### 5. DSL Expression Matcher (`type: dsl`)
+Evaluates complex boolean expressions and helper functions:
+
+```yaml
+matchers:
+  - type: dsl
+    dsl:
+      - "status_code == 200 && contains(body, 'Welcome') && len(body) > 500"
+      - "compare_versions(version, '< 2.4.50')"
+    condition: and
+```
+
+### 6. XPath Matcher (`type: xpath`)
+Executes XPath queries against XML/HTML bodies:
+
+```yaml
+matchers:
+  - type: xpath
+    xpath:
+      - "/html/head/title[contains(text(), 'Dashboard')]"
+```
+
+### 7. Size Matcher (`type: size`)
+Checks response body content lengths:
+
+```yaml
+matchers:
+  - type: size
+    size:
+      - 1024
+      - 2048
+```
+
+---
+
+## Matcher Conditions & Modifiers
+
+- `matchers-condition: and | or` — Logical operation across all matchers in the list.
+- `negative: true` — Inverts the result (succeeds if the match fails).
+- `internal: true` — Evaluates the matcher internally for request chaining without emitting an alert.
+- `part: body | header | all_headers | response | interactsh_protocol | interactsh_request` — Selects which portion of the transaction to inspect.
+
+---
+
+## Extractors
+
+Extractors capture tokens, version strings, or nonces from responses:
+
+### 1. Regex Extractor
+Extracts capture group matches:
+
+```yaml
+extractors:
+  - type: regex
+    name: csrf_token
+    part: body
+    group: 1
+    regex:
+      - 'name="csrf_token" value="([a-zA-Z0-9_-]+)"'
+```
+
+### 2. Key-Value (KVal) Extractor
+Extracts HTTP response headers:
+
+```yaml
+extractors:
+  - type: kval
+    name: server_banner
+    part: header
+    kval:
+      - server
+      - x_powered_by
+```
+
+### 3. JSON Extractor
+Extracts values from JSON responses using dot-notation paths:
+
+```yaml
+extractors:
+  - type: json
+    name: auth_token
+    part: body
+    json:
+      - ".data.auth.token"
+```
+
+### 4. DSL Extractor
+Uses helper expressions to compute extracted values:
+
+```yaml
+extractors:
+  - type: dsl
+    name: decoded_payload
+    dsl:
+      - "base64_decode(token)"
+```

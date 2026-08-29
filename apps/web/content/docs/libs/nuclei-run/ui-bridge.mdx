@@ -1,0 +1,56 @@
+---
+title: "UI Bridge & GUI Embedding"
+description: "Trait-based event bridge for embedding nuclei-run into Tauri, egui, iced, and WASM"
+icon: "device-mobile"
+---
+
+`nuclei-run` provides a trait-based event bridge (`UiBridge`) designed for embedding the vulnerability scanning engine into desktop user interfaces (Tauri, egui, iced) or WebAssembly browser runtimes.
+
+---
+
+## The `UiBridge` Trait
+
+The bridge decouples scanning engine events (progress, logs, findings, statistics) from standard terminal output:
+
+```rust
+pub trait UiBridge: Send + Sync {
+    /// Dispatched when a new vulnerability finding is detected
+    fn on_finding(&self, result: &ScanResult);
+
+    /// Dispatched periodically with scanning progress updates
+    fn on_progress(&self, completed: usize, total: usize, requests_per_sec: f64);
+
+    /// Dispatched when scan starts or completes
+    fn on_status_change(&self, status: ScanStatus);
+
+    /// Dispatched on warnings, network retries, or errors
+    fn on_log_event(&self, level: LogLevel, message: &str);
+}
+```
+
+---
+
+## Embedding in Tauri Desktop Apps
+
+When embedding `nuclei-run` inside a **Tauri** desktop application:
+
+```rust
+use tauri::{AppHandle, Emitter};
+
+pub struct TauriUiBridge {
+    app: AppHandle,
+}
+
+impl UiBridge for TauriUiBridge {
+    fn on_finding(&self, result: &ScanResult) {
+        // Emit IPC event to React/Vue/Svelte frontend
+        let _ = self.app.emit("nuclei://finding", result);
+    }
+
+    fn on_progress(&self, completed: usize, total: usize, rps: f64) {
+        let _ = self.app.emit("nuclei://progress", (completed, total, rps));
+    }
+    
+    // ...
+}
+```

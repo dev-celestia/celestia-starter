@@ -1,0 +1,99 @@
+---
+title: "Quick Start Guide"
+description: "Run your first vulnerability scan with nuclei-run in under 60 seconds"
+icon: "lightning"
+---
+
+Get up and running with `nuclei-run` in less than two minutes.
+
+---
+
+## 1. Basic Single Target Scan
+
+Scan a target against a template file or directory of templates:
+
+```bash
+# Scan a single host with a directory of templates
+nuclei-run -u https://example.com -t ./templates/
+```
+
+---
+
+## 2. Multi-Target Batch Scanning
+
+To scan multiple targets, save them in a text file (one URL per line):
+
+```text
+# targets.txt
+https://app1.example.com
+https://app2.example.com
+https://api.example.com:8443
+```
+
+Run `nuclei-run` with the `-l` flag:
+
+```bash
+nuclei-run -l targets.txt -t ./templates/ -c 50 --rate-limit 200
+```
+
+- `-c 50`: 50 concurrent worker threads.
+- `--rate-limit 200`: Maximum 200 HTTP requests per second across all workers.
+
+---
+
+## 3. Filtering by Severity and Tags
+
+You can filter templates dynamically by severity, tags, or template IDs without modifying template files:
+
+```bash
+# Run only high and critical CVE checks
+nuclei-run -u https://target.com -t ./nuclei-templates/ -s high,critical
+
+# Filter by specific tags
+nuclei-run -u https://target.com -t ./nuclei-templates/ --tags cve,auth-bypass,rce
+
+# Run a specific template by ID
+nuclei-run -u https://target.com -t ./nuclei-templates/ --id CVE-2023-38606,apache-status
+```
+
+---
+
+## 4. Output Formatting & Reports
+
+Export results in multiple formats for reporting and downstream processing:
+
+```bash
+# JSON Lines format (.jsonl)
+nuclei-run -u https://target.com -t ./templates/ --jsonl -o scan-results.jsonl
+
+# OASIS SARIF v2.1.0 format (for GitHub Advanced Security & CI/CD)
+nuclei-run -u https://target.com -t ./templates/ --sarif -o results.sarif.json
+
+# Markdown Report Generation
+nuclei-run -u https://target.com -t ./templates/ -m report.md
+```
+
+---
+
+## 5. Unix Stdin Piping
+
+`nuclei-run` supports seamless Unix pipeline integration:
+
+```bash
+# Pipe targets from subfinder, httpx, or cat
+cat targets.txt | nuclei-run -t ./templates/ -s critical --silent
+```
+
+---
+
+## 6. Advanced Proxies and Custom Headers
+
+Scan through an upstream HTTP or SOCKS5 proxy with custom authentication headers:
+
+```bash
+nuclei-run -u https://internal.corp \
+  -t ./templates/ \
+  -H "Authorization: Bearer secret-token-123" \
+  -H "X-Forwarded-For: 127.0.0.1" \
+  --proxy socks5://127.0.0.1:9050
+```
