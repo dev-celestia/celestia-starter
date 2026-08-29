@@ -29,7 +29,7 @@ import { ThemeCustomizer } from "@/components/shared/theme-customizer"
 
 export interface HeaderProps {
   variant?: "docs" | "showcase"
-  brandTitle?: string
+  brandTitle?: React.ReactNode
   badgeLabel?: string
   badgeHref?: string
   onToggleMobileMenu?: () => void
@@ -145,9 +145,24 @@ export function Header({
               className="flex items-center gap-2 transition-opacity hover:opacity-85"
             >
               <LogoMark className="size-6" />
-              <span className="tracking-tight font-semibold text-foreground text-sm sm:text-base">
-                {brandTitle}
-              </span>
+              {typeof brandTitle === "string" && brandTitle.includes(" / ") ? (
+                <span className="flex items-center gap-1.5 tracking-tight text-sm sm:text-base">
+                  {brandTitle.split(" / ").map((part, index, arr) => (
+                    <React.Fragment key={part}>
+                      <span className={index === 0 ? "font-semibold text-foreground" : "font-medium text-muted-foreground"}>
+                        {part}
+                      </span>
+                      {index < arr.length - 1 && (
+                        <span className="text-muted-foreground/40 font-normal select-none">/</span>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </span>
+              ) : (
+                <span className="tracking-tight font-semibold text-foreground text-sm sm:text-base">
+                  {brandTitle}
+                </span>
+              )}
               {badgeLabel && (
                 <Badge
                   variant="secondary"

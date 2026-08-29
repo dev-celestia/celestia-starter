@@ -14,7 +14,7 @@ export default function NucleiRunDocsLayout({
     <div className="min-h-screen bg-background text-foreground selection:bg-primary/20">
       {/* Translucent Glass Header */}
       <DocsHeader
-        brandTitle="nuclei-run"
+        brandTitle="Celestia / nuclei run"
         badgeLabel="v0.1.0"
         badgeHref="https://github.com/dev-celestia/nuclei-run"
       />
