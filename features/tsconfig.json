@@ -4,12 +4,19 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["../apps/web/*"],
-      "react": ["../apps/web/node_modules/react"],
-      "react-dom": ["../apps/web/node_modules/react-dom"],
+      "@workspace/db": ["../packages/db/src/index.ts"],
+      "@workspace/api/*": ["../apps/api/src/*"],
+      "@celestia-project/ui": ["../packages/ui/src/index.ts"],
+      "@celestia-project/ui/*": ["../packages/ui/src/*"],
+      "react": ["../apps/web/node_modules/@types/react"],
+      "react/*": ["../apps/web/node_modules/@types/react/*"],
+      "react-dom": ["../apps/web/node_modules/@types/react-dom"],
+      "react-dom/*": ["../apps/web/node_modules/@types/react-dom/*"],
       "next": ["../apps/web/node_modules/next"],
-      "next/*": ["../apps/web/node_modules/next/*"]
+      "next/*": ["../apps/web/node_modules/next/*"],
+      "*": ["../apps/web/node_modules/*", "../apps/api/node_modules/*", "../node_modules/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", "**/snippets"]
+  "exclude": ["node_modules", "**/snippets/**", "**/snippets/*", "snippets"]
 }

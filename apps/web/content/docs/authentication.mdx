@@ -136,4 +136,4 @@ The auth tables live in `packages/db`. Push the schema:
 pnpm --filter @workspace/db db:push
 ```
 
-> **Note on the feature manager:** the `auth` feature template under `features/auth` predates the frontend/backend separation and installs an integrated (in-`apps/web`) auth setup. The canonical, current authentication setup is the backend one described on this page and in [Backend API](/docs/backend).
+> **Note on the feature manager:** The `auth` feature package (`features/auth`) installs this decoupled setup (`apps/api/src/auth.ts` on the backend, `apps/web/lib/auth-client.ts` on the frontend, and the auth pages).

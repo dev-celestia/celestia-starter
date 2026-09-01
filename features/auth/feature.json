@@ -5,7 +5,10 @@
   "requires": [],
   "copies": [
     { "from": "api/src/auth.ts", "to": "apps/api/src/auth.ts" },
-    { "from": "web/lib/auth-client.ts", "to": "apps/web/lib/auth-client.ts" }
+    { "from": "web/lib/auth-client.ts", "to": "apps/web/lib/auth-client.ts" },
+    { "from": "web/app/(auth)/layout.tsx", "to": "apps/web/app/(auth)/layout.tsx" },
+    { "from": "web/app/(auth)/sign-in/page.tsx", "to": "apps/web/app/(auth)/sign-in/page.tsx" },
+    { "from": "web/app/(auth)/sign-up/page.tsx", "to": "apps/web/app/(auth)/sign-up/page.tsx" }
   ],
   "dependencies": {
     "apps/api": {
@@ -13,6 +16,7 @@
       "drizzle-orm": "^0.45.2"
     },
     "apps/web": {
+      "@phosphor-icons/react": "^2.1.10",
       "better-auth": "^1.6.25"
     }
   },

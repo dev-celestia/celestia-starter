@@ -10,9 +10,7 @@
     { "from": "web/app/(dashboard)/dashboard/settings/page.tsx", "to": "apps/web/app/(dashboard)/dashboard/settings/page.tsx" },
     { "from": "web/components/dashboard/sidebar.tsx", "to": "apps/web/components/dashboard/sidebar.tsx" },
     { "from": "web/components/dashboard/user-nav.tsx", "to": "apps/web/components/dashboard/user-nav.tsx" },
-    { "from": "web/components/dashboard/profile-form.tsx", "to": "apps/web/components/dashboard/profile-form.tsx" },
-    { "from": "web/app/(auth)/sign-in/page.tsx", "to": "apps/web/app/(auth)/sign-in/page.tsx" },
-    { "from": "web/app/(auth)/sign-up/page.tsx", "to": "apps/web/app/(auth)/sign-up/page.tsx" }
+    { "from": "web/components/dashboard/profile-form.tsx", "to": "apps/web/components/dashboard/profile-form.tsx" }
   ],
   "dependencies": {
     "apps/web": {
