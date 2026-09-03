@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Alpine UI — Celestia</title>
+    <meta
+      name="description"
+      content="Alpine.js component primitives powered by Celestia design tokens."
+    />
+    <script
+      type="module"
+      src="/src/main.ts"
+    ></script>
+  </head>
+  <body class="bg-background text-foreground antialiased">
+    <div
+      id="app"
+      x-data="app"
+      class="min-h-dvh"
+    >
+      <!-- Top bar -->
+      <header
+        class="sticky top-0 z-30 border-b border-border/60 bg-background/85 backdrop-blur-xl"
+      >
+        <div
+          class="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6"
+        >
+          <div class="flex items-center gap-3">
+            <a
+              href="#"
+              class="flex items-center gap-2.5 font-heading text-sm font-semibold tracking-tight"
+            >
+              <span
+                class="flex size-7 items-center justify-center rounded-md bg-primary text-xs font-bold text-primary-foreground"
+                >A</span
+              >
+              <span>Alpine UI</span>
+            </a>
+            <span
+              class="hidden rounded-full border border-border px-2 py-0.5 font-mono text-[10px] text-muted-foreground sm:inline-flex"
+            >
+              v0.1.0
+            </span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <a
+              href="https://github.com/dev-celestia/celestia-starter"
+              target="_blank"
+              rel="noreferrer"
+              class="hidden rounded-md border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground sm:inline-flex"
+            >
+              GitHub
+            </a>
+
+            <!-- Theme Customizer -->
+            <div
+              x-data="themeCustomizer"
+              class="relative"
+            >
+              <button
+                type="button"
+                @click="toggle()"
+                class="inline-flex size-8 items-center justify-center gap-1.5 rounded-md border border-border text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                aria-label="Customize theme"
+                title="Customize theme"
+              >
+                <span
+                  class="size-3 rounded-full ring-1 ring-black/10 dark:ring-white/20"
+                  :style="{ backgroundColor: activeAccent.hex }"
+                ></span>
+              </button>
+
+              <div
+                x-show="open"
+                x-cloak
+                @click.outside="close()"
+                x-transition:enter="transition ease-out duration-150"
+                x-transition:enter-start="opacity-0 scale-95"
+                x-transition:enter-end="opacity-100 scale-100"
+                x-transition:leave="transition ease-in duration-100"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                class="absolute right-0 z-50 mt-2 w-80 rounded-2xl bg-popover/95 p-3.5 text-popover-foreground shadow-2xl ring-1 ring-foreground/10 outline-none backdrop-blur-2xl"
+              >
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-medium text-muted-foreground">Accent Color</span>
+                  <button
+                    type="button"
+                    @click="reset()"
+                    class="rounded-sm px-1 py-0.5 text-[11px] text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                  >
+                    Reset
+                  </button>
+                </div>
+
+                <div class="mt-2 grid grid-cols-4 gap-1.5">
+                  <template
+                    x-for="accent in accents"
+                    :key="accent.id"
+                  >
+                    <button
+                      type="button"
+                      @click="setAccent(accent.id)"
+                      class="flex items-center justify-center rounded-md border py-1.5 transition-all active:scale-95"
+                      :class="
+                        accentId === accent.id
+                          ? 'border-primary bg-primary/15 shadow-xs ring-1 ring-primary/40'
+                          : 'border-border/60 bg-muted/20 hover:border-border hover:bg-muted/60'
+                      "
+                      :title="accent.name"
+                      :aria-pressed="accentId === accent.id"
+                    >
+                      <span
+                        class="h-4 w-8 rounded-[4px] shadow-xs ring-1 ring-black/10 dark:ring-white/10"
+                        :style="{ backgroundColor: accent.hex }"
+                      ></span>
+                    </button>
+                  </template>
+                </div>
+
+                <div
+                  class="my-3 h-px bg-border/60"
+                ></div>
+
+                <span class="text-xs font-medium text-muted-foreground">Interface Mode</span>
+                <div class="mt-2 grid grid-cols-3 gap-1 rounded-lg bg-muted p-1">
+                  <button
+                    type="button"
+                    @click="setMode('light')"
+                    class="rounded-md px-2 py-1.5 text-xs font-medium transition-colors"
+                    :class="
+                      mode === 'light'
+                        ? 'bg-background text-foreground shadow-xs dark:bg-input/30'
+                        : 'text-muted-foreground hover:text-foreground'
+                    "
+                  >
+                    Light
+                  </button>
+                  <button
+                    type="button"
+                    @click="setMode('dark')"
+                    class="rounded-md px-2 py-1.5 text-xs font-medium transition-colors"
+                    :class="
+                      mode === 'dark'
+                        ? 'bg-background text-foreground shadow-xs dark:bg-input/30'
+                        : 'text-muted-foreground hover:text-foreground'
+                    "
+                  >
+                    Dark
+                  </button>
+                  <button
+                    type="button"
+                    @click="setMode('system')"
+                    class="rounded-md px-2 py-1.5 text-xs font-medium transition-colors"
+                    :class="
+                      mode === 'system'
+                        ? 'bg-background text-foreground shadow-xs dark:bg-input/30'
+                        : 'text-muted-foreground hover:text-foreground'
+                    "
+                  >
+                    System
+                  </button>
+                </div>
+
+                <div
+                  class="my-3 h-px bg-border/60"
+                ></div>
+
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-medium text-muted-foreground">Corner Radius</span>
+                  <span
+                    class="font-mono text-[11px] text-muted-foreground"
+                    x-text="radius"
+                  ></span>
+                </div>
+                <div class="mt-2 grid grid-cols-6 gap-1 rounded-lg bg-muted p-1">
+                  <template
+                    x-for="r in radii"
+                    :key="r.value"
+                  >
+                    <button
+                      type="button"
+                      @click="setRadius(r.value)"
+                      class="rounded-md px-1 py-1.5 text-xs font-medium transition-colors"
+                      :class="
+                        radius === r.value
+                          ? 'bg-background text-foreground shadow-xs dark:bg-input/30'
+                          : 'text-muted-foreground hover:text-foreground'
+                      "
+                      x-text="r.label"
+                    ></button>
+                  </template>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div
+        class="mx-auto flex w-full max-w-6xl gap-8 px-4 py-8 sm:px-6"
+      >
+        <!-- Sidebar -->
+        <aside
+          class="sticky top-20 hidden h-[calc(100dvh-6rem)] w-56 shrink-0 overflow-y-auto pr-2 md:block"
+        >
+          <nav class="flex flex-col gap-6 text-xs">
+            <template
+              x-for="group in groups"
+              :key="group.id"
+            >
+              <div>
+                <div
+                  class="mb-1.5 px-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70"
+                  x-text="group.label"
+                ></div>
+                <div class="flex flex-col gap-0.5">
+                  <template
+                    x-for="item in group.items"
+                    :key="item.id"
+                  >
+                    <a
+                      :href="'#' + item.id"
+                      class="flex items-center gap-2 rounded-md px-2 py-1.5 text-[13px] transition-colors"
+                      :class="
+                        activeSection === item.id
+                          ? 'bg-accent text-accent-foreground font-medium'
+                          : 'text-muted-foreground hover:bg-accent/60 hover:text-foreground'
+                      "
+                      @click="activeSection = item.id"
+                    >
+                      <span
+                        x-text="item.name"
+                      ></span>
+                    </a>
+                  </template>
+                </div>
+              </div>
+            </template>
+          </nav>
+        </aside>
+
+        <!-- Mobile section picker -->
+        <div class="w-full md:hidden">
+          <select
+            x-model="activeSection"
+            class="mb-6 h-9 w-full rounded-md border border-input bg-input/20 px-3 text-sm outline-none"
+            aria-label="Select component"
+          >
+            <template
+              x-for="group in groups"
+              :key="group.id"
+            >
+              <optgroup
+                :label="group.label"
+              >
+                <template
+                  x-for="item in group.items"
+                  :key="item.id"
+                >
+                  <option
+                    :value="item.id"
+                    x-text="item.name"
+                  ></option>
+                </template>
+              </optgroup>
+            </template>
+          </select>
+        </div>
+
+        <!-- Content -->
+        <main
+          class="min-w-0 flex-1"
+        >
+          <!-- Overview hero -->
+          <section
+            x-show="activeSection === 'overview'"
+            x-cloak
+            class="max-w-3xl"
+          >
+            <div
+              class="mb-4 inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 font-mono text-[11px] text-muted-foreground"
+            >
+              Alpine.js + Tailwind CSS v4 + OKLCH
+            </div>
+            <h1
+              class="font-heading text-4xl font-bold tracking-tight text-balance"
+            >
+              Alpine UI
+            </h1>
+            <p
+              class="mt-4 text-sm leading-relaxed text-muted-foreground text-pretty"
+            >
+              Interactive UI primitives built on
+              <code class="rounded bg-muted px-1 py-0.5 font-mono text-xs"
+                >Alpine.data(...)</code
+              >
+              and styled with the same Celestia design tokens as
+              <code class="rounded bg-muted px-1 py-0.5 font-mono text-xs"
+                >@celestia-project/ui</code
+              >. Zero framework lock-in — drop it into HTML, Laravel Blade, Vite, or a static export.
+            </p>
+
+            <div
+              class="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3"
+            >
+              <template
+                x-for="pillar in pillars"
+                :key="pillar.title"
+              >
+                <div
+                  class="rounded-lg border border-border bg-card p-4 ring-1 ring-foreground/5"
+                >
+                  <div
+                    class="text-xs font-semibold"
+                    x-text="pillar.title"
+                  ></div>
+                  <div
+                    class="mt-1 text-[11px] text-muted-foreground"
+                    x-text="pillar.description"
+                  ></div>
+                </div>
+              </template>
+            </div>
+
+            <div
+              class="mt-10 rounded-lg border border-border bg-card p-5"
+            >
+              <div
+                class="mb-3 text-xs font-semibold"
+              >
+                Quick start
+              </div>
+              <pre class="overflow-x-auto rounded-md bg-muted p-4 font-mono text-[11px] leading-relaxed text-foreground"><code>import Alpine from "alpinejs"
+import { alpineUI } from "@celestia-project/alpine-ui"
+
+Alpine.plugin(alpineUI)
+window.Alpine = Alpine
+Alpine.start()</code></pre>
+              <p
+                class="mt-3 text-[11px] text-muted-foreground"
+              >
+                Then import
+                <code class="rounded bg-muted px-1 font-mono"
+                  >@celestia-project/alpine-ui/globals.css</code
+                >
+                in your stylesheet. Browse a component below to copy its markup.
+              </p>
+            </div>
+          </section>
+
+          <!-- Component sections -->
+          <template
+            x-for="item in components"
+            :key="item.id"
+          >
+            <section
+              x-show="activeSection === item.id"
+              x-cloak
+              class="scroll-mt-24"
+            >
+              <div
+                class="mb-1 flex items-center gap-2"
+              >
+                <span
+                  class="rounded-full border border-border px-2 py-0.5 font-mono text-[10px] text-muted-foreground"
+                  x-text="item.group"
+                ></span>
+              </div>
+              <h2
+                class="font-heading text-2xl font-bold tracking-tight"
+                x-text="item.name"
+              ></h2>
+              <p
+                class="mt-2 text-sm text-muted-foreground"
+                x-text="item.description"
+              ></p>
+
+              <!-- Live demo -->
+              <div
+                class="mt-6 rounded-lg border border-border bg-card p-5 ring-1 ring-foreground/5"
+              >
+                <div
+                  class="mb-4 flex items-center justify-between"
+                >
+                  <span
+                    class="text-[11px] font-medium uppercase tracking-wider text-muted-foreground"
+                    >Live demo</span
+                  >
+                  <button
+                    type="button"
+                    @click="item.showCode = !item.showCode"
+                    class="rounded-md border border-border px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                    x-text="item.showCode ? 'Hide code' : 'Show code'"
+                  ></button>
+                </div>
+
+                <div
+                  class="flex min-h-16 items-center justify-center rounded-md bg-background p-6 ring-1 ring-border/50"
+                >
+                  <!-- Inject live demo markup -->
+                  <div
+                    x-html="item.demo"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Code block -->
+              <div
+                x-show="item.showCode"
+                x-cloak
+                class="mt-3"
+              >
+                <pre
+                  class="max-h-96 overflow-auto rounded-lg border border-border bg-muted p-4 font-mono text-[11px] leading-relaxed text-foreground"
+                  ><code x-text="item.demo"></code></pre>
+              </div>
+            </section>
+          </template>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

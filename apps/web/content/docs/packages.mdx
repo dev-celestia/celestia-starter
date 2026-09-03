@@ -64,6 +64,33 @@ See the [Components docs](/docs/components) and the [npm package](https://www.np
 
 ---
 
+## @celestia-project/alpine-ui
+
+[![npm](https://img.shields.io/npm/v/@celestia-project/alpine-ui)](https://www.npmjs.com/package/@celestia-project/alpine-ui)
+
+Component primitives built on **Alpine.js** and **Tailwind CSS v4** — referenced and cloned from `@celestia-project/ui`.
+
+**Exports:**
+
+| Import path | Resolves to |
+|-------------|-------------|
+| `@celestia-project/alpine-ui` | Barrel export of all primitives, class utilities, and Alpine plugin |
+| `@celestia-project/alpine-ui/globals.css` | Global styles and Tailwind CSS v4 setup |
+| `@celestia-project/alpine-ui/plugin` | `alpineUI(Alpine)` plugin registering Alpine `Alpine.data(...)` stores |
+
+**Usage:**
+
+```typescript
+import Alpine from "alpinejs"
+import { alpineUI } from "@celestia-project/alpine-ui"
+
+Alpine.plugin(alpineUI)
+Alpine.start()
+```
+
+---
+
+
 ## @celestia-project/create
 
 [![npm](https://img.shields.io/npm/v/@celestia-project/create)](https://www.npmjs.com/package/@celestia-project/create)

@@ -1,15 +1,11 @@
-import * as React from "react"
-import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
+import { cn } from "../lib/utils"
 
-import { cn } from "@celestia-project/ui/lib/utils"
-
-const buttonVariants = cva(
+export const buttonVariants = cva(
   "group/button inline-flex shrink-0 cursor-pointer items-center justify-center gap-1 rounded-sm border border-transparent bg-clip-padding text-xs/relaxed font-medium whitespace-nowrap outline-none select-none transition-all disabled:pointer-events-none disabled:opacity-50 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        // ponytail: Clean 3D style using vertical translation and box shadows to represent physical depth without layout shift.
         default:
           "bg-background border-primary text-primary hover:bg-primary/10 shadow-[0_2px_0_0_var(--primary)] active:translate-y-[2px] active:shadow-none active:transition-none",
         destructive:
@@ -24,10 +20,10 @@ const buttonVariants = cva(
       },
       size: {
         default:
-          "h-8 gap-1.5 px-3 text-xs/relaxed has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2 [&_svg:not([class*='size-'])]:size-3.5",
-        xs: "h-5 gap-1 rounded-sm px-2 text-[0.625rem] has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-2.5",
-        sm: "h-6 gap-1 px-2.5 text-xs/relaxed has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2 [&_svg:not([class*='size-'])]:size-3",
-        lg: "h-9 gap-1.5 px-3.5 text-xs/relaxed has-data-[icon=inline-end]:pe-2.5 has-data-[icon=inline-start]:ps-2.5 [&_svg:not([class*='size-'])]:size-4",
+          "h-8 gap-1.5 px-3 text-xs/relaxed [&_svg:not([class*='size-'])]:size-3.5",
+        xs: "h-5 gap-1 rounded-sm px-2 text-[0.625rem] [&_svg:not([class*='size-'])]:size-2.5",
+        sm: "h-7 gap-1 px-2.5 text-xs/relaxed [&_svg:not([class*='size-'])]:size-3",
+        lg: "h-9 gap-1.5 px-3.5 text-xs/relaxed [&_svg:not([class*='size-'])]:size-4",
         icon: "size-8 [&_svg:not([class*='size-'])]:size-3.5",
         "icon-xs": "size-5 rounded-sm [&_svg:not([class*='size-'])]:size-2.5",
         "icon-sm": "size-7 [&_svg:not([class*='size-'])]:size-3",
@@ -41,31 +37,12 @@ const buttonVariants = cva(
   }
 )
 
-export type ButtonProps = ButtonPrimitive.Props & VariantProps<typeof buttonVariants>
+export type ButtonVariantProps = VariantProps<typeof buttonVariants>
 
-function Button({
-  className,
-  variant = "default",
-  size = "default",
-  nativeButton,
-  render,
-  ...props
-}: ButtonProps) {
-  const isNative =
-    nativeButton ??
-    (React.isValidElement(render) && render.type !== "button"
-      ? false
-      : undefined)
-
-  return (
-    <ButtonPrimitive
-      data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
-      nativeButton={isNative}
-      render={render}
-      {...props}
-    />
-  )
+export function getButtonClass(
+  variant?: ButtonVariantProps["variant"],
+  size?: ButtonVariantProps["size"],
+  className?: string
+): string {
+  return cn(buttonVariants({ variant, size, className }))
 }
-
-export { Button, buttonVariants }
