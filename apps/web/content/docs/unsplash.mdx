@@ -1,0 +1,63 @@
+---
+title: Unsplash Media Picker
+description: Search and insert stock photos from Unsplash directly in the CMS media dialog — access key stays server-side.
+---
+
+The `unsplash` feature adds an **Unsplash** tab to the CMS media picker. Writers can
+search millions of free-to-use photos and insert them into posts (featured image, SEO/
+OG image, markdown content) without leaving the editor.
+
+## How it works
+
+- Dashboard → **CMS** → any post editor → **Choose image** → switch to the **Unsplash** tab.
+- The tab opens with a browse view (latest photos) — type to search by keyword.
+- Click a photo to insert it. The ~1080w regular rendition URL and its alt text are
+  returned to the caller, same contract as uploads/library picks.
+- Requests go through a server-side proxy (`/api/cms/unsplash`), so the Unsplash
+  access key never reaches the browser. Only CMS roles (writer/editor/admin) can call it.
+- Debounced search (350 ms) and pagination ("Load more") keep you inside Unsplash's
+  demo rate limits (50 requests/hour).
+
+## Environment variables
+
+Add to `apps/celestia/.env` (the Celestia app's own env file):
+
+```bash
+UNSPLASH_ACCESS_KEY=your-access-key
+```
+
+Create an app at <https://unsplash.com/developers> to get an access key. The secret
+key is only needed for Unsplash OAuth flows — this feature uses public endpoints only.
+
+## File overview
+
+| File | Purpose |
+| --- | --- |
+| `apps/celestia/lib/media/unsplash.ts` | Server-only Unsplash REST client (search + browse, error mapping) |
+| `apps/celestia/app/api/cms/unsplash/route.ts` | Authenticated proxy route (`?q=&page=&per_page=`) |
+| `apps/celestia/components/cms/unsplash-picker.tsx` | `UnsplashPicker` — search box, photo grid, load more |
+| `apps/celestia/components/cms/media-dialog.tsx` | Media dialog with Library / Unsplash tabs |
+
+## Endpoints
+
+| Endpoint | Method | Who | Notes |
+| --- | --- | --- | --- |
+| `/api/cms/unsplash?q=mountains&page=1&per_page=24` | GET | CMS roles | Omit `q` to browse latest; returns `{ photos, total, totalPages }` |
+
+## Install
+
+```bash
+pnpm add-feature unsplash   # requires cms (run `pnpm add-feature cms` first in a fresh install)
+pnpm install
+# then add UNSPLASH_ACCESS_KEY to apps/celestia/.env and restart the dev server
+```
+
+## Notes
+
+- **Attribution**: Unsplash's license doesn't require it, but the picker shows the
+  photographer under each photo and links to unsplash.com — keep that credit in the UI.
+- **No storage**: picking an Unsplash photo references the Unsplash CDN URL directly;
+  it is not copied into the media library. Combine with `media-r2` if you want uploads
+  you control instead of hotlinked stock photos.
+- **Rate limits**: demo apps get 50 req/hour. Use the `per_page` parameter (max 30) to
+  fetch more per request rather than paging aggressively.

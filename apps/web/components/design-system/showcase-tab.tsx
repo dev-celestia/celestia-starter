@@ -82,7 +82,7 @@ export function ShowcaseTab() {
             <ChatAiSection />
           )}
 
-          {(!normalizedQuery || "surfaces resizable scroll area carousel text code editor chart".includes(normalizedQuery)) && (
+          {(!normalizedQuery || "surfaces resizable scroll area carousel text code editor block markdown chart".includes(normalizedQuery)) && (
             <SurfacesSection />
           )}
         </div>

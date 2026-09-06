@@ -1,0 +1,50 @@
+{
+  "name": "unsplash",
+  "version": "1.0.0",
+  "description": "Unsplash stock-photo picker for the Celestia CMS media dialog: server-side proxy route keeps the access key private, writers search/browse and insert photos with attribution",
+  "requires": [
+    "cms"
+  ],
+  "copies": [
+    {
+      "from": "celestia/lib/media/unsplash.ts",
+      "to": "apps/celestia/lib/media/unsplash.ts"
+    },
+    {
+      "from": "celestia/app/api/cms/unsplash/route.ts",
+      "to": "apps/celestia/app/api/cms/unsplash/route.ts"
+    },
+    {
+      "from": "celestia/components/cms/unsplash-picker.tsx",
+      "to": "apps/celestia/components/cms/unsplash-picker.tsx"
+    },
+    {
+      "from": "celestia/components/cms/media-dialog.tsx",
+      "to": "apps/celestia/components/cms/media-dialog.tsx"
+    },
+    {
+      "from": "docs/unsplash.mdx",
+      "to": "apps/web/content/docs/unsplash.mdx"
+    }
+  ],
+  "insertions": [
+    {
+      "file": "apps/web/content/docs/index.mdx",
+      "marker": "cards",
+      "snippet": "snippets/docs-card.mdx"
+    },
+    {
+      "file": "README.md",
+      "marker": "features",
+      "snippet": "snippets/readme-feature.md"
+    }
+  ],
+  "jsonAppends": [
+    {
+      "file": "apps/web/content/docs/meta.json",
+      "path": "pages",
+      "value": "unsplash"
+    }
+  ],
+  "notes": "Requires the cms feature (run `pnpm add-feature cms` first). Add UNSPLASH_ACCESS_KEY to the Celestia app's .env (create an app at https://unsplash.com/developers) and restart the dev server. The media dialog is shared with media-r2/cms — this feature's copy (with the Unsplash tab) wins on install; remove-feature restores nothing, so re-add `pnpm add-feature media-r2` afterwards if you need its variant. No DB changes, no new dependencies (native fetch only)."
+}

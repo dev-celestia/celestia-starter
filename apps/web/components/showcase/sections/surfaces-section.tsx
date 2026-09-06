@@ -15,6 +15,7 @@ import {
   CarouselPrevious,
   CarouselNext,
   TextEditor,
+  BlockTextEditor,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
@@ -218,7 +219,43 @@ export function CodeEditorDemo() {
   )
 }`
 
+const BLOCK_TEXT_EDITOR_USAGE_CODE = `import * as React from "react"
+import { BlockTextEditor } from "@celestia-project/ui"
+
+export function BlockEditorDemo() {
+  const [content, setContent] = React.useState(
+    "# Project Brief\\n\\nDraft sections, tick tasks, and drag to reorder."
+  )
+
+  return (
+    <BlockTextEditor
+      content={content}
+      onUpdateContent={setContent}
+      className="h-72"
+    />
+  )
+}`
+
+const BLOCK_TEXT_EDITOR_SAMPLE = `# Product Launch Plan
+
+Draft your brief as draggable markdown blocks. Double-click any section to edit it inline.
+
+- [ ] Finalize release notes
+- [x] Ship the design review
+- [ ] Schedule the announcement
+
+1. Freeze the branch
+2. Tag the release
+3. Publish the changelog
+
+> Tip: hover a block and use the handle to reorder it.
+
+\`\`\`bash
+pnpm build && pnpm tauri
+\`\`\``
+
 export function SurfacesSection() {
+  const [blockContent, setBlockContent] = React.useState(BLOCK_TEXT_EDITOR_SAMPLE)
   const [editorTab, setEditorTab] = React.useState<"ts" | "json" | "md">("ts")
   const [tsCode, setTsCode] = React.useState(TEXT_EDITOR_TS)
   const [jsonCode, setJsonCode] = React.useState(TEXT_EDITOR_JSON)
@@ -243,7 +280,7 @@ export function SurfacesSection() {
           Surfaces & Rich Media
         </h2>
         <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-          5 components
+          6 components
         </span>
       </div>
 
@@ -416,6 +453,26 @@ export function SurfacesSection() {
               detectLinks
               disableValidation
               className="w-full text-xs font-mono"
+            />
+          </div>
+        </ShowcaseCard>
+
+        {/* 6. Block Text Editor (Notion-style markdown blocks) */}
+        <ShowcaseCard
+          id="block-text-editor"
+          title="Block Text Editor"
+          category="Surfaces"
+          description="Notion-style markdown block editor with drag-to-reorder sections, inline editing, task toggles, and insert menus."
+          docsSlug="block-text-editor"
+          importSnippet={`import { BlockTextEditor } from "@celestia-project/ui"`}
+          codeExample={BLOCK_TEXT_EDITOR_USAGE_CODE}
+          className="md:col-span-2"
+        >
+          <div className="w-full max-w-2xl rounded-lg border border-border overflow-hidden bg-background shadow-xs">
+            <BlockTextEditor
+              content={blockContent}
+              onUpdateContent={setBlockContent}
+              className="h-80"
             />
           </div>
         </ShowcaseCard>

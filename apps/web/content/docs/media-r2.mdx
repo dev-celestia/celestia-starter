@@ -1,0 +1,57 @@
+---
+title: Media on Cloudflare R2 (BYOK)
+description: Connect the CMS media library to your own Cloudflare R2 bucket — bring your own keys, proxy fallback, local-disk default.
+---
+
+The `media-r2` feature connects the CMS media library to **Cloudflare R2** using a BYOK (bring your own key) mechanism: an admin supplies their own R2 credentials, and new uploads are stored in the bucket instead of local disk.
+
+## How it works
+
+- **Default** stays **local disk** (`apps/celestia/public/uploads/`) — nothing changes until R2 is configured.
+- **Configure**: Dashboard → **Media** → **Storage** (admin only). Provide:
+  - R2 **account ID** (Cloudflare dashboard → R2)
+  - **Access key ID** + **Secret access key** (R2 → Manage API tokens → Object Read & Write)
+  - **Bucket** name
+  - Optional **public URL** (custom domain like `https://cdn.example.com`, or the R2 `pub-<hash>.r2.dev` URL)
+- **Test connection** runs a put/get/delete round-trip against the bucket before you save.
+- WebP conversion and responsive variants are unchanged — the generated buffers go to the configured provider instead of disk.
+
+## URLs
+
+| Configuration | Where files are served from |
+| --- | --- |
+| Public URL set | `https://<your-domain>/<object-key>` (direct from R2/custom domain) |
+| No public URL | `/api/media/f/<object-key>` — the app streams objects from R2 server-side |
+| Local provider | `/uploads/<filename>` (unchanged) |
+
+Assets remember their provider (`media_asset.storage` + `object_key`), and deletion removes the master file and its variants from R2 (S3 `DeleteObject`) or disk accordingly.
+
+## Data model
+
+| Table | Purpose |
+| --- | --- |
+| `media_storage_setting` | Single global BYOK config (`provider`, R2 account/key/secret/bucket/public URL) |
+| `media_asset` (extended) | + `storage` (`local` \| `r2`) and `object_key` columns |
+
+## Endpoints
+
+| Endpoint | Method | Who |
+| --- | --- | --- |
+| `/api/cms/storage` | GET, PUT | admin (GET returns the masked secret — last 4 only) |
+| `/api/cms/storage/test` | POST | admin (round-trip connectivity check) |
+| `/api/media/f/<key>` | GET | public (streams R2 objects; 404 when R2 isn't configured) |
+| `/api/cms/upload`, `/api/cms/media` | as before | now provider-aware |
+
+## Install
+
+```bash
+pnpm add-feature media-r2   # requires cms (run `pnpm add-feature cms` first in a fresh install)
+pnpm install
+pnpm --filter celestia db:push
+```
+
+## Notes
+
+- **Secrets**: the R2 secret is stored server-side in `media_storage_setting` and never returned to the browser (masked to its last 4 characters). Prototype stores it in plaintext next to the other BYOK keys — swap for a vault in production.
+- **Scope**: existing local-disk assets keep serving from `/uploads/`; only new uploads follow the configured provider.
+- **External websites** (Delivery API / markdown embeds) automatically receive the provider-resolved URLs.

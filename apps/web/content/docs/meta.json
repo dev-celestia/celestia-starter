@@ -12,6 +12,9 @@
     "backend",
     "dashboard",
     "blog",
-    "access"
+    "access",
+    "cms",
+    "media-r2",
+    "unsplash"
   ]
 }

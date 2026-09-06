@@ -1,0 +1,237 @@
+{
+  "name": "cms",
+  "version": "1.0.0",
+  "description": "Centralized blog content hub for the Celestia app: editorial workflow, markdown block editor, auto-save, revisions, taxonomy, SEO controls, WebP media, soft-locking, public blog, and a CORS-enabled Delivery API (bearer API keys) for external websites",
+  "requires": [],
+  "copies": [
+    {
+      "from": "celestia/lib/cms/config.ts",
+      "to": "apps/celestia/lib/cms/config.ts"
+    },
+    {
+      "from": "celestia/lib/cms/diff.ts",
+      "to": "apps/celestia/lib/cms/diff.ts"
+    },
+    {
+      "from": "celestia/lib/cms/posts.ts",
+      "to": "apps/celestia/lib/cms/posts.ts"
+    },
+    {
+      "from": "celestia/lib/cms/rbac.ts",
+      "to": "apps/celestia/lib/cms/rbac.ts"
+    },
+    {
+      "from": "celestia/lib/cms/slug.ts",
+      "to": "apps/celestia/lib/cms/slug.ts"
+    },
+    {
+      "from": "celestia/lib/cms/status.ts",
+      "to": "apps/celestia/lib/cms/status.ts"
+    },
+    {
+      "from": "celestia/app/api/cms/posts/route.ts",
+      "to": "apps/celestia/app/api/cms/posts/route.ts"
+    },
+    {
+      "from": "celestia/app/api/cms/posts/[id]/route.ts",
+      "to": "apps/celestia/app/api/cms/posts/[id]/route.ts"
+    },
+    {
+      "from": "celestia/app/api/cms/posts/[id]/submit/route.ts",
+      "to": "apps/celestia/app/api/cms/posts/[id]/submit/route.ts"
+    },
+    {
+      "from": "celestia/app/api/cms/posts/[id]/review/route.ts",
+      "to": "apps/celestia/app/api/cms/posts/[id]/review/route.ts"
+    },
+    {
+      "from": "celestia/app/api/cms/posts/[id]/lock/route.ts",
+      "to": "apps/celestia/app/api/cms/posts/[id]/lock/route.ts"
+    },
+    {
+      "from": "celestia/app/api/cms/posts/[id]/revisions/route.ts",
+      "to": "apps/celestia/app/api/cms/posts/[id]/revisions/route.ts"
+    },
+    {
+      "from": "celestia/app/api/cms/posts/[id]/revisions/[revisionId]/route.ts",
+      "to": "apps/celestia/app/api/cms/posts/[id]/revisions/[revisionId]/route.ts"
+    },
+    {
+      "from": "celestia/app/api/cms/posts/[id]/revisions/[revisionId]/rollback/route.ts",
+      "to": "apps/celestia/app/api/cms/posts/[id]/revisions/[revisionId]/rollback/route.ts"
+    },
+    {
+      "from": "celestia/app/api/cms/categories/route.ts",
+      "to": "apps/celestia/app/api/cms/categories/route.ts"
+    },
+    {
+      "from": "celestia/app/api/cms/categories/[id]/route.ts",
+      "to": "apps/celestia/app/api/cms/categories/[id]/route.ts"
+    },
+    {
+      "from": "celestia/app/api/cms/tags/route.ts",
+      "to": "apps/celestia/app/api/cms/tags/route.ts"
+    },
+    {
+      "from": "celestia/app/api/cms/upload/route.ts",
+      "to": "apps/celestia/app/api/cms/upload/route.ts"
+    },
+    {
+      "from": "celestia/app/api/cms/media/route.ts",
+      "to": "apps/celestia/app/api/cms/media/route.ts"
+    },
+    {
+      "from": "celestia/app/api/cms/media/[id]/route.ts",
+      "to": "apps/celestia/app/api/cms/media/[id]/route.ts"
+    },
+    {
+      "from": "celestia/app/api/cms/authors/route.ts",
+      "to": "apps/celestia/app/api/cms/authors/route.ts"
+    },
+    {
+      "from": "celestia/components/cms/types.ts",
+      "to": "apps/celestia/components/cms/types.ts"
+    },
+    {
+      "from": "celestia/components/cms/use-autosave.ts",
+      "to": "apps/celestia/components/cms/use-autosave.ts"
+    },
+    {
+      "from": "celestia/components/cms/media-dialog.tsx",
+      "to": "apps/celestia/components/cms/media-dialog.tsx"
+    },
+    {
+      "from": "celestia/components/cms/social-preview.tsx",
+      "to": "apps/celestia/components/cms/social-preview.tsx"
+    },
+    {
+      "from": "celestia/components/cms/seo-panel.tsx",
+      "to": "apps/celestia/components/cms/seo-panel.tsx"
+    },
+    {
+      "from": "celestia/components/cms/settings-panel.tsx",
+      "to": "apps/celestia/components/cms/settings-panel.tsx"
+    },
+    {
+      "from": "celestia/components/cms/publish-panel.tsx",
+      "to": "apps/celestia/components/cms/publish-panel.tsx"
+    },
+    {
+      "from": "celestia/components/cms/revisions-panel.tsx",
+      "to": "apps/celestia/components/cms/revisions-panel.tsx"
+    },
+    {
+      "from": "celestia/components/cms/post-editor.tsx",
+      "to": "apps/celestia/components/cms/post-editor.tsx"
+    },
+    {
+      "from": "celestia/components/cms/markdown-content.tsx",
+      "to": "apps/celestia/components/cms/markdown-content.tsx"
+    },
+    {
+      "from": "celestia/app/(dashboard)/dashboard/cms/posts/page.tsx",
+      "to": "apps/celestia/app/(dashboard)/dashboard/cms/posts/page.tsx"
+    },
+    {
+      "from": "celestia/app/(dashboard)/dashboard/cms/posts/new/page.tsx",
+      "to": "apps/celestia/app/(dashboard)/dashboard/cms/posts/new/page.tsx"
+    },
+    {
+      "from": "celestia/app/(dashboard)/dashboard/cms/posts/[id]/edit/page.tsx",
+      "to": "apps/celestia/app/(dashboard)/dashboard/cms/posts/[id]/edit/page.tsx"
+    },
+    {
+      "from": "celestia/app/(dashboard)/dashboard/cms/categories/page.tsx",
+      "to": "apps/celestia/app/(dashboard)/dashboard/cms/categories/page.tsx"
+    },
+    {
+      "from": "celestia/app/(dashboard)/dashboard/cms/media/page.tsx",
+      "to": "apps/celestia/app/(dashboard)/dashboard/cms/media/page.tsx"
+    },
+    {
+      "from": "celestia/app/blog/page.tsx",
+      "to": "apps/celestia/app/blog/page.tsx"
+    },
+    {
+      "from": "celestia/app/blog/[slug]/page.tsx",
+      "to": "apps/celestia/app/blog/[slug]/page.tsx"
+    },
+    {
+      "from": "docs/cms.mdx",
+      "to": "apps/web/content/docs/cms.mdx"
+    },
+    {
+      "from": "celestia/lib/cms/delivery.ts",
+      "to": "apps/celestia/lib/cms/delivery.ts"
+    },
+    {
+      "from": "celestia/lib/cms/slugify.ts",
+      "to": "apps/celestia/lib/cms/slugify.ts"
+    },
+    {
+      "from": "celestia/app/api/public/v1/posts/route.ts",
+      "to": "apps/celestia/app/api/public/v1/posts/route.ts"
+    },
+    {
+      "from": "celestia/app/api/public/v1/posts/[slug]/route.ts",
+      "to": "apps/celestia/app/api/public/v1/posts/[slug]/route.ts"
+    },
+    {
+      "from": "celestia/app/api/cms/keys/route.ts",
+      "to": "apps/celestia/app/api/cms/keys/route.ts"
+    },
+    {
+      "from": "celestia/app/api/cms/keys/[id]/route.ts",
+      "to": "apps/celestia/app/api/cms/keys/[id]/route.ts"
+    },
+    {
+      "from": "celestia/app/(dashboard)/dashboard/cms/settings/page.tsx",
+      "to": "apps/celestia/app/(dashboard)/dashboard/cms/settings/page.tsx"
+    }
+  ],
+  "insertions": [
+    {
+      "file": "apps/celestia/lib/db/schema.ts",
+      "marker": "tables",
+      "snippet": "snippets/db-schema.ts"
+    },
+    {
+      "file": "apps/celestia/components/dashboard/sidebar-nav.tsx",
+      "marker": "imports",
+      "snippet": "snippets/sidebar-imports.ts"
+    },
+    {
+      "file": "apps/celestia/components/dashboard/sidebar-nav.tsx",
+      "marker": "nav",
+      "snippet": "snippets/sidebar-nav.ts"
+    },
+    {
+      "file": "apps/web/content/docs/index.mdx",
+      "marker": "cards",
+      "snippet": "snippets/docs-card.mdx"
+    },
+    {
+      "file": "README.md",
+      "marker": "features",
+      "snippet": "snippets/readme-feature.md"
+    }
+  ],
+  "jsonAppends": [
+    {
+      "file": "apps/web/content/docs/meta.json",
+      "path": "pages",
+      "value": "cms"
+    }
+  ],
+  "dependencies": {
+    "apps/celestia": {
+      "sharp": "^0.34.4",
+      "react-markdown": "^10.1.0",
+      "remark-gfm": "^4.0.1"
+    }
+  },
+  "postInstall": [
+    "pnpm --filter celestia db:push"
+  ],
+  "notes": "Adds the CMS tables to apps/celestia/lib/db/schema.ts (run db:push), API routes under /api/cms, dashboard pages under /dashboard/cms, and a public blog at /blog. Assign the writer/editor roles from the Users page. The host file apps/celestia/components/dashboard/sidebar-nav.tsx must expose the role prop and the feature-manager imports/nav marker regions (included in this starter)."
+}

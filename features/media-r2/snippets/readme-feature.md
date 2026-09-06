@@ -1,0 +1,1 @@
+- **media-r2** — Cloudflare R2 media storage with BYOK for the CMS: admins connect their own R2 bucket from the Media page; uploads go to R2 (S3 API), stream through `/api/media/f/<key>` when no public domain is configured, and local disk stays as the fallback.

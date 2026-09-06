@@ -105,6 +105,15 @@ The project includes modular features installed via `@workspace/feature-manager`
 <!-- feature-manager:features:access:begin -->
 - **access** — User management (roles, ban, delete) with RBAC route guards and ABAC policies over the Better Auth admin plugin
 <!-- feature-manager:features:access:end -->
+<!-- feature-manager:features:cms:begin -->
+- **cms** — Blog post management for the Celestia app: editorial workflow (draft → review → scheduled → published → archived), markdown block editor integration, auto-save, revisions with diff/rollback, categories/tags, SEO & Open Graph controls, image uploads (WebP), soft-locking, and a public blog at `/blog`.
+<!-- feature-manager:features:cms:end -->
+<!-- feature-manager:features:media-r2:begin -->
+- **media-r2** — Cloudflare R2 media storage with BYOK for the CMS: admins connect their own R2 bucket from the Media page; uploads go to R2 (S3 API), stream through `/api/media/f/<key>` when no public domain is configured, and local disk stays as the fallback.
+<!-- feature-manager:features:media-r2:end -->
+<!-- feature-manager:features:unsplash:begin -->
+- **unsplash** — Unsplash stock-photo search for the CMS media picker: a server-side proxy route (`/api/cms/unsplash`) keeps the access key out of the browser, and the media dialog gains an Unsplash tab where writers search, browse, and insert photos with attribution.
+<!-- feature-manager:features:unsplash:end -->
 <!-- feature-manager:features:end -->
 
 ---

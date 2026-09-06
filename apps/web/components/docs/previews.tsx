@@ -31,6 +31,7 @@ import {
   AvatarImage,
 } from "@celestia-project/ui/components/avatar"
 import { Badge } from "@celestia-project/ui/components/badge"
+import { BlockTextEditor } from "@celestia-project/ui/components/block-text-editor"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -1106,6 +1107,31 @@ export function PaginationPreview() {
           </PaginationItem>
         </PaginationContent>
       </Pagination>
+    </PreviewShell>
+  )
+}
+
+export function BlockTextEditorPreview() {
+  const [content, setContent] = useState(`# Launch Notes
+
+Draft content as draggable markdown blocks. Double-click a section to edit it inline.
+
+- [x] Design review shipped
+- [ ] Write the changelog
+- [ ] Schedule the announcement
+
+> Hover a block and use the handle to reorder it.
+`)
+
+  return (
+    <PreviewShell>
+      <div className="w-full max-w-xl overflow-hidden rounded-lg border border-fd-border bg-background">
+        <BlockTextEditor
+          content={content}
+          onUpdateContent={setContent}
+          className="h-72"
+        />
+      </div>
     </PreviewShell>
   )
 }

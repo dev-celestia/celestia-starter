@@ -1,0 +1,123 @@
+---
+title: CMS (Blog Post Management)
+description: Editorial workflow, markdown editor integration, SEO controls, revisions, scheduling, and a public blog for the Celestia app.
+---
+
+The CMS feature adds end-to-end blog post management to the **Celestia app** (`apps/celestia`): a distraction-free markdown editing experience, a full editorial workflow, technical SEO automation, revision history, and a public, indexable blog at `/blog`.
+
+## What it does
+
+- **Editorial workflow** — five post statuses: `draft → pending_review → scheduled → published → archived`, with role-gated transitions and an approve/reject review queue.
+- **Markdown block editor** — integrates `BlockTextEditor` from `@celestia-project/ui`. Content is stored as markdown; images dropped onto the editor are uploaded through the CMS media pipeline and embedded as markdown image links.
+- **Auto-save & recovery** — background auto-save every 10 seconds, a `localStorage` fallback with crash-recovery prompt, and manual saves (Cmd+S).
+- **Revision history** — a snapshot on every manual save and status change, side-by-side visual diff against the current content, and one-click rollback.
+- **Taxonomy** — hierarchical categories (single primary category for canonical routing), free-form tags with autocomplete, multi-author bylines, and guest contributor attribution.
+- **SEO controls** — SEO title (50–60 chars) and meta description (150–160 chars) with live counters, Open Graph/Twitter fields with desktop & mobile preview cards, per-post `noindex`/`nofollow`, canonical URL override, and automatic 301 redirects when a published slug changes.
+- **Media pipeline** — image uploads convert to WebP (with responsive variants) via `sharp`, stored under `apps/celestia/public/uploads/`, and managed in a media library with alt-text editing.
+- **Soft-locking** — editing locks with a 30s heartbeat prevent concurrent overwrite collisions; other editors see a read-only banner.
+- **Public blog** — `/blog` and `/blog/[slug]` server-rendered pages with `generateMetadata` (OG/Twitter tags, canonical, robots directives).
+- **Delivery API for external websites** — the main goal: this CMS is the central content hub. External websites pull published content through a CORS-enabled, bearer-key-authenticated REST API and render it however they like.
+
+## Roles & permissions
+
+Roles live on `user.role` (`user` | `writer` | `editor` | `admin`); admins assign them from the existing Users page.
+
+| Role | Permissions |
+| --- | --- |
+| Writer | Create drafts, edit own drafts, submit for review |
+| Editor | Edit all posts, approve/reject/schedule/publish, manage categories, tags, media |
+| Admin | Everything + delete posts and manage redirects |
+
+## Data model
+
+New tables added to `apps/celestia/lib/db/schema.ts`:
+
+| Table | Purpose |
+| --- | --- |
+| `post` | Title, slug (unique), markdown body, status, featured image, SEO/OG fields, robots flags, schedule time, soft-lock fields |
+| `category` | Hierarchical (self-referencing `parent_id`) |
+| `tag`, `post_tag` | Flat tags, many-to-many |
+| `post_author` | Multi-author bylines (ordered) |
+| `post_revision` | JSONB snapshots + label + author |
+| `slug_redirect` | Old slug → post mapping for 301s |
+| `media_asset` | Uploaded image registry with variants and alt text |
+| `api_key` | Bearer keys for the Delivery API (one per external website) |
+
+## API overview
+
+All routes live under `app/api/cms/` in `apps/celestia` and are session-guarded with role checks.
+
+| Endpoint | Method | Who |
+| --- | --- | --- |
+| `/api/cms/posts` | GET, POST | CMS roles (writers see their own) |
+| `/api/cms/posts/:id` | GET, PATCH, DELETE | PATCH: edit rights (writers: own drafts); DELETE: admin |
+| `/api/cms/posts/:id/submit` | POST | writer (own), editor, admin |
+| `/api/cms/posts/:id/review` | POST | editor, admin (`approve`/`reject`) |
+| `/api/cms/posts/:id/lock` | POST | soft-lock acquire/heartbeat/release |
+| `/api/cms/posts/:id/revisions` (+`/:revId`, `/rollback`) | GET, POST | read: author/editors; rollback: edit rights |
+| `/api/cms/categories` (+`/:id`) | GET, POST, PATCH, DELETE | GET: CMS roles; mutations: editor+ |
+| `/api/cms/tags` | GET, POST | GET: CMS roles; POST: editor+ |
+| `/api/cms/upload`, `/api/cms/media` (+`/:id`) | POST, GET, PATCH, DELETE | CMS roles; media delete: editor+ |
+| `/api/cms/authors` | GET | editor+ (user directory for bylines) |
+| `/api/cms/keys` (+`/:id`) | GET, POST, DELETE | admin (Delivery API keys) |
+| `/api/public/v1/posts` | GET | Delivery API key |
+| `/api/public/v1/posts/:slug` | GET | Delivery API key |
+
+Scheduled posts are published lazily: `publishDuePosts()` flips `scheduled` posts whose `published_at` has passed whenever listings or public pages are served — no external cron needed.
+
+## Delivery API (external websites)
+
+The CMS centralizes content; external websites consume it over the Delivery API:
+
+- **Auth**: `Authorization: Bearer <key>` (or `?key=`), keys issued per website from **Dashboard → Content API**.
+- **CORS**: `GET`/`OPTIONS` are cross-origin friendly, so browser-based consumers work directly.
+- **Endpoints**:
+  - `GET /api/public/v1/posts?page=1&limit=20&category=<slug>&tag=<slug>&q=<query>&content=0` — published posts (newest first). `content=0` omits markdown bodies for light listings.
+  - `GET /api/public/v1/posts/<slug>` — one published post with markdown, SEO metadata, tags, and bylines.
+
+```bash
+curl -H "Authorization: Bearer cms_…" https://your-cms.example.com/api/public/v1/posts?limit=5
+```
+
+```js
+// External website (Next.js, Astro, plain HTML — anything):
+const res = await fetch("https://your-cms.example.com/api/public/v1/posts?limit=10", {
+  headers: { Authorization: `Bearer ${process.env.CMS_API_KEY}` },
+});
+const { posts } = await res.json(); // posts[].contentBody is markdown
+```
+
+`contentBody` is always markdown, so consumers render it with any markdown pipeline. The central CMS remains the single source of truth: publish here, every external site sees the update on its next fetch.
+
+## Editor integration contract
+
+The editor screen uses `BlockTextEditor` as-is:
+
+```tsx
+import { BlockTextEditor } from "@celestia-project/ui/components/block-text-editor";
+
+<BlockTextEditor
+  content={form.contentBody}
+  onUpdateContent={(md) => update({ contentBody: md ?? "" })}
+  onFilesDrop={handleFilesDrop} // uploads via /api/cms/upload, inserts ![alt](url)
+/>
+```
+
+Content is plain markdown in / markdown out, so any markdown-compatible editor can replace it.
+
+## Install
+
+```bash
+pnpm add-feature cms
+pnpm install
+pnpm --filter celestia db:push
+pnpm --filter celestia dev
+```
+
+Open `http://localhost:3100/dashboard/cms/posts` and sign in with a writer/editor/admin account.
+
+## Notes
+
+- No new environment variables are required; the public origin uses `BETTER_AUTH_URL` (defaults to `http://localhost:3100`).
+- Uploads live under `apps/celestia/public/uploads/` (created on demand). For multi-host deployments, swap the local-disk storage in `app/api/cms/upload/route.ts` for object storage.
+- Public markdown rendering uses `react-markdown` (raw HTML is not rendered), so stored content cannot inject scripts (stored-XSS safe).

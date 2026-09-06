@@ -1,0 +1,132 @@
+---
+title: "Block Text Editor"
+description: "A Notion-style markdown block editor with drag-to-reorder sections, inline editing, task toggles, and insert menus."
+---
+
+A Notion-style markdown block editor. Markdown content is parsed into draggable blocks (headings, paragraphs, lists, tasks, quotes, code, and images) that can be reordered, edited inline, inserted, and deleted — while the underlying value stays plain markdown.
+
+<BlockTextEditorPreview />
+
+## Import
+
+```tsx
+import { BlockTextEditor } from "@celestia-project/ui"
+// or the deep import
+import { BlockTextEditor } from "@celestia-project/ui/components/block-text-editor"
+```
+
+## Anatomy
+
+```tsx
+import * as React from "react"
+import { BlockTextEditor } from "@celestia-project/ui"
+
+export function BlockEditorDemo() {
+  const [content, setContent] = React.useState("# Hello\n\nEditable markdown content.")
+
+  return <BlockTextEditor content={content} onUpdateContent={setContent} />
+}
+```
+
+## Examples
+
+### Default
+
+The editor renders markdown as blocks. Double-click a block (or use its hover toolbar) to open an inline markdown editor; press <kbd>Cmd</kbd>+<kbd>Enter</kbd> to save and <kbd>Esc</kbd> to cancel.
+
+```tsx
+<BlockTextEditor content={content} onUpdateContent={setContent} />
+```
+
+### Read-only preview
+
+Omitting `onUpdateContent` renders a static preview: drag handles, hover actions, insert menus, and inline editing are disabled.
+
+```tsx
+<BlockTextEditor content={content} />
+```
+
+### Custom section templates
+
+`sectionTemplates` replaces the default insert menu entries. Templates with `templateMarkdown` insert content; templates with `action` run a custom side effect instead (e.g. opening a dialog).
+
+```tsx
+import { BlockTextEditor, DEFAULT_SECTION_TEMPLATES } from "@celestia-project/ui"
+
+<BlockTextEditor
+  content={content}
+  onUpdateContent={setContent}
+  sectionTemplates={[
+    ...DEFAULT_SECTION_TEMPLATES,
+    {
+      id: "diagram",
+      category: "Visual Media",
+      label: "Diagram Studio",
+      description: "Open the visual canvas",
+      icon: <PaintBrushIcon />,
+      action: () => openDiagramStudio(),
+    },
+  ]}
+/>
+```
+
+### Image drops
+
+By default, dropping image files embeds them as base64 markdown images. Provide `onFilesDrop` to handle uploads yourself (e.g. store to a server and insert a URL), and `dropHint` to change the drag overlay copy.
+
+```tsx
+<BlockTextEditor
+  content={content}
+  onUpdateContent={setContent}
+  onFilesDrop={async (files) => {
+    const urls = await uploadImages(files)
+    setContent(`${content}\n\n![](${urls.join(")\n![](")})`)
+  }}
+  dropHint="Drop images to upload"
+/>
+```
+
+### Empty state
+
+Customize the empty-state copy shown when `content` is blank.
+
+```tsx
+<BlockTextEditor
+  content={content}
+  onUpdateContent={setContent}
+  emptyStateCopy={{
+    title: "Blank Canvas",
+    description: "Add your first section or drop images to begin.",
+  }}
+/>
+```
+
+## API Reference
+
+### BlockTextEditor
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `content` | `string` | — | Markdown source rendered as blocks. |
+| `onUpdateContent` | `(newContent: string) => void` | — | Called on every edit. Omit for read-only mode. |
+| `sectionTemplates` | `SectionTemplateItem[]` | `DEFAULT_SECTION_TEMPLATES` | Entries for the "Add Section" menus. |
+| `emptyStateCopy` | `{ title: string; description: string }` | Generic copy | Empty-state text. |
+| `onFilesDrop` | `(files: File[]) => void \| Promise<void>` | Embeds as base64 images | Custom image drop handler. |
+| `dropHint` | `string` | `"Drop image here to embed"` | Copy for the file drag overlay. |
+| `className` | `string` | — | Additional classes for the root container. |
+
+### SectionTemplateItem
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `id` | `string` | Unique template id. |
+| `category` | `string` | Group heading in the insert menu. |
+| `label` | `string` | Template name. |
+| `description` | `string` | Template description. |
+| `icon` | `React.ReactNode` | Icon shown in the menu. |
+| `templateMarkdown` | `string` | Markdown inserted when selected. |
+| `action` | `() => void` | Custom handler; takes precedence over `templateMarkdown`. |
+
+## Utilities
+
+The module also exports the underlying building blocks: `parseMarkdownToBlocks`, `renderInlineFormatting`, `DEFAULT_SECTION_TEMPLATES`, the individual section renderers (`BlockSectionRenderer`, `HeadingSection`, `TaskListSection`, …), and the pure image helpers `readFileAsBase64` / `formatMarkdownImage`.

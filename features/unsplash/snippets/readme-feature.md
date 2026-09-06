@@ -1,0 +1,1 @@
+- **unsplash** — Unsplash stock-photo search for the CMS media picker: a server-side proxy route (`/api/cms/unsplash`) keeps the access key out of the browser, and the media dialog gains an Unsplash tab where writers search, browse, and insert photos with attribution.

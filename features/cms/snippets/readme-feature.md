@@ -1,0 +1,1 @@
+- **cms** — Blog post management for the Celestia app: editorial workflow (draft → review → scheduled → published → archived), markdown block editor integration, auto-save, revisions with diff/rollback, categories/tags, SEO & Open Graph controls, image uploads (WebP), soft-locking, and a public blog at `/blog`.

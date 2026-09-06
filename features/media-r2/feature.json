@@ -1,0 +1,91 @@
+{
+  "name": "media-r2",
+  "version": "1.0.0",
+  "description": "Cloudflare R2 media storage with BYOK for the Celestia CMS: admins connect their own R2 bucket (account ID, access key, secret, bucket, optional public domain), new uploads are stored in R2 with a streaming proxy fallback, local disk remains the default",
+  "requires": [
+    "cms"
+  ],
+  "copies": [
+    {
+      "from": "celestia/lib/media/storage.ts",
+      "to": "apps/celestia/lib/media/storage.ts"
+    },
+    {
+      "from": "celestia/app/api/cms/storage/route.ts",
+      "to": "apps/celestia/app/api/cms/storage/route.ts"
+    },
+    {
+      "from": "celestia/app/api/cms/storage/test/route.ts",
+      "to": "apps/celestia/app/api/cms/storage/test/route.ts"
+    },
+    {
+      "from": "celestia/app/api/media/f/[...key]/route.ts",
+      "to": "apps/celestia/app/api/media/f/[...key]/route.ts"
+    },
+    {
+      "from": "celestia/app/api/cms/upload/route.ts",
+      "to": "apps/celestia/app/api/cms/upload/route.ts"
+    },
+    {
+      "from": "celestia/app/api/cms/media/route.ts",
+      "to": "apps/celestia/app/api/cms/media/route.ts"
+    },
+    {
+      "from": "celestia/app/api/cms/media/[id]/route.ts",
+      "to": "apps/celestia/app/api/cms/media/[id]/route.ts"
+    },
+    {
+      "from": "celestia/components/cms/storage-settings-dialog.tsx",
+      "to": "apps/celestia/components/cms/storage-settings-dialog.tsx"
+    },
+    {
+      "from": "celestia/components/cms/media-dialog.tsx",
+      "to": "apps/celestia/components/cms/media-dialog.tsx"
+    },
+    {
+      "from": "celestia/components/cms/types.ts",
+      "to": "apps/celestia/components/cms/types.ts"
+    },
+    {
+      "from": "celestia/app/(dashboard)/dashboard/cms/media/page.tsx",
+      "to": "apps/celestia/app/(dashboard)/dashboard/cms/media/page.tsx"
+    },
+    {
+      "from": "docs/media-r2.mdx",
+      "to": "apps/web/content/docs/media-r2.mdx"
+    }
+  ],
+  "insertions": [
+    {
+      "file": "apps/celestia/lib/db/schema.ts",
+      "marker": "tables",
+      "snippet": "snippets/db-schema.ts"
+    },
+    {
+      "file": "apps/web/content/docs/index.mdx",
+      "marker": "cards",
+      "snippet": "snippets/docs-card.mdx"
+    },
+    {
+      "file": "README.md",
+      "marker": "features",
+      "snippet": "snippets/readme-feature.md"
+    }
+  ],
+  "jsonAppends": [
+    {
+      "file": "apps/web/content/docs/meta.json",
+      "path": "pages",
+      "value": "media-r2"
+    }
+  ],
+  "dependencies": {
+    "apps/celestia": {
+      "@aws-sdk/client-s3": "^3.750.0"
+    }
+  },
+  "postInstall": [
+    "pnpm --filter celestia db:push"
+  ],
+  "notes": "Requires the cms feature (run `pnpm add-feature cms` first \u2014 cms must be present in features.json). NOTE: both features currently target the Celestia app which lives outside this monorepo at /Users/arham/Desktop/project/celestia; the insertion targets apps/celestia/lib/db/schema.ts and apps/celestia/components/dashboard/sidebar-nav.tsx only exist (with feature-manager marker regions) once the app is moved back to apps/celestia. Configure via Dashboard \u2192 Media \u2192 Storage (admin only). Credentials live in the media_storage_setting table (prototype: plaintext secret \u2014 swap for a vault in production). No public bucket domain needed: files stream through /api/media/f/<key>."
+}

@@ -27,6 +27,9 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@monaco-editor/react": "^4.7.0",
     "@phosphor-icons/react": "^2.1.10",
     "@radix-ui/react-use-controllable-state": "^1.2.6",
@@ -94,6 +97,11 @@
       "types": "./src/lib/*.ts",
       "import": "./src/lib/*.ts",
       "default": "./src/lib/*.ts"
+    },
+    "./components/block-text-editor": {
+      "types": "./src/components/block-text-editor/index.ts",
+      "import": "./src/components/block-text-editor/index.ts",
+      "default": "./src/components/block-text-editor/index.ts"
     },
     "./components/*": {
       "types": "./src/components/*.tsx",

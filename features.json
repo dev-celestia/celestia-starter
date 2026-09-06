@@ -15,6 +15,18 @@
     "access": {
       "version": "1.0.0",
       "installedAt": "2026-08-03T15:55:38.379Z"
+    },
+    "cms": {
+      "version": "1.0.0",
+      "installedAt": "2026-09-06"
+    },
+    "media-r2": {
+      "version": "1.0.0",
+      "installedAt": "2026-09-06"
+    },
+    "unsplash": {
+      "version": "1.0.0",
+      "installedAt": "2026-09-06T04:16:32.365Z"
     }
   }
 }
