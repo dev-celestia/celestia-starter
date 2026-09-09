@@ -98,15 +98,20 @@
       "import": "./src/lib/*.ts",
       "default": "./src/lib/*.ts"
     },
-    "./components/block-text-editor": {
-      "types": "./src/components/block-text-editor/index.ts",
-      "import": "./src/components/block-text-editor/index.ts",
-      "default": "./src/components/block-text-editor/index.ts"
+    "./primitive/*": {
+      "types": "./src/components/primitive/*.tsx",
+      "import": "./src/components/primitive/*.tsx",
+      "default": "./src/components/primitive/*.tsx"
     },
-    "./components/*": {
-      "types": "./src/components/*.tsx",
-      "import": "./src/components/*.tsx",
-      "default": "./src/components/*.tsx"
+    "./composite/block-text-editor": {
+      "types": "./src/components/composite/block-text-editor/index.ts",
+      "import": "./src/components/composite/block-text-editor/index.ts",
+      "default": "./src/components/composite/block-text-editor/index.ts"
+    },
+    "./composite/*": {
+      "types": "./src/components/composite/*.tsx",
+      "import": "./src/components/composite/*.tsx",
+      "default": "./src/components/composite/*.tsx"
     },
     "./hooks/*": {
       "types": "./src/hooks/*.ts",

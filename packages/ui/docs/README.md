@@ -38,8 +38,8 @@ import { Button, Card, CardHeader, CardTitle, CardContent, Dialog, cn } from "@c
 
 ### Deep Imports
 ```tsx
-import { Button } from "@celestia-project/ui/components/button"
-import { Card, CardHeader, CardContent } from "@celestia-project/ui/components/card"
+import { Button } from "@celestia-project/ui/primitive/button"
+import { Card, CardHeader, CardContent } from "@celestia-project/ui/primitive/card"
 import { useIsMobile } from "@celestia-project/ui/hooks/use-mobile"
 import { cn } from "@celestia-project/ui/lib/utils"
 ```

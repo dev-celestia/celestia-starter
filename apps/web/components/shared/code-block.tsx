@@ -3,7 +3,7 @@
 import * as React from "react"
 import { CopyIcon, CheckIcon } from "@phosphor-icons/react"
 import { Button, Badge, TextEditor } from "@celestia-project/ui"
-import { toast } from "@celestia-project/ui/components/sonner"
+import { toast } from "@celestia-project/ui/primitive/sonner"
 import { cn } from "@celestia-project/ui/lib/utils"
 import { useTheme } from "next-themes"
 

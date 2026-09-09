@@ -3,7 +3,8 @@ import { defineConfig } from "tsup"
 export default defineConfig({
   entry: [
     "src/index.ts",
-    "src/components/*.tsx",
+    "src/components/primitive/*.tsx",
+    "src/components/composite/*.tsx",
     "src/components/ai/*.tsx",
     "src/components/ai/index.ts",
     "src/lib/*.ts",

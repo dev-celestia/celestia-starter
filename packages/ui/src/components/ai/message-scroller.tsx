@@ -9,7 +9,7 @@ import {
 } from "@shadcn/react/message-scroller"
 
 import { cn } from "../../lib/utils"
-import { Button } from "@celestia-project/ui/components/button"
+import { Button } from "@celestia-project/ui/primitive/button"
 import { ArrowDownIcon } from "@phosphor-icons/react"
 
 function MessageScrollerProvider(

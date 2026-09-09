@@ -20,7 +20,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@celestia-project/ui"
-import { toast } from "@celestia-project/ui/components/sonner"
+import { toast } from "@celestia-project/ui/primitive/sonner"
 import { cn } from "@celestia-project/ui/lib/utils"
 
 export interface PaletteItem {

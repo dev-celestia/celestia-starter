@@ -127,9 +127,9 @@ import {
 For strict bundle-size optimizations or non-bundler environments, import directly from the component module paths:
 
 ```tsx
-import { Button } from "@celestia-project/ui/components/button"
-import { Card, CardHeader, CardTitle, CardContent } from "@celestia-project/ui/components/card"
-import { Dialog, DialogContent, DialogTrigger } from "@celestia-project/ui/components/dialog"
+import { Button } from "@celestia-project/ui/primitive/button"
+import { Card, CardHeader, CardTitle, CardContent } from "@celestia-project/ui/primitive/card"
+import { Dialog, DialogContent, DialogTrigger } from "@celestia-project/ui/primitive/dialog"
 import { useIsMobile } from "@celestia-project/ui/hooks/use-mobile"
 import { cn } from "@celestia-project/ui/lib/utils"
 ```
@@ -141,7 +141,7 @@ import { cn } from "@celestia-project/ui/lib/utils"
 | `cn` | `@celestia-project/ui/lib/utils` or barrel | `clsx` + `tailwind-merge` class name helper |
 | `useIsMobile` | `@celestia-project/ui/hooks/use-mobile` or barrel | Custom React hook returning boolean for `< 768px` viewport |
 | `SonnerToaster` | `@celestia-project/ui` (barrel) | Re-exported Sonner `Toaster` |
-| `toast` | `@celestia-project/ui/components/sonner` | Sonner toast trigger function |
+| `toast` | `@celestia-project/ui/primitive/sonner` | Sonner toast trigger function |
 
 ---
 
@@ -153,11 +153,11 @@ Below is the complete mapping of all 117+ component modules in `packages/ui/src/
 
 | Module | Deep Import | Exported Sub-Components | Base Primitive |
 |--------|-------------|-------------------------|----------------|
-| `aspect-ratio` | `@celestia-project/ui/components/aspect-ratio` | `AspectRatio` | Radix AspectRatio |
-| `card` | `@celestia-project/ui/components/card` | `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardAction`, `CardContent`, `CardFooter` | Custom HTML |
-| `resizable` | `@celestia-project/ui/components/resizable` | `Resizable`, `ResizablePanel`, `ResizablePanelGroup`, `ResizableHandle` | `react-resizable-panels` |
-| `separator` | `@celestia-project/ui/components/separator` | `Separator` | Base UI `Separator` |
-| `sidebar` | `@celestia-project/ui/components/sidebar` | `SidebarProvider`, `Sidebar`, `SidebarHeader`, `SidebarContent`, `SidebarGroup`, `SidebarGroupLabel`, `SidebarGroupAction`, `SidebarGroupContent`, `SidebarFooter`, `SidebarMenu`, `SidebarMenuItem`, `SidebarMenuButton`, `SidebarMenuAction`, `SidebarMenuSub`, `SidebarMenuSubItem`, `SidebarMenuSubButton`, `SidebarMenuBadge`, `SidebarMenuSkeleton`, `SidebarRail`, `SidebarTrigger`, `SidebarInset`, `SidebarInput`, `useSidebar` | Custom + Base UI Tooltip & Sheet |
+| `aspect-ratio` | `@celestia-project/ui/primitive/aspect-ratio` | `AspectRatio` | Radix AspectRatio |
+| `card` | `@celestia-project/ui/primitive/card` | `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardAction`, `CardContent`, `CardFooter` | Custom HTML |
+| `resizable` | `@celestia-project/ui/primitive/resizable` | `Resizable`, `ResizablePanel`, `ResizablePanelGroup`, `ResizableHandle` | `react-resizable-panels` |
+| `separator` | `@celestia-project/ui/primitive/separator` | `Separator` | Base UI `Separator` |
+| `sidebar` | `@celestia-project/ui/composite/sidebar` | `SidebarProvider`, `Sidebar`, `SidebarHeader`, `SidebarContent`, `SidebarGroup`, `SidebarGroupLabel`, `SidebarGroupAction`, `SidebarGroupContent`, `SidebarFooter`, `SidebarMenu`, `SidebarMenuItem`, `SidebarMenuButton`, `SidebarMenuAction`, `SidebarMenuSub`, `SidebarMenuSubItem`, `SidebarMenuSubButton`, `SidebarMenuBadge`, `SidebarMenuSkeleton`, `SidebarRail`, `SidebarTrigger`, `SidebarInset`, `SidebarInput`, `useSidebar` | Custom + Base UI Tooltip & Sheet |
 
 ---
 
@@ -165,16 +165,16 @@ Below is the complete mapping of all 117+ component modules in `packages/ui/src/
 
 | Module | Deep Import | Exported Sub-Components | Base Primitive |
 |--------|-------------|-------------------------|----------------|
-| `alert` | `@celestia-project/ui/components/alert` | `Alert`, `AlertTitle`, `AlertDescription` | Custom HTML |
-| `badge` | `@celestia-project/ui/components/badge` | `Badge`, `badgeVariants` | Custom HTML / CVA |
-| `breadcrumb` | `@celestia-project/ui/components/breadcrumb` | `Breadcrumb`, `BreadcrumbList`, `BreadcrumbItem`, `BreadcrumbLink`, `BreadcrumbPage`, `BreadcrumbSeparator`, `BreadcrumbEllipsis` | Custom HTML |
-| `empty` | `@celestia-project/ui/components/empty` | `Empty`, `EmptyHeader`, `EmptyTitle`, `EmptyDescription`, `EmptyContent`, `EmptyActions`, `EmptyMedia` | Custom HTML |
-| `item` | `@celestia-project/ui/components/item` | `Item`, `ItemGroup`, `ItemHeader`, `ItemFooter`, `ItemTitle`, `ItemDescription`, `ItemMedia`, `ItemActions`, `ItemContent` | Base UI `useRender` |
-| `kbd` | `@celestia-project/ui/components/kbd` | `Kbd` | Custom HTML |
-| `marker` | `@celestia-project/ui/components/marker` | `Marker` | Custom HTML |
-| `message` | `@celestia-project/ui/components/message` | `Message`, `MessageBubble` | Custom HTML |
-| `skeleton` | `@celestia-project/ui/components/skeleton` | `Skeleton` | Custom HTML |
-| `table` | `@celestia-project/ui/components/table` | `Table`, `TableHeader`, `TableBody`, `TableFooter`, `TableRow`, `TableHead`, `TableCell`, `TableCaption` | Custom HTML |
+| `alert` | `@celestia-project/ui/primitive/alert` | `Alert`, `AlertTitle`, `AlertDescription` | Custom HTML |
+| `badge` | `@celestia-project/ui/primitive/badge` | `Badge`, `badgeVariants` | Custom HTML / CVA |
+| `breadcrumb` | `@celestia-project/ui/primitive/breadcrumb` | `Breadcrumb`, `BreadcrumbList`, `BreadcrumbItem`, `BreadcrumbLink`, `BreadcrumbPage`, `BreadcrumbSeparator`, `BreadcrumbEllipsis` | Custom HTML |
+| `empty` | `@celestia-project/ui/composite/empty` | `Empty`, `EmptyHeader`, `EmptyTitle`, `EmptyDescription`, `EmptyContent`, `EmptyActions`, `EmptyMedia` | Custom HTML |
+| `item` | `@celestia-project/ui/primitive/item` | `Item`, `ItemGroup`, `ItemHeader`, `ItemFooter`, `ItemTitle`, `ItemDescription`, `ItemMedia`, `ItemActions`, `ItemContent` | Base UI `useRender` |
+| `kbd` | `@celestia-project/ui/primitive/kbd` | `Kbd` | Custom HTML |
+| `marker` | `@celestia-project/ui/composite/marker` | `Marker` | Custom HTML |
+| `message` | `@celestia-project/ui/composite/message` | `Message`, `MessageBubble` | Custom HTML |
+| `skeleton` | `@celestia-project/ui/primitive/skeleton` | `Skeleton` | Custom HTML |
+| `table` | `@celestia-project/ui/primitive/table` | `Table`, `TableHeader`, `TableBody`, `TableFooter`, `TableRow`, `TableHead`, `TableCell`, `TableCaption` | Custom HTML |
 
 ---
 
@@ -182,23 +182,23 @@ Below is the complete mapping of all 117+ component modules in `packages/ui/src/
 
 | Module | Deep Import | Exported Sub-Components | Base Primitive |
 |--------|-------------|-------------------------|----------------|
-| `button` | `@celestia-project/ui/components/button` | `Button`, `buttonVariants` | Base UI `useRender` |
-| `button-group` | `@celestia-project/ui/components/button-group` | `ButtonGroup`, `ButtonGroupText` | Custom HTML |
-| `checkbox` | `@celestia-project/ui/components/checkbox` | `Checkbox` | Base UI `Checkbox` |
-| `combobox` | `@celestia-project/ui/components/combobox` | `Combobox`, `ComboboxInput`, `ComboboxContent`, `ComboboxList`, `ComboboxItem`, `ComboboxEmpty`, `ComboboxGroup`, `ComboboxLabel` | Base UI `Combobox` |
-| `field` | `@celestia-project/ui/components/field` | `Field`, `FieldLabel`, `FieldDescription`, `FieldError`, `FieldGroup`, `FieldLegend`, `FieldSeparator` | Base UI `Field` |
-| `input` | `@celestia-project/ui/components/input` | `Input` | Custom HTML |
-| `input-group` | `@celestia-project/ui/components/input-group` | `InputGroup`, `InputGroupAddon`, `InputGroupInput` | Custom HTML |
-| `input-otp` | `@celestia-project/ui/components/input-otp` | `InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator` | `input-otp` |
-| `label` | `@celestia-project/ui/components/label` | `Label` | Custom HTML |
-| `native-select` | `@celestia-project/ui/components/native-select` | `NativeSelect`, `NativeSelectOptGroup`, `NativeSelectOption` | Custom HTML |
-| `radio-group` | `@celestia-project/ui/components/radio-group` | `RadioGroup`, `RadioGroupItem` | Base UI `RadioGroup` |
-| `select` | `@celestia-project/ui/components/select` | `Select`, `SelectTrigger`, `SelectValue`, `SelectContent`, `SelectItem`, `SelectGroup`, `SelectLabel`, `SelectSeparator` | Base UI `Select` |
-| `slider` | `@celestia-project/ui/components/slider` | `Slider` | Base UI `Slider` |
-| `switch` | `@celestia-project/ui/components/switch` | `Switch` | Base UI `Switch` |
-| `textarea` | `@celestia-project/ui/components/textarea` | `Textarea` | Custom HTML |
-| `toggle` | `@celestia-project/ui/components/toggle` | `Toggle`, `toggleVariants` | Base UI `Toggle` |
-| `toggle-group` | `@celestia-project/ui/components/toggle-group` | `ToggleGroup`, `ToggleGroupItem` | Base UI `ToggleGroup` |
+| `button` | `@celestia-project/ui/primitive/button` | `Button`, `buttonVariants` | Base UI `useRender` |
+| `button-group` | `@celestia-project/ui/composite/button-group` | `ButtonGroup`, `ButtonGroupText` | Custom HTML |
+| `checkbox` | `@celestia-project/ui/primitive/checkbox` | `Checkbox` | Base UI `Checkbox` |
+| `combobox` | `@celestia-project/ui/composite/combobox` | `Combobox`, `ComboboxInput`, `ComboboxContent`, `ComboboxList`, `ComboboxItem`, `ComboboxEmpty`, `ComboboxGroup`, `ComboboxLabel` | Base UI `Combobox` |
+| `field` | `@celestia-project/ui/composite/field` | `Field`, `FieldLabel`, `FieldDescription`, `FieldError`, `FieldGroup`, `FieldLegend`, `FieldSeparator` | Base UI `Field` |
+| `input` | `@celestia-project/ui/primitive/input` | `Input` | Custom HTML |
+| `input-group` | `@celestia-project/ui/composite/input-group` | `InputGroup`, `InputGroupAddon`, `InputGroupInput` | Custom HTML |
+| `input-otp` | `@celestia-project/ui/primitive/input-otp` | `InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator` | `input-otp` |
+| `label` | `@celestia-project/ui/primitive/label` | `Label` | Custom HTML |
+| `native-select` | `@celestia-project/ui/composite/native-select` | `NativeSelect`, `NativeSelectOptGroup`, `NativeSelectOption` | Custom HTML |
+| `radio-group` | `@celestia-project/ui/primitive/radio-group` | `RadioGroup`, `RadioGroupItem` | Base UI `RadioGroup` |
+| `select` | `@celestia-project/ui/primitive/select` | `Select`, `SelectTrigger`, `SelectValue`, `SelectContent`, `SelectItem`, `SelectGroup`, `SelectLabel`, `SelectSeparator` | Base UI `Select` |
+| `slider` | `@celestia-project/ui/primitive/slider` | `Slider` | Base UI `Slider` |
+| `switch` | `@celestia-project/ui/primitive/switch` | `Switch` | Base UI `Switch` |
+| `textarea` | `@celestia-project/ui/primitive/textarea` | `Textarea` | Custom HTML |
+| `toggle` | `@celestia-project/ui/primitive/toggle` | `Toggle`, `toggleVariants` | Base UI `Toggle` |
+| `toggle-group` | `@celestia-project/ui/composite/toggle-group` | `ToggleGroup`, `ToggleGroupItem` | Base UI `ToggleGroup` |
 
 ---
 
@@ -206,15 +206,15 @@ Below is the complete mapping of all 117+ component modules in `packages/ui/src/
 
 | Module | Deep Import | Exported Sub-Components | Base Primitive |
 |--------|-------------|-------------------------|----------------|
-| `alert-dialog` | `@celestia-project/ui/components/alert-dialog` | `AlertDialog`, `AlertDialogTrigger`, `AlertDialogContent`, `AlertDialogHeader`, `AlertDialogFooter`, `AlertDialogTitle`, `AlertDialogDescription`, `AlertDialogAction`, `AlertDialogCancel`, `AlertDialogClose` | Base UI `AlertDialog` |
-| `context-menu` | `@celestia-project/ui/components/context-menu` | `ContextMenu`, `ContextMenuTrigger`, `ContextMenuContent`, `ContextMenuItem`, `ContextMenuCheckboxItem`, `ContextMenuRadioItem`, `ContextMenuLabel`, `ContextMenuSeparator`, `ContextMenuSub`, `ContextMenuSubTrigger`, `ContextMenuSubContent` | Base UI `ContextMenu` |
-| `dialog` | `@celestia-project/ui/components/dialog` | `Dialog`, `DialogTrigger`, `DialogContent`, `DialogHeader`, `DialogFooter`, `DialogTitle`, `DialogDescription`, `DialogClose` | Base UI `Dialog` |
-| `drawer` | `@celestia-project/ui/components/drawer` | `Drawer`, `DrawerTrigger`, `DrawerContent`, `DrawerHeader`, `DrawerFooter`, `DrawerTitle`, `DrawerDescription`, `DrawerClose` | `vaul` / Base UI |
-| `dropdown-menu` | `@celestia-project/ui/components/dropdown-menu` | `DropdownMenu`, `DropdownMenuTrigger`, `DropdownMenuContent`, `DropdownMenuItem`, `DropdownMenuCheckboxItem`, `DropdownMenuRadioItem`, `DropdownMenuLabel`, `DropdownMenuSeparator`, `DropdownMenuSub`, `DropdownMenuSubTrigger`, `DropdownMenuSubContent` | Base UI `DropdownMenu` |
-| `hover-card` | `@celestia-project/ui/components/hover-card` | `HoverCard`, `HoverCardTrigger`, `HoverCardContent` | Base UI `HoverCard` |
-| `popover` | `@celestia-project/ui/components/popover` | `Popover`, `PopoverTrigger`, `PopoverContent` | Base UI `Popover` |
-| `sheet` | `@celestia-project/ui/components/sheet` | `Sheet`, `SheetTrigger`, `SheetContent`, `SheetHeader`, `SheetFooter`, `SheetTitle`, `SheetDescription`, `SheetClose` | Base UI `Dialog` |
-| `tooltip` | `@celestia-project/ui/components/tooltip` | `TooltipProvider`, `Tooltip`, `TooltipTrigger`, `TooltipContent` | Base UI `Tooltip` |
+| `alert-dialog` | `@celestia-project/ui/composite/alert-dialog` | `AlertDialog`, `AlertDialogTrigger`, `AlertDialogContent`, `AlertDialogHeader`, `AlertDialogFooter`, `AlertDialogTitle`, `AlertDialogDescription`, `AlertDialogAction`, `AlertDialogCancel`, `AlertDialogClose` | Base UI `AlertDialog` |
+| `context-menu` | `@celestia-project/ui/primitive/context-menu` | `ContextMenu`, `ContextMenuTrigger`, `ContextMenuContent`, `ContextMenuItem`, `ContextMenuCheckboxItem`, `ContextMenuRadioItem`, `ContextMenuLabel`, `ContextMenuSeparator`, `ContextMenuSub`, `ContextMenuSubTrigger`, `ContextMenuSubContent` | Base UI `ContextMenu` |
+| `dialog` | `@celestia-project/ui/primitive/dialog` | `Dialog`, `DialogTrigger`, `DialogContent`, `DialogHeader`, `DialogFooter`, `DialogTitle`, `DialogDescription`, `DialogClose` | Base UI `Dialog` |
+| `drawer` | `@celestia-project/ui/primitive/drawer` | `Drawer`, `DrawerTrigger`, `DrawerContent`, `DrawerHeader`, `DrawerFooter`, `DrawerTitle`, `DrawerDescription`, `DrawerClose` | `vaul` / Base UI |
+| `dropdown-menu` | `@celestia-project/ui/primitive/dropdown-menu` | `DropdownMenu`, `DropdownMenuTrigger`, `DropdownMenuContent`, `DropdownMenuItem`, `DropdownMenuCheckboxItem`, `DropdownMenuRadioItem`, `DropdownMenuLabel`, `DropdownMenuSeparator`, `DropdownMenuSub`, `DropdownMenuSubTrigger`, `DropdownMenuSubContent` | Base UI `DropdownMenu` |
+| `hover-card` | `@celestia-project/ui/primitive/hover-card` | `HoverCard`, `HoverCardTrigger`, `HoverCardContent` | Base UI `HoverCard` |
+| `popover` | `@celestia-project/ui/primitive/popover` | `Popover`, `PopoverTrigger`, `PopoverContent` | Base UI `Popover` |
+| `sheet` | `@celestia-project/ui/primitive/sheet` | `Sheet`, `SheetTrigger`, `SheetContent`, `SheetHeader`, `SheetFooter`, `SheetTitle`, `SheetDescription`, `SheetClose` | Base UI `Dialog` |
+| `tooltip` | `@celestia-project/ui/primitive/tooltip` | `TooltipProvider`, `Tooltip`, `TooltipTrigger`, `TooltipContent` | Base UI `Tooltip` |
 
 ---
 
@@ -222,11 +222,11 @@ Below is the complete mapping of all 117+ component modules in `packages/ui/src/
 
 | Module | Deep Import | Exported Sub-Components | Base Primitive |
 |--------|-------------|-------------------------|----------------|
-| `menu` | `@celestia-project/ui/components/menu` | `Menu`, `MenuTrigger`, `MenuContent`, `MenuItem`, `MenuGroup`, `MenuSeparator`, `MenuCheckboxItem`, `MenuRadioItem` | Base UI `Menu` |
-| `menubar` | `@celestia-project/ui/components/menubar` | `Menubar`, `MenubarMenu`, `MenubarTrigger`, `MenubarContent`, `MenubarItem`, `MenubarSeparator`, `MenubarSub`, `MenubarSubTrigger`, `MenubarSubContent` | Base UI `Menubar` |
-| `navigation-menu` | `@celestia-project/ui/components/navigation-menu` | `NavigationMenu`, `NavigationMenuList`, `NavigationMenuItem`, `NavigationMenuTrigger`, `NavigationMenuContent`, `NavigationMenuLink` | Radix NavigationMenu |
-| `pagination` | `@celestia-project/ui/components/pagination` | `Pagination`, `PaginationContent`, `PaginationLink`, `PaginationItem`, `PaginationPrevious`, `PaginationNext`, `PaginationEllipsis` | Custom HTML |
-| `tabs` | `@celestia-project/ui/components/tabs` | `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` | Base UI `Tabs` |
+| `menu` | `@celestia-project/ui/composite/menu` | `Menu`, `MenuTrigger`, `MenuContent`, `MenuItem`, `MenuGroup`, `MenuSeparator`, `MenuCheckboxItem`, `MenuRadioItem` | Base UI `Menu` |
+| `menubar` | `@celestia-project/ui/primitive/menubar` | `Menubar`, `MenubarMenu`, `MenubarTrigger`, `MenubarContent`, `MenubarItem`, `MenubarSeparator`, `MenubarSub`, `MenubarSubTrigger`, `MenubarSubContent` | Base UI `Menubar` |
+| `navigation-menu` | `@celestia-project/ui/primitive/navigation-menu` | `NavigationMenu`, `NavigationMenuList`, `NavigationMenuItem`, `NavigationMenuTrigger`, `NavigationMenuContent`, `NavigationMenuLink` | Radix NavigationMenu |
+| `pagination` | `@celestia-project/ui/composite/pagination` | `Pagination`, `PaginationContent`, `PaginationLink`, `PaginationItem`, `PaginationPrevious`, `PaginationNext`, `PaginationEllipsis` | Custom HTML |
+| `tabs` | `@celestia-project/ui/primitive/tabs` | `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` | Base UI `Tabs` |
 
 ---
 
@@ -234,12 +234,12 @@ Below is the complete mapping of all 117+ component modules in `packages/ui/src/
 
 | Module | Deep Import | Exported Sub-Components | Base Primitive |
 |--------|-------------|-------------------------|----------------|
-| `avatar` | `@celestia-project/ui/components/avatar` | `Avatar`, `AvatarImage`, `AvatarFallback` | Base UI `Avatar` |
-| `calendar` | `@celestia-project/ui/components/calendar` | `Calendar` | `react-day-picker` |
-| `carousel` | `@celestia-project/ui/components/carousel` | `Carousel`, `CarouselContent`, `CarouselItem`, `CarouselPrevious`, `CarouselNext` | `embla-carousel-react` |
-| `chart` | `@celestia-project/ui/components/chart` | `ChartContainer`, `ChartTooltip`, `ChartTooltipContent`, `ChartLegend`, `ChartLegendContent`, `ChartStyle` | Recharts wrapper |
-| `progress` | `@celestia-project/ui/components/progress` | `Progress` | Base UI `Progress` |
-| `scroll-area` | `@celestia-project/ui/components/scroll-area` | `ScrollArea`, `ScrollBar` | Radix ScrollArea |
+| `avatar` | `@celestia-project/ui/primitive/avatar` | `Avatar`, `AvatarImage`, `AvatarFallback` | Base UI `Avatar` |
+| `calendar` | `@celestia-project/ui/primitive/calendar` | `Calendar` | `react-day-picker` |
+| `carousel` | `@celestia-project/ui/primitive/carousel` | `Carousel`, `CarouselContent`, `CarouselItem`, `CarouselPrevious`, `CarouselNext` | `embla-carousel-react` |
+| `chart` | `@celestia-project/ui/composite/chart` | `ChartContainer`, `ChartTooltip`, `ChartTooltipContent`, `ChartLegend`, `ChartLegendContent`, `ChartStyle` | Recharts wrapper |
+| `progress` | `@celestia-project/ui/primitive/progress` | `Progress` | Base UI `Progress` |
+| `scroll-area` | `@celestia-project/ui/primitive/scroll-area` | `ScrollArea`, `ScrollBar` | Radix ScrollArea |
 
 ---
 
@@ -310,13 +310,13 @@ Comprehensive suite of 54 AI development primitives, interactive elements, strea
 
 | Module | Deep Import | Exported Sub-Components | Base Primitive |
 |--------|-------------|-------------------------|----------------|
-| `accordion` | `@celestia-project/ui/components/accordion` | `Accordion`, `AccordionItem`, `AccordionTrigger`, `AccordionContent` | Base UI `Accordion` |
-| `collapsible` | `@celestia-project/ui/components/collapsible` | `Collapsible`, `CollapsibleTrigger`, `CollapsibleContent` | Base UI `Collapsible` |
-| `command` | `@celestia-project/ui/components/command` | `Command`, `CommandDialog`, `CommandInput`, `CommandList`, `CommandEmpty`, `CommandGroup`, `CommandItem`, `CommandShortcut`, `CommandSeparator` | `cmdk` |
-| `direction` | `@celestia-project/ui/components/direction` | `DirectionProvider`, `useDirection` | Radix Direction |
-| `sonner` | `@celestia-project/ui/components/sonner` | `Toaster`, `toast` | `sonner` |
-| `spinner` | `@celestia-project/ui/components/spinner` | `Spinner` | Phosphor Icon |
-| `toast` | `@celestia-project/ui/components/toast` | `ToastProvider`, `ToastPortal`, `ToastViewport`, `Toast`, `ToastContent`, `ToastTitle`, `ToastDescription`, `ToastAction`, `ToastClose`, `toast` | Base UI `Toast` |
+| `accordion` | `@celestia-project/ui/primitive/accordion` | `Accordion`, `AccordionItem`, `AccordionTrigger`, `AccordionContent` | Base UI `Accordion` |
+| `collapsible` | `@celestia-project/ui/primitive/collapsible` | `Collapsible`, `CollapsibleTrigger`, `CollapsibleContent` | Base UI `Collapsible` |
+| `command` | `@celestia-project/ui/primitive/command` | `Command`, `CommandDialog`, `CommandInput`, `CommandList`, `CommandEmpty`, `CommandGroup`, `CommandItem`, `CommandShortcut`, `CommandSeparator` | `cmdk` |
+| `direction` | `@celestia-project/ui/primitive/direction` | `DirectionProvider`, `useDirection` | Radix Direction |
+| `sonner` | `@celestia-project/ui/primitive/sonner` | `Toaster`, `toast` | `sonner` |
+| `spinner` | `@celestia-project/ui/primitive/spinner` | `Spinner` | Phosphor Icon |
+| `toast` | `@celestia-project/ui/primitive/toast` | `ToastProvider`, `ToastPortal`, `ToastViewport`, `Toast`, `ToastContent`, `ToastTitle`, `ToastDescription`, `ToastAction`, `ToastClose`, `toast` | Base UI `Toast` |
 
 ---
 

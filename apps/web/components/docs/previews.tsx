@@ -7,12 +7,12 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@celestia-project/ui/components/accordion"
+} from "@celestia-project/ui/primitive/accordion"
 import {
   Alert,
   AlertDescription,
   AlertTitle,
-} from "@celestia-project/ui/components/alert"
+} from "@celestia-project/ui/primitive/alert"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,15 +23,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@celestia-project/ui/components/alert-dialog"
-import { AspectRatio } from "@celestia-project/ui/components/aspect-ratio"
+} from "@celestia-project/ui/composite/alert-dialog"
+import { AspectRatio } from "@celestia-project/ui/primitive/aspect-ratio"
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "@celestia-project/ui/components/avatar"
-import { Badge } from "@celestia-project/ui/components/badge"
-import { BlockTextEditor } from "@celestia-project/ui/components/block-text-editor"
+} from "@celestia-project/ui/primitive/avatar"
+import { Badge } from "@celestia-project/ui/primitive/badge"
+import { BlockTextEditor } from "@celestia-project/ui/composite/block-text-editor"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -39,13 +39,13 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@celestia-project/ui/components/breadcrumb"
-import { Button } from "@celestia-project/ui/components/button"
+} from "@celestia-project/ui/primitive/breadcrumb"
+import { Button } from "@celestia-project/ui/primitive/button"
 import {
   ButtonGroup,
   ButtonGroupSeparator,
-} from "@celestia-project/ui/components/button-group"
-import { Calendar } from "@celestia-project/ui/components/calendar"
+} from "@celestia-project/ui/composite/button-group"
+import { Calendar } from "@celestia-project/ui/primitive/calendar"
 import {
   Card,
   CardAction,
@@ -54,33 +54,33 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@celestia-project/ui/components/card"
+} from "@celestia-project/ui/primitive/card"
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@celestia-project/ui/components/carousel"
+} from "@celestia-project/ui/primitive/carousel"
 import {
   type ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@celestia-project/ui/components/chart"
-import { Checkbox } from "@celestia-project/ui/components/checkbox"
+} from "@celestia-project/ui/composite/chart"
+import { Checkbox } from "@celestia-project/ui/primitive/checkbox"
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@celestia-project/ui/components/collapsible"
+} from "@celestia-project/ui/primitive/collapsible"
 import {
   Combobox,
   ComboboxContent,
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
-} from "@celestia-project/ui/components/combobox"
+} from "@celestia-project/ui/composite/combobox"
 import {
   Command,
   CommandEmpty,
@@ -90,7 +90,7 @@ import {
   CommandList,
   CommandSeparator,
   CommandShortcut,
-} from "@celestia-project/ui/components/command"
+} from "@celestia-project/ui/primitive/command"
 import {
   ContextMenu,
   ContextMenuContent,
@@ -98,7 +98,7 @@ import {
   ContextMenuSeparator,
   ContextMenuShortcut,
   ContextMenuTrigger,
-} from "@celestia-project/ui/components/context-menu"
+} from "@celestia-project/ui/primitive/context-menu"
 import {
   Dialog,
   DialogClose,
@@ -108,7 +108,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@celestia-project/ui/components/dialog"
+} from "@celestia-project/ui/primitive/dialog"
 import {
   Drawer,
   DrawerClose,
@@ -118,7 +118,7 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@celestia-project/ui/components/drawer"
+} from "@celestia-project/ui/primitive/drawer"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -126,7 +126,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "@celestia-project/ui/components/dropdown-menu"
+} from "@celestia-project/ui/primitive/dropdown-menu"
 import {
   Empty,
   EmptyContent,
@@ -134,31 +134,31 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@celestia-project/ui/components/empty"
+} from "@celestia-project/ui/composite/empty"
 import {
   Field,
   FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
-} from "@celestia-project/ui/components/field"
+} from "@celestia-project/ui/composite/field"
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
-} from "@celestia-project/ui/components/hover-card"
-import { Input } from "@celestia-project/ui/components/input"
+} from "@celestia-project/ui/primitive/hover-card"
+import { Input } from "@celestia-project/ui/primitive/input"
 import {
   InputGroup,
   InputGroupInput,
   InputGroupText,
-} from "@celestia-project/ui/components/input-group"
+} from "@celestia-project/ui/composite/input-group"
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSeparator,
   InputOTPSlot,
-} from "@celestia-project/ui/components/input-otp"
+} from "@celestia-project/ui/primitive/input-otp"
 import {
   Item,
   ItemActions,
@@ -167,9 +167,9 @@ import {
   ItemGroup,
   ItemMedia,
   ItemTitle,
-} from "@celestia-project/ui/components/item"
-import { Kbd, KbdGroup } from "@celestia-project/ui/components/kbd"
-import { Label } from "@celestia-project/ui/components/label"
+} from "@celestia-project/ui/primitive/item"
+import { Kbd, KbdGroup } from "@celestia-project/ui/primitive/kbd"
+import { Label } from "@celestia-project/ui/primitive/label"
 import {
   Menu,
   MenuCheckboxItem,
@@ -186,7 +186,7 @@ import {
   MenuSub,
   MenuSubTrigger,
   MenuTrigger,
-} from "@celestia-project/ui/components/menu"
+} from "@celestia-project/ui/composite/menu"
 import {
   Menubar,
   MenubarContent,
@@ -195,11 +195,11 @@ import {
   MenubarSeparator,
   MenubarShortcut,
   MenubarTrigger,
-} from "@celestia-project/ui/components/menubar"
+} from "@celestia-project/ui/primitive/menubar"
 import {
   NativeSelect,
   NativeSelectOption,
-} from "@celestia-project/ui/components/native-select"
+} from "@celestia-project/ui/composite/native-select"
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -207,7 +207,7 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-} from "@celestia-project/ui/components/navigation-menu"
+} from "@celestia-project/ui/primitive/navigation-menu"
 import {
   Pagination,
   PaginationContent,
@@ -216,7 +216,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@celestia-project/ui/components/pagination"
+} from "@celestia-project/ui/composite/pagination"
 import {
   Popover,
   PopoverContent,
@@ -224,26 +224,26 @@ import {
   PopoverHeader,
   PopoverTitle,
   PopoverTrigger,
-} from "@celestia-project/ui/components/popover"
-import { Progress } from "@celestia-project/ui/components/progress"
+} from "@celestia-project/ui/primitive/popover"
+import { Progress } from "@celestia-project/ui/primitive/progress"
 import {
   RadioGroup,
   RadioGroupItem,
-} from "@celestia-project/ui/components/radio-group"
+} from "@celestia-project/ui/primitive/radio-group"
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from "@celestia-project/ui/components/resizable"
-import { ScrollArea } from "@celestia-project/ui/components/scroll-area"
+} from "@celestia-project/ui/primitive/resizable"
+import { ScrollArea } from "@celestia-project/ui/primitive/scroll-area"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@celestia-project/ui/components/select"
-import { Separator } from "@celestia-project/ui/components/separator"
+} from "@celestia-project/ui/primitive/select"
+import { Separator } from "@celestia-project/ui/primitive/separator"
 import {
   Sheet,
   SheetClose,
@@ -253,12 +253,12 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@celestia-project/ui/components/sheet"
-import { Skeleton } from "@celestia-project/ui/components/skeleton"
-import { Slider } from "@celestia-project/ui/components/slider"
-import { Toaster, toast } from "@celestia-project/ui/components/sonner"
-import { Spinner } from "@celestia-project/ui/components/spinner"
-import { Switch } from "@celestia-project/ui/components/switch"
+} from "@celestia-project/ui/primitive/sheet"
+import { Skeleton } from "@celestia-project/ui/primitive/skeleton"
+import { Slider } from "@celestia-project/ui/primitive/slider"
+import { Toaster, toast } from "@celestia-project/ui/primitive/sonner"
+import { Spinner } from "@celestia-project/ui/primitive/spinner"
+import { Switch } from "@celestia-project/ui/primitive/switch"
 import {
   Table,
   TableBody,
@@ -267,25 +267,25 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@celestia-project/ui/components/table"
+} from "@celestia-project/ui/primitive/table"
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@celestia-project/ui/components/tabs"
-import { Textarea } from "@celestia-project/ui/components/textarea"
-import { Toggle } from "@celestia-project/ui/components/toggle"
+} from "@celestia-project/ui/primitive/tabs"
+import { Textarea } from "@celestia-project/ui/primitive/textarea"
+import { Toggle } from "@celestia-project/ui/primitive/toggle"
 import {
   ToggleGroup,
   ToggleGroupItem,
-} from "@celestia-project/ui/components/toggle-group"
+} from "@celestia-project/ui/composite/toggle-group"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@celestia-project/ui/components/tooltip"
+} from "@celestia-project/ui/primitive/tooltip"
 import { BellIcon, NoteBlankIcon, UserIcon } from "@phosphor-icons/react"
 import { useState } from "react"
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"

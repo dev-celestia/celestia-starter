@@ -18,7 +18,9 @@ A shadcn-style React component library built on **Base UI** and **Tailwind CSS v
 |-------------|-------------|
 | `@celestia-project/ui` | Barrel export of every component (tree-shaken) |
 | `@celestia-project/ui/globals.css` | Global styles and CSS variables |
-| `@celestia-project/ui/components/*` | UI components (button, card, input, label) |
+| `@celestia-project/ui/primitive/*` | Primitive components (button, card, input, label) |
+| `@celestia-project/ui/composite/*` | Composite components (field, sidebar, data-table) |
+| `@celestia-project/ui/components/ai/*` | AI chat & agent components |
 | `@celestia-project/ui/hooks/*` | Shared React hooks |
 | `@celestia-project/ui/lib/*` | Utilities (`cn` helper) |
 
@@ -26,7 +28,7 @@ A shadcn-style React component library built on **Base UI** and **Tailwind CSS v
 
 ```tsx
 import { Button } from "@celestia-project/ui"
-import { Button } from "@celestia-project/ui/components/button"
+import { Button } from "@celestia-project/ui/primitive/button"
 import { cn } from "@celestia-project/ui/lib/utils"
 ```
 

@@ -15,7 +15,7 @@ The Celestia Design System is a production-grade, accessible UI foundation packa
 1. **Unstyled Primitives (Base UI)**: All interactive components (Dialog, DropdownMenu, Tabs, Tooltip, Select) inherit WAI-ARIA compliance, screen reader support, focus-trapping, and keyboard navigation directly from Base UI.
 2. **OKLCH Color Tokens**: Colors are authored in perceptual OKLCH coordinates to maintain consistent perceived brightness and contrast ratios across light and dark themes.
 3. **Zero-Runtime Styling**: All styles map to CSS custom properties (`var(--primary)`, `var(--radius)`). No JavaScript runtime overhead or CSS-in-JS style injection.
-4. **Decoupled & External Ready**: Packaged as an ESM module with deep import paths (`@celestia-project/ui/components/button`) and strict TypeScript types.
+4. **Decoupled & External Ready**: Packaged as an ESM module with deep import paths (`@celestia-project/ui/primitive/button`) and strict TypeScript types.
 
 ---
 
@@ -159,7 +159,9 @@ export function WelcomeCard() {
 |---|---|---|
 | `@celestia-project/ui` | `src/index.ts` | Complete barrel export of all 70+ components |
 | `@celestia-project/ui/globals.css` | `src/styles/globals.css` | CSS tokens & root styles |
-| `@celestia-project/ui/components/*` | `src/components/*.tsx` | Single component primitive |
+| `@celestia-project/ui/primitive/*` | `src/components/primitive/*.tsx` | Single-purpose primitive component |
+| `@celestia-project/ui/composite/*` | `src/components/composite/*.tsx` | Composite assembled from primitives |
+| `@celestia-project/ui/components/ai/*` | `src/components/ai/*.tsx` | AI chat & agent components |
 | `@celestia-project/ui/lib/utils` | `src/lib/utils.ts` | Classname merging helper (`cn`) |
 | `@celestia-project/ui/hooks/*` | `src/hooks/*.ts` | Shared React hooks (e.g. `useIsMobile`) |
 

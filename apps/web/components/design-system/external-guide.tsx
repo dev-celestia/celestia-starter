@@ -117,9 +117,9 @@ export function DashboardCard() {
 }`
 
 const DEEP_IMPORTS_CODE = `// Granular subpath imports for maximum tree-shaking & minimal bundles
-import { Button } from "@celestia-project/ui/components/button"
-import { Card, CardHeader, CardTitle, CardContent } from "@celestia-project/ui/components/card"
-import { Dialog, DialogTrigger, DialogContent } from "@celestia-project/ui/components/dialog"
+import { Button } from "@celestia-project/ui/primitive/button"
+import { Card, CardHeader, CardTitle, CardContent } from "@celestia-project/ui/primitive/card"
+import { Dialog, DialogTrigger, DialogContent } from "@celestia-project/ui/primitive/dialog"
 import { useIsMobile } from "@celestia-project/ui/hooks/use-mobile"
 import { cn } from "@celestia-project/ui/lib/utils"`
 

@@ -11,7 +11,7 @@
 
 ## Features
 
-- **63 components** — forms, navigation, overlays, data display, and more
+- **120+ components** — organized as primitives, composites, and AI chat components
 - Built on [Base UI](https://base-ui.com) for accessible, unstyled primitives
 - Styled with **Tailwind CSS v4** and `tw-animate-css`
 - Full **TypeScript** support with bundled `.d.ts` types
@@ -188,10 +188,19 @@ export function MyCard() {
 
 ### Deep imports (for better tree-shaking in non-bundler environments)
 
+Components are organized into two tiers — **primitives** (single-purpose building blocks) and **composites** (assembled from multiple primitives):
+
 ```tsx
-import { Button } from "@celestia-project/ui/components/button";
+import { Button } from "@celestia-project/ui/primitive/button";
+import { Field, FieldLabel, FieldDescription, FieldError } from "@celestia-project/ui/composite/field";
 import { cn } from "@celestia-project/ui/lib/utils";
 import { useIsMobile } from "@celestia-project/ui/hooks/use-mobile";
+```
+
+AI chat components deep-import from the `ai/` namespace:
+
+```tsx
+import { PromptInput } from "@celestia-project/ui/components/ai/prompt-input";
 ```
 
 ### `cn` utility
@@ -206,76 +215,79 @@ import { cn } from "@celestia-project/ui";
 
 ## Component Reference
 
+Components are split into two tiers plus the AI namespace:
+
+| Tier       | Import path                          | Meaning                                                              |
+| ---------- | ------------------------------------ | -------------------------------------------------------------------- |
+| Primitive  | `@celestia-project/ui/primitive/*`   | Single-purpose building blocks (forms, overlays, data display, ...)  |
+| Composite  | `@celestia-project/ui/composite/*`   | Assembled from primitives (fields, groups, sidebars, editors, ...)   |
+| AI         | `@celestia-project/ui/components/ai/*` | Chat & agent components (prompt input, canvas, model selector, ...)  |
+
+All three tiers are also re-exported from the barrel `@celestia-project/ui`.
+
+### Primitives
+
 <details>
 <summary><strong>Layout & Structure</strong></summary>
 
-| Component                                                                         | Import         |
-| --------------------------------------------------------------------------------- | -------------- |
-| `AspectRatio`                                                                     | `aspect-ratio` |
-| `Card`, `CardHeader`, `CardContent`, `CardFooter`, `CardTitle`, `CardDescription` | `card`         |
-| `Resizable`, `ResizablePanel`, `ResizablePanelGroup`, `ResizableHandle`           | `resizable`    |
-| `Separator`                                                                       | `separator`    |
-| `Sidebar` (+ 20 sub-parts)                                                        | `sidebar`      |
+| Component                                                                         | Import                |
+| --------------------------------------------------------------------------------- | --------------------- |
+| `AspectRatio`                                                                     | `primitive/aspect-ratio` |
+| `Card`, `CardHeader`, `CardContent`, `CardFooter`, `CardTitle`, `CardDescription` | `primitive/card`      |
+| `Resizable`, `ResizablePanel`, `ResizablePanelGroup`, `ResizableHandle`           | `primitive/resizable` |
+| `Separator`                                                                       | `primitive/separator` |
+| `Sheet` (+ parts)                                                                 | `primitive/sheet`     |
 
 </details>
 
 <details>
 <summary><strong>Typography & Display</strong></summary>
 
-| Component                                 | Import       |
-| ----------------------------------------- | ------------ |
-| `Alert`, `AlertTitle`, `AlertDescription` | `alert`      |
-| `Badge`                                   | `badge`      |
-| `Breadcrumb` (+ parts)                    | `breadcrumb` |
-| `Empty`                                   | `empty`      |
-| `Item`                                    | `item`       |
-| `Kbd`                                     | `kbd`        |
-| `Marker`                                  | `marker`     |
-| `Message`, `MessageBubble`                | `message`    |
-| `Skeleton`                                | `skeleton`   |
-| `Table` (+ parts)                         | `table`      |
+| Component                                 | Import              |
+| ----------------------------------------- | ------------------- |
+| `Alert`, `AlertTitle`, `AlertDescription` | `primitive/alert`   |
+| `Badge`                                   | `primitive/badge`   |
+| `Breadcrumb` (+ parts)                    | `primitive/breadcrumb` |
+| `Bubble`                                  | `primitive/bubble`  |
+| `Item`                                    | `primitive/item`    |
+| `Kbd`                                     | `primitive/kbd`     |
+| `Ripple`                                  | `primitive/ripple`  |
+| `Skeleton`                                | `primitive/skeleton`|
+| `Table` (+ parts)                         | `primitive/table`   |
 
 </details>
 
 <details>
 <summary><strong>Forms & Inputs</strong></summary>
 
-| Component                                                        | Import          |
-| ---------------------------------------------------------------- | --------------- |
-| `Button`                                                         | `button`        |
-| `ButtonGroup`                                                    | `button-group`  |
-| `Checkbox`                                                       | `checkbox`      |
-| `Combobox`                                                       | `combobox`      |
-| `Field`, `FieldLabel`, `FieldDescription`, `FieldError`          | `field`         |
-| `Input`                                                          | `input`         |
-| `InputGroup`                                                     | `input-group`   |
-| `InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator` | `input-otp`     |
-| `Label`                                                          | `label`         |
-| `NativeSelect`                                                   | `native-select` |
-| `RadioGroup`, `RadioGroupItem`                                   | `radio-group`   |
-| `Select` (+ parts)                                               | `select`        |
-| `Slider`                                                         | `slider`        |
-| `Switch`                                                         | `switch`        |
-| `Textarea`                                                       | `textarea`      |
-| `Toggle`                                                         | `toggle`        |
-| `ToggleGroup`, `ToggleGroupItem`                                 | `toggle-group`  |
+| Component                                                        | Import           |
+| ---------------------------------------------------------------- | ---------------- |
+| `Button`                                                         | `primitive/button` |
+| `Checkbox`                                                       | `primitive/checkbox` |
+| `Input`                                                          | `primitive/input` |
+| `InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator` | `primitive/input-otp` |
+| `Label`                                                          | `primitive/label` |
+| `RadioGroup`, `RadioGroupItem`                                   | `primitive/radio-group` |
+| `Select` (+ parts)                                               | `primitive/select` |
+| `Slider`                                                         | `primitive/slider` |
+| `Switch`                                                         | `primitive/switch` |
+| `Textarea`                                                       | `primitive/textarea` |
+| `Toggle`                                                         | `primitive/toggle` |
 
 </details>
 
 <details>
 <summary><strong>Overlays & Popups</strong></summary>
 
-| Component                                                        | Import          |
-| ---------------------------------------------------------------- | --------------- |
-| `AlertDialog` (+ parts)                                          | `alert-dialog`  |
-| `ContextMenu` (+ parts)                                          | `context-menu`  |
-| `Dialog` (+ parts)                                               | `dialog`        |
-| `Drawer` (+ parts)                                               | `drawer`        |
-| `DropdownMenu` (+ parts)                                         | `dropdown-menu` |
-| `HoverCard`, `HoverCardTrigger`, `HoverCardContent`              | `hover-card`    |
-| `Popover`, `PopoverTrigger`, `PopoverContent`                    | `popover`       |
-| `Sheet` (+ parts)                                                | `sheet`         |
-| `Tooltip`, `TooltipTrigger`, `TooltipContent`, `TooltipProvider` | `tooltip`       |
+| Component                                                        | Import              |
+| ---------------------------------------------------------------- | ------------------- |
+| `ContextMenu` (+ parts)                                          | `primitive/context-menu` |
+| `Dialog` (+ parts)                                               | `primitive/dialog`  |
+| `Drawer` (+ parts)                                               | `primitive/drawer`  |
+| `DropdownMenu` (+ parts)                                         | `primitive/dropdown-menu` |
+| `HoverCard`, `HoverCardTrigger`, `HoverCardContent`              | `primitive/hover-card` |
+| `Popover`, `PopoverTrigger`, `PopoverContent`                    | `primitive/popover` |
+| `Tooltip`, `TooltipTrigger`, `TooltipContent`, `TooltipProvider` | `primitive/tooltip` |
 
 </details>
 
@@ -284,11 +296,9 @@ import { cn } from "@celestia-project/ui";
 
 | Component                                        | Import            |
 | ------------------------------------------------ | ----------------- |
-| `Menubar` (+ parts)                              | `menubar`         |
-| `Menu` (+ parts)                                 | `menu`            |
-| `NavigationMenu` (+ parts)                       | `navigation-menu` |
-| `Pagination` (+ parts)                           | `pagination`      |
-| `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` | `tabs`            |
+| `Menubar` (+ parts)                              | `primitive/menubar` |
+| `NavigationMenu` (+ parts)                       | `primitive/navigation-menu` |
+| `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` | `primitive/tabs`  |
 
 </details>
 
@@ -297,14 +307,11 @@ import { cn } from "@celestia-project/ui";
 
 | Component                                 | Import        |
 | ----------------------------------------- | ------------- |
-| `Attachment`                              | `attachment`  |
-| `Avatar`, `AvatarImage`, `AvatarFallback` | `avatar`      |
-| `Bubble`                                  | `bubble`      |
-| `Calendar`                                | `calendar`    |
-| `Carousel` (+ parts)                      | `carousel`    |
-| `Chart` (+ parts)                         | `chart`       |
-| `Progress`                                | `progress`    |
-| `ScrollArea`                              | `scroll-area` |
+| `Avatar`, `AvatarImage`, `AvatarFallback` | `primitive/avatar` |
+| `Calendar`                                | `primitive/calendar` |
+| `Carousel` (+ parts)                      | `primitive/carousel` |
+| `Progress`                                | `primitive/progress` |
+| `ScrollArea`                              | `primitive/scroll-area` |
 
 </details>
 
@@ -313,16 +320,94 @@ import { cn } from "@celestia-project/ui";
 
 | Component                                                            | Import             |
 | -------------------------------------------------------------------- | ------------------ |
-| `Accordion`, `AccordionItem`, `AccordionTrigger`, `AccordionContent` | `accordion`        |
-| `Collapsible`, `CollapsibleTrigger`, `CollapsibleContent`            | `collapsible`      |
-| `Command` (+ parts)                                                  | `command`          |
-| `Direction`                                                          | `direction`        |
-| `MessageScroller`                                                    | `message-scroller` |
-| `Spinner`                                                            | `spinner`          |
+| `Accordion`, `AccordionItem`, `AccordionTrigger`, `AccordionContent` | `primitive/accordion` |
+| `Collapsible`, `CollapsibleTrigger`, `CollapsibleContent`            | `primitive/collapsible` |
+| `Command` (+ parts)                                                  | `primitive/command` |
+| `Direction`                                                          | `primitive/direction` |
+| `Spinner`                                                            | `primitive/spinner` |
 | `SonnerToaster` (re-exported as to avoid collision with `Toaster`)   | barrel `index`     |
-| `Toast`, `Toaster` (+ parts)                                         | `toast`            |
+| `Toast`, `Toaster` (+ parts)                                         | `primitive/toast`  |
 
 </details>
+
+### Composites
+
+<details>
+<summary><strong>Forms & Inputs</strong></summary>
+
+| Component                                                        | Import          |
+| ---------------------------------------------------------------- | --------------- |
+| `ButtonGroup`, `ButtonGroupText`                                 | `composite/button-group` |
+| `Combobox` (+ parts)                                             | `composite/combobox` |
+| `Field`, `FieldLabel`, `FieldDescription`, `FieldError`          | `composite/field` |
+| `Form` (+ parts)                                                 | `composite/form` |
+| `InputGroup`                                                     | `composite/input-group` |
+| `NativeSelect`                                                   | `composite/native-select` |
+| `ToggleGroup`, `ToggleGroupItem`                                 | `composite/toggle-group` |
+
+</details>
+
+<details>
+<summary><strong>Layout & Structure</strong></summary>
+
+| Component                                 | Import            |
+| ----------------------------------------- | ----------------- |
+| `Sidebar` (+ 20 sub-parts)                | `composite/sidebar` |
+| `TabBar` (+ parts)                        | `composite/tab-bar` |
+
+</details>
+
+<details>
+<summary><strong>Overlays & Popups</strong></summary>
+
+| Component                                                        | Import          |
+| ---------------------------------------------------------------- | --------------- |
+| `AlertDialog` (+ parts)                                          | `composite/alert-dialog` |
+| `Menu` (+ parts)                                                 | `composite/menu` |
+
+</details>
+
+<details>
+<summary><strong>Navigation</strong></summary>
+
+| Component                                        | Import            |
+| ------------------------------------------------ | ----------------- |
+| `Pagination` (+ parts)                           | `composite/pagination` |
+
+</details>
+
+<details>
+<summary><strong>Data & Media</strong></summary>
+
+| Component                                 | Import          |
+| ----------------------------------------- | --------------- |
+| `ArticleCard` (+ parts)                   | `composite/article-card` |
+| `Attachment`                              | `composite/attachment` |
+| `Chart` (+ parts)                         | `composite/chart` |
+| `DataTable` (+ parts)                     | `composite/data-table` |
+| `Empty` (+ parts)                         | `composite/empty` |
+| `Message`, `MessageBubble`                | `composite/message` |
+| `MessageScroller`                         | `composite/message-scroller` |
+
+</details>
+
+<details>
+<summary><strong>Chat & Editors</strong></summary>
+
+| Component                            | Import               |
+| ------------------------------------ | -------------------- |
+| `BlockTextEditor`                    | `composite/block-text-editor` |
+| `ChatInput`                          | `composite/chat-input` |
+| `ChatMessage`, `ChatMessageArea`     | `composite/chat-message`, `composite/chat-message-area` |
+| `Marker`                             | `composite/marker`  |
+| `SelectEnvInput`                     | `composite/select-env-input` |
+| `TextEditor`                         | `composite/text-editor` |
+
+</details>
+
+### AI Components
+
+Deep-import from `@celestia-project/ui/components/ai/<name>`. Highlights include `PromptInput`, `Agent`, `Artifact`, `Canvas`, `ModelSelector`, `CodeBlock`, `ChatInput`, `MessageScroller`, `Toolbar`, and 45+ more chat/agent building blocks.
 
 ---
 

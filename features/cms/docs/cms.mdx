@@ -94,7 +94,7 @@ const { posts } = await res.json(); // posts[].contentBody is markdown
 The editor screen uses `BlockTextEditor` as-is:
 
 ```tsx
-import { BlockTextEditor } from "@celestia-project/ui/components/block-text-editor";
+import { BlockTextEditor } from "@celestia-project/ui/composite/block-text-editor";
 
 <BlockTextEditor
   content={form.contentBody}

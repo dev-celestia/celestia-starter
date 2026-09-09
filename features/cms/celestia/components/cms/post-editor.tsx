@@ -5,7 +5,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { ArrowLeft, CircleNotch, Warning, LockSimple } from "@phosphor-icons/react";
 import { Badge, Button, Card, CardContent, Tabs, TabsContent, TabsList, TabsTrigger } from "@celestia-project/ui";
-import { BlockTextEditor } from "@celestia-project/ui/components/block-text-editor";
+import { BlockTextEditor } from "@celestia-project/ui/composite/block-text-editor";
 import { slugify } from "@/lib/cms/slugify";
 import { CMS_CONFIG } from "@/lib/cms/config";
 import { useAutosave } from "./use-autosave";
