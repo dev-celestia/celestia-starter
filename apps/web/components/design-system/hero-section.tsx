@@ -44,14 +44,8 @@ export function HeroSection() {
   return (
     <>
       <section className="relative flex flex-col items-start gap-5 py-10 sm:py-14">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline" className="text-xs text-muted-foreground font-mono">
-            Tailwind CSS v4 + OKLCH
-          </Badge>
-        </div>
-
         <h1 className="text-3xl font-bold tracking-tight text-foreground lg:text-4xl">
-          Celestia Design System
+          Design System
         </h1>
 
         <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground sm:text-base">
