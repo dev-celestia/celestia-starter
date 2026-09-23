@@ -2,7 +2,6 @@
   "title": "Components",
   "pages": [
     "index",
-    "alpine-ui",
     "---UI Components---",
     "accordion",
     "alert",
