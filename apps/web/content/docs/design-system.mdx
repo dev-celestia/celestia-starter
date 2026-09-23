@@ -317,6 +317,19 @@ Gradient: `linear-gradient(90deg, hsl(var(--brand)) 0%, hsl(var(--brand-deep)) 1
 | `--fog` | `text-fog` | `hsl(0 0% 53%)` ≈ `#878787` | Secondary / muted copy |
 | `--stroke` | `border-stroke` | `hsl(0 0% 12%)` ≈ `#1f1f1f` | Borders, dividers |
 
+These are **forced dark** — literal HSL values that ignore the `.dark` class, so
+they only belong on a page that has opted into dark explicitly.
+
+| Page | Theme | Tokens to use |
+|---|---|---|
+| `/` (agency landing) | Follows the user's theme, with a nav toggle | Semantic (`bg-background`, `text-foreground`, `text-muted-foreground`, `border-border`) |
+| `/feature-installer` | Always dark, via `<main className="dark bg-bg text-text-primary">` | Landing palette + brand |
+
+Do not mix the two on one page. A single `bg-bg` bar inside an otherwise
+theme-switchable page renders as a black stripe across a white page in light
+mode — which is exactly what the landing nav did before it moved to
+`bg-background/85`.
+
 ### Radii Scale
 
 All radii inherit from `--radius` (`0.625rem` / `10px`):

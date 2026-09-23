@@ -1,9 +1,26 @@
 "use client"
 
-import * as React from "react"
-import { ArrowLeftIcon, ArrowRightIcon, QuotesIcon } from "@phosphor-icons/react"
+import { QuotesIcon } from "@phosphor-icons/react"
+import {
+  Avatar,
+  AvatarFallback,
+  Badge,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@celestia-project/ui"
 
 import { Reveal } from "@/components/feature-installer/reveal"
+
+import { SectionHeading } from "./section-heading"
 
 const CASE_STUDIES = [
   {
@@ -71,116 +88,125 @@ const REVIEWS = [
   },
 ]
 
-export function CaseStudiesSection() {
-  const [reviewIdx, setReviewIdx] = React.useState(0)
-  const review = REVIEWS[reviewIdx]
+/** "Dr. James Okafor" -> "JO"; "Priya Mehta" -> "PM". */
+function initials(name: string): string {
+  return name
+    .replace(/^(dr|mr|ms|mrs)\.?\s+/i, "")
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase()
+}
 
+export function CaseStudiesSection() {
   return (
-    <section id="case-studies" className="mx-auto w-full max-w-7xl px-5 py-28 sm:px-8 sm:py-36">
+    <section
+      id="case-studies"
+      className="mx-auto w-full max-w-7xl px-5 py-24 sm:px-8 sm:py-32"
+    >
       <Reveal>
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="font-mono text-xs text-primary uppercase tracking-widest">Case Studies</p>
-          <h2 className="mt-4 text-3xl font-semibold tracking-[-0.02em] text-balance text-foreground sm:text-4xl">
-            Results that speak for themselves
-          </h2>
-          <p className="mt-4 text-muted-foreground leading-relaxed">
-            Real challenges, real solutions, measurable outcomes.
-          </p>
-        </div>
+        <SectionHeading
+          eyebrow="Case studies"
+          title="Results that speak for themselves"
+          description="Real challenges, real solutions, measurable outcomes."
+        />
       </Reveal>
 
-      {/* Case study cards */}
-      <div className="mt-16 grid gap-6 lg:grid-cols-3">
-        {CASE_STUDIES.map((cs) => (
-          <Reveal key={cs.client}>
-            <div className="flex h-full flex-col gap-5 rounded-2xl border border-border/60 bg-surface/20 p-6 transition-all hover:border-primary/20 hover:bg-surface/40">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-foreground">{cs.client}</h3>
-                  <p className="text-xs text-muted-foreground">{cs.industry}</p>
+      <div className="reveal-stagger mt-16 grid gap-6 lg:grid-cols-3">
+        {CASE_STUDIES.map((study) => (
+          <Reveal key={study.client}>
+            <Card className="h-full justify-between transition-colors duration-normal hover:ring-foreground/20">
+              <CardHeader className="gap-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <CardTitle className="text-base font-semibold text-foreground">
+                      {study.client}
+                    </CardTitle>
+                    <p className="text-2xs text-muted-foreground">{study.industry}</p>
+                  </div>
+                  <Badge variant="outline" mono className="text-3xs">
+                    {study.tag}
+                  </Badge>
                 </div>
-                <span className="rounded-full border border-primary/20 bg-primary/8 px-2.5 py-1 font-mono text-[10px] text-primary">
-                  {cs.tag}
-                </span>
-              </div>
+              </CardHeader>
 
-              <div className="flex-1 space-y-3">
+              <CardContent className="flex flex-col gap-3">
                 <div>
-                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/60 font-mono">
+                  <p className="mb-1 font-mono text-3xs font-semibold uppercase tracking-widest text-muted-foreground">
                     Challenge
                   </p>
-                  <p className="text-sm leading-relaxed text-muted-foreground">{cs.challenge}</p>
+                  <CardDescription className="text-sm leading-relaxed">
+                    {study.challenge}
+                  </CardDescription>
                 </div>
                 <div>
-                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/60 font-mono">
+                  <p className="mb-1 font-mono text-3xs font-semibold uppercase tracking-widest text-muted-foreground">
                     Solution
                   </p>
-                  <p className="text-sm leading-relaxed text-muted-foreground">{cs.solution}</p>
+                  <CardDescription className="text-sm leading-relaxed">
+                    {study.solution}
+                  </CardDescription>
                 </div>
-              </div>
+              </CardContent>
 
-              {/* Metrics */}
-              <div className="grid grid-cols-3 gap-2 border-t border-border/40 pt-5">
-                {cs.metrics.map((m) => (
-                  <div key={m.label} className="text-center">
-                    <p className="text-[10px] text-muted-foreground/60 font-mono mb-1">{m.label}</p>
-                    <p className="text-xs text-muted-foreground line-through">{m.before}</p>
-                    <p className="text-sm font-bold text-primary">{m.after}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+              <CardFooter className="border-t border-border/60 pt-4">
+                <dl className="grid w-full grid-cols-3 gap-3">
+                  {study.metrics.map((metric) => (
+                    <div key={metric.label} className="flex flex-col gap-0.5 text-center">
+                      <dt className="font-mono text-3xs text-muted-foreground">
+                        {metric.label}
+                      </dt>
+                      <dd className="text-2xs text-muted-foreground line-through">
+                        {metric.before}
+                      </dd>
+                      <dd className="text-sm font-semibold text-primary">
+                        {metric.after}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </CardFooter>
+            </Card>
           </Reveal>
         ))}
       </div>
 
-      {/* Reviews carousel */}
       <Reveal>
-        <div className="mt-20 rounded-2xl border border-border/60 bg-surface/20 p-8 sm:p-12">
-          <div className="mx-auto max-w-3xl text-center">
-            <QuotesIcon className="mx-auto mb-6 size-10 text-primary/40" weight="fill" />
-            <blockquote className="text-lg leading-relaxed text-foreground sm:text-xl">
-              &ldquo;{review!.quote}&rdquo;
-            </blockquote>
-            <div className="mt-6">
-              <p className="font-semibold text-foreground">{review!.author}</p>
-              <p className="text-sm text-muted-foreground">{review!.title}</p>
-            </div>
-
-            {/* Dots + arrows */}
-            <div className="mt-8 flex items-center justify-center gap-4">
-              <button
-                type="button"
-                onClick={() => setReviewIdx((i) => (i - 1 + REVIEWS.length) % REVIEWS.length)}
-                aria-label="Previous review"
-                className="flex size-9 items-center justify-center rounded-lg border border-border/60 text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors cursor-pointer"
-              >
-                <ArrowLeftIcon className="size-4" />
-              </button>
-              <div className="flex gap-2">
-                {REVIEWS.map((_, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => setReviewIdx(i)}
-                    aria-label={`Review ${i + 1}`}
-                    className={`size-1.5 rounded-full transition-all cursor-pointer ${
-                      i === reviewIdx ? "bg-primary w-4" : "bg-border"
-                    }`}
-                  />
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={() => setReviewIdx((i) => (i + 1) % REVIEWS.length)}
-                aria-label="Next review"
-                className="flex size-9 items-center justify-center rounded-lg border border-border/60 text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors cursor-pointer"
-              >
-                <ArrowRightIcon className="size-4" />
-              </button>
-            </div>
-          </div>
-        </div>
+        <Carousel
+          opts={{ loop: true }}
+          aria-label="Client testimonials"
+          className="mx-auto mt-20 max-w-3xl"
+        >
+          <CarouselContent>
+            {REVIEWS.map((review) => (
+              <CarouselItem key={review.author}>
+                <Card className="items-center py-10">
+                  <CardContent className="flex flex-col items-center gap-6 px-6 sm:px-10">
+                    <QuotesIcon className="size-8 text-primary/40" weight="fill" />
+                    <blockquote className="text-balance text-center text-lg leading-relaxed text-foreground sm:text-xl">
+                      &ldquo;{review.quote}&rdquo;
+                    </blockquote>
+                    <div className="flex items-center gap-3">
+                      <Avatar size="lg">
+                        <AvatarFallback>{initials(review.author)}</AvatarFallback>
+                      </Avatar>
+                      <div className="text-start">
+                        <p className="text-sm font-semibold text-foreground">
+                          {review.author}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{review.title}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious aria-label="Previous testimonial" />
+          <CarouselNext aria-label="Next testimonial" />
+        </Carousel>
       </Reveal>
     </section>
   )

@@ -1,6 +1,5 @@
 "use client"
 
-import * as React from "react"
 import {
   Badge,
   Card,
@@ -11,6 +10,8 @@ import {
 } from "@celestia-project/ui"
 
 import { Reveal } from "@/components/feature-installer/reveal"
+
+import { SectionHeading } from "./section-heading"
 
 const CATEGORIES = [
   {
@@ -80,50 +81,50 @@ const CATEGORIES = [
 
 export function TechStackSection() {
   return (
-    <section id="tech-stack" className="mx-auto w-full max-w-7xl px-5 py-24 sm:px-8 sm:py-32">
+    <section
+      id="tech-stack"
+      className="mx-auto w-full max-w-7xl px-5 py-24 sm:px-8 sm:py-32"
+    >
       <Reveal>
-        <div className="mx-auto max-w-2xl text-center">
-          <Badge variant="outline" mono className="mb-3 uppercase tracking-wider text-xs">
-            Tech Stack
-          </Badge>
-          <h2 className="text-3xl font-semibold tracking-[-0.02em] text-balance text-foreground sm:text-4xl">
-            Modern tools, proven in production
-          </h2>
-          <p className="mt-4 text-muted-foreground leading-relaxed text-pretty">
-            We stay technology-agnostic and recommend the right tool for the job —
-            not whatever is currently trendy.
-          </p>
-        </div>
+        <SectionHeading
+          eyebrow="Tech stack"
+          title="Modern tools, proven in production"
+          description="We stay technology-agnostic and recommend the right tool for the job — not whatever is currently trendy."
+        />
       </Reveal>
 
-      <div className="mt-12">
-        <Tabs defaultValue="frontend" className="items-center">
+      <Reveal>
+        <Tabs defaultValue="frontend" className="mt-12 items-center">
           <div className="flex justify-center">
-            <TabsList variant="default" className="flex-wrap h-auto p-1">
-              {CATEGORIES.map((cat) => (
-                <TabsTrigger key={cat.id} value={cat.id} className="text-xs px-3.5 py-1.5">
-                  {cat.label}
+            <TabsList variant="default" className="h-auto flex-wrap p-1">
+              {CATEGORIES.map((category) => (
+                <TabsTrigger
+                  key={category.id}
+                  value={category.id}
+                  className="px-3.5 py-1.5 text-xs"
+                >
+                  {category.label}
                 </TabsTrigger>
               ))}
             </TabsList>
           </div>
 
-          {CATEGORIES.map((cat) => (
-            <TabsContent key={cat.id} value={cat.id} className="mt-8">
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7">
-                {cat.techs.map((tech) => (
+          {CATEGORIES.map((category) => (
+            <TabsContent key={category.id} value={category.id} className="mt-8">
+              {/* The two-letter monogram that used to sit here ("RE" for React,
+                  "NE" for Next.js) read as a broken logo. The name and the role
+                  are the information; there is nothing to abbreviate. */}
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
+                {category.techs.map((tech) => (
                   <Card
                     key={tech.name}
                     size="sm"
-                    className="flex flex-col items-center justify-center p-4 text-center transition-all duration-200 hover:ring-foreground/20"
+                    className="items-center justify-center gap-2 p-4 text-center transition-colors duration-normal hover:ring-foreground/20"
                   >
-                    <div className="flex size-9 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary font-bold text-xs">
-                      {tech.name.slice(0, 2).toUpperCase()}
-                    </div>
-                    <p className="mt-2 text-xs font-semibold text-foreground leading-tight">
+                    <p className="text-xs font-semibold leading-tight text-foreground">
                       {tech.name}
                     </p>
-                    <Badge variant="secondary" size="sm" mono className="mt-1 text-[9px]">
+                    <Badge variant="secondary" size="sm" mono className="text-3xs">
                       {tech.tag}
                     </Badge>
                   </Card>
@@ -132,7 +133,7 @@ export function TechStackSection() {
             </TabsContent>
           ))}
         </Tabs>
-      </div>
+      </Reveal>
     </section>
   )
 }

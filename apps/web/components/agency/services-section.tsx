@@ -1,17 +1,16 @@
 import Link from "next/link"
 import {
+  ArrowRightIcon,
+  CloudIcon,
   CodeIcon,
   DeviceMobileIcon,
-  CloudIcon,
-  WrenchIcon,
   UsersThreeIcon,
-  ArrowRightIcon,
+  WrenchIcon,
 } from "@phosphor-icons/react/dist/ssr"
 import {
   Badge,
   Button,
   Card,
-  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
@@ -19,6 +18,9 @@ import {
 } from "@celestia-project/ui"
 
 import { Reveal } from "@/components/feature-installer/reveal"
+
+import { IconTile } from "./icon-tile"
+import { SectionHeading } from "./section-heading"
 
 const SERVICES = [
   {
@@ -62,29 +64,20 @@ export function ServicesSection() {
   return (
     <section id="services" className="mx-auto w-full max-w-7xl px-5 py-24 sm:px-8 sm:py-32">
       <Reveal>
-        <div className="mx-auto max-w-2xl text-center">
-          <Badge variant="outline" mono className="mb-3 uppercase tracking-wider text-xs">
-            Services
-          </Badge>
-          <h2 className="text-3xl font-semibold tracking-[-0.02em] text-balance text-foreground sm:text-4xl">
-            Everything you need to ship great software
-          </h2>
-          <p className="mt-4 text-muted-foreground leading-relaxed text-pretty">
-            From greenfield builds to enterprise transformations, our engineering
-            practice covers every layer of the modern software stack.
-          </p>
-        </div>
+        <SectionHeading
+          eyebrow="Services"
+          title="Everything you need to ship great software"
+          description="From greenfield builds to enterprise transformations, our engineering practice covers every layer of the modern software stack."
+        />
       </Reveal>
 
-      <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="reveal-stagger mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {SERVICES.map((service) => (
           <Reveal key={service.title}>
-            <Card className="h-full justify-between transition-all duration-200 hover:ring-foreground/20 hover:shadow-sm">
+            <Card className="h-full justify-between transition-colors duration-normal hover:ring-foreground/20">
               <CardHeader className="gap-3">
-                <div className="flex size-10 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary">
-                  <service.icon className="size-5" weight="duotone" />
-                </div>
-                <CardTitle className="text-base text-foreground font-semibold">
+                <IconTile icon={service.icon} />
+                <CardTitle className="text-base font-semibold text-foreground">
                   {service.title}
                 </CardTitle>
                 <CardDescription className="text-sm leading-relaxed">
@@ -93,13 +86,7 @@ export function ServicesSection() {
               </CardHeader>
               <CardFooter className="flex-wrap gap-1.5 pt-2">
                 {service.tags.map((tag) => (
-                  <Badge
-                    key={tag}
-                    variant="secondary"
-                    size="sm"
-                    mono
-                    className="text-[10px]"
-                  >
+                  <Badge key={tag} variant="secondary" size="sm" mono className="text-3xs">
                     {tag}
                   </Badge>
                 ))}
@@ -108,28 +95,27 @@ export function ServicesSection() {
           </Reveal>
         ))}
 
-        {/* Highlight consultation card */}
+        {/* The one card that asks for something, so it leads the eye. */}
         <Reveal>
-          <Card className="h-full justify-between bg-primary/5 ring-primary/20 dark:bg-primary/10 sm:col-span-2 lg:col-span-1">
+          <Card className="h-full justify-between bg-primary/5 ring-primary/20 sm:col-span-2 lg:col-span-1">
             <CardHeader className="gap-3">
-              <Badge variant="default" mono size="sm" className="w-fit uppercase tracking-wider">
-                Free Review
+              <Badge variant="default" mono className="w-fit uppercase tracking-wider">
+                Free review
               </Badge>
-              <CardTitle className="text-base text-foreground font-semibold">
+              <CardTitle className="text-base font-semibold text-foreground">
                 Architecture Review
               </CardTitle>
               <CardDescription className="text-sm leading-relaxed">
                 Talk to a senior engineer. No pitch, no commitment — just a
-                candid technical evaluation of your current architecture and roadmap.
+                candid technical evaluation of your current architecture and
+                roadmap.
               </CardDescription>
             </CardHeader>
             <CardFooter className="pt-2">
-              <Link href="#contact" className="w-full">
-                <Button size="sm" className="w-full gap-2 cursor-pointer">
-                  Book 30-min Review
-                  <ArrowRightIcon className="size-3.5" />
-                </Button>
-              </Link>
+              <Button size="sm" className="w-full gap-2" render={<Link href="#contact" />}>
+                Book 30-min Review
+                <ArrowRightIcon className="size-3.5" />
+              </Button>
             </CardFooter>
           </Card>
         </Reveal>

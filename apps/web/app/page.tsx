@@ -1,13 +1,14 @@
 import type { Metadata } from "next"
 
-import { AgencyNav } from "@/components/agency/agency-nav"
-import { AgencyHero } from "@/components/agency/hero-section"
-import { ServicesSection } from "@/components/agency/services-section"
-import { ProcessSection } from "@/components/agency/process-section"
-import { DeliveryModelsSection } from "@/components/agency/delivery-models-section"
-import { TechStackSection } from "@/components/agency/tech-stack-section"
-import { ContactSection } from "@/components/agency/contact-section"
 import { AgencyFooter } from "@/components/agency/agency-footer"
+import { AgencyNav } from "@/components/agency/agency-nav"
+import { CaseStudiesSection } from "@/components/agency/case-studies-section"
+import { ContactSection } from "@/components/agency/contact-section"
+import { DeliveryModelsSection } from "@/components/agency/delivery-models-section"
+import { AgencyHero } from "@/components/agency/hero-section"
+import { ProcessSection } from "@/components/agency/process-section"
+import { ServicesSection } from "@/components/agency/services-section"
+import { TechStackSection } from "@/components/agency/tech-stack-section"
 
 import "./landing.css"
 
@@ -29,6 +30,8 @@ export default function HomePage() {
       <AgencyNav />
       <AgencyHero />
       <ServicesSection />
+      {/* Proof sits directly after the claim it supports. */}
+      <CaseStudiesSection />
       <ProcessSection />
       <DeliveryModelsSection />
       <TechStackSection />
