@@ -2,6 +2,8 @@
 
 import * as React from "react"
 
+import { cva, type VariantProps } from "class-variance-authority"
+
 import { cn } from "@celestia-project/ui/lib/utils"
 
 function Table({ className, ...props }: React.ComponentProps<"table">) {
@@ -78,23 +80,48 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
   )
 }
 
+/**
+ * Row density, as a first-class choice.
+ *
+ * The base sets `p-2` — 8px on both axes. Dense data tables want 6px of vertical
+ * padding while keeping the 8px horizontal, and the app wrote `py-1.5` at 31 of
+ * its 48 cells to get it. That is a majority but not a mandate: the other 17 are
+ * happy at `p-2`, so this is a step and not a correction to the base.
+ *
+ * Only the vertical axis moves. `p-2` already supplies the horizontal, so `sm` is
+ * a height step and nothing else — the same shape as Badge's `size="sm"` (`h-4`)
+ * and Button's `md` (one height step over `sm`).
+ *
+ * The base string is unchanged from the literal it replaced; only the axis was
+ * extracted, so a cell that does not ask for `sm` renders exactly as before.
+ */
+const tableCellVariants = cva(
+  "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pe-0",
+  {
+    variants: {
+      size: {
+        default: "",
+        sm: "py-1.5",
+      },
+    },
+    defaultVariants: { size: "default" },
+  }
+)
+
 function TableCell({
   className,
   mono = false,
+  size = "default",
   ...props
 }: React.ComponentProps<"td"> & {
   /** Render the cell in the monospace stack — for ids, hashes, tokens, ports. */
   mono?: boolean
-}) {
+} & VariantProps<typeof tableCellVariants>) {
   return (
     <td
       data-slot="table-cell"
       data-mono={mono || undefined}
-      className={cn(
-        "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pe-0",
-        mono && "font-mono",
-        className
-      )}
+      className={cn(tableCellVariants({ size }), mono && "font-mono", className)}
       {...props}
     />
   )
