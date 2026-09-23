@@ -9,6 +9,7 @@ import {
   BellSimpleRingingIcon,
   CompassIcon,
   StackIcon,
+  BrowserIcon,
 } from "@phosphor-icons/react"
 import { NavSidebar, type NavSidebarGroup } from "@/components/shared/nav-sidebar"
 import { cn } from "@celestia-project/ui/lib/utils"
@@ -148,6 +149,22 @@ export const CATEGORIES: CategoryItem[] = [
       { id: "text-editor", name: "Text & Code Editor" },
       { id: "block-text-editor", name: "Block Text Editor" },
       { id: "chart", name: "Chart Container" },
+    ],
+  },
+  {
+    id: "layout",
+    name: "Layout & Pages",
+    icon: BrowserIcon,
+    count: 8,
+    items: [
+      { id: "auth-shell", name: "Auth Shell" },
+      { id: "sign-in-page", name: "Sign In Page" },
+      { id: "sign-up-page", name: "Sign Up Page" },
+      { id: "forgot-password-page", name: "Forgot Password Page" },
+      { id: "reset-password-page", name: "Reset Password Page" },
+      { id: "two-factor-page", name: "Two-Factor Page" },
+      { id: "page-shell", name: "Page Shell" },
+      { id: "not-found-page", name: "Not Found Page" },
     ],
   },
 ]

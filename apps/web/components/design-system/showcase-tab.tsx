@@ -11,6 +11,7 @@ import { FeedbackSection } from "@/components/showcase/sections/feedback-section
 import { NavigationSection } from "@/components/showcase/sections/navigation-section"
 import { ChatAiSection } from "@/components/showcase/sections/chat-ai-section"
 import { SurfacesSection } from "@/components/showcase/sections/surfaces-section"
+import { LayoutSection } from "@/components/showcase/sections/layout-section"
 import { useDesignSystem } from "./hooks/use-design-system"
 
 export function ShowcaseTab() {
@@ -84,6 +85,10 @@ export function ShowcaseTab() {
 
           {(!normalizedQuery || "surfaces resizable scroll area carousel text code editor block markdown chart".includes(normalizedQuery)) && (
             <SurfacesSection />
+          )}
+
+          {(!normalizedQuery || "layout auth shell sign in up forgot reset password two factor otp not found 404 page browser".includes(normalizedQuery)) && (
+            <LayoutSection />
           )}
         </div>
       </div>
