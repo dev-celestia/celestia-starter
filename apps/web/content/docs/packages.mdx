@@ -171,20 +171,41 @@ A CLI and runtime registry that discovers, installs, and tracks features defined
 **CLI commands (via root scripts):**
 
 ```bash
-pnpm add-feature <name>     # Install a feature into the workspace
-pnpm remove-feature <name>  # Reverse an install (copies, insertions, tracker)
-pnpm list-features          # List available and installed features
+pnpm add-feature <name>       # Install (or --force reinstall/upgrade) a feature
+pnpm remove-feature <name>    # Uninstall a feature, restoring shared files
+pnpm list-features            # List available and installed features
+pnpm verify-features [name]   # Check installed features for drift or breakage
+pnpm prompt-feature <name>    # Generate the AI verification prompt
 ```
+
+Common flags: `--dry-run` (plan only, writes nothing), `--force` (reinstall/upgrade,
+or override removal safety checks), `--strict` (treat warnings as errors),
+`--json` (machine-readable report), `--quiet`.
 
 **How `add` works:**
 
 1. Reads `features/<name>/feature.json` (legacy v1 manifests using `files` are normalized)
-2. Verifies `requires` against the tracker (root `features.json`)
-3. Copies `copies` entries into the workspace — `apps/api`, `apps/web`, `packages/*`, root files
-4. Inserts `insertions` snippets into managed marker regions
-5. Applies `jsonAppends` to JSON arrays (e.g. the docs sidebar `meta.json`)
-6. Merges `dependencies` / `devDependencies` into each target package's `package.json`
-7. Records the feature in the tracker and prints next steps (`pnpm install`, env vars, `postInstall` commands)
+2. Validates it — malformed fields and paths that escape the repository are rejected
+   before anything is written
+3. Verifies `requires` against the tracker (root `features.json`)
+4. Plans every action, then snapshots each path it will touch
+5. Copies `copies` entries into the workspace — `apps/api`, `apps/web`, `packages/*`, root files
+6. Inserts `insertions` snippets into managed marker regions
+7. Applies `jsonAppends` to JSON arrays (e.g. the docs sidebar `meta.json`)
+8. Merges `dependencies` / `devDependencies` into each target package's `package.json`,
+   reporting any version conflict instead of silently replacing it
+9. Records the feature, its files (with content hashes), backups and dependency
+   changes in the tracker, then prints next steps (`pnpm install`, env vars,
+   `postInstall` commands)
+
+If any step fails, every touched path is rolled back — a failed install can never
+leave a half-applied repository behind.
+
+**Shared files:** when two features provide the same path (for example the CMS
+media dialog, provided by `cms`, `media-r2` and `unsplash`), the newest install
+wins and the previous content is backed up under `.feature-manager/backups/`.
+Removing a feature restores the previous owner's version rather than deleting the
+file. Files you edited after installing are kept unless `--force` is given.
 
 **Feature manifest schema (`feature.json`):**
 
@@ -251,6 +272,14 @@ Marker ids are scoped per file, so `imports` in `app.ts` and `imports` in `sideb
 
 | Import path | Purpose |
 |-------------|---------|
-| `@workspace/feature-manager` | Types + marker utilities (`insertIntoRegion`, `removeFromRegion`, `jsonAppend`, `jsonRemove`) + runtime registry |
+| `@workspace/feature-manager` | Everything below, re-exported from one entry point |
+| `@workspace/feature-manager/markers` | Marker engine: `insertIntoRegion`, `removeFromRegion`, `hasRegion`, `listRegionFeatures`, `jsonAppend`, `jsonRemove` |
+| `@workspace/feature-manager/manifest` | `loadManifest`, `normalizeManifest`, `validateManifest`, `discoverFeatures` |
+| `@workspace/feature-manager/installer` | `planInstall`, `executeInstall`, `installFeature` |
+| `@workspace/feature-manager/remover` | `planRemove`, `executeRemove`, `removeFeature` |
+| `@workspace/feature-manager/verifier` | `verify` — integrity report for installed features |
 | `@workspace/feature-manager/types` | `Feature`, `FeatureManifest`, `FeatureCopy`, `FeatureInsertion`, `FeatureTracker` types |
 | `@workspace/feature-manager/registry` | Runtime feature registry |
+
+All of these take an explicit repo `root`, so they can be driven from scripts and
+tests rather than only from the CLI.

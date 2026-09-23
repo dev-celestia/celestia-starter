@@ -1,49 +1,54 @@
-import { existsSync, mkdirSync, writeFileSync } from "node:fs"
 import { join } from "node:path"
-import type { FeatureCopy, FeatureInsertion, FeatureJsonAppend, FeatureManifest } from "./types.js"
 
-export interface InsertionReport {
-  file: string
-  marker: string
-  snippetFile: string
-}
-
-export interface WarningReport {
-  type: "missing_file" | "missing_marker" | "missing_json" | "other"
-  file: string
-  marker?: string
-  snippet?: string
-  message: string
-}
+import { writeFileAtomic } from "./fsx.js"
+import type { NormalizedManifest } from "./manifest.js"
+import type { InsertionReport, WarningReport } from "./types.js"
 
 export interface PromptGenerationParams {
-  manifest: FeatureManifest & {
-    copies?: FeatureCopy[]
-    insertions?: FeatureInsertion[]
-    jsonAppends?: FeatureJsonAppend[]
-    dependencies?: Record<string, Record<string, string>>
-    devDependencies?: Record<string, Record<string, string>>
-    env?: Record<string, string[]>
-    postInstall?: string[]
-    notes?: string
-  }
+  manifest: NormalizedManifest
   copiedFiles: string[]
+  unchangedFiles?: string[]
   appliedInsertions: InsertionReport[]
   warnings: WarningReport[]
   updatedJsonFiles: { file: string; path: string; value: string }[]
   addedDeps: Record<string, string[]>
   addedDevDeps: Record<string, string[]>
+  conflicts?: { target: string; name: string; current: string; incoming: string }[]
+  backups?: { path: string; backup: string }[]
+  previousVersion?: string
+  dryRun?: boolean
 }
 
+const WARNING_LABELS: Record<WarningReport["type"], string> = {
+  missing_file: "Missing file",
+  missing_marker: "Missing marker region",
+  missing_json: "JSON update failed",
+  missing_dependency: "Dependency target missing",
+  dep_conflict: "Dependency version conflict",
+  overwrite: "Existing file overwritten",
+  user_modified: "File modified since install",
+  skipped: "Skipped",
+  other: "Note",
+}
+
+/**
+ * Build the optional "AI verification" prompt: a self-contained brief a coding
+ * assistant can follow to sanity-check an install against a customised repo.
+ */
 export function generateVerificationPrompt(params: PromptGenerationParams): string {
   const {
     manifest,
     copiedFiles,
+    unchangedFiles = [],
     appliedInsertions,
     warnings,
     updatedJsonFiles,
     addedDeps,
     addedDevDeps,
+    conflicts = [],
+    backups = [],
+    previousVersion,
+    dryRun = false,
   } = params
 
   const lines: string[] = []
@@ -51,48 +56,59 @@ export function generateVerificationPrompt(params: PromptGenerationParams): stri
   lines.push(`# AI Feature Verification & Wiring: \`${manifest.name}\` (v${manifest.version})`)
   lines.push("")
   lines.push(`> **Feature Description**: ${manifest.description}`)
+  if (previousVersion) {
+    lines.push(`> **Upgraded from**: v${previousVersion}`)
+  }
   lines.push("")
-  lines.push("This document was generated automatically by `feature-manager`. You can paste this entire prompt into your AI coding tool (e.g. Antigravity, Cursor, Claude Code, Copilot) to optionally verify that the feature was installed cleanly and integrates well with any custom modifications in this codebase.")
+  lines.push(
+    "This document was generated automatically by `feature-manager`. Paste it into your AI coding tool " +
+      "(Cursor, Claude Code, Copilot, …) to verify that the feature was installed cleanly and integrates " +
+      "well with any custom modifications in this codebase.",
+  )
+  if (dryRun) {
+    lines.push("")
+    lines.push("> ⚠️ This prompt was generated from a **dry run** — nothing has been written to disk yet.")
+  }
   lines.push("")
 
   lines.push("## 1. Installation Overview")
   lines.push("")
 
   if (copiedFiles.length > 0) {
-    lines.push("### Copied Files")
-    for (const f of copiedFiles) {
-      lines.push(`- \`${f}\``)
-    }
+    lines.push(`### Copied Files (${copiedFiles.length})`)
+    for (const file of copiedFiles) lines.push(`- \`${file}\``)
+    lines.push("")
+  }
+
+  if (unchangedFiles.length > 0) {
+    lines.push(`### Already Up To Date (${unchangedFiles.length})`)
+    for (const file of unchangedFiles) lines.push(`- \`${file}\``)
     lines.push("")
   }
 
   if (appliedInsertions.length > 0) {
     lines.push("### Connected Markers (Insertions)")
-    for (const ins of appliedInsertions) {
-      lines.push(`- Target: \`${ins.file}\` (marker: \`${ins.marker}\`)`)
+    for (const insertion of appliedInsertions) {
+      lines.push(`- Target: \`${insertion.file}\` (marker: \`${insertion.marker}\`)`)
     }
     lines.push("")
   }
 
   if (updatedJsonFiles.length > 0) {
     lines.push("### Updated JSON Files")
-    for (const j of updatedJsonFiles) {
-      lines.push(`- \`${j.file}\` (appended \`${j.value}\` to \`${j.path}\`)`)
+    for (const entry of updatedJsonFiles) {
+      lines.push(`- \`${entry.file}\` (appended \`${entry.value}\` to \`${entry.path}\`)`)
     }
     lines.push("")
   }
 
-  const allDepTargets = Array.from(
-    new Set([...Object.keys(addedDeps), ...Object.keys(addedDevDeps)]),
-  )
-  if (allDepTargets.length > 0) {
+  const depTargets = Array.from(new Set([...Object.keys(addedDeps), ...Object.keys(addedDevDeps)]))
+  if (depTargets.length > 0) {
     lines.push("### Package Dependencies")
-    for (const target of allDepTargets) {
+    for (const target of depTargets) {
       const deps = addedDeps[target] ?? []
       const devDeps = addedDevDeps[target] ?? []
-      if (deps.length > 0) {
-        lines.push(`- \`${target}\` dependencies: ${deps.map((d) => `\`${d}\``).join(", ")}`)
-      }
+      if (deps.length > 0) lines.push(`- \`${target}\` dependencies: ${deps.map((d) => `\`${d}\``).join(", ")}`)
       if (devDeps.length > 0) {
         lines.push(`- \`${target}\` devDependencies: ${devDeps.map((d) => `\`${d}\``).join(", ")}`)
       }
@@ -105,69 +121,88 @@ export function generateVerificationPrompt(params: PromptGenerationParams): stri
     for (const [target, vars] of Object.entries(manifest.env)) {
       if (vars.length === 0) continue
       lines.push(`- \`${target}/.env\`:`)
-      for (const v of vars) {
-        lines.push(`  - \`${v}\``)
-      }
+      for (const entry of vars) lines.push(`  - \`${entry}\``)
     }
     lines.push("")
   }
 
+  if (backups.length > 0) {
+    lines.push("### Backed Up Files")
+    lines.push("These files were overwritten; the previous content is stored for restoration on removal.")
+    for (const backup of backups) lines.push(`- \`${backup.path}\` → \`${backup.backup}\``)
+    lines.push("")
+  }
+
+  if (conflicts.length > 0) {
+    lines.push("## 2. ⚠️ Dependency Version Conflicts")
+    lines.push("")
+    lines.push("These packages were already present at a different version and have been realigned:")
+    lines.push("")
+    for (const conflict of conflicts) {
+      lines.push(`- \`${conflict.name}\` in \`${conflict.target}\`: \`${conflict.current}\` → \`${conflict.incoming}\``)
+    }
+    lines.push("")
+    lines.push("Confirm the new range does not break other features that rely on the previous version.")
+    lines.push("")
+  }
+
   if (warnings.length > 0) {
-    lines.push("## 2. ⚠️ Warnings / Unplaced Snippets (Attention Required)")
+    lines.push(`## ${conflicts.length > 0 ? 3 : 2}. ⚠️ Warnings / Unplaced Snippets (Attention Required)`)
     lines.push("")
-    lines.push("The deterministic installer could not automatically inject the following snippets due to missing or modified markers in the current codebase:")
+    lines.push(
+      "The deterministic installer could not fully apply the following entries, usually because the target " +
+        "file or its marker region is missing or has been modified:",
+    )
     lines.push("")
-    for (const w of warnings) {
-      lines.push(`### Warning on \`${w.file}\``)
-      lines.push(`- **Issue**: ${w.message}`)
-      if (w.marker) {
-        lines.push(`- **Expected Marker**: \`${w.marker}\``)
-      }
-      if (w.snippet) {
-        lines.push("- **Snippet to manually integrate**:")
+    for (const warning of warnings) {
+      lines.push(`### ${WARNING_LABELS[warning.type]}: \`${warning.file}\``)
+      lines.push(`- **Issue**: ${warning.message}`)
+      if (warning.marker) lines.push(`- **Expected Marker**: \`${warning.marker}\``)
+      if (warning.snippet) {
+        lines.push("- **Snippet to integrate manually**:")
         lines.push("```tsx")
-        lines.push(w.snippet)
+        lines.push(warning.snippet)
         lines.push("```")
       }
       lines.push("")
     }
   } else {
-    lines.push("## 2. Status: Clean Deterministic Install")
+    lines.push(`## ${conflicts.length > 0 ? 3 : 2}. Status: Clean Deterministic Install`)
     lines.push("")
     lines.push("All files and markers were placed into their expected locations without conflicts.")
     lines.push("")
   }
 
-  lines.push("## 3. 🛡️ Celestia Architectural Rules")
-  lines.push("When reviewing or modifying the code, ensure these architectural boundaries are strictly maintained:")
-  lines.push("1. **Frontend (`apps/web`)**: Pure UI client using Next.js. **Never** import database clients (`@workspace/db`), server-only auth (`betterAuth`), or secret environment variables here.")
-  lines.push("2. **Backend API (`apps/api`)**: Hono backend running on port 4000. Handles all database access, business logic, and Better Auth server instance.")
-  lines.push("3. **Shared Database (`packages/db`)**: Drizzle ORM schema + client. Shared by `apps/api`.")
-  lines.push("4. **Shared UI (`packages/ui`)**: Reusable UI component library (`@celestia-project/ui`).")
+  const section = conflicts.length > 0 || warnings.length > 0 ? 4 : 3
+
+  lines.push(`## ${section}. 🛡️ Celestia Architectural Rules`)
+  lines.push("When reviewing or modifying the code, ensure these boundaries stay intact:")
+  lines.push(
+    "1. **Frontend (`apps/web`)**: pure UI client. **Never** import database clients (`@workspace/db`), " +
+      "the server auth instance (`betterAuth`), or secret environment variables here.",
+  )
+  lines.push(
+    "2. **Backend API (`apps/api`)**: Hono server on port 4000. Owns all database access, business logic, " +
+      "and the Better Auth server instance.",
+  )
+  lines.push("3. **Shared database (`packages/db`)**: Drizzle ORM schema + client, consumed by `apps/api`.")
+  lines.push("4. **Shared UI (`packages/ui`)**: reusable component library (`@celestia-project/ui`).")
   lines.push("")
 
-  lines.push("## 4. 🛠️ Action Items for AI Coding Assistant")
-  lines.push("Please perform the following verification and assembly checks:")
-  lines.push("1. **Type & Syntax Check**: Check if all newly added files, components, and route handlers compile cleanly and have correct import paths.")
-  lines.push("2. **Review Warnings & Integration Points**: If there are any unplaced snippets above, wire them into the appropriate components or routes according to the current codebase layout.")
-  lines.push("3. **Sidebar Navigation & Routes**: Ensure the new feature's pages are accessible and appropriately linked in the UI and router.")
-  lines.push("4. **Database Schemas**: If new tables were introduced, verify that `@workspace/db` exports them correctly.")
-  lines.push("5. **Summary**: Provide a quick summary of the feature status and confirm whether any manual adjustments were needed.")
+  lines.push(`## ${section + 1}. 🛠️ Action Items for the AI Coding Assistant`)
+  lines.push("Please perform these verification and assembly checks:")
+  lines.push("1. **Type & syntax check**: confirm every new file, component and route handler compiles and uses correct import paths.")
+  lines.push("2. **Review warnings**: wire up any unplaced snippets listed above using the current codebase layout.")
+  lines.push("3. **Navigation & routes**: ensure the feature's pages are reachable and linked in the UI and router.")
+  lines.push("4. **Database schema**: if new tables were introduced, verify `@workspace/db` exports them correctly.")
+  lines.push("5. **Summary**: report the feature status and whether any manual adjustments were needed.")
   lines.push("")
 
   return lines.join("\n")
 }
 
-export function saveVerificationPrompt(
-  root: string,
-  featureName: string,
-  promptContent: string,
-): string {
-  const promptsDir = join(root, ".prompts")
-  if (!existsSync(promptsDir)) {
-    mkdirSync(promptsDir, { recursive: true })
-  }
-  const promptPath = join(promptsDir, `verify-${featureName}.md`)
-  writeFileSync(promptPath, `${promptContent}\n`, "utf-8")
+export function saveVerificationPrompt(root: string, featureName: string, promptContent: string): string {
+  const promptPath = join(root, ".prompts", `verify-${featureName}.md`)
+  writeFileAtomic(promptPath, `${promptContent}\n`)
   return promptPath
 }

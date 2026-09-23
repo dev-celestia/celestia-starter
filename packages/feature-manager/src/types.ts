@@ -66,11 +66,76 @@ export interface FeatureManifest {
   files?: Record<string, string>
 }
 
+/** One dependency a feature touched, so removal can undo it precisely. */
+export interface InstalledDependency {
+  target: string
+  field: "dependencies" | "devDependencies"
+  name: string
+  /** True when the dependency did not exist before the install. */
+  added: boolean
+  /** The range that was in place before the install, when it changed. */
+  previous?: string
+}
+
+/**
+ * A record of one installed feature.
+ *
+ * `version` and `installedAt` are the original (v1) fields. Everything else is
+ * additive metadata written by newer versions of feature-manager; older
+ * trackers simply lack it and are handled gracefully.
+ */
 export interface InstalledFeature {
   version: string
   installedAt: string
+  /** Monotonic install order. Higher = installed more recently. */
+  seq?: number
+  /**
+   * Repo-relative paths this feature copied, mapped to the sha256 of the content
+   * it wrote. Used to detect user edits and to resolve which feature currently
+   * owns a shared path.
+   */
+  files?: Record<string, string>
+  /**
+   * Repo-relative path → backup path (relative to `.feature-manager/backups/<name>/`)
+   * holding the content that was overwritten on install, so removal can restore it.
+   */
+  backups?: Record<string, string>
+  /** Dependencies this install added or re-ranged, so removal can undo them. */
+  dependencies?: InstalledDependency[]
 }
 
 export interface FeatureTracker {
   features: Record<string, InstalledFeature>
+  /** Next install sequence number. */
+  seq?: number
+}
+
+/** Where the manager keeps its own bookkeeping (backups, etc.). Git-ignored. */
+export const MANAGER_DIR = ".feature-manager"
+
+// ── Reporting ────────────────────────────────────────────────────────────────
+
+export interface InsertionReport {
+  file: string
+  marker: string
+  snippetFile: string
+}
+
+export type WarningType =
+  | "missing_file"
+  | "missing_marker"
+  | "missing_json"
+  | "missing_dependency"
+  | "dep_conflict"
+  | "overwrite"
+  | "user_modified"
+  | "skipped"
+  | "other"
+
+export interface WarningReport {
+  type: WarningType
+  file: string
+  marker?: string
+  snippet?: string
+  message: string
 }

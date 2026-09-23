@@ -31,9 +31,9 @@ Use `features/blog/` as the canonical reference implementation.
 1. **Plan** — Read `features.json` (installed features) and manifests in `features/*/feature.json`. Decide `requires`, DB tables, env vars, dependencies, dashboard pages. Ask the user for anything unclear.
 2. **Scaffold** — Create `features/<name>/` with the directory layout below and a valid starter `feature.json`.
 3. **Author** — Write template files per target (`api/`, `web/`, `ui/`, `docs/`) and one snippet file per insertion.
-4. **Self-check** — For every manifest entry verify: `copies[].from` exists; every `insertions[].snippet` exists; every `insertions[].file` exists in the repo and contains the referenced marker region (`feature-manager:<marker>:begin`); `requires` lists only installed features; no orphan files in the feature dir.
+4. **Self-check** — For every manifest entry verify: `copies[].from` exists; every `insertions[].snippet` exists; every `insertions[].file` exists in the repo and contains the referenced marker region (`feature-manager:<marker>:begin`); `requires` lists only installed features; no orphan files in the feature dir. `pnpm add-feature <name> --dry-run --strict` performs these checks for you and prints the full plan without writing anything.
 5. **Install** — Run `pnpm add-feature <name>` from the repo root, then `pnpm install`, env vars, and the printed `postInstall` commands.
-6. **Verify** — `pnpm typecheck` at root; confirm docs page and README entry.
+6. **Verify** — `pnpm verify-features <name>` should be clean; `pnpm typecheck` at root; confirm docs page and README entry.
 
 ## Directory layout
 
@@ -88,9 +88,12 @@ Paths in `copies[].from` and `insertions[].snippet` are relative to the feature 
 ## Available marker regions
 
 Snippets are inserted between sentinel comments; feature-manager wraps each snippet in
-a per-feature block automatically. Comment style depends on file type: `//` for
-`.ts`/`.tsx`, `<!-- -->` for `.md`, and JSX comments for `.mdx`. Only use regions that
-already exist in the target file — verify before referencing them.
+a per-feature block automatically. The comment style is chosen from the file extension:
+`//` for `.ts`/`.tsx`/`.js`, `#` for `.yml`/`.toml`/`.sh`/`.py`, `<!-- -->` for
+`.md`/`.html`, `{/* */}` for `.mdx`, and `/* */` for `.css`/`.scss`. JSON files cannot
+hold comments — use `jsonAppends` for those. Only use regions that already exist in the
+target file — verify before referencing them (a missing region is reported as a warning
+with the list of markers that file *does* have).
 
 Current regions:
 
@@ -121,4 +124,52 @@ Current regions:
 pnpm add-feature <name>       # install features/<name> into the workspace
 pnpm remove-feature <name>    # uninstall cleanly (removes copies + marker blocks)
 pnpm list-features            # show available/installed features
+pnpm verify-features [name]   # check installed features for drift or breakage
+pnpm prompt-feature <name>    # write .prompts/verify-<name>.md for an AI assistant
 ```
+
+### Flags
+
+| Flag | Applies to | Effect |
+|---|---|---|
+| `-n`, `--dry-run` | `add`, `remove` | Print every planned action and write nothing |
+| `-f`, `--force` | `add` | Reinstall or upgrade an already-installed feature |
+| `-f`, `--force` | `remove` | Replace or delete files that were modified after install |
+| `--strict` | `add`, `remove` | Turn warnings (missing markers, version conflicts) into errors |
+| `-j`, `--json` | all | Emit a machine-readable report instead of prose |
+| `-q`, `--quiet` | all | Only print warnings, errors and the final result |
+| `-h`, `--help` | all | Command help (`feature-manager help add`) |
+
+Exit codes: `0` success, `1` operation failed, `2` usage error.
+
+### Safety guarantees
+
+- **Atomic installs.** Every path an install will touch is snapshotted first. If any
+  step throws, the whole operation is rolled back — a failed install never leaves a
+  half-applied repository.
+- **Validated manifests.** Malformed fields, invalid marker names, duplicate targets
+  and paths that escape the repository (`../…`, absolute paths) are rejected before
+  anything is written.
+- **Shared files.** When two features copy to the same path, the newest install wins
+  and the previous content is backed up under `.feature-manager/backups/`. Removing a
+  feature restores the previous owner's version instead of deleting a file another
+  feature still needs. Files you edited after install are kept unless `--force` is used.
+- **Precise dependency tracking.** The tracker records which packages an install
+  *added* versus merely *re-ranged*, so `remove` deletes only what it introduced and
+  restores the ranges it changed.
+- **Idempotent markers.** Re-installing a feature replaces its own marker block in
+  place — never duplicating it — and repairs an orphaned `:begin` sentinel.
+
+### Verifying an install
+
+`pnpm verify-features` is read-only and reports, per installed feature:
+
+- copied files that are missing or were modified after install
+- marker regions or snippet blocks that disappeared
+- `jsonAppends` entries and dependencies that are no longer present
+- environment variables the feature needs that are not in `.env` / `.env.example`
+- prerequisites that are no longer installed
+- version drift — the feature directory is newer than what is installed
+  (`pnpm add-feature <name> --force` upgrades it)
+
+It exits non-zero when it finds an error, so it can gate CI.

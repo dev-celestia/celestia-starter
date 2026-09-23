@@ -50,3 +50,6 @@ next-env.d.ts
 # ai prompts
 .prompts/
 .workbuddy-ai
+
+# feature-manager scratch space (backups of files a feature overwrote)
+.feature-manager/
