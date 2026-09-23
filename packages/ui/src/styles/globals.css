@@ -308,7 +308,14 @@
     --secondary: oklch(0.97 0 0);
     --secondary-foreground: oklch(0.205 0 0);
     --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
+    /* 0.54 → #6f6f6f. At 0.556 (#737373) muted text on a *full* `bg-muted` or
+       `bg-secondary` surface measured 4.35:1 — below AA. The /40 and /50
+       variants used in the app composite lighter and passed (4.54–4.58:1), so
+       the failure was latent rather than visible, but a token pair should not
+       ship below threshold. 0.54 lifts the worst case to 4.61:1 for a 3-step
+       sRGB change (#737373 → #6f6f6f). Darkening a foreground token only ever
+       *raises* contrast, so nothing else regresses. Measured, not eyeballed. */
+    --muted-foreground: oklch(0.54 0 0);
     --accent: oklch(0.97 0 0);
     --accent-foreground: oklch(0.205 0 0);
     --destructive: oklch(0.577 0.245 27.325);
