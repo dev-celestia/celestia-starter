@@ -38,10 +38,10 @@ export function StackSection() {
     <section id="stack" className="mx-auto w-full max-w-6xl px-5 py-28 sm:px-8 sm:py-36">
       <div className="grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-20">
         <Reveal>
-          <h2 className="text-3xl tracking-[-0.02em] text-balance sm:text-4xl">
+          <h2 className="text-3xl tracking-[-0.02em] text-balance text-foreground sm:text-4xl">
             The box comes full
           </h2>
-          <p className="mt-5 max-w-md text-fog leading-relaxed">
+          <p className="mt-5 max-w-md text-muted-foreground leading-relaxed">
             Every piece is a package you can open and read. Nothing is
             generated behind a service, and nothing you remove leaves a hole.
           </p>
@@ -50,14 +50,14 @@ export function StackSection() {
         <div className="reveal-stagger">
           {STACK.map((item) => (
             <Reveal key={item.tag}>
-              <div className="group grid gap-1 border-t border-stroke py-6 transition-colors duration-fast ease-out last:border-b hover:bg-surface/70 rounded-lg motion-reduce:transition-none sm:grid-cols-[11rem_1fr_auto] sm:items-baseline sm:gap-6 sm:px-4">
-                <h3 className="font-medium text-text-primary">
+              <div className="group grid gap-1 border-t border-border py-6 transition-colors duration-fast ease-out last:border-b hover:bg-muted/50 rounded-lg motion-reduce:transition-none sm:grid-cols-[11rem_1fr_auto] sm:items-baseline sm:gap-6 sm:px-4">
+                <h3 className="font-medium text-foreground">
                   {item.name}
                 </h3>
-                <p className="text-sm leading-relaxed text-fog">
+                <p className="text-sm leading-relaxed text-muted-foreground">
                   {item.description}
                 </p>
-                <span className="font-mono text-xs text-fog/80 transition-colors duration-fast group-hover:text-brand">
+                <span className="font-mono text-xs text-muted-foreground/80 transition-colors duration-fast group-hover:text-primary">
                   {item.tag}
                 </span>
               </div>

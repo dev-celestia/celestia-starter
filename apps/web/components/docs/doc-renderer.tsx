@@ -14,7 +14,7 @@ export function DocRenderer({ content, className = "prose-content" }: DocRendere
     <div className={className}>
       <MDXRemote
         source={content}
-        components={mdxComponents}
+        components={mdxComponents as any}
         options={{
           mdxOptions: {
             remarkPlugins: [remarkGfm],

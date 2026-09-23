@@ -138,7 +138,11 @@ export const mdxComponents = {
       />
     )
   },
-  pre: CodeBlock,
+  pre: ({ children, className, ...props }: React.ComponentProps<"pre">) => (
+    <CodeBlock className={className} {...(props as unknown as React.HTMLAttributes<HTMLDivElement>)}>
+      {children}
+    </CodeBlock>
+  ),
   code: ({ className, ...props }: React.HTMLAttributes<HTMLElement>) => {
     if (className?.includes("language-")) {
       return <code className={className} {...props} />

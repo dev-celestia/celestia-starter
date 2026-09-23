@@ -68,23 +68,23 @@ export function InstallTerminal({ className }: Readonly<{ className?: string }>)
     <div
       ref={ref}
       className={cn(
-        "gradient-border animate-gradient-shift overflow-hidden rounded-xl",
+        "overflow-hidden rounded-xl border border-border bg-card",
         phase === "armed" && "terminal-armed",
         className,
       )}
     >
       {/* Title bar */}
-      <div className="flex items-center gap-2 border-b border-stroke bg-surface px-4 py-3">
-        <span className="size-2.5 rounded-full bg-stroke" />
-        <span className="size-2.5 rounded-full bg-stroke" />
-        <span className="size-2.5 rounded-full bg-stroke" />
-        <span className="ms-3 font-mono text-xs text-fog">
+      <div className="flex items-center gap-2 border-b border-border bg-muted/50 px-4 py-3">
+        <span className="size-2.5 rounded-full bg-border" />
+        <span className="size-2.5 rounded-full bg-border" />
+        <span className="size-2.5 rounded-full bg-border" />
+        <span className="ms-3 font-mono text-xs text-muted-foreground">
           celestia — zsh
         </span>
       </div>
 
       {/* Session */}
-      <div className="terminal-session overflow-x-auto bg-surface p-5 font-mono text-[13px] leading-7 sm:p-6 sm:text-sm">
+      <div className="terminal-session overflow-x-auto bg-card p-5 font-mono text-[13px] leading-7 sm:p-6 sm:text-sm">
         {LINES.map((line) => (
           <p
             key={line.text}
@@ -93,15 +93,15 @@ export function InstallTerminal({ className }: Readonly<{ className?: string }>)
           >
             {line.prompt ? (
               <>
-                <span className="text-fog">$ </span>
-                <span className="text-text-primary">{line.text}</span>
+                <span className="text-muted-foreground">$ </span>
+                <span className="text-foreground">{line.text}</span>
               </>
             ) : (
               <>
                 {line.ok !== false && (
-                  <span className="me-2 inline-block text-brand">✔</span>
+                  <span className="me-2 inline-block text-primary">✔</span>
                 )}
-                <span className={cn(line.ok ? "text-fog" : "text-text-primary")}>
+                <span className={cn(line.ok ? "text-muted-foreground" : "text-foreground")}>
                   {line.text}
                 </span>
               </>
@@ -112,12 +112,12 @@ export function InstallTerminal({ className }: Readonly<{ className?: string }>)
           aria-hidden
           data-line
           className={cn(
-            "text-text-primary",
+            "text-foreground",
             phase === "started" && "animate-role-fade-in",
           )}
         >
-          <span className="text-fog">$ </span>
-          <span className="inline-block h-4 w-[7px] translate-y-[3px] accent-gradient animate-pulse" />
+          <span className="text-muted-foreground">$ </span>
+          <span className="inline-block h-4 w-[7px] translate-y-[3px] bg-primary animate-pulse" />
         </p>
       </div>
     </div>

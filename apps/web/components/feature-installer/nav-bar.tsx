@@ -75,7 +75,7 @@ export function NavBar() {
     <header
       ref={headerRef}
       className={cn(
-        "fixed inset-x-0 top-0 z-50 w-full max-w-full overflow-x-hidden transition-colors flex flex-col backdrop-blur-xl border-b border-stroke/80 shadow-xs",
+        "fixed inset-x-0 top-0 z-50 w-full max-w-full overflow-x-hidden transition-colors flex flex-col backdrop-blur-xl border-b border-border shadow-xs",
         mobileMenuOpen && "h-dvh max-h-dvh",
       )}
     >
@@ -97,7 +97,7 @@ export function NavBar() {
         <Link
           href="/"
           onClick={closeMobileMenu}
-          className="flex items-center gap-2.5 text-text-primary transition-opacity hover:opacity-90 active:scale-[0.98] motion-reduce:active:scale-100"
+          className="flex items-center gap-2.5 text-foreground transition-opacity hover:opacity-90 active:scale-[0.98] motion-reduce:active:scale-100"
         >
           <LogoMark />
           <span className="text-[15px] font-medium tracking-[-0.01em]">
@@ -116,7 +116,7 @@ export function NavBar() {
                 </Button>
               }
             />
-            <DropdownMenuContent align="start" className="w-72 p-2 border-stroke/80 bg-bg shadow-xl">
+            <DropdownMenuContent align="start" className="w-72 p-2 border-border bg-popover shadow-xl">
               {/* Hexbuffer */}
               <DropdownMenuItem
                 render={
@@ -126,7 +126,7 @@ export function NavBar() {
                     rel="noreferrer"
                   />
                 }
-                className="cursor-pointer items-start gap-2.5 p-2 rounded-lg transition-colors hover:bg-surface active:scale-[0.99]"
+                className="cursor-pointer items-start gap-2.5 p-2 rounded-lg transition-colors hover:bg-accent active:scale-[0.99]"
               >
                 <div className="flex size-7 shrink-0 items-center justify-center rounded-md border border-primary/30 bg-primary/10 text-primary mt-0.5">
                   <TriangleDashedIcon className="size-3.5" weight="bold" />
@@ -142,30 +142,6 @@ export function NavBar() {
                 </div>
               </DropdownMenuItem>
 
-              {/* nuclei-run */}
-              <DropdownMenuItem
-                render={
-                  <Link
-                    href="http://localhost:1212/nuclei-run"
-                    target="_blank"
-                    rel="noreferrer"
-                  />
-                }
-                className="cursor-pointer items-start gap-2.5 p-2 rounded-lg transition-colors hover:bg-surface active:scale-[0.99]"
-              >
-                <div className="flex size-7 shrink-0 items-center justify-center rounded-md border border-primary/30 bg-primary/10 text-primary mt-0.5">
-                  <TerminalWindowIcon className="size-3.5" weight="bold" />
-                </div>
-                <div className="flex flex-1 flex-col gap-0.5 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-medium text-xs text-foreground">Nuclei Run</span>
-                    <ArrowSquareOutIcon className="size-3 ms-auto text-muted-foreground shrink-0" />
-                  </div>
-                  <span className="text-[11px] text-muted-foreground leading-normal">
-                    High-performance vulnerability scanner & docs
-                  </span>
-                </div>
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -213,7 +189,7 @@ export function NavBar() {
             aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-navigation-overlay"
-            className="flex size-9 items-center justify-center rounded-lg border border-stroke/80 bg-surface text-text-primary hover:bg-surface/80 active:scale-95 transition-all cursor-pointer"
+            className="flex size-9 items-center justify-center rounded-lg border border-border bg-secondary text-foreground hover:bg-secondary/80 active:scale-95 transition-all cursor-pointer"
           >
             {mobileMenuOpen ? (
               <XIcon className="size-5 text-primary" />
@@ -239,14 +215,14 @@ export function NavBar() {
               <Link
                 href="/design-system"
                 onClick={closeMobileMenu}
-                className="flex min-h-[44px] items-center rounded-lg px-3.5 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface/60 active:bg-surface"
+                className="flex min-h-[44px] items-center rounded-lg px-3.5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-accent/60 active:bg-accent"
               >
                 Design System
               </Link>
               <Link
                 href="/docs"
                 onClick={closeMobileMenu}
-                className="flex min-h-[44px] items-center rounded-lg px-3.5 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface/60 active:bg-surface"
+                className="flex min-h-[44px] items-center rounded-lg px-3.5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-accent/60 active:bg-accent"
               >
                 Documentation
               </Link>
@@ -256,37 +232,27 @@ export function NavBar() {
                 target="_blank"
                 rel="noreferrer"
                 onClick={closeMobileMenu}
-                className="flex min-h-[44px] items-center justify-between rounded-lg px-3.5 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface/60 active:bg-surface"
+                className="flex min-h-[44px] items-center justify-between rounded-lg px-3.5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-accent/60 active:bg-accent"
               >
                 <span>Hexbuffer (Products)</span>
-                <ArrowSquareOutIcon className="size-3.5 text-fog" />
+                <ArrowSquareOutIcon className="size-3.5 text-muted-foreground" />
               </Link>
 
-              <Link
-                href="http://localhost:1212/nuclei-run"
-                target="_blank"
-                rel="noreferrer"
-                onClick={closeMobileMenu}
-                className="flex min-h-[44px] items-center justify-between rounded-lg px-3.5 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface/60 active:bg-surface"
-              >
-                <span>Nuclei Run</span>
-                <ArrowSquareOutIcon className="size-3.5 text-fog" />
-              </Link>
 
               <Link
-                href="/"
+                href="/feature-installer"
                 onClick={closeMobileMenu}
-                className="flex min-h-[44px] items-center rounded-lg px-3.5 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface/60 active:bg-surface"
+                className="flex min-h-[44px] items-center rounded-lg px-3.5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-accent/60 active:bg-accent"
               >
-                Landing Page
+                Feature Installer
               </Link>
             </nav>
           </div>
 
           {/* Bottom Footer Status */}
-          <div className="mt-8 flex items-center justify-between pt-4 border-t border-stroke/60 text-xs text-fog">
+          <div className="mt-8 flex items-center justify-between pt-4 border-t border-border text-xs text-muted-foreground">
             <span>Next.js 16 • Hono • Drizzle</span>
-            <span className="font-mono text-[10px] text-fog/80">v0.0.1</span>
+            <span className="font-mono text-[10px] text-muted-foreground/70">v0.0.1</span>
           </div>
         </div>
       )}

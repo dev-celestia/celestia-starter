@@ -1,37 +1,39 @@
 import type { Metadata } from "next"
 
-import { ArchitectureSection } from "@/components/landing/architecture-section"
-import { AutoDarkTheme } from "@/components/landing/auto-dark-theme"
-import { CtaSection } from "@/components/landing/cta-section"
-import { FloatingFreelancerWidget } from "@/components/landing/floating-freelancer-widget"
-import { Footer } from "@/components/landing/footer"
-import { HeroSection } from "@/components/landing/hero-section"
-import { InstallSection } from "@/components/landing/install-section"
-import { NavBar } from "@/components/landing/nav-bar"
-import { StackSection } from "@/components/landing/stack-section"
+import { AgencyNav } from "@/components/agency/agency-nav"
+import { AgencyHero } from "@/components/agency/hero-section"
+import { ServicesSection } from "@/components/agency/services-section"
+import { ProcessSection } from "@/components/agency/process-section"
+import { DeliveryModelsSection } from "@/components/agency/delivery-models-section"
+import { TechStackSection } from "@/components/agency/tech-stack-section"
+import { ContactSection } from "@/components/agency/contact-section"
+import { AgencyFooter } from "@/components/agency/agency-footer"
 
 import "./landing.css"
 
 export const metadata: Metadata = {
-  title: "Celestia",
+  title: "Celestia — Enterprise Software Development",
   description:
-    "Next.js 16 frontend, Hono backend, Better Auth, Drizzle ORM — a decoupled full-stack starter installed in one command.",
+    "We build enterprise-grade web, mobile, and cloud software that scales with your business. Schedule a free tech strategy call with our senior engineers.",
+  openGraph: {
+    title: "Celestia — Enterprise Software Development",
+    description:
+      "Custom software development for CTOs, founders, and enterprise product teams. Web, mobile, cloud — shipped with architecture built to last.",
+    type: "website",
+  },
 }
 
-export default function LandingPage() {
+export default function HomePage() {
   return (
-    // "dark" scope forces the shadcn dark tokens for every component on
-    // this page — the landing is always dark, regardless of system theme.
-    <main className="dark bg-bg text-text-primary">
-      <AutoDarkTheme />
-      <NavBar />
-      <HeroSection />
-      <StackSection />
-      <ArchitectureSection />
-      <InstallSection />
-      <CtaSection />
-      <Footer />
-      <FloatingFreelancerWidget />
+    <main className="bg-background text-foreground">
+      <AgencyNav />
+      <AgencyHero />
+      <ServicesSection />
+      <ProcessSection />
+      <DeliveryModelsSection />
+      <TechStackSection />
+      <ContactSection />
+      <AgencyFooter />
     </main>
   )
 }

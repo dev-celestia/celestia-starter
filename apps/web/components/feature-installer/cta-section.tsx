@@ -5,13 +5,13 @@ import { Reveal } from "./reveal"
 
 export function CtaSection() {
   return (
-    <section className="border-t border-stroke">
+    <section className="border-t border-border">
       <div className="mx-auto w-full max-w-4xl px-5 py-28 text-center sm:px-8 sm:py-36">
         <Reveal>
-          <h2 className="mt-8 text-3xl tracking-[-0.02em] text-balance sm:text-5xl">
+          <h2 className="mt-8 text-3xl tracking-[-0.02em] text-balance text-foreground sm:text-5xl">
             Start from architecture, not setup.
           </h2>
-          <p className="mx-auto mt-5 max-w-xl text-fog leading-relaxed">
+          <p className="mx-auto mt-5 max-w-xl text-muted-foreground leading-relaxed">
             Create an account and take the dashboard for a spin, or run the
             installer and make it yours.
           </p>
