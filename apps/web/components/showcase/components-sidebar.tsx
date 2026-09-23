@@ -155,7 +155,7 @@ export const CATEGORIES: CategoryItem[] = [
     id: "layout",
     name: "Layout & Pages",
     icon: BrowserIcon,
-    count: 8,
+    count: 15,
     items: [
       { id: "auth-shell", name: "Auth Shell" },
       { id: "sign-in-page", name: "Sign In Page" },
@@ -165,6 +165,13 @@ export const CATEGORIES: CategoryItem[] = [
       { id: "two-factor-page", name: "Two-Factor Page" },
       { id: "page-shell", name: "Page Shell" },
       { id: "not-found-page", name: "Not Found Page" },
+      { id: "dashboard-shell", name: "Dashboard Shell" },
+      { id: "dashboard-page", name: "Dashboard Page" },
+      { id: "profile-page", name: "Profile Page" },
+      { id: "settings-page", name: "Settings Page" },
+      { id: "list-page", name: "List Page" },
+      { id: "billing-page", name: "Billing Page" },
+      { id: "status-page", name: "Status & Error Pages" },
     ],
   },
 ]
