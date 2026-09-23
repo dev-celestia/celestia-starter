@@ -138,7 +138,7 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
               title="Copy TypeScript code example"
             >
               {copied ? (
-                <CheckIcon className="size-3.5 text-green-500" />
+                <CheckIcon className="size-3.5 text-success" />
               ) : (
                 <CopyIcon className="size-3.5" />
               )}
@@ -222,7 +222,7 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
                         onClick={() => handleCopy(fullCode, "TypeScript example")}
                         className="h-8 gap-1 text-[11px] active:scale-97 transition-transform"
                       >
-                        {copied ? <CheckIcon className="size-3.5 text-green-500" /> : <CopyIcon className="size-3.5" />}
+                        {copied ? <CheckIcon className="size-3.5 text-success" /> : <CopyIcon className="size-3.5" />}
                         <span className="hidden sm:inline">Copy Code</span>
                       </Button>
 
@@ -249,7 +249,7 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
                     <TabsContent value="preview" className="flex-1 h-full w-full overflow-auto p-4 sm:p-8 flex items-center justify-center bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-muted/20 via-background to-background">
                       <div
                         className={cn(
-                          "transition-all duration-300 flex items-center justify-center p-6 rounded-xl",
+                          "transition-all duration-slow flex items-center justify-center p-6 rounded-xl",
                           viewport === "desktop" && "w-full",
                           viewport === "tablet" && "w-[768px] max-w-full border border-dashed border-border/80 bg-card/40 shadow-sm",
                           viewport === "mobile" && "w-[375px] max-w-full border-2 border-border/80 rounded-2xl bg-card shadow-lg min-h-[400px]"

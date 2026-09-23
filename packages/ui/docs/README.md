@@ -9,7 +9,7 @@ This folder contains implementation guides, import conventions, component module
 ## Table of Contents
 
 1. [Implementation Details](./implementation-details.md) — Comprehensive guide on imports, module structure, and key component APIs
-2. [Component Mapping](./component-mapping.md) — Complete table of all 63 component modules, deep import paths, sub-components, and base primitives
+2. [Component Mapping](./component-mapping.md) — Complete table of all 126 component modules, deep import paths, sub-components, and base primitives
 3. [Props Reference](./props-reference.md) — Detailed prop definitions for layout, form, overlay, navigation, and chat primitives
 
 ---

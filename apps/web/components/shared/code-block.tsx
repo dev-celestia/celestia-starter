@@ -141,8 +141,8 @@ export function CodeBlock({
               >
                 {copied ? (
                   <>
-                    <CheckIcon className="size-3.5 text-emerald-500" />
-                    <span className="text-emerald-500 font-medium">Copied</span>
+                    <CheckIcon className="size-3.5 text-success" />
+                    <span className="text-success font-medium">Copied</span>
                   </>
                 ) : (
                   <>

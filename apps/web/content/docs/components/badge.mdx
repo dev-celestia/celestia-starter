@@ -13,9 +13,17 @@ import { Badge } from "@celestia-project/ui/primitive/badge"
 <Badge>Default</Badge>
 <Badge variant="secondary">Secondary</Badge>
 <Badge variant="destructive">Destructive</Badge>
+<Badge variant="success">Success</Badge>
+<Badge variant="warning">Warning</Badge>
+<Badge variant="info">Info</Badge>
 <Badge variant="outline">Outline</Badge>
 ```
 
+The `destructive` / `success` / `warning` / `info` variants read their colour from the semantic
+status tokens (`--destructive`, `--success`, `--warning`, `--info`), which are defined per theme and
+verified to clear 4.5:1 against `--background`, `--card`, `--muted` and `--secondary`. Prefer them
+over Tailwind palette literals such as `text-green-500`, which is only 2.22:1 on white.
+
 | Prop | Type | Default |
 |------|------|---------|
-| `variant` | `default \| secondary \| destructive \| outline \| ghost \| link` | `default` |
+| `variant` | `default \| secondary \| destructive \| success \| warning \| info \| outline \| ghost \| link` | `default` |

@@ -531,7 +531,7 @@ export function BlockTextEditor({
                               "flex items-center justify-between border-t pt-1"
                             )}
                           >
-                            <span className="font-mono text-[10px] text-muted-foreground">
+                            <span className="font-mono text-3xs text-muted-foreground">
                               Press{" "}
                               <kbd className="font-semibold text-foreground">
                                 Cmd+Enter

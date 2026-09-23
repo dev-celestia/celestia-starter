@@ -55,10 +55,21 @@ Instead, add the `@source` directive in your project's main stylesheet (e.g. `sr
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  /* Status colours — required by the `success` / `warning` / `info` variants on
+     Badge and Alert. Not part of the standard shadcn token set, so an existing
+     shadcn setup will not already have them. */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-overlay: var(--overlay);
 
+  --radius-xs: calc(var(--radius) - 6px);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -67,16 +78,39 @@ Instead, add the `@source` directive in your project's main stylesheet (e.g. `sr
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
 
-  /* Celestia UI tokens & motion */
+  /* Fonts. `--font-sans-family` / `--font-mono-family` are the override hooks —
+     point next/font (or any CSS) at those names, never at `--font-sans`. */
+  --font-sans: var(--font-sans-family, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif);
+  --font-mono: var(--font-mono-family, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
+
+  /* Elevation */
+  --shadow-3d: 0 2px 0 0 var(--elevation-edge);
+  --shadow-3d-primary: 0 2px 0 0 var(--primary);
+  --shadow-destructive-3d: 0 2px 0 0 color-mix(in oklch, var(--destructive), black 30%);
+
+  /* Celestia brand + landing tokens & motion */
+  --color-brand: hsl(var(--brand));
+  --color-brand-deep: hsl(var(--brand-deep));
+  --color-brand-foreground: hsl(var(--brand-foreground));
   --color-bg: hsl(var(--bg, 0 0% 4%));
   --color-surface: hsl(var(--surface, 0 0% 8%));
   --color-text-primary: hsl(var(--text, 0 0% 96%));
-  --color-fog: hsl(0 0% 53%);
+  --color-fog: hsl(var(--fog, 0 0% 53%));
   --color-stroke: hsl(var(--stroke, 0 0% 12%));
 
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Durations. Namespace must be `--transition-duration-*` and the values must
+     be here in `@theme` — Tailwind v4 has no `--duration-*` namespace, and a
+     value in `:root` never becomes a utility. Either mistake silently emits no
+     `duration-*` class. */
+  --transition-duration-instant: 80ms;
+  --transition-duration-fast: 150ms;
+  --transition-duration-normal: 220ms;
+  --transition-duration-slow: 320ms;
+  --transition-duration-slower: 500ms;
 
   --animate-scroll-down: scroll-down 1.5s ease-in-out infinite;
   --animate-role-fade-in: role-fade-in 0.4s cubic-bezier(0.23, 1, 0.32, 1) both;
@@ -96,6 +130,43 @@ Instead, add the `@source` directive in your project's main stylesheet (e.g. `sr
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
+  }
+}
+
+:root {
+  --elevation-edge: rgb(0 0 0 / 15%);
+
+  /* Status colours — light theme. Text/icon role: each clears AA (4.5:1) against
+     --background, --card, --muted and --secondary in this theme. */
+  --success: oklch(0.5 0.16 150);
+  --warning: oklch(0.5 0.17 75);
+  --info: oklch(0.5 0.19 250);
+  --success-foreground: oklch(1 0 0);
+  --warning-foreground: oklch(1 0 0);
+  --info-foreground: oklch(1 0 0);
+}
+
+.dark {
+  --elevation-edge: rgb(0 0 0 / 50%);
+
+  /* Status colours — dark theme. Same role, tuned for dark surfaces. */
+  --success: oklch(0.7 0.16 150);
+  --warning: oklch(0.7 0.17 75);
+  --info: oklch(0.7 0.19 250);
+  --success-foreground: oklch(0.205 0 0);
+  --warning-foreground: oklch(0.205 0 0);
+  --info-foreground: oklch(0.205 0 0);
+}
+
+/* Honour the user's motion preference for every token-driven animation. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 ```
@@ -147,7 +218,7 @@ import { cn } from "@celestia-project/ui/lib/utils"
 
 ## Complete Component Mapping Reference
 
-Below is the complete mapping of all 117+ component modules in `packages/ui/src/components/` (63 core UI modules + 54 specialized AI & chat modules), listing their deep import specifiers, exported sub-components, and underlying base primitives.
+Below is the complete mapping of all 126 component modules in `packages/ui/src/components/` (47 primitives + 25 composites + 54 specialized AI & chat modules), listing their deep import specifiers, exported sub-components, and underlying base primitives.
 
 ### Layout & Structure
 

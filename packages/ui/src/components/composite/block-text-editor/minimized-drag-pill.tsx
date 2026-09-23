@@ -56,7 +56,7 @@ export function MinimizedDragPill({ block }: { block: ParsedBlock }) {
             "shrink-0 rounded px-1.5 py-0.5",
 
             // Typography
-            "text-[10px] font-bold text-primary uppercase",
+            "text-3xs font-bold text-primary uppercase",
 
             // Backgrounds & Borders
             "bg-primary/15"
@@ -80,7 +80,7 @@ export function MinimizedDragPill({ block }: { block: ParsedBlock }) {
           "shrink-0",
 
           // Typography
-          "font-mono text-[10px] text-muted-foreground"
+          "font-mono text-3xs text-muted-foreground"
         )}
       >
         L{block.startLine + 1}

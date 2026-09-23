@@ -34,7 +34,7 @@ export const ImageSection = React.memo(function ImageSection({
             "mt-1",
 
             // Typography
-            "text-center text-[11px] text-muted-foreground italic"
+            "text-center text-2xs text-muted-foreground italic"
           )}
         >
           {block.data.alt}

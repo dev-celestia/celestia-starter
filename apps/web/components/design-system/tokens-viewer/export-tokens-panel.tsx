@@ -80,7 +80,7 @@ export function ExportTokensPanel() {
               className="absolute end-2 top-2 z-10 bg-background/80 backdrop-blur-xs text-muted-foreground hover:text-foreground"
             >
               {copiedKey === "export-all" ? (
-                <CheckIcon className="size-3.5 text-green-500" />
+                <CheckIcon className="size-3.5 text-success" />
               ) : (
                 <CopyIcon className="size-3.5" />
               )}

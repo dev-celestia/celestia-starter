@@ -785,7 +785,7 @@ export function InputsSection() {
               className="rounded-md border border-input bg-background p-2 text-xs font-mono"
             />
             <span className="text-[10px] text-muted-foreground">
-              Tokens in <code className="text-sky-400 font-medium">{`{{...}}`}</code> are highlighted.
+              Tokens in <code className="text-info font-medium">{`{{...}}`}</code> are highlighted.
             </span>
           </div>
         </ShowcaseCard>

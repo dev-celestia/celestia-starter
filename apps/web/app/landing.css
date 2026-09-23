@@ -19,7 +19,7 @@ html {
 /* The single brand ornament. Used on the logo ring, hover borders,
    progress indicators. */
 .accent-gradient {
-  background: linear-gradient(90deg, #89aacc 0%, #4e85bf 100%);
+  background: linear-gradient(90deg, hsl(var(--brand)) 0%, hsl(var(--brand-deep)) 100%);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -102,7 +102,7 @@ html {
   border: 1px solid transparent;
   background-image:
     linear-gradient(hsl(var(--surface)), hsl(var(--surface))),
-    linear-gradient(90deg, #89aacc, #4e85bf, #89aacc);
+    linear-gradient(90deg, hsl(var(--brand)), hsl(var(--brand-deep)), hsl(var(--brand)));
   background-origin:
     padding-box,
     border-box;

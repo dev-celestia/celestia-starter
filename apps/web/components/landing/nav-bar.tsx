@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image"
 import Link from "next/link"
 import * as React from "react"
 import {
@@ -26,20 +25,13 @@ import {
 } from "@celestia-project/ui"
 import { cn } from "@celestia-project/ui/lib/utils"
 
+import { LogoMark } from "@/components/shared/logo-mark"
+
 const GITHUB_URL = "https://github.com/dev-celestia/celestia-starter"
 
-export function LogoMark({ className }: Readonly<{ className?: string }>) {
-  return (
-    <Image
-      src="/celestia-icon.png"
-      alt="Celestia Logo"
-      width={28}
-      height={28}
-      className={cn("size-7 object-contain shrink-0 rounded-md", className)}
-      priority
-    />
-  )
-}
+// Re-exported for backwards compatibility — import from
+// `@/components/shared/logo-mark` in new code.
+export { LogoMark }
 
 export function NavBar() {
   const [scrolled, setScrolled] = React.useState(false)
@@ -88,11 +80,11 @@ export function NavBar() {
       )}
     >
       {/* Active Development Warning Bar */}
-      <div className="border-b border-amber-500/20 bg-amber-500/10 px-4 py-1.5 text-center text-xs text-amber-200/90 shrink-0">
+      <div className="shrink-0 border-b border-warning/25 bg-warning/10 px-4 py-1.5 text-center text-xs text-warning">
         <div className="mx-auto flex max-w-6xl items-center justify-center gap-2">
-          <WarningIcon className="size-4 shrink-0 text-amber-400" />
+          <WarningIcon className="size-4 shrink-0" weight="fill" />
           <span className="text-pretty">
-            <strong className="font-medium text-amber-300">Under Active Development:</strong> Features are undergoing testing and refinement.
+            <strong className="font-medium">Under Active Development:</strong> Features are undergoing testing and refinement.
           </span>
         </div>
       </div>
@@ -120,7 +112,7 @@ export function NavBar() {
               render={
                 <Button variant="ghost" size="sm" className="gap-1.5 cursor-pointer active:scale-[0.98] transition-transform">
                   <span>Products</span>
-                  <CaretDownIcon className="size-3 text-muted-foreground transition-transform duration-200" />
+                  <CaretDownIcon className="size-3 text-muted-foreground transition-transform duration-normal" />
                 </Button>
               }
             />
@@ -239,7 +231,7 @@ export function NavBar() {
           role="dialog"
           aria-modal="true"
           aria-label="Mobile Navigation"
-          className="flex-1 w-full max-w-full min-w-0 overflow-x-hidden flex flex-col justify-between overflow-y-auto overscroll-contain px-5 pt-4 pb-[calc(2rem+env(safe-area-inset-bottom,0px))] md:hidden animate-in fade-in-0 duration-200"
+          className="flex-1 w-full max-w-full min-w-0 overflow-x-hidden flex flex-col justify-between overflow-y-auto overscroll-contain px-5 pt-4 pb-[calc(2rem+env(safe-area-inset-bottom,0px))] md:hidden animate-in fade-in-0 duration-normal"
         >
           <div className="flex flex-col gap-5">
             {/* Simple Text Navigation List */}

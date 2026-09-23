@@ -42,7 +42,7 @@ export function HeroSection() {
         className="hero-scroll absolute bottom-7 inset-inline-1/2 z-10 -translate-x-1/2"
       >
         <div className="flex h-9 w-[22px] items-start justify-center overflow-hidden rounded-full border border-stroke bg-bg/40 p-1 backdrop-blur-sm">
-          <span className="block h-2.5 w-[3px] rounded-full bg-[#89aacc] animate-scroll-down" />
+          <span className="block h-2.5 w-[3px] rounded-full bg-brand animate-scroll-down" />
         </div>
       </div>
     </section>

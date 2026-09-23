@@ -8,17 +8,34 @@ import { cn } from "@celestia-project/ui/lib/utils"
 function ScrollArea({
   className,
   children,
+  fill = false,
+  mono = false,
   ...props
-}: ScrollAreaPrimitive.Root.Props) {
+}: ScrollAreaPrimitive.Root.Props & {
+  /**
+   * Stretch to fill a flex parent instead of overflowing it. Without this,
+   * a ScrollArea inside a flex column grows to content height and the parent
+   * scrolls instead of the area — call sites otherwise repeat `flex-1 min-h-0`.
+   */
+  fill?: boolean
+  /**
+   * Render the contents in the monospace stack. Scroll areas wrapping logs,
+   * hex dumps or request bodies set this once instead of every child repeating
+   * `font-mono`.
+   */
+  mono?: boolean
+}) {
   return (
     <ScrollAreaPrimitive.Root
       data-slot="scroll-area"
-      className={cn("relative", className)}
+      data-fill={fill || undefined}
+      data-mono={mono || undefined}
+      className={cn("relative", fill && "min-h-0 flex-1", mono && "font-mono", className)}
       {...props}
     >
       <ScrollAreaPrimitive.Viewport
         data-slot="scroll-area-viewport"
-        className="size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1"
+        className="size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-1"
       >
         {children}
       </ScrollAreaPrimitive.Viewport>

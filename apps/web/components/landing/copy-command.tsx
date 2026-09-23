@@ -32,7 +32,7 @@ export function CopyCommand({ className }: Readonly<{ className?: string }>) {
     <div
       className={cn(
         "group flex max-w-full min-w-0 items-center gap-1.5 rounded-lg border border-stroke bg-surface p-1 ps-3.5 pe-1 font-mono text-sm",
-        "transition-[border-color,box-shadow] duration-200 hover:border-[#4e85bf66] motion-reduce:transition-none",
+        "transition-[border-color,box-shadow] duration-normal hover:border-brand-deep/40 motion-reduce:transition-none",
         className,
       )}
     >
@@ -49,9 +49,9 @@ export function CopyCommand({ className }: Readonly<{ className?: string }>) {
         className="ms-auto shrink-0 text-fog hover:text-text-primary active:scale-90 motion-reduce:active:scale-100"
       >
         {copied ? (
-          <Check size={15} weight="bold" className="text-[#89aacc] animate-in fade-in-0 zoom-in-75 duration-150" />
+          <Check size={15} weight="bold" className="text-brand animate-in fade-in-0 zoom-in-75 duration-fast" />
         ) : (
-          <Copy size={15} className="transition-transform duration-150" />
+          <Copy size={15} className="transition-transform duration-fast" />
         )}
       </Button>
     </div>

@@ -102,9 +102,9 @@ import { SparkleIcon, LightningIcon, DatabaseIcon } from "@phosphor-icons/react"
 
 export function TabBarDemo() {
   const [tabs, setTabs] = React.useState<TabItem[]>([
-    { id: "1", label: "GET /api/v1/users", icon: <SparkleIcon className="size-3 text-emerald-400" /> },
-    { id: "2", label: "POST /api/v1/auth", icon: <LightningIcon className="size-3 text-amber-400" /> },
-    { id: "3", label: "Drizzle Schema", icon: <DatabaseIcon className="size-3 text-sky-400" /> },
+    { id: "1", label: "GET /api/v1/users", icon: <SparkleIcon className="size-3 text-success" /> },
+    { id: "2", label: "POST /api/v1/auth", icon: <LightningIcon className="size-3 text-warning" /> },
+    { id: "3", label: "Drizzle Schema", icon: <DatabaseIcon className="size-3 text-info" /> },
   ])
   const [activeTabId, setActiveTabId] = React.useState("1")
 

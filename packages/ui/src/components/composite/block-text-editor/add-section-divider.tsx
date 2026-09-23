@@ -31,7 +31,7 @@ export function AddSectionDivider({
       <div
         className={cn(
           // Layout & Positioning
-          "absolute inset-x-0 h-px transition-opacity duration-150",
+          "absolute inset-x-0 h-px transition-opacity duration-fast",
 
           // Backgrounds & Borders
           "bg-primary/30 opacity-0 group-hover/divider:opacity-100"
@@ -47,7 +47,7 @@ export function AddSectionDivider({
             type="button"
             className={cn(
               // Layout & Positioning
-              "relative z-10 flex items-center justify-center transition-all duration-150",
+              "relative z-10 flex items-center justify-center transition-all duration-fast",
 
               // Sizing & Spacing
               "size-4 rounded-full border shadow-2xs",

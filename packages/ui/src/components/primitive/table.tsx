@@ -78,12 +78,21 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
   )
 }
 
-function TableCell({ className, ...props }: React.ComponentProps<"td">) {
+function TableCell({
+  className,
+  mono = false,
+  ...props
+}: React.ComponentProps<"td"> & {
+  /** Render the cell in the monospace stack — for ids, hashes, tokens, ports. */
+  mono?: boolean
+}) {
   return (
     <td
       data-slot="table-cell"
+      data-mono={mono || undefined}
       className={cn(
         "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pe-0",
+        mono && "font-mono",
         className
       )}
       {...props}

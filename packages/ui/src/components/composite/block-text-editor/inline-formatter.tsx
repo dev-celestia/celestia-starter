@@ -18,7 +18,7 @@ export function renderInlineFormatting(text: string): React.ReactNode {
           key={idx}
           className={cn(
             // Sizing & Spacing
-            "rounded px-1.5 py-0.5 font-mono text-[11px] sm:text-xs",
+            "rounded px-1.5 py-0.5 font-mono text-2xs sm:text-xs",
 
             // Backgrounds & Borders
             "border bg-muted text-primary"

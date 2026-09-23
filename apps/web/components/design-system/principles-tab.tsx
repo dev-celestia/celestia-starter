@@ -43,7 +43,7 @@ export function PrinciplesTab() {
           <Card key={item.title}>
             <CardHeader className="gap-2">
               <div className="flex items-center gap-2">
-                <CheckCircleIcon className="size-5 text-green-500 shrink-0" weight="fill" />
+                <CheckCircleIcon className="size-5 text-success shrink-0" weight="fill" />
                 <CardTitle className="text-base">{item.title}</CardTitle>
               </div>
             </CardHeader>

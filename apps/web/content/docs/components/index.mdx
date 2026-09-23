@@ -40,11 +40,15 @@ These tokens are always dark and used exclusively on the landing page. They're d
 
 ### Brand Accent
 
-The brand uses a blue gradient applied via the `.accent-gradient` class or literal hex values:
+The brand blue is tokenized — consume it with utilities, never with hex literals:
 
-- **Start**: `#89aacc` (lighter blue)
-- **End**: `#4e85bf` (deeper blue)
-- **Gradient**: `linear-gradient(90deg, #89aacc 0%, #4e85bf 100%)`
+| Token | Utility | Value | Role |
+|---|---|---|---|
+| `--brand` | `bg-brand` / `text-brand` / `border-brand` | `hsl(210 40% 67%)` ≈ `#89aacc` | Accent, links, dots, hover borders |
+| `--brand-deep` | `bg-brand-deep` / `text-brand-deep` | `hsl(211 47% 53%)` ≈ `#4e85bf` | Gradient end, pressed states |
+| `--brand-foreground` | `text-brand-foreground` | `hsl(211 65% 12%)` | Text/icons on a `--brand` fill |
+
+Gradient: `linear-gradient(90deg, hsl(var(--brand)) 0%, hsl(var(--brand-deep)) 100%)` — also available as the `.accent-gradient` class.
 
 ### Semantic Tokens
 
@@ -67,9 +71,11 @@ These tokens power the app-shell components (dashboard, forms, dialogs) and supp
 | `--accent` | `bg-accent` | Accent backgrounds | `oklch(0.97 0 0)` (light gray) |
 | `--accent-foreground` | `text-accent-foreground` | Accent text | `oklch(0.205 0 0)` (dark gray) |
 | `--destructive` | `bg-destructive` | Error states | `oklch(0.577 0.245 27.325)` (red) |
+| `--destructive-foreground` | `text-destructive-foreground` | Text on a destructive fill | `oklch(1 0 0)` (white — 4.77:1 on `#e7000b`) |
 | `--border` | `border-border` | Borders | `oklch(0.922 0 0)` (light gray) |
 | `--input` | `border-input` | Input borders | `oklch(0.922 0 0)` (light gray) |
-| `--ring` | `ring-ring` | Focus rings | `oklch(0.708 0 0)` (mid-gray) |
+| `--ring` | `ring-ring` | Focus rings | `oklch(0.55 0 0)` (4.88:1 on white) |
+| `--overlay` | `bg-overlay` | Dialog/sheet scrim | `oklch(0 0 0 / 70%)` |
 
 #### Dark Theme (`.dark`)
 
@@ -249,7 +255,7 @@ import { cn } from "@celestia-project/ui/lib/utils"
 
 ## Component Mapping Reference
 
-Below is the complete mapping of all 63 component modules in `packages/ui/src/components/`, listing their deep import specifiers, exported sub-components, and underlying base primitives.
+Below is the complete mapping of all 126 component modules in `packages/ui/src/components/`, listing their deep import specifiers, exported sub-components, and underlying base primitives.
 
 ### Layout & Structure
 

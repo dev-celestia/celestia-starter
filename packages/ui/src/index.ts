@@ -77,6 +77,8 @@ export * from "./components/composite/tab-bar"
 export * from "./components/composite/text-editor"
 export * from "./components/composite/toggle-group"
 
+export * from "./components/layout"
+
 export * from "./components/ai"
 export * from "./hooks/use-mobile"
 export * from "./lib/utils"

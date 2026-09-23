@@ -528,7 +528,7 @@ export function AttachmentPreview() {
       <AttachmentGroup>
         <Attachment size="default" state="done" orientation="horizontal">
           <AttachmentMedia variant="icon">
-            <FilePdfIcon className="size-4 text-rose-500" />
+            <FilePdfIcon className="size-4 text-destructive" />
           </AttachmentMedia>
           <AttachmentContent>
             <AttachmentTitle>architecture.pdf</AttachmentTitle>

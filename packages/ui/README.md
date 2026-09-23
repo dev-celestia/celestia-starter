@@ -11,7 +11,7 @@
 
 ## Features
 
-- **120+ components** — organized as primitives, composites, and AI chat components
+- **126 component modules** — organized as primitives (47), composites (25), and AI chat components (54)
 - Built on [Base UI](https://base-ui.com) for accessible, unstyled primitives
 - Styled with **Tailwind CSS v4** and `tw-animate-css`
 - Full **TypeScript** support with bundled `.d.ts` types
@@ -85,10 +85,23 @@ Instead, add the `@source` directive in your main CSS file (e.g., `src/styles/gl
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  /* Status colours. These drive the `success` / `warning` / `info` variants on
+     Badge and Alert. Omit them and those variants render unstyled — which is how
+     a consumer ends up hand-rolling `text-amber-500` per component instead.
+     They are a Celestia addition, NOT part of the standard shadcn token set, so
+     an existing shadcn setup will not already have them. */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-overlay: var(--overlay);
 
+  --radius-xs: calc(var(--radius) - 6px);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -97,16 +110,39 @@ Instead, add the `@source` directive in your main CSS file (e.g., `src/styles/gl
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
 
-  /* Optional: Celestia UI tokens & motion */
+  /* Fonts. `--font-sans-family` / `--font-mono-family` are the override hooks —
+     point next/font (or any CSS) at those names, never at `--font-sans`. */
+  --font-sans: var(--font-sans-family, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif);
+  --font-mono: var(--font-mono-family, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
+
+  /* Elevation */
+  --shadow-3d: 0 2px 0 0 var(--elevation-edge);
+  --shadow-3d-primary: 0 2px 0 0 var(--primary);
+  --shadow-destructive-3d: 0 2px 0 0 color-mix(in oklch, var(--destructive), black 30%);
+
+  /* Optional: Celestia brand + landing tokens & motion */
+  --color-brand: hsl(var(--brand));
+  --color-brand-deep: hsl(var(--brand-deep));
+  --color-brand-foreground: hsl(var(--brand-foreground));
   --color-bg: hsl(var(--bg, 0 0% 4%));
   --color-surface: hsl(var(--surface, 0 0% 8%));
   --color-text-primary: hsl(var(--text, 0 0% 96%));
-  --color-fog: hsl(0 0% 53%);
+  --color-fog: hsl(var(--fog, 0 0% 53%));
   --color-stroke: hsl(var(--stroke, 0 0% 12%));
 
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Durations. The namespace must be `--transition-duration-*` and the values
+     must live in `@theme` — Tailwind v4 has no `--duration-*` namespace, and a
+     value declared in `:root` never becomes a utility. Either mistake produces
+     no `duration-*` class at all, silently. */
+  --transition-duration-instant: 80ms;
+  --transition-duration-fast: 150ms;
+  --transition-duration-normal: 220ms;
+  --transition-duration-slow: 320ms;
+  --transition-duration-slower: 500ms;
 
   --animate-scroll-down: scroll-down 1.5s ease-in-out infinite;
   --animate-role-fade-in: role-fade-in 0.4s cubic-bezier(0.23, 1, 0.32, 1) both;
@@ -142,6 +178,47 @@ Instead, add the `@source` directive in your main CSS file (e.g., `src/styles/gl
     100% {
       background-position: 0% 50%;
     }
+  }
+}
+
+:root {
+  --elevation-edge: rgb(0 0 0 / 15%);
+
+  /* Status colours — light theme. Text/icon role: each is picked to clear AA
+     (4.5:1) against --background, --card, --muted AND --secondary in this theme.
+     A single value cannot serve both themes: at L≈0.575 every hue falls to
+     ~3.7:1 on light and ~3.7:1 on dark. This is exactly why consumers who skip
+     these reach for Tailwind palette literals — `text-green-500` is only 2.22:1
+     on white — and then break in one theme. */
+  --success: oklch(0.5 0.16 150);
+  --warning: oklch(0.5 0.17 75);
+  --info: oklch(0.5 0.19 250);
+  --success-foreground: oklch(1 0 0);
+  --warning-foreground: oklch(1 0 0);
+  --info-foreground: oklch(1 0 0);
+}
+
+.dark {
+  --elevation-edge: rgb(0 0 0 / 50%);
+
+  /* Status colours — dark theme. Same role, tuned for dark surfaces. */
+  --success: oklch(0.7 0.16 150);
+  --warning: oklch(0.7 0.17 75);
+  --info: oklch(0.7 0.19 250);
+  --success-foreground: oklch(0.205 0 0);
+  --warning-foreground: oklch(0.205 0 0);
+  --info-foreground: oklch(0.205 0 0);
+}
+
+/* Honour the user's motion preference for every token-driven animation. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 ```
@@ -421,11 +498,13 @@ Deep-import from `@celestia-project/ui/components/ai/<name>`. Highlights include
 
 ## Design Tokens
 
-All CSS variables are defined in `globals.css`. The package ships two palettes:
+All CSS variables are defined in `globals.css` — the single source of truth. The package ships two palettes that share one base (`#0a0a0a`):
 
 ### shadcn semantic palette (app shell)
 
 Used by dashboard components, forms, and overlays. Variables like `--background`, `--foreground`, `--primary`, `--muted`, `--border`, `--ring`, etc. Supports both light (`:root`) and dark (`.dark`) themes via oklch values.
+
+The dark ramp rises as elevation increases — `--background` `oklch(0.145)` → `--card` `oklch(0.205)` → `--muted` `oklch(0.269)`. Keep any new surface token on that ramp.
 
 ### Celestia brand palette (landing / marketing)
 
@@ -436,10 +515,68 @@ A forced-dark palette with literal tokens:
 | `--bg`      | `bg-bg`             | `hsl(0 0% 4%)` — page background      |
 | `--surface` | `bg-surface`        | `hsl(0 0% 8%)` — cards, raised panels |
 | `--text`    | `text-text-primary` | `hsl(0 0% 96%)` — headings            |
-| _(literal)_ | `text-fog`          | `hsl(0 0% 53%)` — muted copy          |
+| `--fog`     | `text-fog`          | `hsl(0 0% 53%)` — muted copy          |
 | `--stroke`  | `border-stroke`     | `hsl(0 0% 12%)` — borders             |
 
-Brand accent gradient: `#89aacc → #4e85bf`.
+### Brand colours
+
+The one chromatic family in the system. Available as `bg-brand`, `text-brand`, `border-brand`, `bg-brand-deep`, `text-brand-foreground`.
+
+| Token                | Value                    | Role                          |
+| -------------------- | ------------------------ | ----------------------------- |
+| `--brand`            | `hsl(210 40% 67%)` ≈ `#89aacc` | Accent, links, dots, hover borders |
+| `--brand-deep`       | `hsl(211 47% 53%)` ≈ `#4e85bf` | Gradient end, pressed states |
+| `--brand-foreground` | `hsl(211 65% 12%)`       | Text/icons on a `--brand` fill |
+
+Gradient: `linear-gradient(90deg, hsl(var(--brand)) 0%, hsl(var(--brand-deep)) 100%)` — also exposed as the `.accent-gradient` class.
+
+### Other token groups
+
+| Group       | Tokens                                                                 | Notes |
+| ----------- | ---------------------------------------------------------------------- | ----- |
+| Radii       | `--radius-xs` … `--radius-4xl`, all derived from `--radius` (10px)      | `xs` 4px → `4xl` 26px |
+| Elevation   | `--shadow-3d`, `--shadow-3d-primary`, `--shadow-destructive-3d`         | Hard 2px edge; colour via `--elevation-edge` |
+| Overlay     | `--overlay` → `bg-overlay`                                              | One scrim value for Dialog, Sheet, Drawer, AlertDialog |
+| Status      | `--success`, `--warning`, `--info` (+ `-foreground`)                    | Per-theme values; each clears AA on every surface. Use these instead of raw palette literals |
+| Motion      | `--ease-out`, `--ease-in-out`, `--ease-drawer`, `--transition-duration-instant`…`--transition-duration-slower` | Closed duration scale: 80/150/220/320/500ms. Utilities are `ease-out` / `duration-fast` etc. |
+| Focus       | `--ring`                                                                | 2px at full strength; clears WCAG 2.4.11 in both themes |
+| Typography  | `--font-sans`, `--font-mono`, `--font-heading`                          | See the font override hook below |
+
+**Status colours.** Each of `--success`, `--warning` and `--info` is defined twice, once per theme, because a single OKLCH lightness cannot clear WCAG AA on both a white and a near-black base — the two contrast curves cross near `L≈0.575` at roughly 3.7:1. Use the text role on tinted surfaces, or pair a solid fill with its `-foreground`:
+
+```tsx
+<div className="border border-success/35 bg-success/[0.07] text-success" />
+<div className="bg-success text-success-foreground" />
+```
+
+**Motion.** Use the bare utility — `duration-fast`, `duration-normal`, … The
+`duration-[var(--transition-duration-fast)]` form also resolves (`@theme inline`
+still emits the variables, it just inlines the value in the utility), but the bare
+utility is shorter and is what the components use.
+
+```tsx
+<div className="transition-colors duration-fast ease-out" />
+```
+
+### Font override hook
+
+`--font-sans-family` and `--font-mono-family` are the public override hooks. Point `next/font` (or any CSS) at those names:
+
+```tsx
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans-family" })
+```
+
+Do **not** set `--font-sans` — it is the theme token itself, and `--font-sans: var(--font-sans)` is a CSS dependency cycle that resolves to nothing.
+
+### Accessibility baseline
+
+Provided globally, so components do not have to opt in:
+
+- `prefers-reduced-motion: reduce` collapses every animation and transition to `0.01ms` (not `none`, so `animationend` / `transitionend` still fire for Base UI popups).
+- `color-scheme` is set per theme, so native scrollbars and form controls match.
+- `::selection` uses `--selection-bg`.
+- `h1`–`h3` get `text-wrap: balance`; `p` gets `text-wrap: pretty`.
+- One canonical focus ring: `focus-visible:ring-2 focus-visible:ring-ring`. Do not dilute it with `ring-ring/30` — that drops the indicator to roughly 1.4:1 against white, below the 3:1 that WCAG 2.4.11 requires.
 
 ---
 

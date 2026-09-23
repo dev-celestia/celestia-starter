@@ -323,7 +323,7 @@ export function ThemeCustomizer() {
                   />
                   {/* <span className="text-xs truncate">{palette.name}</span> */}
                   {isActive && (
-                    <CheckIcon className="size-3 text-primary ms-auto shrink-0 animate-in fade-in zoom-in-75 duration-150" weight="bold" />
+                    <CheckIcon className="size-3 text-primary ms-auto shrink-0 animate-in fade-in zoom-in-75 duration-fast" weight="bold" />
                   )}
                 </button>
               )

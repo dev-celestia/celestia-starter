@@ -70,7 +70,7 @@ export const SortableBlockItem = React.memo(function SortableBlockItem({
             : "border-border bg-muted/40 text-foreground hover:border-primary/40 hover:bg-muted/70",
 
           // Interactive & States
-          "cursor-grab transition-all duration-200 ease-out active:cursor-grabbing"
+          "cursor-grab transition-all duration-normal ease-out active:cursor-grabbing"
         )}
       >
         <div
@@ -98,7 +98,7 @@ export const SortableBlockItem = React.memo(function SortableBlockItem({
               "shrink-0 rounded px-1.5 py-0.5",
 
               // Typography
-              "text-[10px] font-bold tracking-wider uppercase",
+              "text-3xs font-bold tracking-wider uppercase",
 
               // Backgrounds & Borders
               isDragging
@@ -124,7 +124,7 @@ export const SortableBlockItem = React.memo(function SortableBlockItem({
             "shrink-0",
 
             // Typography
-            "font-mono text-[10px] text-muted-foreground"
+            "font-mono text-3xs text-muted-foreground"
           )}
         >
           L{block.startLine + 1}
@@ -147,10 +147,10 @@ export const SortableBlockItem = React.memo(function SortableBlockItem({
         "-m-1.5 rounded-lg p-1.5",
 
         // Interactive & States
-        "transition-all duration-350 ease-out",
+        "transition-all duration-slow ease-out",
         canEdit && "cursor-text hover:bg-muted/20",
         isJustDropped &&
-          "animate-in bg-primary/5 shadow-xs ring-2 ring-primary/50 duration-500 fade-in zoom-in-[0.98]"
+          "animate-in bg-primary/5 shadow-xs ring-2 ring-primary/50 duration-slower fade-in zoom-in-[0.98]"
       )}
       onDoubleClick={canEdit ? onStartEditing : undefined}
       title={canEdit ? "Double-click to edit this section" : undefined}
@@ -189,7 +189,7 @@ export const SortableBlockItem = React.memo(function SortableBlockItem({
           "w-full min-w-0 flex-1",
 
           // Interactive & States
-          "animate-in transition-all duration-350 ease-out fade-in"
+          "animate-in transition-all duration-slow ease-out fade-in"
         )}
       >
         <BlockSectionRenderer
@@ -213,7 +213,7 @@ export const SortableBlockItem = React.memo(function SortableBlockItem({
             "border bg-background/90 shadow-xs backdrop-blur-xs",
 
             // Interactive & States
-            "opacity-0 transition-opacity duration-150 group-hover/item:opacity-100"
+            "opacity-0 transition-opacity duration-fast group-hover/item:opacity-100"
           )}
         >
           <button

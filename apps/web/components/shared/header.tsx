@@ -23,7 +23,7 @@ import {
   TabsTrigger,
 } from "@celestia-project/ui"
 import { cn } from "@celestia-project/ui/lib/utils"
-import { LogoMark } from "@/components/landing/nav-bar"
+import { LogoMark } from "@/components/shared/logo-mark"
 import { SearchDialog } from "@/components/docs/search-dialog"
 import { ThemeCustomizer } from "@/components/shared/theme-customizer"
 
@@ -304,7 +304,7 @@ export function Header({
             role="dialog"
             aria-modal="true"
             aria-label="Mobile Navigation"
-            className="flex-1 w-full max-w-full min-w-0 overflow-x-hidden flex flex-col justify-between overflow-y-auto overscroll-contain px-4 sm:px-6 pt-4 pb-[calc(2rem+env(safe-area-inset-bottom,0px))] md:hidden animate-in fade-in-0 duration-200"
+            className="flex-1 w-full max-w-full min-w-0 overflow-x-hidden flex flex-col justify-between overflow-y-auto overscroll-contain px-4 sm:px-6 pt-4 pb-[calc(2rem+env(safe-area-inset-bottom,0px))] md:hidden animate-in fade-in-0 duration-normal"
           >
             <div className="flex flex-col gap-5">
               {/* Mobile Search Input (live search or modal trigger) */}

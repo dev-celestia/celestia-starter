@@ -16,15 +16,15 @@ export function InstallSection() {
           </p>
           <ul className="mt-8 space-y-4 font-mono text-sm text-fog">
             <li className="flex items-baseline gap-3">
-              <span className="text-[#89aacc]">✔</span>
+              <span className="text-brand">✔</span>
               <span>Features are optional — auth, dashboard, blog</span>
             </li>
             <li className="flex items-baseline gap-3">
-              <span className="text-[#89aacc]">✔</span>
+              <span className="text-brand">✔</span>
               <span>Dependencies and env vars keyed per package</span>
             </li>
             <li className="flex items-baseline gap-3">
-              <span className="text-[#89aacc]">✔</span>
+              <span className="text-brand">✔</span>
               <span>Git initialized on the last step</span>
             </li>
           </ul>

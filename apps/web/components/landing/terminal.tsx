@@ -99,7 +99,7 @@ export function InstallTerminal({ className }: Readonly<{ className?: string }>)
             ) : (
               <>
                 {line.ok !== false && (
-                  <span className="me-2 inline-block text-[#89aacc]">✔</span>
+                  <span className="me-2 inline-block text-brand">✔</span>
                 )}
                 <span className={cn(line.ok ? "text-fog" : "text-text-primary")}>
                   {line.text}

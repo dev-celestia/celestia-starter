@@ -113,6 +113,16 @@
       "import": "./src/components/composite/*.tsx",
       "default": "./src/components/composite/*.tsx"
     },
+    "./layout": {
+      "types": "./src/components/layout/index.ts",
+      "import": "./src/components/layout/index.ts",
+      "default": "./src/components/layout/index.ts"
+    },
+    "./layout/*": {
+      "types": "./src/components/layout/*.tsx",
+      "import": "./src/components/layout/*.tsx",
+      "default": "./src/components/layout/*.tsx"
+    },
     "./hooks/*": {
       "types": "./src/hooks/*.ts",
       "import": "./src/hooks/*.ts",

@@ -225,7 +225,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                         {item.category}
                       </span>
                       {isSelected && (
-                        <ArrowUDownLeftIcon className="size-3 text-primary animate-in fade-in duration-100" />
+                        <ArrowUDownLeftIcon className="size-3 text-primary animate-in fade-in duration-instant" />
                       )}
                     </div>
                   </button>

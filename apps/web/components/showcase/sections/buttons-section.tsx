@@ -57,7 +57,7 @@ export function ButtonDemo() {
         Size LG
       </Button>
       <Button variant="outline" size="icon-sm" aria-label="Favorite">
-        <HeartIcon className="size-4 text-red-500" weight="fill" />
+        <HeartIcon className="size-4 text-destructive" weight="fill" />
       </Button>
       <Button variant="secondary" disabled className="gap-2">
         <Spinner className="size-3.5" />
@@ -118,7 +118,7 @@ export function ToggleDemo() {
         className="gap-1.5"
       >
         <HeartIcon
-          className={favorite ? "size-4 text-red-500 fill-red-500" : "size-4"}
+          className={favorite ? "size-4 text-destructive fill-destructive" : "size-4"}
           weight={favorite ? "fill" : "regular"}
         />
         <span>{favorite ? "Favorited" : "Favorite"}</span>
@@ -248,11 +248,11 @@ export function ButtonsSection() {
               <Button size="sm" variant="outline">Size SM</Button>
               <Button size="default" variant="outline">Default Size</Button>
               <Button size="lg" variant="default" className="gap-2">
-                <SparkleIcon className="size-4 text-amber-300" weight="fill" />
+                <SparkleIcon className="size-4 text-warning" weight="fill" />
                 Size LG
               </Button>
               <Button variant="outline" size="icon-sm" aria-label="Favorite">
-                <HeartIcon className="size-4 text-red-500" weight="fill" />
+                <HeartIcon className="size-4 text-destructive" weight="fill" />
               </Button>
               <Button variant="secondary" disabled className="gap-2">
                 <Spinner className="size-3.5" />
@@ -316,7 +316,7 @@ export function ButtonsSection() {
               size="sm"
               className="gap-1.5"
             >
-              <HeartIcon className={toggleState ? "size-4 text-red-500 fill-red-500" : "size-4"} weight={toggleState ? "fill" : "regular"} />
+              <HeartIcon className={toggleState ? "size-4 text-destructive fill-destructive" : "size-4"} weight={toggleState ? "fill" : "regular"} />
               <span>{toggleState ? "Favorited" : "Favorite"}</span>
             </Toggle>
 

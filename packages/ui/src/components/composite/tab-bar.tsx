@@ -273,7 +273,7 @@ export function TabBarItem({
   const sizeClasses: Record<TabBarSize, { item: string; text: string; icon: string; close: string }> = {
     sm: {
       item: "h-6 px-2 py-0 text-xs gap-1.5",
-      text: "text-[11px]",
+      text: "text-2xs",
       icon: "size-3",
       close: "size-3",
     },
@@ -294,31 +294,31 @@ export function TabBarItem({
   // Variant specific item styling
   const variantItemClasses: Record<TabBarVariant, string> = {
     default: cn(
-      "rounded-lg border transition-all duration-150",
+      "rounded-lg border transition-all duration-fast",
       isActive
         ? "bg-background text-foreground border-border/80 shadow-xs font-medium"
         : "border-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground"
     ),
     chrome: cn(
-      "rounded-t-lg border-t border-x transition-all duration-150 relative",
+      "rounded-t-lg border-t border-x transition-all duration-fast relative",
       isActive
         ? "bg-background text-foreground border-border/80 shadow-xs font-medium -mb-px z-10 before:absolute before:inset-x-0 before:top-0 before:h-0.5 before:bg-primary before:rounded-t"
         : "border-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground"
     ),
     pills: cn(
-      "rounded-lg transition-all duration-150",
+      "rounded-lg transition-all duration-fast",
       isActive
         ? "bg-background text-foreground shadow-xs font-medium"
         : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
     ),
     underline: cn(
-      "rounded-none border-b-2 transition-all duration-150 pb-1.5 pt-1",
+      "rounded-none border-b-2 transition-all duration-fast pb-1.5 pt-1",
       isActive
         ? "border-primary text-foreground font-medium"
         : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
     ),
     ghost: cn(
-      "rounded-md transition-all duration-150",
+      "rounded-md transition-all duration-fast",
       isActive
         ? "bg-accent text-accent-foreground font-medium"
         : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
@@ -336,7 +336,7 @@ export function TabBarItem({
       onAuxClick={handleAuxClick}
       onKeyDown={handleKeyDown}
       className={cn(
-        "group/tab flex items-center justify-between shrink-0 cursor-pointer min-w-0 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring",
+        "group/tab flex items-center justify-between shrink-0 cursor-pointer min-w-0 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
         sizeClasses[size].item,
         variantItemClasses[variant],
         tab.disabled && "opacity-50 cursor-not-allowed pointer-events-none",
@@ -355,7 +355,7 @@ export function TabBarItem({
         {tab.method && (
           <span
             className={cn(
-              "font-mono font-semibold uppercase shrink-0 px-1 py-0.2 rounded text-[9px] leading-tight border",
+              "font-mono font-semibold uppercase shrink-0 px-1 py-0.2 rounded text-4xs leading-tight border",
               methodInfo
                 ? methodInfo.badge
                 : "bg-muted text-muted-foreground border-border/50"

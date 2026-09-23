@@ -61,7 +61,7 @@ export function Tab({ value, children, className, ...props }: TabProps) {
   if (context.activeTab !== value) return null
 
   return (
-    <div className={cn("animate-in fade-in-50 duration-150", className)} {...props}>
+    <div className={cn("animate-in fade-in-50 duration-fast", className)} {...props}>
       {children}
     </div>
   )

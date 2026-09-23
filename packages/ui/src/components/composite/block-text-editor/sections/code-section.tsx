@@ -28,7 +28,7 @@ export const CodeSection = React.memo(function CodeSection({
             "mb-1",
 
             // Typography
-            "text-[10px] font-semibold text-muted-foreground uppercase select-none"
+            "text-3xs font-semibold text-muted-foreground uppercase select-none"
           )}
         >
           {block.data.lang}

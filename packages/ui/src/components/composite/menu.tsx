@@ -193,7 +193,7 @@ function MenuGroupLabel({
     <MenuPrimitive.GroupLabel
       data-slot="menu-group-label"
       className={cn(
-        "px-2 py-1.5 text-[0.625rem] font-medium tracking-wide text-muted-foreground uppercase",
+        "px-2 py-1.5 text-3xs font-medium tracking-wide text-muted-foreground uppercase",
         className
       )}
       {...props}
@@ -222,7 +222,7 @@ function MenuShortcut({
     <span
       data-slot="menu-shortcut"
       className={cn(
-        "ms-auto text-[0.625rem] tracking-widest text-muted-foreground",
+        "ms-auto text-3xs tracking-widest text-muted-foreground",
         className
       )}
       {...props}

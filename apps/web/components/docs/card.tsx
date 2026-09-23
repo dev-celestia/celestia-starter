@@ -54,7 +54,7 @@ export function Card({
       target={isExternal ? "_blank" : undefined}
       rel={isExternal ? "noreferrer noopener" : undefined}
       className={cn(
-        "group relative flex flex-col justify-between rounded-xl border border-border/70 bg-card/60 p-5 backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-card/90 hover:shadow-lg active:scale-[0.98]",
+        "group relative flex flex-col justify-between rounded-xl border border-border/70 bg-card/60 p-5 backdrop-blur-md transition-all duration-normal hover:-translate-y-0.5 hover:border-primary/40 hover:bg-card/90 hover:shadow-lg active:scale-[0.98]",
         className
       )}
       {...props}
@@ -71,7 +71,7 @@ export function Card({
               {title}
             </h4>
           </div>
-          <ArrowUpRightIcon className="size-4 text-muted-foreground/60 transition-transform duration-150 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary" />
+          <ArrowUpRightIcon className="size-4 text-muted-foreground/60 transition-transform duration-fast group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary" />
         </div>
 
         {description && (

@@ -7,12 +7,15 @@ import { cn } from "@celestia-project/ui/lib/utils"
 
 const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-sans",
+  // `--font-sans-family` (not `--font-sans`) is the design system's public font
+  // override hook. Pointing next/font at `--font-sans` would collide with the
+  // theme token of the same name and make `font-sans` resolve to nothing.
+  variable: "--font-sans-family",
 })
 
 const fontMono = Geist_Mono({
   subsets: ["latin"],
-  variable: "--font-mono",
+  variable: "--font-mono-family",
 })
 
 export const metadata: Metadata = {

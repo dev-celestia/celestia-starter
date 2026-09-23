@@ -14,8 +14,29 @@ import { Alert, AlertDescription, AlertTitle } from "@celestia-project/ui/primit
   <AlertTitle>Heads up!</AlertTitle>
   <AlertDescription>You can add components using the CLI.</AlertDescription>
 </Alert>
+
+<Alert variant="success">
+  <AlertTitle>Saved</AlertTitle>
+  <AlertDescription>Your changes are live.</AlertDescription>
+</Alert>
+
+<Alert variant="warning">
+  <AlertTitle>Model not loaded</AlertTitle>
+  <AlertDescription>Run the one-time setup to enable hybrid recall.</AlertDescription>
+</Alert>
+
+<Alert variant="info">
+  <AlertTitle>Heads up</AlertTitle>
+  <AlertDescription>Embeddings run locally on device.</AlertDescription>
+</Alert>
 ```
+
+The `destructive` / `success` / `warning` / `info` variants read their colour from the semantic status
+tokens (`--destructive`, `--success`, `--warning`, `--info`), which are defined per theme and verified
+to clear 4.5:1 against `--background`, `--card`, `--muted` and `--secondary`. Prefer them over Tailwind
+palette literals such as `text-amber-500`, which is only 1.8:1 on white. The icon inherits the
+variant's colour through `*:[svg]:text-current`, so no per-icon class is needed.
 
 | Prop | Type | Default |
 |------|------|---------|
-| `variant` | `default \| destructive` | `default` |
+| `variant` | `default \| destructive \| success \| warning \| info` | `default` |

@@ -280,7 +280,7 @@ export function ColorizedUrlInput({
         align="start"
         sideOffset={4}
       >
-        <div className="px-2 py-1.5 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider border-b bg-muted/20">
+        <div className="px-2 py-1.5 text-2xs font-semibold text-muted-foreground uppercase tracking-wider border-b bg-muted/20">
           Environment Variables
         </div>
         <div className="max-h-48 overflow-y-auto p-1 space-y-0.5" ref={listRef}>
@@ -298,7 +298,7 @@ export function ColorizedUrlInput({
                 key={varKey}
                 data-highlighted={idx === highlightedIndex}
                 className={cn(
-                  'flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-left transition-all duration-150 active:scale-[0.98] cursor-pointer',
+                  'flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-left transition-all duration-fast active:scale-[0.98] cursor-pointer',
                   idx === highlightedIndex
                     ? 'bg-accent text-accent-foreground font-semibold'
                     : 'hover:bg-accent/50 hover:text-accent-foreground text-muted-foreground',

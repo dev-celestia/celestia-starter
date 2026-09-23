@@ -67,7 +67,7 @@ export function DocsToc({ toc }: DocsTocProps) {
                   }
                 }}
                 className={cn(
-                  "text-xs transition-all duration-150 block truncate leading-snug py-0.5",
+                  "text-xs transition-all duration-fast block truncate leading-snug py-0.5",
                   item.level === 3 && "ps-3 text-[11px]",
                   item.level === 4 && "ps-5 text-[11px]",
                   isActive

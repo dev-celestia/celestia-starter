@@ -303,9 +303,9 @@ export const SpeechInput = ({
       {/* Main record button */}
       <Button
         className={cn(
-          "relative z-10 rounded-full transition-all duration-300",
+          "relative z-10 rounded-full transition-all duration-slow",
           isListening
-            ? "bg-destructive text-white hover:bg-destructive/80 hover:text-white"
+            ? "bg-destructive text-destructive-foreground hover:bg-destructive/80"
             : "bg-primary text-primary-foreground hover:bg-primary/80 hover:text-primary-foreground",
           className
         )}

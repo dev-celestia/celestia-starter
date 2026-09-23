@@ -63,7 +63,7 @@ function ArticleCard({
           <img
             src={image}
             alt={title}
-            className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-slow hover:scale-105"
           />
         </div>
       )}

@@ -269,7 +269,7 @@ export function TooltipDemo() {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger render={<Button variant="outline" size="icon-sm" />}>
-          <SparkleIcon className="size-4 text-amber-400" weight="fill" />
+          <SparkleIcon className="size-4 text-warning" weight="fill" />
         </TooltipTrigger>
         <TooltipContent>
           <p>AI Query Optimization Enabled</p>
@@ -329,7 +329,7 @@ export function SpinnerDemo() {
     <div className="flex items-center gap-4">
       <Spinner className="size-4" />
       <Spinner className="size-6 text-primary" />
-      <Spinner className="size-8 text-sky-500" />
+      <Spinner className="size-8 text-info" />
     </div>
   )
 }`
@@ -394,7 +394,7 @@ export function FeedbackSection() {
                 variant="outline"
                 size="xs"
                 onClick={() => toast.success("Deployment finished successfully!")}
-                className="gap-1 text-green-600 dark:text-green-400"
+                className="gap-1 text-success"
               >
                 <CheckCircleIcon className="size-3.5" />
                 Success Toast
@@ -404,7 +404,7 @@ export function FeedbackSection() {
                 variant="outline"
                 size="xs"
                 onClick={() => toast.error("Database connection timeout.")}
-                className="gap-1 text-red-600 dark:text-red-400"
+                className="gap-1 text-destructive"
               >
                 <XCircleIcon className="size-3.5" />
                 Error Toast
@@ -414,7 +414,7 @@ export function FeedbackSection() {
                 variant="outline"
                 size="xs"
                 onClick={() => toast.info("New webhook event received.")}
-                className="gap-1 text-sky-600 dark:text-sky-400"
+                className="gap-1 text-info"
               >
                 <InfoIcon className="size-3.5" />
                 Info Toast
@@ -573,7 +573,7 @@ export function FeedbackSection() {
             <div className="flex items-center gap-3">
               <Tooltip>
                 <TooltipTrigger render={<Button variant="outline" size="icon-sm" />}>
-                  <SparkleIcon className="size-4 text-amber-400" weight="fill" />
+                  <SparkleIcon className="size-4 text-warning" weight="fill" />
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>AI Query Optimization Enabled</p>
@@ -668,7 +668,7 @@ export function FeedbackSection() {
                 <span className="text-[10px] text-muted-foreground">Medium</span>
               </div>
               <div className="flex flex-col items-center gap-1.5">
-                <Spinner className="size-8 text-sky-500" />
+                <Spinner className="size-8 text-info" />
                 <span className="text-[10px] text-muted-foreground">Large</span>
               </div>
             </div>

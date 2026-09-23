@@ -106,7 +106,7 @@ const COLUMNS: ColumnDef<SampleUser>[] = [
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => (
-      <span className={row.original.status === "Active" ? "text-green-500 text-xs font-medium" : "text-amber-500 text-xs font-medium"}>
+      <span className={row.original.status === "Active" ? "text-success text-xs font-medium" : "text-warning text-xs font-medium"}>
         {row.original.status}
       </span>
     ),
@@ -131,7 +131,7 @@ export function CardDemo() {
         <div className="flex items-center justify-between">
           <CardTitle>PostgreSQL Database</CardTitle>
           <Badge variant="secondary" className="gap-1">
-            <CheckCircleIcon className="size-3 text-green-500" weight="fill" />
+            <CheckCircleIcon className="size-3 text-success" weight="fill" />
             Healthy
           </Badge>
         </div>
@@ -183,7 +183,7 @@ export function BadgeDemo() {
       <Badge variant="secondary">Secondary</Badge>
       <Badge variant="outline">Outline</Badge>
       <Badge variant="destructive">Destructive</Badge>
-      <Badge variant="secondary" className="gap-1 bg-amber-500/10 text-amber-500">
+      <Badge variant="secondary" className="gap-1 bg-warning/10 text-warning">
         <SparkleIcon className="size-3" weight="fill" />
         Pro Feature
       </Badge>
@@ -213,10 +213,10 @@ export function AvatarDemo() {
       {/* Avatar Stack */}
       <div className="flex -space-x-2.5">
         <Avatar className="size-8 ring-2 ring-background">
-          <AvatarFallback className="bg-sky-500 text-white text-[10px]">A</AvatarFallback>
+          <AvatarFallback className="bg-info text-info-foreground text-[10px]">A</AvatarFallback>
         </Avatar>
         <Avatar className="size-8 ring-2 ring-background">
-          <AvatarFallback className="bg-purple-500 text-white text-[10px]">+4</AvatarFallback>
+          <AvatarFallback className="bg-brand text-brand-foreground text-[10px]">+4</AvatarFallback>
         </Avatar>
       </div>
     </div>
@@ -241,7 +241,7 @@ export function TableDemo() {
         <TableRow>
           <TableCell className="font-mono text-xs font-medium">/api/v1/auth/session</TableCell>
           <TableCell><Badge variant="secondary">GET</Badge></TableCell>
-          <TableCell className="text-green-500 font-medium">200 OK</TableCell>
+          <TableCell className="text-success font-medium">200 OK</TableCell>
           <TableCell className="text-end font-mono">12 ms</TableCell>
         </TableRow>
       </TableBody>
@@ -425,7 +425,7 @@ export function DataDisplaySection() {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm">PostgreSQL Database</CardTitle>
                 <Badge variant="secondary" className="gap-1 text-[10px]">
-                  <CheckCircleIcon className="size-3 text-green-500" weight="fill" />
+                  <CheckCircleIcon className="size-3 text-success" weight="fill" />
                   Healthy
                 </Badge>
               </div>
@@ -489,7 +489,7 @@ export function DataDisplaySection() {
             <Badge variant="secondary">Secondary</Badge>
             <Badge variant="outline">Outline</Badge>
             <Badge variant="destructive">Destructive</Badge>
-            <Badge variant="secondary" className="gap-1 bg-amber-500/10 text-amber-500 border-amber-500/20">
+            <Badge variant="secondary" className="gap-1 bg-warning/10 text-warning border-warning/20">
               <SparkleIcon className="size-3" weight="fill" />
               Pro Feature
             </Badge>
@@ -528,13 +528,13 @@ export function DataDisplaySection() {
             {/* Avatar Stack */}
             <div className="flex -space-x-2.5 overflow-hidden">
               <Avatar className="size-8 ring-2 ring-background">
-                <AvatarFallback className="bg-sky-500 text-white text-[10px]">A</AvatarFallback>
+                <AvatarFallback className="bg-info text-info-foreground text-[10px]">A</AvatarFallback>
               </Avatar>
               <Avatar className="size-8 ring-2 ring-background">
-                <AvatarFallback className="bg-emerald-500 text-white text-[10px]">B</AvatarFallback>
+                <AvatarFallback className="bg-success text-success-foreground text-[10px]">B</AvatarFallback>
               </Avatar>
               <Avatar className="size-8 ring-2 ring-background">
-                <AvatarFallback className="bg-purple-500 text-white text-[10px]">+4</AvatarFallback>
+                <AvatarFallback className="bg-brand text-brand-foreground text-[10px]">+4</AvatarFallback>
               </Avatar>
             </div>
           </div>
@@ -565,13 +565,13 @@ export function DataDisplaySection() {
                 <TableRow>
                   <TableCell className="font-mono text-xs font-medium">/api/v1/auth/session</TableCell>
                   <TableCell><Badge variant="secondary" className="font-mono text-[10px]">GET</Badge></TableCell>
-                  <TableCell className="text-green-500 text-xs font-medium">200 OK</TableCell>
+                  <TableCell className="text-success text-xs font-medium">200 OK</TableCell>
                   <TableCell className="text-end font-mono text-xs">12 ms</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-mono text-xs font-medium">/api/v1/users/create</TableCell>
                   <TableCell><Badge variant="default" className="font-mono text-[10px]">POST</Badge></TableCell>
-                  <TableCell className="text-green-500 text-xs font-medium">201 Created</TableCell>
+                  <TableCell className="text-success text-xs font-medium">201 Created</TableCell>
                   <TableCell className="text-end font-mono text-xs">48 ms</TableCell>
                 </TableRow>
                 <TableRow>
@@ -663,7 +663,7 @@ export function DataDisplaySection() {
 
             <Item variant="outline" className="p-3">
               <ItemMedia>
-                <div className="grid size-8 place-items-center rounded-md bg-sky-500/10 text-sky-500">
+                <div className="grid size-8 place-items-center rounded-md bg-info/10 text-info">
                   <CloudCheckIcon className="size-4" />
                 </div>
               </ItemMedia>
@@ -702,7 +702,7 @@ export function DataDisplaySection() {
 
             <Marker variant="border">
               <MarkerIcon>
-                <SparkleIcon className="text-amber-400" />
+                <SparkleIcon className="text-warning" />
               </MarkerIcon>
               <MarkerContent>New AI Chat Bubble primitives enabled</MarkerContent>
             </Marker>

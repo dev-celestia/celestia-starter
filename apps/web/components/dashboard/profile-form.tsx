@@ -66,7 +66,7 @@ export function ProfileForm({ user }: Readonly<{ user: Session["user"] }>) {
             </p>
           </div>
 
-          {message && <p className="text-xs text-green-600">{message}</p>}
+          {message && <p className="text-xs text-success">{message}</p>}
           {error && <p className="text-xs text-destructive">{error}</p>}
 
           <Button type="submit" disabled={saving} className="h-8 w-fit text-xs">

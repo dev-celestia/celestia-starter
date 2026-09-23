@@ -13,9 +13,18 @@ The Celestia Design System is a production-grade, accessible UI foundation packa
 ## Architectural Principles
 
 1. **Unstyled Primitives (Base UI)**: All interactive components (Dialog, DropdownMenu, Tabs, Tooltip, Select) inherit WAI-ARIA compliance, screen reader support, focus-trapping, and keyboard navigation directly from Base UI.
-2. **OKLCH Color Tokens**: Colors are authored in perceptual OKLCH coordinates to maintain consistent perceived brightness and contrast ratios across light and dark themes.
+2. **Two Token Palettes, One Base**: The app shell uses the shadcn semantic palette in **OKLCH** (`--background`, `--card`, `--primary`, …), switchable via the `.dark` class. The marketing/landing palette is forced-dark HSL (`--bg`, `--surface`, `--text`, `--stroke`). Both resolve their darkest surface to `#0a0a0a`, so a landing page and an app shell agree on their base.
 3. **Zero-Runtime Styling**: All styles map to CSS custom properties (`var(--primary)`, `var(--radius)`). No JavaScript runtime overhead or CSS-in-JS style injection.
 4. **Decoupled & External Ready**: Packaged as an ESM module with deep import paths (`@celestia-project/ui/primitive/button`) and strict TypeScript types.
+5. **Accessible By Default**: The global stylesheet honours `prefers-reduced-motion`, sets `color-scheme` per theme, and ships a single canonical focus ring that meets WCAG 2.4.11.
+
+### House Rules
+
+- **No colour literals in components.** Add a token to `globals.css` instead. The only exceptions are documentation previews that display raw values.
+- **Never write `--x: var(--x)`.** A self-reference is a CSS dependency cycle and silently resolves to nothing, breaking the utility that consumes it.
+- **Elevation must increase**: `--background` < `--card` < `--muted`/`--secondary`.
+- **Every focus ring is `focus-visible:ring-2 focus-visible:ring-ring`** — 2px at full strength. Diluted rings (`ring-ring/30`) fail WCAG 2.4.11.
+- **Pair every surface with a foreground.** A surface token without a matching `-foreground` token is an accessibility bug waiting to happen.
 
 ---
 
@@ -85,18 +94,70 @@ Instead, add the `@source` directive in your main CSS file (`globals.css`):
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-overlay: var(--overlay);
 
+  --radius-xs: calc(var(--radius) - 6px);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
 
-  /* Optional: Celestia UI tokens & motion */
+  /* Fonts. `--font-sans-family` / `--font-mono-family` are the override hooks —
+     point next/font (or any CSS) at those names, not at `--font-sans`. */
+  --font-sans: var(--font-sans-family, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif);
+  --font-mono: var(--font-mono-family, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
+
+  /* Elevation — hard-edged "3D" lift for raised controls. */
+  --shadow-3d: 0 2px 0 0 var(--elevation-edge);
+  --shadow-3d-primary: 0 2px 0 0 var(--primary);
+  --shadow-destructive-3d: 0 2px 0 0 color-mix(in oklch, var(--destructive), black 30%);
+
+  /* Optional: Celestia landing tokens & motion */
+  --color-brand: hsl(var(--brand));
+  --color-brand-deep: hsl(var(--brand-deep));
+  --color-brand-foreground: hsl(var(--brand-foreground));
   --color-bg: hsl(var(--bg, 0 0% 4%));
   --color-surface: hsl(var(--surface, 0 0% 8%));
   --color-text-primary: hsl(var(--text, 0 0% 96%));
-  --color-fog: hsl(0 0% 53%);
+  --color-fog: hsl(var(--fog, 0 0% 53%));
   --color-stroke: hsl(var(--stroke, 0 0% 12%));
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Durations. The namespace MUST be `--transition-duration-*` and it MUST be
+     inside `@theme` — Tailwind v4 has no `--duration-*` namespace, and a value
+     declared in `:root` never becomes a utility. Getting either wrong produces
+     no `duration-*` class at all, silently. */
+  --transition-duration-instant: 80ms;
+  --transition-duration-fast: 150ms;
+  --transition-duration-normal: 220ms;
+  --transition-duration-slow: 320ms;
+  --transition-duration-slower: 500ms;
+}
+
+:root {
+  --elevation-edge: rgb(0 0 0 / 15%);
+}
+
+.dark {
+  --elevation-edge: rgb(0 0 0 / 50%);
+}
+
+/* Honour the user's motion preference for every token-driven animation. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 ```
 
@@ -169,33 +230,167 @@ export function WelcomeCard() {
 
 ## Token Reference
 
-### Colors (OKLCH)
+### Semantic colours (app shell, OKLCH)
 
 | Token Variable | Tailwind Utility | Light Value | Dark Value |
 |---|---|---|---|
 | `--background` | `bg-background` | `oklch(1 0 0)` | `oklch(0.145 0 0)` |
 | `--foreground` | `text-foreground` | `oklch(0.145 0 0)` | `oklch(0.985 0 0)` |
-| `--primary` | `bg-primary` | `oklch(0.205 0 0)` | `oklch(0.985 0 0)` |
+| `--card` / `--popover` | `bg-card` / `bg-popover` | `oklch(1 0 0)` | `oklch(0.205 0 0)` |
+| `--primary` | `bg-primary` | `oklch(0.205 0 0)` | `oklch(0.922 0 0)` |
 | `--primary-foreground` | `text-primary-foreground` | `oklch(0.985 0 0)` | `oklch(0.205 0 0)` |
-| `--muted` | `bg-muted` | `oklch(0.97 0 0)` | `oklch(0.269 0 0)` |
+| `--secondary` / `--muted` | `bg-secondary` / `bg-muted` | `oklch(0.97 0 0)` | `oklch(0.269 0 0)` |
 | `--muted-foreground` | `text-muted-foreground` | `oklch(0.556 0 0)` | `oklch(0.708 0 0)` |
-| `--destructive` | `bg-destructive` | `oklch(0.577 0.245 27.325)` | `oklch(0.396 0.141 25.723)` |
-| `--border` | `border-border` | `oklch(0.922 0 0)` | `oklch(0.269 0 0)` |
-| `--ring` | `ring-ring` | `oklch(0.708 0 0)` | `oklch(0.439 0 0)` |
+| `--destructive` | `bg-destructive` | `oklch(0.577 0.245 27.325)` | `oklch(0.704 0.191 22.216)` |
+| `--destructive-foreground` | `text-destructive-foreground` | `oklch(1 0 0)` | `oklch(0.205 0 0)` |
+| `--border` | `border-border` | `oklch(0.922 0 0)` | `oklch(1 0 0 / 10%)` |
+| `--input` | `bg-input` | `oklch(0.922 0 0)` | `oklch(1 0 0 / 15%)` |
+| `--ring` | `ring-ring` | `oklch(0.55 0 0)` | `oklch(0.556 0 0)` |
+| `--overlay` | `bg-overlay` | `oklch(0 0 0 / 70%)` | `oklch(0 0 0 / 70%)` |
+
+**Elevation ordering.** In dark mode the ramp must rise, and it does:
+`--background` `oklch(0.145)` → `--card` `oklch(0.205)` → `--muted` `oklch(0.269)`.
+If you add a surface token, keep it on that ramp.
+
+**Contrast guarantees.** `--destructive-foreground` is chosen per theme so a
+filled destructive control clears WCAG AA at the 10–12px sizes the system uses:
+white on `#e7000b` (light, 4.77:1) and `oklch(0.205 0 0)` on `#ff6467` (dark,
+6.21:1). Hover states clear it too.
+
+### Status colours
+
+`--success`, `--warning` and `--info` exist so app code never reaches for raw
+Tailwind palette literals. Every literal fails one theme or the other —
+`text-green-500` is 2.22:1 on white, `text-amber-500` is 2.13:1, `text-sky-500`
+is 2.71:1, while `text-amber-900` is 2.53:1 on the dark base and
+`text-amber-200` is 1.24:1 on white. Since the app ships a theme switcher, a
+literal is always broken for roughly half of its users.
+
+| Token | Utility | Light | Dark |
+|---|---|---|---|
+| `--success` | `text-success` / `bg-success` | `oklch(0.5 0.16 150)` | `oklch(0.7 0.16 150)` |
+| `--success-foreground` | `text-success-foreground` | `oklch(1 0 0)` | `oklch(0.205 0 0)` |
+| `--warning` | `text-warning` / `bg-warning` | `oklch(0.5 0.17 75)` | `oklch(0.7 0.17 75)` |
+| `--warning-foreground` | `text-warning-foreground` | `oklch(1 0 0)` | `oklch(0.205 0 0)` |
+| `--info` | `text-info` / `bg-info` | `oklch(0.5 0.19 250)` | `oklch(0.7 0.19 250)` |
+| `--info-foreground` | `text-info-foreground` | `oklch(1 0 0)` | `oklch(0.205 0 0)` |
+
+A single lightness value **cannot** serve both themes: the light and dark
+contrast curves cross at roughly 3.7:1 near `L≈0.575`, below the 4.5:1 AA floor.
+That is why each hue is defined twice. The chosen values were verified at
+4.98–7.89:1 against `--background`, `--card`, `--muted` and `--secondary` in
+their own theme, and 5.43–7.15:1 for a `-foreground` on its solid fill.
+
+Two usage shapes:
+
+```tsx
+// Tinted surface — the text role keeps its AA rating on any background.
+<div className="rounded-sm border border-success/35 bg-success/[0.07] px-2.5 py-1.5 text-success" />
+
+// Solid fill — pair with the `-foreground` token, never `text-white`.
+<div className="bg-success text-success-foreground" />
+```
+
+### Brand colours
+
+The one chromatic family in the system. Previously hardcoded as hex literals.
+
+| Token Variable | Tailwind Utility | Value | Role |
+|---|---|---|---|
+| `--brand` | `bg-brand` / `text-brand` / `border-brand` | `hsl(210 40% 67%)` ≈ `#89aacc` | Accent, links, dots, hover borders |
+| `--brand-deep` | `bg-brand-deep` / `text-brand-deep` | `hsl(211 47% 53%)` ≈ `#4e85bf` | Gradient end, pressed states |
+| `--brand-foreground` | `text-brand-foreground` | `hsl(211 65% 12%)` | Text/icons on a `--brand` fill |
+
+Gradient: `linear-gradient(90deg, hsl(var(--brand)) 0%, hsl(var(--brand-deep)) 100%)` — exposed as the `.accent-gradient` class.
+
+### Landing palette (forced dark, HSL)
+
+| Token Variable | Tailwind Utility | Value | Role |
+|---|---|---|---|
+| `--bg` | `bg-bg` | `hsl(0 0% 4%)` ≈ `#0a0a0a` | Page background |
+| `--surface` | `bg-surface` | `hsl(0 0% 8%)` ≈ `#141414` | Cards, raised panels |
+| `--text` | `text-text-primary` | `hsl(0 0% 96%)` ≈ `#f5f5f5` | Headings, primary copy |
+| `--fog` | `text-fog` | `hsl(0 0% 53%)` ≈ `#878787` | Secondary / muted copy |
+| `--stroke` | `border-stroke` | `hsl(0 0% 12%)` ≈ `#1f1f1f` | Borders, dividers |
 
 ### Radii Scale
 
-All radii inherit mathematically from `--radius` (`0.625rem` / `10px`):
+All radii inherit from `--radius` (`0.625rem` / `10px`):
 
-- **Small (`rounded-sm`)**: `calc(var(--radius) - 4px)` (~4px) — Badges, tooltips, small chips.
-- **Medium (`rounded-md`)**: `calc(var(--radius) - 2px)` (~6px) — Form controls, buttons, dropdown rows.
-- **Large (`rounded-lg`)**: `var(--radius)` (~8px) — Cards, modal dialogs, drawers.
-- **Extra Large (`rounded-xl`)**: `calc(var(--radius) + 4px)` (~12px) — Floating banners, hero surfaces.
-- **Full (`rounded-full`)**: `9999px` — Avatars, status indicators, pill buttons.
+| Utility | Token | Resolves to |
+|---|---|---|
+| `rounded-xs` | `calc(var(--radius) - 6px)` | 4px |
+| `rounded-sm` | `calc(var(--radius) - 4px)` | 6px |
+| `rounded-md` | `calc(var(--radius) - 2px)` | 8px |
+| `rounded-lg` | `var(--radius)` | 10px |
+| `rounded-xl` | `calc(var(--radius) + 4px)` | 14px |
+| `rounded-2xl` | `calc(var(--radius) + 8px)` | 18px |
+| `rounded-3xl` | `calc(var(--radius) + 12px)` | 22px |
+| `rounded-4xl` | `calc(var(--radius) + 16px)` | 26px |
+| `rounded-full` | — | `9999px` |
+
+### Elevation
+
+Raised controls use a hard 2px edge rather than a blur, paired with
+`active:translate-y-[2px] active:shadow-none` for the press effect.
+
+| Utility | Token | Notes |
+|---|---|---|
+| `shadow-3d` | `0 2px 0 0 var(--elevation-edge)` | Edge colour flips per theme (`15%` light / `50%` dark) |
+| `shadow-3d-primary` | `0 2px 0 0 var(--primary)` | Default button variant |
+| `shadow-destructive-3d` | `0 2px 0 0 color-mix(in oklch, var(--destructive), black 30%)` | Destructive button variant |
+
+### Motion
+
+| Token | Value | Use |
+|---|---|---|
+| `--ease-out` | `cubic-bezier(0.23, 1, 0.32, 1)` | Entrances, reveals |
+| `--ease-in-out` | `cubic-bezier(0.77, 0, 0.175, 1)` | Two-way transitions |
+| `--ease-drawer` | `cubic-bezier(0.32, 0.72, 0, 1)` | Sheet / drawer / swipe |
+| `--transition-duration-instant` | `80ms` | State feedback |
+| `--transition-duration-fast` | `150ms` | Hover, colour changes |
+| `--transition-duration-normal` | `220ms` | Default |
+| `--transition-duration-slow` | `320ms` | Overlays |
+| `--transition-duration-slower` | `500ms` | Large surfaces |
+
+Durations are a closed scale — reach for a token instead of `duration-347`.
+Because the theme block is `@theme inline`, these become the utilities
+`duration-instant` … `duration-slower` directly:
+
+```tsx
+<div className="transition-colors duration-fast ease-out" />
+```
+
+The `duration-[var(--transition-duration-fast)]` form also resolves — `@theme inline`
+still emits the variables into `:root`, it only inlines the value inside the utility —
+but the bare utility is shorter and is what the components use.
+
+### Focus ring
+
+One canonical treatment across the whole system:
+
+```tsx
+<button className="focus-visible:ring-2 focus-visible:ring-ring" />
+```
+
+2px at full strength. WCAG 2.4.11 requires a focus indicator of at least 3:1
+against adjacent colours; `--ring` is picked to clear that in both themes
+(4.88:1 on white, 4.18:1 on the dark base). Do **not** dilute it with
+`ring-ring/30` — that drops the indicator to roughly 1.4:1.
+
+### Accessibility baseline
+
+The global stylesheet handles these, so components do not have to:
+
+- `prefers-reduced-motion: reduce` collapses every animation and transition to `0.01ms` (not `none`, so `animationend` / `transitionend` still fire for Base UI popups).
+- `color-scheme` is set per theme, so native scrollbars and form controls match.
+- `::selection` uses `--selection-bg`.
+- `h1`–`h3` get `text-wrap: balance`, `p` gets `text-wrap: pretty`.
+- Focus rings are visible by default; there is no `outline: none` without a replacement.
 
 ---
 
 ## Interactive Portals
 
 - **[Design System Portal](/design-system)**: Interactive token explorer, live component sandbox, and custom token exporter.
-- **[UI Showcase](/components)**: Catalog of 70+ components with live code demos, copyable snippets, and interactive states.
+- **[UI Showcase](/components)**: Catalog of 126 components with live code demos, copyable snippets, and interactive states.

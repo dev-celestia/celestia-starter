@@ -218,7 +218,7 @@ export const WebPreviewConsole = ({
             Console
             <CaretDownIcon
               className={cn(
-                "h-4 w-4 transition-transform duration-200",
+                "h-4 w-4 transition-transform duration-normal",
                 consoleOpen && "rotate-180"
               )}
             />

@@ -1,11 +1,16 @@
 "use client"
 
 import { Suspense, useState } from "react"
-import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { GoogleLogo } from "@phosphor-icons/react"
 import { Button, Input, Label } from "@celestia-project/ui"
 
+import {
+  AuthDivider,
+  AuthError,
+  AuthFooterLink,
+  AuthHeading,
+} from "@/components/auth/auth-chrome"
 import { authClient, signIn } from "@/lib/auth-client"
 
 function SignUpForm() {
@@ -47,12 +52,10 @@ function SignUpForm() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2 text-center">
-        <h1 className="text-lg font-semibold tracking-tight">Create an account</h1>
-        <p className="text-sm text-muted-foreground">
-          Enter your details to get started
-        </p>
-      </div>
+      <AuthHeading
+        title="Create an account"
+        description="Enter your details to get started"
+      />
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
@@ -60,6 +63,7 @@ function SignUpForm() {
           <Input
             id="name"
             type="text"
+            autoComplete="name"
             placeholder="Jane Doe"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -71,6 +75,7 @@ function SignUpForm() {
           <Input
             id="email"
             type="email"
+            autoComplete="email"
             placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -82,6 +87,7 @@ function SignUpForm() {
           <Input
             id="password"
             type="password"
+            autoComplete="new-password"
             placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -90,45 +96,30 @@ function SignUpForm() {
           />
         </div>
 
-        {error && (
-          <p className="text-xs text-destructive">{error}</p>
-        )}
+        <AuthError message={error} />
 
-        <Button
-          type="submit"
-          disabled={loading}
-          className="h-8 w-full text-xs"
-        >
+        <Button type="submit" size="lg" disabled={loading} className="w-full">
           {loading ? "Creating account..." : "Sign up"}
         </Button>
       </form>
 
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">
-            Or continue with
-          </span>
-        </div>
-      </div>
+      <AuthDivider />
 
       <Button
         variant="outline"
-        className="h-8 w-full text-xs"
+        size="lg"
+        className="w-full"
         onClick={handleGoogleSignIn}
       >
         <GoogleLogo className="size-4" />
         Google
       </Button>
 
-      <p className="text-center text-xs text-muted-foreground">
-        Already have an account?{" "}
-        <Link href="/sign-in" className="font-medium text-foreground underline-offset-4 hover:underline">
-          Sign in
-        </Link>
-      </p>
+      <AuthFooterLink
+        prompt="Already have an account?"
+        linkLabel="Sign in"
+        href="/sign-in"
+      />
     </div>
   )
 }

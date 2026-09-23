@@ -403,7 +403,7 @@ export function ConfirmationDemo() {
     <Confirmation
       state="approval-requested"
       approval={{ id: "tool-migrate-1", approved: undefined as any }}
-      className="w-full max-w-md border-amber-500/30 bg-amber-500/5 text-xs"
+      className="w-full max-w-md border-warning/30 bg-warning/5 text-xs"
     >
       <ConfirmationTitle>
         Agent requests permission to execute database migration: <code>0002_drop_legacy_tables.sql</code>
@@ -788,7 +788,7 @@ export function ChatAiSection() {
             <Confirmation
               state={approvalState === "pending" ? "approval-requested" : "approval-responded"}
               approval={{ id: "tool-migrate-1", approved: approvalState === "approved" }}
-              className="rounded-xl border-amber-500/30 bg-amber-500/5 text-xs p-3"
+              className="rounded-xl border-warning/30 bg-warning/5 text-xs p-3"
             >
               <ConfirmationTitle className="text-xs leading-relaxed">
                 Agent requests approval to execute <code className="font-mono text-primary">0002_drop_legacy_tables.sql</code>
@@ -876,7 +876,7 @@ export function ChatAiSection() {
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Attachment state="done" size="default" className="rounded-xl border bg-card/60">
               <AttachmentMedia variant="icon">
-                <FilePdfIcon className="size-5 text-red-500" weight="fill" />
+                <FilePdfIcon className="size-5 text-destructive" weight="fill" />
               </AttachmentMedia>
               <AttachmentContent>
                 <AttachmentTitle>API-Specification.pdf</AttachmentTitle>
@@ -891,7 +891,7 @@ export function ChatAiSection() {
 
             <Attachment state="done" size="default" className="rounded-xl border bg-card/60">
               <AttachmentMedia variant="icon">
-                <FileImageIcon className="size-5 text-sky-500" weight="fill" />
+                <FileImageIcon className="size-5 text-info" weight="fill" />
               </AttachmentMedia>
               <AttachmentContent>
                 <AttachmentTitle>system-architecture.png</AttachmentTitle>

@@ -1,11 +1,16 @@
 "use client"
 
 import { Suspense, useState } from "react"
-import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { GoogleLogo } from "@phosphor-icons/react"
 import { Button, Input, Label } from "@celestia-project/ui"
 
+import {
+  AuthDivider,
+  AuthError,
+  AuthFooterLink,
+  AuthHeading,
+} from "@/components/auth/auth-chrome"
 import { signIn } from "@/lib/auth-client"
 
 function SignInForm() {
@@ -45,12 +50,10 @@ function SignInForm() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2 text-center">
-        <h1 className="text-lg font-semibold tracking-tight">Sign in</h1>
-        <p className="text-sm text-muted-foreground">
-          Enter your credentials to access your account
-        </p>
-      </div>
+      <AuthHeading
+        title="Sign in"
+        description="Enter your credentials to access your account"
+      />
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
@@ -58,6 +61,7 @@ function SignInForm() {
           <Input
             id="email"
             type="email"
+            autoComplete="email"
             placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -69,6 +73,7 @@ function SignInForm() {
           <Input
             id="password"
             type="password"
+            autoComplete="current-password"
             placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -76,45 +81,33 @@ function SignInForm() {
           />
         </div>
 
-        {error && (
-          <p className="text-xs text-destructive">{error}</p>
-        )}
+        <AuthError message={error} />
 
-        <Button
-          type="submit"
-          disabled={loading}
-          className="h-8 w-full text-xs"
-        >
+        {/* Sizing comes from the design system's `lg` step — the previous
+            `h-8 w-full text-xs` re-declared the *default* size and clobbered
+            its `text-xs/relaxed` line-height. */}
+        <Button type="submit" size="lg" disabled={loading} className="w-full">
           {loading ? "Signing in..." : "Sign in"}
         </Button>
       </form>
 
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">
-            Or continue with
-          </span>
-        </div>
-      </div>
+      <AuthDivider />
 
       <Button
         variant="outline"
-        className="h-8 w-full text-xs"
+        size="lg"
+        className="w-full"
         onClick={handleGoogleSignIn}
       >
         <GoogleLogo className="size-4" />
         Google
       </Button>
 
-      <p className="text-center text-xs text-muted-foreground">
-        Don&apos;t have an account?{" "}
-        <Link href="/sign-up" className="font-medium text-foreground underline-offset-4 hover:underline">
-          Sign up
-        </Link>
-      </p>
+      <AuthFooterLink
+        prompt="Don't have an account?"
+        linkLabel="Sign up"
+        href="/sign-up"
+      />
     </div>
   )
 }

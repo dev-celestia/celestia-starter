@@ -111,7 +111,7 @@ export function MobileNavSidebar({
 
       {/* Mobile Drawer Dropdown */}
       {menuOpen && (
-        <div className="mt-2.5 pt-2.5 border-t border-border/60 max-h-[60vh] overflow-y-auto space-y-3 pb-3 animate-in fade-in-0 duration-200">
+        <div className="mt-2.5 pt-2.5 border-t border-border/60 max-h-[60vh] overflow-y-auto space-y-3 pb-3 animate-in fade-in-0 duration-normal">
           {groups.map((group) => {
             const GroupIcon = group.icon
             return (
@@ -300,7 +300,7 @@ export function NavSidebar({
 
                 {/* Group Items */}
                 {!isCollapsed && (
-                  <div className="flex flex-col gap-0.5 ms-2 border-s border-border/50 ps-2 mt-0.5 animate-in fade-in slide-in-from-top-1 duration-150">
+                  <div className="flex flex-col gap-0.5 ms-2 border-s border-border/50 ps-2 mt-0.5 animate-in fade-in slide-in-from-top-1 duration-fast">
                     {group.items.map((item) => {
                       const isItemActive = activeItemId
                         ? activeItemId === item.id
@@ -311,7 +311,7 @@ export function NavSidebar({
                       const content = (
                         <div
                           className={cn(
-                            "relative flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all duration-150 active:scale-[0.98] select-none",
+                            "relative flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all duration-fast active:scale-[0.98] select-none",
                             isItemActive
                               ? "bg-primary/10 text-primary shadow-xs font-semibold"
                               : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
@@ -320,7 +320,7 @@ export function NavSidebar({
                           {isItemActive && (
                             <span
                               aria-hidden
-                              className="bg-primary absolute inset-y-1.5 -start-2 w-0.5 rounded-full animate-in fade-in duration-200"
+                              className="bg-primary absolute inset-y-1.5 -start-2 w-0.5 rounded-full animate-in fade-in duration-normal"
                             />
                           )}
                           <span className="truncate">{item.title}</span>

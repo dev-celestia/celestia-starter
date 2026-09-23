@@ -1,4 +1,4 @@
-import { LogoMark } from "./nav-bar"
+import { LogoMark } from "@/components/shared/logo-mark"
 
 export function Footer() {
   return (

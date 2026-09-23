@@ -202,7 +202,7 @@ export function AddSectionMenu({
             <button
               type="button"
               onClick={() => setSearch("")}
-              className="cursor-pointer text-[10px] text-muted-foreground hover:text-foreground"
+              className="cursor-pointer text-3xs text-muted-foreground hover:text-foreground"
             >
               Clear
             </button>
@@ -224,7 +224,7 @@ export function AddSectionMenu({
                     "px-2 py-1",
 
                     // Typography
-                    "text-[10px] font-semibold tracking-wider text-muted-foreground uppercase select-none"
+                    "text-3xs font-semibold tracking-wider text-muted-foreground uppercase select-none"
                   )}
                 >
                   {group.name}
@@ -265,7 +265,7 @@ export function AddSectionMenu({
                       <span className="text-xs leading-tight font-medium text-foreground">
                         {item.label}
                       </span>
-                      <span className="mt-0.5 truncate text-[11px] leading-tight text-muted-foreground">
+                      <span className="mt-0.5 truncate text-2xs leading-tight text-muted-foreground">
                         {item.description}
                       </span>
                     </div>
