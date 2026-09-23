@@ -255,17 +255,55 @@ import { cn } from "@celestia-project/ui/lib/utils"
 
 ## Component Mapping Reference
 
-Below is the complete mapping of all 126 component modules in `packages/ui/src/components/`, listing their deep import specifiers, exported sub-components, and underlying base primitives.
+Below is the complete mapping of all 142 component modules in `packages/ui/src/components/`, listing their deep import specifiers, exported sub-components, and underlying base primitives.
 
 ### Layout & Structure
+
+The `layout/` family is the page-level layer: a few **shells** own the frame (centred/split for auth, rail + header + content for the signed-in app, and a full-viewport frame for status screens), and thin **page** components supply their own fields and defaults on top of a shell. Every member is also re-exported from the `@celestia-project/ui` barrel.
 
 | Module | Deep Import | Exported Sub-Components | Base Primitive |
 |--------|-------------|-------------------------|----------------|
 | `aspect-ratio` | `@celestia-project/ui/primitive/aspect-ratio` | `AspectRatio` | Radix AspectRatio |
+| `auth-shell` | `@celestia-project/ui/layout/auth-shell` | `AuthShell` | Custom HTML |
+| `billing-page` | `@celestia-project/ui/layout/billing-page` | `BillingPage`, `BillingPlan`, `BillingUsage`, `BillingInvoice` | `PageShell` + `Card` + `Progress` + `Table` |
 | `card` | `@celestia-project/ui/primitive/card` | `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardAction`, `CardContent`, `CardFooter` | Custom HTML |
+| `dashboard-page` | `@celestia-project/ui/layout/dashboard-page` | `DashboardPage` | `PageShell` + `Card` |
+| `dashboard-shell` | `@celestia-project/ui/layout/dashboard-shell` | `DashboardShell` | Custom HTML |
+| `error-page` | `@celestia-project/ui/layout/error-page` | `ErrorPage` | `StatusPage` |
+| `forgot-password-page` | `@celestia-project/ui/layout/forgot-password-page` | `ForgotPasswordPage` | `AuthShell` |
+| `list-page` | `@celestia-project/ui/layout/list-page` | `ListPage`, `ListColumn` | `PageShell` + `Table` |
+| `not-found-page` | `@celestia-project/ui/layout/not-found-page` | `NotFoundPage` | `StatusPage` |
+| `page-shell` | `@celestia-project/ui/layout/page-shell` | `PageShell` | Custom HTML |
+| `profile-page` | `@celestia-project/ui/layout/profile-page` | `ProfilePage` | Base UI `Tabs` + `Avatar` |
+| `reset-password-page` | `@celestia-project/ui/layout/reset-password-page` | `ResetPasswordPage` | `AuthShell` |
 | `resizable` | `@celestia-project/ui/primitive/resizable` | `Resizable`, `ResizablePanel`, `ResizablePanelGroup`, `ResizableHandle` | `react-resizable-panels` |
 | `separator` | `@celestia-project/ui/primitive/separator` | `Separator` | Base UI `Separator` |
+| `settings-page` | `@celestia-project/ui/layout/settings-page` | `SettingsPage` | Custom HTML |
 | `sidebar` | `@celestia-project/ui/composite/sidebar` | `SidebarProvider`, `Sidebar`, `SidebarHeader`, `SidebarContent`, `SidebarGroup`, `SidebarGroupLabel`, `SidebarGroupAction`, `SidebarGroupContent`, `SidebarFooter`, `SidebarMenu`, `SidebarMenuItem`, `SidebarMenuButton`, `SidebarMenuAction`, `SidebarMenuSub`, `SidebarMenuSubItem`, `SidebarMenuSubButton`, `SidebarMenuBadge`, `SidebarMenuSkeleton`, `SidebarRail`, `SidebarTrigger`, `SidebarInset`, `SidebarInput`, `useSidebar` | Custom + Base UI Tooltip & Sheet |
+| `sign-in-page` | `@celestia-project/ui/layout/sign-in-page` | `SignInPage`, `SocialProvider` | `AuthShell` |
+| `sign-up-page` | `@celestia-project/ui/layout/sign-up-page` | `SignUpPage` | `AuthShell` |
+| `status-page` | `@celestia-project/ui/layout/status-page` | `StatusPage` | Custom HTML |
+| `two-factor-page` | `@celestia-project/ui/layout/two-factor-page` | `TwoFactorPage` | `AuthShell` + `input-otp` |
+
+#### Shells vs. pages
+
+| Component | Frame it owns | Use it when |
+|-----------|---------------|-------------|
+| `AuthShell` | Centred card or split screen, logo, heading, provider `aside`, `footer` | Building a bespoke signed-out screen |
+| `PageShell` | Blurred sticky header, `title` / `description` / `actions`, width presets | Any in-app page that is not a dashboard or profile |
+| `DashboardShell` | Navigation rail (`brand`, `nav`, `navFooter`), sticky `header`, content column, optional `aside` | The route-group layout of a signed-in app |
+| `DashboardPage` | `PageShell` + metric tile grid, loading skeletons, `empty` slot, secondary column | A dashboard overview |
+| `ProfilePage` | Banner, overlapping avatar, identity block, `meta` / `stats` rows, line-variant tab bar | A user profile screen |
+| `SettingsPage` | Section navigation beside stacked panels | Account or workspace settings |
+| `ListPage` | `PageShell` + toolbar (search / `filters` / `toolbar`), selection with select-all, loading skeletons, empty state, pagination | A table-driven index or CRUD list screen |
+| `BillingPage` | `PageShell` + plan card, usage meters, payment method, invoice table | Plan, usage and invoice history |
+| `StatusPage` | Full-viewport centred frame: status `code` or `icon`, title, description, optional monospace `detail`, two actions | Any bespoke not-the-page-you-asked-for state (403, 503, maintenance) |
+| `NotFoundPage` | `StatusPage` with 404 defaults | A missing route |
+| `ErrorPage` | `StatusPage` with 500 defaults plus a `detail` block | An unexpected server failure |
+
+`DashboardShell` is deliberately slot-based rather than opinionated about navigation — `nav` takes whatever list the consumer already has, so it can back an existing route group without rewriting its navigation. `SettingsPage` keeps every panel mounted and hides the inactive ones, so unsaved input survives a section switch.
+
+`ListPage` owns layout and selection state but never filters, sorts or paginates `rows` — that stays with whoever owns the data, so there is only ever one source of truth for what a given page contains. `BillingPage` follows the same rule for money: it renders the figures you pass and never derives a prorated amount or a renewal date, because being subtly wrong about a charge is worse than not showing it.
 
 ---
 

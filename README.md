@@ -129,9 +129,24 @@ pnpm list-features
 # Add a feature to the monorepo
 pnpm add-feature <name>
 
-# Remove a feature from the monorepo
+# Preview exactly what an install would do (writes nothing)
+pnpm add-feature <name> --dry-run
+
+# Upgrade / reinstall an already-installed feature
+pnpm add-feature <name> --force
+
+# Remove a feature from the monorepo (restores files shared with other features)
 pnpm remove-feature <name>
+
+# Check installed features for drift or breakage (read-only, non-zero exit on errors)
+pnpm verify-features
 ```
+
+Installs are transactional: every path is snapshotted first, so a failure rolls the
+repository back instead of leaving a half-applied state. When two features provide the
+same file the newest install wins and the previous content is backed up under
+`.feature-manager/backups/`, so removing a feature restores the other one's version
+rather than deleting a file it still needs.
 
 ---
 
@@ -143,6 +158,11 @@ pnpm remove-feature <name>
 | `pnpm build` | Build all applications and workspace packages via Turborepo |
 | `pnpm lint` | Run ESLint checks across all apps and packages |
 | `pnpm typecheck` | Run `tsc --noEmit` across all workspace targets |
+| `pnpm test` | Run the feature-manager test suite (marker engine, manifests, install/remove lifecycle) |
+| `pnpm list-features` | List available and installed features |
+| `pnpm add-feature <name>` | Install a feature (add `--dry-run` to preview, `--force` to upgrade) |
+| `pnpm remove-feature <name>` | Uninstall a feature, restoring files shared with other features |
+| `pnpm verify-features` | Verify installed features are intact; non-zero exit on problems |
 | `pnpm format` | Prettify code using Prettier and Tailwind plugin |
 | `pnpm publish:packages` | Build and publish `@celestia-project/ui` & `@celestia-project/create` to npm |
 | `pnpm publish:dry-run` | Preview npm publish tarballs without uploading |

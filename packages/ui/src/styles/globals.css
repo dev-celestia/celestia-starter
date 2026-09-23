@@ -173,7 +173,22 @@
        `--shadow-3d-*` is the hard-edged "lift" used by Button and other
        raised controls: a 2px solid edge under the element, consumed by
        `active:translate-y-[2px] active:shadow-none` for the press effect.
-       The edge colour flips per theme through `--elevation-edge`.
+       The edge colour flips per theme through `--elevation-edge`, and it
+       flips *direction*, not just value: light mode lays a dark band over a
+       white page, dark mode lays a light band over a near-black page. A
+       darker band cannot separate from a near-black page — the old dark
+       value (`rgb(0 0 0 / 50%)` → #050505 on a #0a0a0a page) measured
+       **1.03:1**, i.e. invisible, which is the bug this fixes. The dark
+       value is tuned to the *filled* button face, which is the binding
+       constraint, not the page: 18% white gives 1.25:1 against
+       `--secondary` (#262626), matching light mode's 1.29:1 against
+       `#f5f5f5`. 15% would be the literal alpha mirror but falls to 1.13:1
+       there. Measured, not eyeballed.
+
+       `--shadow-3d-primary` is intentionally *not* `--elevation-edge`: it
+       takes `var(--primary)`, so the band matches the control's own border.
+       That reads as a thickened bottom border — high contrast by design
+       (15.7:1 on dark, the inverse of light mode's white-on-black).
        --------------------------------------------------------------------- */
     --shadow-3d: 0 2px 0 0 var(--elevation-edge);
     --shadow-3d-primary: 0 2px 0 0 var(--primary);
@@ -293,7 +308,14 @@
     --secondary: oklch(0.97 0 0);
     --secondary-foreground: oklch(0.205 0 0);
     --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
+    /* 0.54 → #6f6f6f. At 0.556 (#737373) muted text on a *full* `bg-muted` or
+       `bg-secondary` surface measured 4.35:1 — below AA. The /40 and /50
+       variants used in the app composite lighter and passed (4.54–4.58:1), so
+       the failure was latent rather than visible, but a token pair should not
+       ship below threshold. 0.54 lifts the worst case to 4.61:1 for a 3-step
+       sRGB change (#737373 → #6f6f6f). Darkening a foreground token only ever
+       *raises* contrast, so nothing else regresses. Measured, not eyeballed. */
+    --muted-foreground: oklch(0.54 0 0);
     --accent: oklch(0.97 0 0);
     --accent-foreground: oklch(0.205 0 0);
     --destructive: oklch(0.577 0.245 27.325);
@@ -335,7 +357,9 @@
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.55 0 0);
 
-    /* Elevation edge for the "3D" raised-control shadow. */
+    /* Elevation edge for the "3D" raised-control shadow. Dark mode mirrors
+       this with a *light* band (`rgb(255 255 255 / 18%)`) — see the note in
+       `@theme`; a dark band is invisible on a near-black page. */
     --elevation-edge: rgb(0 0 0 / 15%);
 }
 
@@ -395,7 +419,7 @@
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.556 0 0);
 
-    --elevation-edge: rgb(0 0 0 / 50%);
+    --elevation-edge: rgb(255 255 255 / 18%);
 }
 
 @layer base {

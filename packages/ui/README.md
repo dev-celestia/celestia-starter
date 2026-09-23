@@ -199,7 +199,8 @@ Instead, add the `@source` directive in your main CSS file (e.g., `src/styles/gl
 }
 
 .dark {
-  --elevation-edge: rgb(0 0 0 / 50%);
+  /* Light band, not dark — a darker edge is invisible on a near-black page. */
+  --elevation-edge: rgb(255 255 255 / 18%);
 
   /* Status colours — dark theme. Same role, tuned for dark surfaces. */
   --success: oklch(0.7 0.16 150);

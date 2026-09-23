@@ -145,7 +145,11 @@ Instead, add the `@source` directive in your main CSS file (`globals.css`):
 }
 
 .dark {
-  --elevation-edge: rgb(0 0 0 / 50%);
+  /* A light band, not a dark one. A darker edge cannot separate from a
+     near-black page: the previous `rgb(0 0 0 / 50%)` rendered #050505 on a
+     #0a0a0a page — 1.03:1, i.e. invisible. 18% white gives 1.64:1 against
+     the page and 1.25:1 against a secondary-filled face. */
+  --elevation-edge: rgb(255 255 255 / 18%);
 }
 
 /* Honour the user's motion preference for every token-driven animation. */
@@ -240,7 +244,7 @@ export function WelcomeCard() {
 | `--primary` | `bg-primary` | `oklch(0.205 0 0)` | `oklch(0.922 0 0)` |
 | `--primary-foreground` | `text-primary-foreground` | `oklch(0.985 0 0)` | `oklch(0.205 0 0)` |
 | `--secondary` / `--muted` | `bg-secondary` / `bg-muted` | `oklch(0.97 0 0)` | `oklch(0.269 0 0)` |
-| `--muted-foreground` | `text-muted-foreground` | `oklch(0.556 0 0)` | `oklch(0.708 0 0)` |
+| `--muted-foreground` | `text-muted-foreground` | `oklch(0.54 0 0)` | `oklch(0.708 0 0)` |
 | `--destructive` | `bg-destructive` | `oklch(0.577 0.245 27.325)` | `oklch(0.704 0.191 22.216)` |
 | `--destructive-foreground` | `text-destructive-foreground` | `oklch(1 0 0)` | `oklch(0.205 0 0)` |
 | `--border` | `border-border` | `oklch(0.922 0 0)` | `oklch(1 0 0 / 10%)` |
@@ -336,7 +340,7 @@ Raised controls use a hard 2px edge rather than a blur, paired with
 
 | Utility | Token | Notes |
 |---|---|---|
-| `shadow-3d` | `0 2px 0 0 var(--elevation-edge)` | Edge colour flips per theme (`15%` light / `50%` dark) |
+| `shadow-3d` | `0 2px 0 0 var(--elevation-edge)` | Edge flips per theme, and flips *direction*: `15%` black on light, `18%` white on dark. A dark band is invisible on a near-black page |
 | `shadow-3d-primary` | `0 2px 0 0 var(--primary)` | Default button variant |
 | `shadow-destructive-3d` | `0 2px 0 0 color-mix(in oklch, var(--destructive), black 30%)` | Destructive button variant |
 

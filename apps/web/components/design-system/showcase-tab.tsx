@@ -87,7 +87,7 @@ export function ShowcaseTab() {
             <SurfacesSection />
           )}
 
-          {(!normalizedQuery || "layout auth shell sign in up forgot reset password two factor otp not found 404 page browser".includes(normalizedQuery)) && (
+          {(!normalizedQuery || "layout auth shell sign in up forgot reset password two factor otp not found 404 page browser dashboard profile settings list table billing invoice plan usage payment status error 500 403 forbidden empty".includes(normalizedQuery)) && (
             <LayoutSection />
           )}
         </div>
