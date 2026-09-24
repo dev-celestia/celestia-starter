@@ -21,7 +21,7 @@ export function AgencyHero() {
   return (
     <section
       id="hero"
-      className="relative flex min-h-svh items-center justify-center overflow-hidden bg-background pt-16"
+      className="relative flex min-h-svh flex-col justify-center overflow-hidden bg-background px-5 pt-28 pb-16 sm:px-8"
     >
       {/* Decorative wash. Purely ornamental, so it is hidden from AT. */}
       <div
@@ -31,7 +31,10 @@ export function AgencyHero() {
         <div className="size-[640px] rounded-full bg-primary/10 blur-[120px]" />
       </div>
 
-      <div className="relative z-10 mx-auto w-full max-w-4xl px-5 py-20 text-center sm:px-8">
+      {/* The section owns the vertical rhythm. An inner `py-*` used to make the
+          content taller than `min-h-svh`, so `justify-center` had no slack to
+          work with and the eyebrow badge was pinned under the fixed nav. */}
+      <div className="relative z-10 mx-auto w-full max-w-4xl text-center">
         <Reveal>
           <div className="flex justify-center">
             <Badge

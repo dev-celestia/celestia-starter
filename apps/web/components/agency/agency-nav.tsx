@@ -72,12 +72,17 @@ const PRODUCT_LINKS = [
 export function AgencyNav() {
   const [scrolled, setScrolled] = React.useState(false)
   const [mobileOpen, setMobileOpen] = React.useState(false)
-  const [mounted, setMounted] = React.useState(false)
   const { resolvedTheme, setTheme } = useTheme()
 
-  React.useEffect(() => {
-    setMounted(true)
-  }, [])
+  // Hydration guard for the theme icon. `useSyncExternalStore` returns the
+  // server snapshot (false) during hydration and the client snapshot (true)
+  // afterwards, so the icon never mismatches — and unlike the previous
+  // `useEffect(() => setMounted(true))` it does not trigger a cascading render.
+  const mounted = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  )
 
   const toggleTheme = () => setTheme(resolvedTheme === "dark" ? "light" : "dark")
 
@@ -111,7 +116,7 @@ export function AgencyNav() {
         // theme-switchable, so a forced-dark bar turned into a black stripe
         // across a white page in light mode.
         scrolled
-          ? "border-b border-border/60 bg-background/85 backdrop-blur-xl"
+          ? "border-b border-border/60 bg-background/90 backdrop-blur-xl"
           : "border-b border-transparent bg-transparent",
       )}
     >
@@ -215,7 +220,9 @@ export function AgencyNav() {
             >
               <ListIcon className="size-5" />
             </SheetTrigger>
-            <SheetContent side="right" className="w-full gap-0 sm:max-w-xs">
+            {/* Width comes from SheetContent (`w-3/4` on the right side);
+                `sm:max-w-xs` just caps it on small tablets. */}
+            <SheetContent side="right" className="gap-0 sm:max-w-xs">
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-2.5">
                   <LogoMark />
