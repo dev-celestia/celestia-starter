@@ -9,8 +9,20 @@
  * it is a composite. If it is a generic piece you would reach for in any app,
  * it belongs in `../primitive` instead.
  *
- * NOTE: intentionally empty for now. This barrel is populated in Phase 3 of
- * `packages/mobile/PLAN.md` (form-field, search-bar, navbar, tab-bar,
- * segmented-control, setting-row, avatar-group, alert, empty-state,
- * social-auth-buttons, action-sheet, confirm-dialog, toast).
+ * Composites are presentational, like everything else in this package: they take
+ * props and emit callbacks. None of them fetches, routes, or holds server state.
  */
+
+export * from "./action-sheet"
+export * from "./alert"
+export * from "./avatar-group"
+export * from "./confirm-dialog"
+export * from "./empty-state"
+export * from "./form-field"
+export * from "./navbar"
+export * from "./search-bar"
+export * from "./segmented-control"
+export * from "./setting-row"
+export * from "./social-auth-buttons"
+export * from "./tab-bar"
+export * from "./toast"

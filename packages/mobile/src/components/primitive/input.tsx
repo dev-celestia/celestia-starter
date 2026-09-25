@@ -2,6 +2,9 @@ import * as React from "react"
 import {
   TextInput as RNTextInput,
   type TextInputProps as RNTextInputProps,
+  type NativeSyntheticEvent,
+  type TextInputFocusEventData,
+  Pressable,
   StyleSheet,
   View,
   type ViewStyle,
@@ -9,6 +12,7 @@ import {
 } from "react-native"
 import { useMobileTheme } from "../../host"
 import { metrics } from "../../tokens"
+import { MobileText } from "./text"
 
 export interface MobileTextInputProps extends Omit<RNTextInputProps, "style"> {
   /**
@@ -20,7 +24,9 @@ export interface MobileTextInputProps extends Omit<RNTextInputProps, "style"> {
    */
   style?: TextStyle
   /**
-   * Optional error message or boolean state.
+   * Error state. A string marks the field as errored and is intended to be
+   * rendered by the caller (see `MobileFormField`), since a bare input has no
+   * place to put helper text.
    */
   error?: boolean | string
   /**
@@ -28,13 +34,45 @@ export interface MobileTextInputProps extends Omit<RNTextInputProps, "style"> {
    */
   leading?: React.ReactNode
   /**
-   * Optional trailing element (e.g. icon or clear button).
+   * Optional trailing element (e.g. icon).
    */
   trailing?: React.ReactNode
   /**
+   * Renders a clear affordance once the field has a value. The glyph is a
+   * structural mark, so no icon dependency is introduced. Suppressed on secure
+   * fields, where the reveal toggle owns the trailing slot.
+   * @default false
+   */
+  clearable?: boolean
+  /**
+   * Called when the clear affordance is pressed, after `onChangeText("")`.
+   */
+  onClear?: () => void
+  /**
+   * Masks the value **and** renders a reveal toggle in the trailing slot.
+   *
+   * Use this for passwords. It exists on the primitive rather than in each
+   * screen because every password field needs the same toggle, and three
+   * hand-rolled copies would drift on the accessible name, the touch target and
+   * the label copy. Pass `secureTextEntry` directly instead if you want masking
+   * with no toggle.
+   * @default false
+   */
+  secure?: boolean
+  /**
+   * Caption on the reveal toggle while the value is masked.
+   * @default 'Show'
+   */
+  revealLabel?: string
+  /**
+   * Caption on the reveal toggle while the value is visible.
+   * @default 'Hide'
+   */
+  hideLabel?: string
+  /**
    * Optional ref to the underlying React Native TextInput instance.
    */
-  inputRef?: React.Ref<any>
+  inputRef?: React.Ref<React.ComponentRef<typeof RNTextInput>>
 }
 
 /**
@@ -44,6 +82,10 @@ export interface MobileTextInputProps extends Omit<RNTextInputProps, "style"> {
  * - 16px font size floor to prevent unwanted mobile viewport shifting (better-typography)
  * - 44pt minimum touch target height (better-interface)
  * - Semantic border & placeholder colors in light/dark mode (better-colors)
+ *
+ * This is the *bare* input — border, focus ring and slots. Label, helper and
+ * error text are a specific job, so they live in the `MobileFormField`
+ * composite rather than being duplicated here.
  */
 export function MobileTextInput({
   containerStyle,
@@ -51,24 +93,40 @@ export function MobileTextInput({
   error,
   leading,
   trailing,
+  clearable = false,
+  onClear,
+  secure = false,
+  revealLabel = "Show",
+  hideLabel = "Hide",
+  value,
+  onChangeText,
   placeholderTextColor,
   onFocus,
   onBlur,
   editable = true,
   inputRef,
+  secureTextEntry,
   ...props
 }: MobileTextInputProps) {
   const { colors } = useMobileTheme()
   const [isFocused, setIsFocused] = React.useState(false)
+  const [revealed, setRevealed] = React.useState(false)
 
-  const handleFocus = (e: any) => {
+  const handleFocus = (
+    event: NativeSyntheticEvent<TextInputFocusEventData>
+  ) => {
     setIsFocused(true)
-    onFocus?.(e)
+    onFocus?.(event)
   }
 
-  const handleBlur = (e: any) => {
+  const handleBlur = (event: NativeSyntheticEvent<TextInputFocusEventData>) => {
     setIsFocused(false)
-    onBlur?.(e)
+    onBlur?.(event)
+  }
+
+  const handleClear = () => {
+    onChangeText?.("")
+    onClear?.()
   }
 
   const borderColor = error
@@ -76,6 +134,15 @@ export function MobileTextInput({
     : isFocused
       ? colors.primary
       : colors.inputBorder
+
+  const showClear =
+    clearable &&
+    !secure &&
+    editable &&
+    typeof value === "string" &&
+    value.length > 0
+
+  const showReveal = secure && editable
 
   return (
     <View
@@ -94,7 +161,13 @@ export function MobileTextInput({
 
       <RNTextInput
         ref={inputRef}
+        {...props}
+        value={value}
+        onChangeText={onChangeText}
         editable={editable}
+        // Explicit props come after the spread so a caller cannot accidentally
+        // pass `secureTextEntry` and leave the reveal toggle out of sync.
+        secureTextEntry={secure ? !revealed : secureTextEntry}
         placeholderTextColor={placeholderTextColor ?? colors.muted}
         onFocus={handleFocus}
         onBlur={handleBlur}
@@ -108,13 +181,51 @@ export function MobileTextInput({
           },
           style,
         ]}
-        {...props}
       />
+
+      {showClear ? (
+        <Pressable
+          onPress={handleClear}
+          accessibilityRole="button"
+          accessibilityLabel="Clear input"
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          style={styles.clear}
+        >
+          <MobileText variant="caption" color="muted" style={styles.clearGlyph}>
+            ✕
+          </MobileText>
+        </Pressable>
+      ) : null}
+
+      {showReveal ? (
+        <Pressable
+          onPress={() => setRevealed((current) => !current)}
+          accessibilityRole="button"
+          // The visible caption ("Show" / "Hide") is ambiguous read aloud on its
+          // own, so the accessible name spells out what is being revealed.
+          accessibilityLabel={revealed ? "Hide password" : "Show password"}
+          accessibilityState={{ expanded: revealed }}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          style={styles.reveal}
+        >
+          <MobileText variant="callout" style={{ color: colors.primary }}>
+            {revealed ? hideLabel : revealLabel}
+          </MobileText>
+        </Pressable>
+      ) : null}
 
       {trailing ? <View style={styles.trailing}>{trailing}</View> : null}
     </View>
   )
 }
+
+/**
+ * `MobileInput` is the same component under the name most callers reach for.
+ * Prefer it in new code; `MobileTextInput` is kept as the original export.
+ */
+export const MobileInput = MobileTextInput
+
+export type MobileInputProps = MobileTextInputProps
 
 const styles = StyleSheet.create({
   container: {
@@ -136,6 +247,20 @@ const styles = StyleSheet.create({
   },
   trailing: {
     marginLeft: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  clear: {
+    marginLeft: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  clearGlyph: {
+    fontWeight: "600",
+  },
+  reveal: {
+    marginLeft: 8,
+    minHeight: metrics.minTouchTarget,
     alignItems: "center",
     justifyContent: "center",
   },

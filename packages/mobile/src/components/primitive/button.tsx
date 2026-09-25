@@ -45,13 +45,30 @@ export interface MobileButtonProps {
    */
   disabled?: boolean
   /**
-   * Optional custom style override.
+   * Optional custom style override for the pressable surface. Use this for
+   * padding, background and border — anything that *is* the button.
    */
   style?: ViewStyle
+  /**
+   * Style for the animated wrapper around the pressable surface. Use this for
+   * anything that positions the button as a box in a layout — `flex`, `margin`,
+   * `alignSelf` — because the wrapper, not the surface, is the element the
+   * parent lays out. Without it a button cannot be stretched inside a row.
+   */
+  containerStyle?: ViewStyle
   /**
    * Optional test ID for automation.
    */
   testID?: string
+  /**
+   * Screen-reader label. Effectively required whenever the button renders an
+   * icon or any non-text child, since there is then no text to announce.
+   */
+  accessibilityLabel?: string
+  /**
+   * Screen-reader hint describing what pressing will do.
+   */
+  accessibilityHint?: string
 }
 
 /**
@@ -70,7 +87,10 @@ export function MobileButton({
   onPress,
   disabled = false,
   style,
+  containerStyle,
   testID,
+  accessibilityLabel,
+  accessibilityHint,
 }: MobileButtonProps) {
   const { colors } = useMobileTheme()
   const scaleAnim = React.useRef(new Animated.Value(1)).current
@@ -177,7 +197,9 @@ export function MobileButton({
   const { container: variantContainer, textColor } = getVariantStyles()
 
   return (
-    <Animated.View style={[{ transform: [{ scale: scaleAnim }] }]}>
+    <Animated.View
+      style={[{ transform: [{ scale: scaleAnim }] }, containerStyle]}
+    >
       <Pressable
         onPress={handlePress}
         onPressIn={handlePressIn}
@@ -185,6 +207,8 @@ export function MobileButton({
         disabled={disabled}
         testID={testID}
         accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel}
+        accessibilityHint={accessibilityHint}
         accessibilityState={{ disabled }}
         hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
         style={[

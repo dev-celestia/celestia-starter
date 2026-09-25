@@ -12,8 +12,24 @@
  * frame, and each screen supplies only its own fields and defaults on top of it
  * — so screens that resemble each other cannot drift apart.
  *
- * NOTE: intentionally empty for now. This barrel is populated in Phase 4 of
- * `packages/mobile/PLAN.md` (screen, auth-shell, onboarding-screen,
- * sign-in-screen, sign-up-screen, forgot-password-screen,
- * reset-password-screen, otp-verify-screen, settings-screen, status-screen).
+ * - `MobileScreen` is the base frame. Everything else composes it.
+ * - `MobileAuthShell` adds the logo / heading / form / aside / footer frame that
+ *   every authentication screen shares.
+ * - The remaining exports are screens: onboarding, sign-in, sign-up,
+ *   forgot-password, reset-password, OTP verify, settings and status.
+ *
+ * `MobileScreen` needs a `SafeAreaProvider` above it (from
+ * `react-native-safe-area-context`) for safe-area padding to resolve; without
+ * one it still renders, just without the insets.
  */
+
+export * from "./auth-shell"
+export * from "./forgot-password-screen"
+export * from "./onboarding-screen"
+export * from "./otp-verify-screen"
+export * from "./reset-password-screen"
+export * from "./screen"
+export * from "./settings-screen"
+export * from "./sign-in-screen"
+export * from "./sign-up-screen"
+export * from "./status-screen"

@@ -1,6 +1,6 @@
 # Celestia Starter
 
-> A production-ready, full-stack monorepo starter built with **Next.js 15**, **Hono**, **Better Auth**, **Drizzle ORM**, **Base UI**, and **Tailwind CSS v4**.
+> A production-ready, full-stack monorepo starter built with **Next.js 15**, **Hono**, **Better Auth**, **Drizzle ORM**, **Base UI**, **Tailwind CSS v4**, and **Expo / React Native**.
 
 [![npm @celestia-project/create](https://img.shields.io/npm/v/@celestia-project/create?label=%40celestia-project%2Fcreate)](https://www.npmjs.com/package/@celestia-project/create)
 [![npm @celestia-project/ui](https://img.shields.io/npm/v/@celestia-project/ui?label=%40celestia-project%2Fui)](https://www.npmjs.com/package/@celestia-project/ui)
@@ -42,6 +42,7 @@ pnpm dev
 
 - **Web App & Docs** → [http://localhost:3000](http://localhost:3000) (Docs at [/docs](http://localhost:3000/docs))
 - **API Server (Backend)** → [http://localhost:4000](http://localhost:4000)
+- **Mobile App (Expo)** → not started by `pnpm dev`; run `pnpm mobile` in a second terminal (Metro bundler, then press `i` / `a` for a simulator)
 
 ---
 
@@ -62,8 +63,10 @@ Celestia Starter enforces a strict **separated architecture** between frontend a
 
 - **Backend API (`apps/api`)**: Powered by Hono running on Node.js (port 4000). Owns the database connection, business logic, authentication server instance, and CRUD endpoints. Exposes end-to-end typed contracts via Hono RPC.
 - **Frontend (`apps/web`)**: Next.js 15 App Router (port 3000). Pure UI layer with zero direct database access and no server-side auth secrets. Houses landing pages, interactive component showcase, and full documentation. Proxies `/api/*` to the backend.
+- **Mobile App (`apps/mobile`)**: Expo (React Native) client that consumes `@celestia-project/mobile` **from source** — there is no build step, Metro compiles the package's `.ts`/`.tsx` directly. It is not part of the `pnpm dev` pipeline; start it with `pnpm mobile`.
 - **Shared DB (`packages/db`)**: Drizzle ORM schema and PostgreSQL client (`@workspace/db`).
 - **Shared UI (`packages/ui`)**: `@celestia-project/ui` component library built on Base UI and Tailwind CSS v4.
+- **Shared Mobile UI (`packages/mobile`)**: `@celestia-project/mobile` — native iOS/Android components built on `@expo/ui` (real SwiftUI & Jetpack Compose), organised with the same `primitive` / `composite` / `layout` taxonomy as the web library. **Workspace-only** — not published to npm.
 
 ---
 
@@ -73,9 +76,11 @@ Celestia Starter enforces a strict **separated architecture** between frontend a
 celestia-starter/
 ├── apps/
 │   ├── api/                # Standalone Hono backend (owns DB, auth, RPC routes)
+│   ├── mobile/             # Expo (React Native) showcase app for @celestia-project/mobile
 │   └── web/                # Next.js 15 frontend (pure UI, landing, docs, showcase)
 ├── packages/
 │   ├── ui/                 # @celestia-project/ui component library (Base UI + Tailwind v4)
+│   ├── mobile/             # @celestia-project/mobile native components (workspace-only)
 │   ├── db/                 # @workspace/db (Drizzle schema & PostgreSQL client)
 │   ├── cli/                # @celestia-project/create CLI package
 │   ├── feature-manager/    # @workspace/feature-manager CLI & installer engine
@@ -83,7 +88,7 @@ celestia-starter/
 │   └── typescript-config/  # Shared TypeScript config presets
 ├── features/               # Modular, installable features (manifests + code)
 └── scripts/
-    └── publish.sh          # Automated npm publishing script
+    └── publish.sh          # Automated npm publishing script (ui + cli only)
 ```
 
 ---
@@ -155,6 +160,7 @@ rather than deleting a file it still needs.
 | Command | Purpose |
 |---------|---------|
 | `pnpm dev` | Start development servers for web and api in parallel |
+| `pnpm mobile` | Start the Expo dev server (Metro) for `apps/mobile` |
 | `pnpm build` | Build all applications and workspace packages via Turborepo |
 | `pnpm lint` | Run ESLint checks across all apps and packages |
 | `pnpm typecheck` | Run `tsc --noEmit` across all workspace targets |
@@ -175,6 +181,8 @@ rather than deleting a file it still needs.
 
 - **[@celestia-project/create](https://www.npmjs.com/package/@celestia-project/create)** — Interactive CLI tool for scaffolding new Celestia Starter projects (`npx @celestia-project/create`).
 - **[@celestia-project/ui](https://www.npmjs.com/package/@celestia-project/ui)** — 60+ accessible React UI primitives built on Base UI & Tailwind CSS v4.
+
+> **`@celestia-project/mobile` is not published.** Although it carries the `@celestia-project` scope, `scripts/publish.sh` only knows about `ui` and `cli`, so there is no `pnpm publish:mobile`. Add it to a workspace with `"@celestia-project/mobile": "workspace:*"` and import it from source. Its documentation lives in `apps/web/content/docs/mobile.mdx` (published at `/docs/mobile`).
 
 ---
 

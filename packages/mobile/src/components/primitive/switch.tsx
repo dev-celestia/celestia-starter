@@ -35,6 +35,16 @@ export interface MobileSwitchProps {
    * Test identifier.
    */
   testID?: string
+  /**
+   * Screen-reader label for the switch itself. Falls back to `label` when
+   * omitted — but the visible label is rendered as a *sibling*, so without this
+   * an unlabelled switch is announced as just "switch".
+   */
+  accessibilityLabel?: string
+  /**
+   * Screen-reader hint describing what toggling will do.
+   */
+  accessibilityHint?: string
 }
 
 /**
@@ -51,6 +61,8 @@ export function MobileSwitch({
   disabled = false,
   style,
   testID,
+  accessibilityLabel,
+  accessibilityHint,
 }: MobileSwitchProps) {
   const handleChange = (val: boolean) => {
     if (disabled) return
@@ -65,6 +77,8 @@ export function MobileSwitch({
         onValueChange={handleChange}
         disabled={disabled}
         testID={testID}
+        accessibilityLabel={accessibilityLabel ?? label}
+        accessibilityHint={accessibilityHint}
       />
     </Host>
   )

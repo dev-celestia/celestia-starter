@@ -4,7 +4,7 @@ description: Shared workspace packages for UI components, linting, TypeScript co
 icon: package
 ---
 
-The `packages/` directory contains shared workspace packages. Some are private workspace-only packages (`@workspace/*`), others are published to npm under the `@celestia-project` org.
+The `packages/` directory contains shared workspace packages. Some are private workspace-only packages (`@workspace/*`), others are published to npm under the `@celestia-project` org. One package — `@celestia-project/mobile` — carries the public scope but is **not** published yet; see its section below.
 
 ## @celestia-project/ui
 
@@ -63,6 +63,44 @@ If your app already has an existing Tailwind v4 setup and custom theme variables
 ```
 
 See the [Components docs](/docs/components) and the [npm package](https://www.npmjs.com/package/@celestia-project/ui) for details.
+
+---
+
+## @celestia-project/mobile
+
+Native iOS and Android UI components built on **`@expo/ui`** — real SwiftUI on iOS and Jetpack Compose on Android, with no web-shim layer in between. The package reuses the same `primitive` / `composite` / `layout` taxonomy and the same design tokens as `@celestia-project/ui`, but it is **not** a port: mobile-only affordances (haptics, safe areas, native sheets) have no web counterpart.
+
+<Callout type="warn" title="Workspace-only — not published to npm">
+Despite the `@celestia-project` scope, this package is **not** on npm. `scripts/publish.sh` publishes only `ui` and `cli`, so `pnpm add @celestia-project/mobile` will fail. Consume it through the workspace protocol (`"@celestia-project/mobile": "workspace:*"`) from inside the monorepo.
+</Callout>
+
+**Exports:**
+
+| Import path | Resolves to |
+|-------------|-------------|
+| `@celestia-project/mobile` | Barrel export of every component, hook and token (tree-shaken) |
+| `@celestia-project/mobile/tokens` | `useMobileTheme()`, colour ramps, spacing scale, metrics |
+| `@celestia-project/mobile/host` | `MobileHost` — theme + safe-area root |
+| `@celestia-project/mobile/primitive` | All 20 generic components (barrel) |
+| `@celestia-project/mobile/primitive/*` | One module — e.g. `primitive/button` |
+| `@celestia-project/mobile/composite` | All 13 opinionated assemblies (barrel) |
+| `@celestia-project/mobile/composite/*` | One module — e.g. `composite/tab-bar` |
+| `@celestia-project/mobile/layout` | All 10 shells and screens (barrel) |
+| `@celestia-project/mobile/layout/*` | One module — e.g. `layout/sign-in-screen` |
+
+**Usage:**
+
+```tsx
+import { MobileButton, MobileScreen } from "@celestia-project/mobile"
+import { MobileButton } from "@celestia-project/mobile/primitive/button"
+import { useMobileTheme } from "@celestia-project/mobile/tokens"
+```
+
+**Key dependencies:** `@expo/ui`, `expo-haptics`, `react-native-safe-area-context`
+
+The package is consumed **from source** — its `exports` map points straight at `.ts` / `.tsx`, so there is no build step and no `dist/`. The consuming app's bundler (Metro, via Expo) compiles it. Every colour comes from `useMobileTheme()`; nothing is hardcoded, which is what lets `MobileHost` switch themes at runtime.
+
+See the [Mobile (Expo) docs](/docs/mobile) for setup, the full component inventory, and the design rules.
 
 ---
 

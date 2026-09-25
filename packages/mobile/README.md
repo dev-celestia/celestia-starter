@@ -21,8 +21,12 @@ pnpm add @celestia-project/mobile
 Peer dependencies required by Expo:
 
 ```bash
-npx expo install @expo/ui expo-haptics
+npx expo install @expo/ui expo-haptics react-native-safe-area-context
 ```
+
+`react-native-safe-area-context` is needed by `MobileScreen` (and therefore by every
+screen built on it). Mount a `SafeAreaProvider` at the app root; without one the insets
+resolve to zero and screens still render, just without safe-area padding.
 
 ## Component categories
 
@@ -45,21 +49,124 @@ infrastructure (design tokens + the theme context every component reads), not co
 
 ### Currently implemented
 
-**primitive** — 8 modules
+**primitive** — 20 modules
 
 | Component | Wraps | Notes |
 |---|---|---|
 | `MobileText` | RN `Text` | 8 typographic roles, `tabular` numerals, semantic `color` |
+| `MobileLabel` | RN `Text` | `callout` role, structural required marker |
 | `MobileButton` | RN `Pressable` | 5 variants × 3 sizes, `0.97` press scale, haptics |
-| `MobileTextInput` | RN `TextInput` | 16px font floor, focus/error borders, `leading`/`trailing` slots |
+| `MobileIconButton` | RN `Pressable` | 44pt square, **required** `accessibilityLabel` |
+| `MobileTextInput` / `MobileInput` | RN `TextInput` | 16px font floor, focus/error borders, `leading`/`trailing` slots, `clearable` |
+| `MobileOtpInput` | RN `TextInput` (single) | fixed-length code cells, SMS autofill, auto-advance |
 | `MobileSwitch` | `@expo/ui` `Switch` | real SwiftUI / Jetpack Compose toggle |
+| `MobileCheckbox` | RN `Pressable` | drawn tick; the whole row is the touch target |
+| `MobileRadioGroup` | RN `Pressable` | `radiogroup` semantics; silent when re-tapping the selection |
+| `MobileSlider` | RN `PanResponder` | continuous or stepped, adjustable a11y actions |
 | `MobileBadge` | RN `View` | 7 status variants, `tabular` counts |
+| `MobileAvatar` | RN `Image` | image → initials → custom fallback |
+| `MobileSeparator` | RN `View` | horizontal / vertical, optional centred caption |
+| `MobileProgress` | RN `Animated` | determinate + indeterminate (native-driver transform) |
+| `MobileSpinner` | RN `ActivityIndicator` | `progressbar` role, optional caption |
+| `MobileSkeleton` | RN `Animated` | pulsing placeholder, hidden from assistive tech |
+| `MobileLink` | RN `Pressable` | inline and standalone (chevron) variants |
 | `MobileCard` + 5 sub-components | RN `View` | header / title / description / content / footer |
 | `MobileList`, `MobileListItem` | `@expo/ui` `List` | native grouped table rows |
 | `MobileBottomSheet` | `@expo/ui` `BottomSheet` | native slide-up presentation |
 
-**composite** and **layout** are scaffolded but intentionally empty — see
-[`PLAN.md`](./PLAN.md) for the components queued for those categories.
+**composite** — 13 modules
+
+| Component | Composes | Notes |
+|---|---|---|
+| `MobileFormField` | `MobileLabel` + control | owns form-field rhythm; the control arrives as `children` |
+| `MobileSearchBar` | `MobileTextInput` | drawn magnifier, clear affordance, return-key submit |
+| `MobileNavBar` | `MobileText` + slots | `flex: 1/2/1` columns so the title is genuinely centred; `large` variant |
+| `MobileTabBar` | `Pressable` + `MobileBadge` | selection keyed on a **required** `key`; badge counts |
+| `MobileSegmentedControl` | `Animated` + `Pressable` | native-driver sliding indicator |
+| `MobileSettingRow` | `MobileText` + slots | renders a plain `View` when there is no `onPress` |
+| `MobileAvatarGroup` | `MobileAvatar` | overlap derived from `mobileAvatarSizes`; `+N` overflow chip |
+| `MobileAlert` | `View` + overlay | tone from a 10% overlay, not an alpha token |
+| `MobileEmptyState` | `MobileText` + slots | centred panel, `header` semantics |
+| `MobileSocialAuthButtons` | `MobileButton` | explicit row chunking rather than `flexWrap` |
+| `MobileActionSheet` | `MobileBottomSheet` | dismisses **before** running the action |
+| `MobileConfirmDialog` | `MobileBottomSheet` + `MobileButton` | stays open until the caller dismisses it |
+| `MobileToast` + `MobileToastProvider` + `useMobileToast` | `Animated` + context | one toast at a time; imperative `show()` / `hide()` |
+
+**layout** — 10 modules
+
+| Component | Owns | Notes |
+|---|---|---|
+| `MobileScreen` | safe area + scroll + keyboard + header + footer | the base frame; **every** other screen composes it |
+| `MobileAuthShell` | logo / heading / form / aside / footer | the frame all five auth screens share |
+| `MobileOnboardingScreen` | paged slides + indicator + Skip/Next/Get-started | `ScrollView` + `pagingEnabled`; no gesture library |
+| `MobileSignInScreen` | email + password + remember + social | reports through `onSubmit`, never authenticates |
+| `MobileSignUpScreen` | name + email + password + terms | password rule and hint read the same number |
+| `MobileForgotPasswordScreen` | email + submit + back-to-sign-in | hands off to `MobileStatusScreen` for the "sent" state |
+| `MobileResetPasswordScreen` | new password + confirm + strength meter | meter hidden until there is something to measure |
+| `MobileOtpVerifyScreen` | code entry + resend cooldown | one rescheduled `setTimeout`, tabular countdown |
+| `MobileSettingsScreen` + `MobileSettingsSection` | grouped settings rows | the section inserts the separators, not the caller |
+| `MobileStatusScreen` | centred outcome + actions | success / error / warning / info / not-found / maintenance |
+
+### Screens in practice
+
+Every auth screen is **presentational**: props in, callbacks out. No fetching, no auth
+client, no routing — the host app owns all three.
+
+```tsx
+import { MobileSignInScreen } from "@celestia-project/mobile"
+
+export default function SignIn() {
+  const [error, setError] = useState<string>()
+  const [loading, setLoading] = useState(false)
+
+  return (
+    <MobileSignInScreen
+      error={error}
+      loading={loading}
+      socialProviders={[
+        { id: "google", label: "Google" },
+        { id: "apple", label: "Apple" },
+      ]}
+      onForgotPassword={() => router.push("/forgot-password")}
+      onSignUp={() => router.push("/sign-up")}
+      onSubmit={async ({ email, password }) => {
+        setLoading(true)
+        setError(undefined)
+        try {
+          await auth.signIn(email, password)
+          router.replace("/")
+        } catch (cause) {
+          setError(cause instanceof Error ? cause.message : "Sign-in failed.")
+        } finally {
+          setLoading(false)
+        }
+      }}
+    />
+  )
+}
+```
+
+A screen that resembles an existing one **composes the shell** — it never re-implements
+the header. That is what stops six auth screens from drifting apart:
+
+```tsx
+import { MobileAuthShell, MobileButton } from "@celestia-project/mobile"
+
+export function ChangeHandleScreen({ onSave }: { onSave: (handle: string) => void }) {
+  const [handle, setHandle] = useState("")
+
+  return (
+    <MobileAuthShell
+      heading="Choose a handle"
+      subheading="This is how others will find you."
+      onBack={() => history.back()}
+    >
+      {/* fields… */}
+      <MobileButton onPress={() => onSave(handle)}>Save</MobileButton>
+    </MobileAuthShell>
+  )
+}
+```
 
 ## Import paths
 
@@ -154,6 +261,8 @@ Every component in this package follows the same non-negotiables:
 6. **Icons arrive as props.** The package takes no icon dependency; only structural marks (a tick, a chevron) may be drawn inline.
 7. **No hover-only affordances.**
 8. **Zero extra runtime dependencies.** Paging uses `ScrollView` + `pagingEnabled`, motion uses RN `Animated`, keyboard handling uses `KeyboardAvoidingView` — no `reanimated`, no `gesture-handler`, no navigation library.
+9. **Forms never disable the submit button for empty fields.** The button stays pressable and names what is missing; it is disabled only while loading. A dead button with no explanation is the single most common form defect — the user cannot tell whether the form is broken or their input is wrong.
+10. **Screens are presentational.** Props in, callbacks out. No fetching, no auth client, no routing — the host app owns all three.
 
 ## Verification
 

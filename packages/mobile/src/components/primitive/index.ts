@@ -11,11 +11,23 @@
  * UX pattern lives in `../composite`.
  */
 
+export * from "./avatar"
 export * from "./badge"
 export * from "./bottom-sheet"
 export * from "./button"
 export * from "./card"
+export * from "./checkbox"
+export * from "./icon-button"
 export * from "./input"
+export * from "./label"
+export * from "./link"
 export * from "./list"
+export * from "./otp-input"
+export * from "./progress"
+export * from "./radio-group"
+export * from "./separator"
+export * from "./skeleton"
+export * from "./slider"
+export * from "./spinner"
 export * from "./switch"
 export * from "./text"
