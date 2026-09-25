@@ -6,7 +6,7 @@ import {
   type SnapPoint,
 } from "@expo/ui"
 import * as Haptics from "expo-haptics"
-import { useMobileTheme } from "./host"
+import { useMobileTheme } from "../../host"
 
 export interface MobileBottomSheetProps {
   /**

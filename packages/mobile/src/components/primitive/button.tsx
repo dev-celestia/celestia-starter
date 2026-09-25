@@ -8,9 +8,9 @@ import {
   Platform,
 } from "react-native"
 import * as Haptics from "expo-haptics"
-import { useMobileTheme } from "./host"
+import { useMobileTheme } from "../../host"
 import { MobileText } from "./text"
-import { metrics } from "./tokens"
+import { metrics } from "../../tokens"
 
 export type MobileButtonVariant =
   | "default"

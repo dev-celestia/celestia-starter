@@ -3,7 +3,7 @@ import { View, StyleSheet, type ViewStyle } from "react-native"
 import { Switch as ExpoUISwitch, Host } from "@expo/ui"
 import * as Haptics from "expo-haptics"
 import { MobileText } from "./text"
-import { metrics } from "./tokens"
+import { metrics } from "../../tokens"
 
 export interface MobileSwitchProps {
   /**

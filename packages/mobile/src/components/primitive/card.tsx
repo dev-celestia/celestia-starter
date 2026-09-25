@@ -1,8 +1,8 @@
 import * as React from "react"
 import { View, StyleSheet, type ViewStyle, Platform } from "react-native"
-import { useMobileTheme } from "./host"
+import { useMobileTheme } from "../../host"
 import { MobileText } from "./text"
-import { metrics } from "./tokens"
+import { metrics } from "../../tokens"
 
 export interface MobileCardProps {
   children?: React.ReactNode

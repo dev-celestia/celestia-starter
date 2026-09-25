@@ -4,8 +4,8 @@ import {
   type TextProps as RNTextProps,
   type TextStyle,
 } from "react-native"
-import { typography, type ColorRamp } from "./tokens"
-import { useMobileTheme } from "./host"
+import { typography, type ColorRamp } from "../../tokens"
+import { useMobileTheme } from "../../host"
 
 export type MobileTextVariant =
   | "display"

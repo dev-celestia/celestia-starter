@@ -7,8 +7,8 @@ import {
   type ViewStyle,
   type TextStyle,
 } from "react-native"
-import { useMobileTheme } from "./host"
-import { metrics } from "./tokens"
+import { useMobileTheme } from "../../host"
+import { metrics } from "../../tokens"
 
 export interface MobileTextInputProps extends Omit<RNTextInputProps, "style"> {
   /**
