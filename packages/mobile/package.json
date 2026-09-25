@@ -1,0 +1,44 @@
+{
+  "name": "@celestia-project/mobile",
+  "version": "0.1.0",
+  "description": "Celestia Mobile — Native UI components built with @expo/ui (SwiftUI & Jetpack Compose)",
+  "type": "module",
+  "license": "MIT",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "types": "./src/*.tsx",
+      "import": "./src/*.tsx",
+      "default": "./src/*.tsx"
+    }
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@expo/ui": "^57.0.19",
+    "expo-haptics": "^57.0.3",
+    "react": "^19",
+    "react-native": "*"
+  },
+  "devDependencies": {
+    "@expo/ui": "^57.0.19",
+    "@types/node": "^20",
+    "@types/react": "19",
+    "@types/react-native": "^0.73.0",
+    "@workspace/typescript-config": "workspace:*",
+    "expo-haptics": "^57.0.3",
+    "react": "19.2.4",
+    "react-native": "^0.87.1",
+    "typescript": "^5"
+  }
+}

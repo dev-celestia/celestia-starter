@@ -1,0 +1,28 @@
+{
+  "name": "mobile",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.ts",
+  "scripts": {
+    "start": "expo start",
+    "ios": "expo start --ios",
+    "android": "expo start --android",
+    "web": "expo start --web",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@celestia-project/mobile": "workspace:*",
+    "@expo/ui": "^57.0.19",
+    "expo": "^57.0.24",
+    "expo-haptics": "^57.0.3",
+    "expo-status-bar": "^57.0.0",
+    "react": "19.2.4",
+    "react-native": "^0.87.1",
+    "react-native-safe-area-context": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "19",
+    "@workspace/typescript-config": "workspace:*",
+    "typescript": "^5"
+  }
+}

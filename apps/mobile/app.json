@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "Celestia Mobile",
+    "slug": "celestia-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#09090b"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.celestia.mobile"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#09090b"
+      },
+      "package": "com.celestia.mobile"
+    },
+    "plugins": []
+  }
+}
