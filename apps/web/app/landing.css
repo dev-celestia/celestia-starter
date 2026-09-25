@@ -19,7 +19,11 @@ html {
 /* The single brand ornament. Used on the logo ring, hover borders,
    progress indicators. */
 .accent-gradient {
-  background: linear-gradient(90deg, hsl(var(--brand)) 0%, hsl(var(--brand-deep)) 100%);
+  background: linear-gradient(
+    90deg,
+    hsl(var(--brand)) 0%,
+    hsl(var(--brand-deep)) 100%
+  );
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -102,13 +106,14 @@ html {
   border: 1px solid transparent;
   background-image:
     linear-gradient(hsl(var(--surface)), hsl(var(--surface))),
-    linear-gradient(90deg, hsl(var(--brand)), hsl(var(--brand-deep)), hsl(var(--brand)));
-  background-origin:
-    padding-box,
-    border-box;
-  background-clip:
-    padding-box,
-    border-box;
+    linear-gradient(
+      90deg,
+      hsl(var(--brand)),
+      hsl(var(--brand-deep)),
+      hsl(var(--brand))
+    );
+  background-origin: padding-box, border-box;
+  background-clip: padding-box, border-box;
   background-size:
     100% 100%,
     200% 200%;
@@ -146,4 +151,899 @@ html {
   .animate-role-fade-in {
     animation: none;
   }
+}
+
+/* ==========================================================================
+   Landing design system — the home page's forced-dark surface
+   --------------------------------------------------------------------------
+   Ported from the OmniKnow landing, which is built on this same UI package.
+   The visual language is: one forced-dark palette, hairline strokes, generous
+   section rhythm, and small mono data readouts against muted body copy.
+
+   Conventions held on purpose:
+
+   1. Colours are written as `hsl(var(--token))` against the plain `:root`
+      variables declared in `@celestia-project/ui/globals.css` — not as
+      `var(--color-token)`. The `--color-*` names are Tailwind theme variables
+      and Tailwind only emits the ones a utility actually references, so a
+      plain stylesheet that depends on them breaks the day the last utility
+      using them is deleted. `--bg`, `--surface`, `--text`, `--fog`, `--stroke`
+      and `--brand` are always present. This is the same form the older rules
+      above already use (see `.accent-gradient`).
+
+   2. The layout primitives (`.container`, `.section`, `.stack-*`, `.row-*`,
+      `.cluster-*`, `.grid-*`) are scoped under `.landing`. Unscoped, `.container`
+      and `.grow` would silently override Tailwind's own utilities of the same
+      name for every page that loads this stylesheet — and `feature-installer`
+      loads it too.
+
+   3. The theme-derived tokens (`--radius-*`, `--text-*`, `--font-*`, motion)
+      are read with a fallback equal to their current value, so a production
+      build that drops an unreferenced theme variable degrades to the intended
+      pixel value rather than to nothing.
+   ========================================================================== */
+
+/* --- 1. Layout primitives ------------------------------------------------ */
+
+.landing .container,
+.landing .container-narrow,
+.landing .container-wide {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+.landing .container {
+  max-width: 72rem;
+}
+.landing .container-narrow {
+  max-width: 48rem;
+}
+.landing .container-wide {
+  max-width: 88rem;
+}
+
+@media (min-width: 1024px) {
+  .landing .container,
+  .landing .container-narrow,
+  .landing .container-wide {
+    padding-inline: 2rem;
+  }
+}
+
+.landing .section {
+  padding-block: 5.5rem;
+}
+.landing .section-tight {
+  padding-block: 3.5rem;
+}
+.landing .section-loose {
+  padding-block: 7.5rem;
+}
+
+/* Vertical flex. The gap lives in one place per step. */
+.landing .stack,
+.landing .stack-xs,
+.landing .stack-sm,
+.landing .stack-lg,
+.landing .stack-xl {
+  display: flex;
+  flex-direction: column;
+}
+.landing .stack-xs {
+  gap: 0.375rem;
+}
+.landing .stack-sm {
+  gap: 0.75rem;
+}
+.landing .stack {
+  gap: 1.25rem;
+}
+.landing .stack-lg {
+  gap: 2rem;
+}
+.landing .stack-xl {
+  gap: 3rem;
+}
+
+/* Horizontal flex, vertically centred. */
+.landing .row,
+.landing .row-xs,
+.landing .row-sm,
+.landing .row-lg {
+  display: flex;
+  align-items: center;
+}
+.landing .row-xs {
+  gap: 0.375rem;
+}
+.landing .row-sm {
+  gap: 0.75rem;
+}
+.landing .row {
+  gap: 1.25rem;
+}
+.landing .row-lg {
+  gap: 2rem;
+}
+
+/* A row that wraps and pushes its ends apart. */
+.landing .cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+.landing .cluster-between {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+/* Responsive auto-fit grids — collapse on their own, no breakpoints. */
+.landing .grid-auto,
+.landing .grid-auto-sm,
+.landing .grid-auto-lg,
+.landing .grid-halves {
+  display: grid;
+  gap: 1rem;
+}
+.landing .grid-auto-sm {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+}
+.landing .grid-auto {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+}
+.landing .grid-auto-lg {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+}
+.landing .grid-halves {
+  grid-template-columns: 1fr;
+}
+@media (min-width: 900px) {
+  .landing .grid-halves {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* --- 2. Root surface ----------------------------------------------------- */
+
+.landing {
+  min-height: 100vh;
+  background-color: hsl(var(--bg));
+  color: hsl(var(--text));
+  font-family: var(
+    --font-sans,
+    var(--font-sans-family, ui-sans-serif, system-ui, sans-serif)
+  );
+  -webkit-font-smoothing: antialiased;
+}
+
+/* The landing is forced-dark, so the document backdrop has to match it —
+   otherwise rubber-band overscroll flashes the light body colour. */
+html:has(.landing) {
+  background-color: hsl(var(--bg));
+}
+
+/* --- 3. Shared landing type ---------------------------------------------- */
+
+.landing-eyebrow {
+  font-size: var(--text-2xs, 11px);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: hsl(var(--fog));
+}
+
+.landing-title {
+  font-family: var(
+    --font-heading,
+    var(--font-sans-family, ui-sans-serif, system-ui, sans-serif)
+  );
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  text-wrap: balance;
+  color: hsl(var(--text));
+}
+
+.landing-title-hero {
+  font-size: clamp(2.5rem, 6.2vw, 4.5rem);
+}
+
+.landing-title-section {
+  font-size: clamp(1.75rem, 3.4vw, 2.5rem);
+}
+
+.landing-lede {
+  font-size: clamp(0.9375rem, 1.4vw, 1.0625rem);
+  line-height: 1.65;
+  color: hsl(var(--fog));
+  text-wrap: pretty;
+}
+
+.landing-body {
+  font-size: 0.8125rem;
+  line-height: 1.65;
+  color: hsl(var(--fog));
+}
+
+.landing-accent {
+  background-image: linear-gradient(
+    100deg,
+    hsl(var(--brand)) 0%,
+    hsl(var(--brand-deep)) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* The accented phrase owns its own line without a hard <br>, so it reflows
+   naturally on narrow viewports. */
+.landing-accent-block {
+  display: block;
+}
+
+.landing-mono {
+  font-family: var(
+    --font-mono,
+    var(--font-mono-family, ui-monospace, SFMono-Regular, Menlo, monospace)
+  );
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- 4. Nav -------------------------------------------------------------- */
+
+.landing-nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  border-bottom: 1px solid hsl(var(--stroke));
+  background-color: color-mix(in oklab, hsl(var(--bg)) 82%, transparent);
+  backdrop-filter: blur(14px);
+}
+
+.landing-nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  height: 4rem;
+}
+
+.landing-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  color: hsl(var(--text));
+}
+
+.landing-brand-mark {
+  display: grid;
+  place-items: center;
+  width: 1.875rem;
+  height: 1.875rem;
+  border-radius: var(--radius-sm, 0.375rem);
+  background-image: linear-gradient(
+    140deg,
+    hsl(var(--brand)) 0%,
+    hsl(var(--brand-deep)) 100%
+  );
+  color: hsl(var(--brand-foreground));
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.landing-brand-name {
+  font-family: var(
+    --font-heading,
+    var(--font-sans-family, ui-sans-serif, system-ui, sans-serif)
+  );
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.landing-nav-links {
+  display: none;
+  align-items: center;
+  gap: 1.75rem;
+}
+@media (min-width: 1024px) {
+  .landing-nav-links {
+    display: flex;
+  }
+}
+
+.landing-nav-link {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: hsl(var(--fog));
+  transition: color var(--transition-duration-fast, 150ms)
+    var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+}
+.landing-nav-link:hover {
+  color: hsl(var(--text));
+}
+
+.landing-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* --- 5. Hero ------------------------------------------------------------- */
+
+.landing-hero {
+  position: relative;
+  overflow: hidden;
+  padding-block: 6rem 5rem;
+}
+
+/* Soft brand bloom behind the headline. */
+.landing-hero::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: -14rem;
+  height: 34rem;
+  background-image: radial-gradient(
+    ellipse 60% 60% at 50% 50%,
+    color-mix(in oklab, hsl(var(--brand)) 16%, transparent) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.landing-hero-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+  text-align: center;
+}
+
+.landing-hero-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.125rem;
+  max-width: 46rem;
+}
+
+.landing-hero-lede {
+  max-width: 40rem;
+}
+
+.landing-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.landing-hero-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem 1.25rem;
+  font-size: var(--text-2xs, 11px);
+  color: hsl(var(--fog));
+}
+
+.landing-hero-note-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+/* --- 6. Surfaces --------------------------------------------------------- */
+
+.landing-surface {
+  border: 1px solid hsl(var(--stroke));
+  border-radius: var(--radius-xl, 0.875rem);
+  background-color: hsl(var(--surface));
+}
+
+.landing-panel {
+  border: 1px solid hsl(var(--stroke));
+  border-radius: var(--radius-2xl, 1.125rem);
+  background-color: color-mix(
+    in oklab,
+    hsl(var(--surface)) 70%,
+    hsl(var(--bg))
+  );
+  overflow: hidden;
+}
+
+.landing-panel-bar {
+  display: flex;
+  /* The bar pairs an address with a status badge and a shortcut hint. On a
+     narrow viewport those two groups cannot share a line, so without wrapping
+     the right-hand group is pushed past the panel edge and clipped. */
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.625rem 1rem;
+  padding: 0.875rem 1.25rem;
+  border-bottom: 1px solid hsl(var(--stroke));
+  background-color: color-mix(in oklab, hsl(var(--bg)) 55%, transparent);
+}
+
+.landing-panel-body {
+  padding: 1.25rem;
+}
+
+.landing-dots {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+.landing-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background-color: hsl(var(--stroke));
+}
+.landing-dot-brand {
+  background-color: hsl(var(--brand));
+}
+
+/* --- 7. Section furniture ------------------------------------------------ */
+
+.landing-section-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: 42rem;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.landing-divider {
+  height: 1px;
+  background-color: hsl(var(--stroke));
+}
+
+/* --- 8. Cards ------------------------------------------------------------ */
+
+.landing-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.375rem;
+  border: 1px solid hsl(var(--stroke));
+  border-radius: var(--radius-lg, 0.625rem);
+  background-color: hsl(var(--surface));
+  transition:
+    border-color var(--transition-duration-fast, 150ms)
+      var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    transform var(--transition-duration-fast, 150ms)
+      var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+}
+.landing-card:hover {
+  border-color: color-mix(in oklab, hsl(var(--brand)) 45%, hsl(var(--stroke)));
+  transform: translateY(-2px);
+}
+
+.landing-card-icon {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-md, 0.5rem);
+  border: 1px solid
+    color-mix(in oklab, hsl(var(--brand)) 30%, hsl(var(--stroke)));
+  background-color: color-mix(in oklab, hsl(var(--brand)) 12%, transparent);
+  color: hsl(var(--brand));
+}
+
+.landing-card-title {
+  font-family: var(
+    --font-heading,
+    var(--font-sans-family, ui-sans-serif, system-ui, sans-serif)
+  );
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: hsl(var(--text));
+}
+
+.landing-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: var(--text-2xs, 11px);
+  color: hsl(var(--fog));
+}
+
+/* --- 9. Metrics ---------------------------------------------------------- */
+
+.landing-metric-value {
+  font-family: var(
+    --font-heading,
+    var(--font-sans-family, ui-sans-serif, system-ui, sans-serif)
+  );
+  font-size: clamp(1.75rem, 3vw, 2.375rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: hsl(var(--text));
+}
+
+.landing-metric-label {
+  font-size: var(--text-2xs, 11px);
+  color: hsl(var(--fog));
+}
+
+.landing-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  gap: 1px;
+  background-color: hsl(var(--stroke));
+  border: 1px solid hsl(var(--stroke));
+  border-radius: var(--radius-xl, 0.875rem);
+  overflow: hidden;
+}
+
+.landing-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1.5rem;
+  background-color: hsl(var(--surface));
+}
+
+/* --- 10. Trace rows (source citations, ledger rows) ---------------------- */
+
+.landing-trace {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.75rem;
+  border: 1px solid hsl(var(--stroke));
+  border-radius: var(--radius-md, 0.5rem);
+  background-color: color-mix(in oklab, hsl(var(--bg)) 45%, transparent);
+}
+
+.landing-trace-index {
+  display: grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  border-radius: var(--radius-xs, 0.25rem);
+  background-color: hsl(var(--brand));
+  color: hsl(var(--brand-foreground));
+  font-family: var(
+    --font-mono,
+    var(--font-mono-family, ui-monospace, monospace)
+  );
+  font-size: var(--text-4xs, 9px);
+  font-weight: 700;
+}
+
+.landing-trace-text {
+  min-width: 0;
+  flex: 1;
+}
+
+/* --- 11. Lifecycle steps ------------------------------------------------- */
+
+.landing-step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 1.125rem;
+  border-top: 1px solid hsl(var(--stroke));
+}
+
+.landing-step-index {
+  font-family: var(
+    --font-mono,
+    var(--font-mono-family, ui-monospace, monospace)
+  );
+  font-size: var(--text-2xs, 11px);
+  font-weight: 600;
+  color: hsl(var(--brand));
+}
+
+/* --- 12. CTA ------------------------------------------------------------- */
+
+.landing-cta {
+  position: relative;
+  overflow: hidden;
+  padding: 3.5rem 2rem;
+  border: 1px solid hsl(var(--stroke));
+  border-radius: var(--radius-3xl, 1.375rem);
+  background-color: hsl(var(--surface));
+  text-align: center;
+}
+.landing-cta::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: -12rem;
+  height: 24rem;
+  background-image: radial-gradient(
+    ellipse 55% 60% at 50% 50%,
+    color-mix(in oklab, hsl(var(--brand)) 20%, transparent) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+.landing-cta-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.landing-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+/* --- 13. Footer ---------------------------------------------------------- */
+
+.landing-footer {
+  border-top: 1px solid hsl(var(--stroke));
+  padding-block: 3.5rem 2rem;
+}
+
+.landing-footer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+  gap: 2rem;
+}
+
+.landing-footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  align-items: flex-start;
+}
+
+.landing-footer-heading {
+  font-size: var(--text-2xs, 11px);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: hsl(var(--text));
+  margin-bottom: 0.875rem;
+}
+
+.landing-footer-link {
+  font-size: 0.8125rem;
+  color: hsl(var(--fog));
+  transition: color var(--transition-duration-fast, 150ms)
+    var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+}
+.landing-footer-link:hover {
+  color: hsl(var(--text));
+}
+
+.landing-footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid hsl(var(--stroke));
+  font-size: var(--text-2xs, 11px);
+  color: hsl(var(--fog));
+}
+
+/* --- 14. Responsive wrappers --------------------------------------------
+   Wrappers exist so that responsive behaviour never needs a utility class on
+   a component: the wrapper owns the breakpoint, the component stays untouched.
+   ------------------------------------------------------------------------ */
+
+.landing-nav-mobile {
+  display: flex;
+}
+@media (min-width: 1024px) {
+  .landing-nav-mobile {
+    display: none;
+  }
+}
+
+.landing-nav-desktop-only {
+  display: none;
+}
+@media (min-width: 640px) {
+  .landing-nav-desktop-only {
+    display: flex;
+  }
+}
+
+.landing-hide-mobile {
+  display: none;
+}
+@media (min-width: 640px) {
+  .landing-hide-mobile {
+    display: inline-flex;
+  }
+}
+
+.landing-sheet-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 1.25rem;
+  overflow-y: auto;
+}
+
+.landing-sheet-link {
+  display: block;
+  padding: 0.625rem 0;
+  border-bottom: 1px solid hsl(var(--stroke));
+  font-size: 0.875rem;
+  color: hsl(var(--text));
+}
+
+/* --- 15. Command bar ----------------------------------------------------- */
+
+.landing-ask {
+  width: 100%;
+  max-width: 40rem;
+}
+
+/* The library's InputGroup is built for dense toolbars (h-7). The hero wants a
+   full-size command bar. Rather than pass a utility className to the component,
+   this scopes overrides onto the library's own `data-slot` styling contract —
+   the same attributes the library itself uses internally. Unlayered rules here
+   beat Tailwind's `@layer utilities`, so no !important is needed. */
+.landing-ask [data-slot="input-group"] {
+  height: 3.5rem;
+  padding-inline: 0.5rem;
+  border-radius: var(--radius-xl, 0.875rem);
+  border-color: hsl(var(--stroke));
+  background-color: hsl(var(--surface));
+}
+.landing-ask [data-slot="input-group"]:focus-within {
+  border-color: color-mix(in oklab, hsl(var(--brand)) 60%, hsl(var(--stroke)));
+}
+.landing-ask [data-slot="input-group-control"] {
+  font-size: 0.9375rem;
+}
+.landing-ask [data-slot="button"] {
+  height: 2.25rem;
+  padding-inline: 0.875rem;
+  border-radius: var(--radius-md, 0.5rem);
+}
+
+.landing-ask-queries {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem 0.75rem;
+  font-size: var(--text-2xs, 11px);
+}
+
+.landing-ask-label {
+  color: hsl(var(--fog));
+}
+
+.landing-ask-query {
+  color: hsl(var(--fog));
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, hsl(var(--fog)) 40%, transparent);
+  text-underline-offset: 3px;
+  text-align: start;
+  transition: color var(--transition-duration-fast, 150ms)
+    var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+}
+.landing-ask-query:hover {
+  color: hsl(var(--text));
+  text-decoration-color: hsl(var(--brand));
+}
+
+/* --- 16. Trust strip ----------------------------------------------------- */
+
+.landing-trust {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.875rem 2rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid hsl(var(--stroke));
+}
+
+.landing-trust-label {
+  font-size: var(--text-2xs, 11px);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: hsl(var(--fog));
+}
+
+.landing-trust-item {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.0625rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: color-mix(in oklab, hsl(var(--fog)) 78%, transparent);
+  transition: color var(--transition-duration-fast, 150ms)
+    var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+}
+.landing-trust-item:hover {
+  color: hsl(var(--text));
+}
+
+.landing-trust-kind {
+  font-size: var(--text-3xs, 10px);
+  font-weight: 500;
+  color: hsl(var(--fog));
+}
+
+/* --- 17. Trace panel ----------------------------------------------------- */
+
+.landing-trace-grid {
+  display: grid;
+  gap: 1px;
+  grid-template-columns: 1fr;
+  background-color: hsl(var(--stroke));
+}
+@media (min-width: 900px) {
+  .landing-trace-grid {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  }
+}
+
+.landing-trace-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  padding: 1.5rem;
+  background-color: hsl(var(--surface));
+}
+
+.landing-code-text {
+  font-family: var(
+    --font-mono,
+    var(--font-mono-family, ui-monospace, SFMono-Regular, Menlo, monospace)
+  );
+  font-size: 0.75rem;
+  line-height: 1.9;
+  color: color-mix(in oklab, hsl(var(--text)) 88%, transparent);
+  white-space: pre-line;
+}
+
+.landing-trace-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.landing-keypoint {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: hsl(var(--fog));
+}
+
+.landing-keypoint-mark {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  color: hsl(var(--brand));
 }

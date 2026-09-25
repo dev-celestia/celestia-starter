@@ -322,13 +322,69 @@ they only belong on a page that has opted into dark explicitly.
 
 | Page | Theme | Tokens to use |
 |---|---|---|
-| `/` (agency landing) | Follows the user's theme, with a nav toggle | Semantic (`bg-background`, `text-foreground`, `text-muted-foreground`, `border-border`) |
+| `/` (home) | Always dark, via `<div className="landing dark">` | Landing palette + brand |
 | `/feature-installer` | Always dark, via `<main className="dark bg-bg text-text-primary">` | Landing palette + brand |
+| `/docs`, `/design-system`, `/components` | Follows the user's theme | Semantic (`bg-background`, `text-foreground`, `text-muted-foreground`, `border-border`) |
 
 Do not mix the two on one page. A single `bg-bg` bar inside an otherwise
 theme-switchable page renders as a black stripe across a white page in light
 mode — which is exactly what the landing nav did before it moved to
 `bg-background/85`.
+
+### Landing surface layer
+
+`apps/web/app/landing.css` carries the bespoke CSS the home page is built from.
+It is deliberately plain CSS rather than utilities, for two reasons: the
+compositions are long enough that a utility soup would be unreadable, and the
+same class layer is shared with `/feature-installer`.
+
+```txt
+apps/web/
+├── app/landing.css              # the .landing-* class layer + layout primitives
+└── components/landing/
+    ├── content.ts               # all copy, as typed data
+    ├── icons.ts                 # name → Phosphor icon map
+    ├── landing-nav.tsx          # sticky nav + mobile Sheet
+    ├── landing-hero.tsx         # headline, actions, trust strip
+    ├── command-bar.tsx          # the hero's copy-to-clipboard command bar
+    ├── landing-trace.tsx        # the request-trace panel
+    ├── landing-features.tsx     # feature cards
+    ├── landing-packages.tsx     # workspace package cards
+    ├── landing-lifecycle.tsx    # feature-manager steps + ledger panel
+    ├── landing-boundaries.tsx   # boundary rules + check panel
+    ├── landing-metrics.tsx      # counted metrics strip
+    ├── landing-cta.tsx
+    └── landing-footer.tsx
+```
+
+Three conventions this file follows, all of them load-bearing:
+
+1. **Colours are written as `hsl(var(--token))`**, not `var(--color-token)`. The
+   `--color-*` names are Tailwind theme variables and Tailwind only emits the
+   ones a utility references, so a plain stylesheet that depends on them breaks
+   the day the last utility using them is deleted. `--bg`, `--surface`, `--text`,
+   `--fog`, `--stroke` and `--brand` are always present.
+2. **Layout primitives are scoped under `.landing`** (`.landing .container`,
+   `.landing .stack-lg`, `.landing .grid-auto`, …). Unscoped, `.container` and
+   `.grow` would silently override Tailwind's own utilities of the same name on
+   every page that loads this stylesheet.
+3. **Theme-derived tokens are read with a fallback equal to their current value**
+   — `var(--text-2xs, 11px)`, `var(--radius-xl, 0.875rem)` — so a build that
+   drops an unreferenced theme variable degrades to the intended pixel value
+   instead of to nothing.
+
+The landing is composed from the same library components as the app
+(`Button`, `Badge`, `Separator`, `Progress`, `Kbd`, `Sheet`, `InputGroup*`).
+Where a component needs a size the library does not offer — the hero's
+full-height command bar — the override targets the library's own
+`data-slot` contract rather than passing a utility `className`:
+
+```css
+.landing-ask [data-slot="input-group"] {
+  height: 3.5rem;
+  border-radius: var(--radius-xl, 0.875rem);
+}
+```
 
 ### Radii Scale
 
