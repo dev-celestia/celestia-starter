@@ -10,6 +10,7 @@
     "typecheck": "turbo typecheck",
     "test": "turbo test",
     "docs": "turbo dev --filter=web",
+    "mobile": "turbo dev --filter=mobile",
     "scaffold": "node packages/cli/src/index.js",
     "add-feature": "tsx packages/feature-manager/src/cli/index.ts add",
     "remove-feature": "tsx packages/feature-manager/src/cli/index.ts remove",
