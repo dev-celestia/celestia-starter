@@ -184,6 +184,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }
 ```
 
+Inside this starter, mode switching and the accent/radius overrides are owned by
+the centralized theme module in `apps/web/lib/theme` — see [Theming](/docs/theming).
+
 ---
 
 ### 4. Component Usage
@@ -322,7 +325,7 @@ they only belong on a page that has opted into dark explicitly.
 
 | Page | Theme | Tokens to use |
 |---|---|---|
-| `/` (agency landing) | Follows the user's theme, with a nav toggle | Semantic (`bg-background`, `text-foreground`, `text-muted-foreground`, `border-border`) |
+| `/` (agency landing) | Follows the user's theme, with the theme customizer in the navbar | Semantic (`bg-background`, `text-foreground`, `text-muted-foreground`, `border-border`) |
 | `/feature-installer` | Always dark, via `<main className="dark bg-bg text-text-primary">` | Landing palette + brand |
 
 Do not mix the two on one page. A single `bg-bg` bar inside an otherwise

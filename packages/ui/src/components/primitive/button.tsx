@@ -46,13 +46,13 @@ const buttonVariants = cva(
           "h-8 gap-1.5 px-3 text-xs/relaxed has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2 [&_svg:not([class*='size-'])]:size-3.5",
         xs: "h-5 gap-1 rounded-sm px-2 text-3xs has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-2.5",
         sm: "h-6 gap-1 px-2.5 text-xs/relaxed has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2 [&_svg:not([class*='size-'])]:size-3",
-        // h-7 is the compact control height everywhere else in this package —
-        // menu and option rows (`min-h-7`), `toggle` (h-7), `sidebar` sm (h-7),
-        // `input-group` icon-sm (size-7), `tab-bar` items (h-7.5). Button's scale
-        // used to jump straight from `sm` (h-6) to `default` (h-8), so the app
-        // hand-rolled the missing step at 121 call sites. `md` is `sm` with one
-        // more step of height and nothing else changed, which is why moving a
-        // site from `sm` to `md` cannot alter anything but the height.
+        // `default` (h-8) is the uniform control height across this package —
+        // `input`, `select`, `native-select`, `toggle`, `input-group`,
+        // `tabs` list and `tab-bar` items all sit at h-8 so controls line up in
+        // form rows and toolbars. `md` (h-7) is the compact step below it,
+        // matching menu/option rows (`min-h-7`) and `sidebar` sm. `md` is `sm`
+        // with one more step of height and nothing else changed, which is why
+        // moving a site from `sm` to `md` cannot alter anything but the height.
         md: "h-7 gap-1 px-2.5 text-xs/relaxed has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2 [&_svg:not([class*='size-'])]:size-3",
         lg: "h-9 gap-1.5 px-3.5 text-xs/relaxed has-data-[icon=inline-end]:pe-2.5 has-data-[icon=inline-start]:ps-2.5 [&_svg:not([class*='size-'])]:size-4",
         icon: "size-8 [&_svg:not([class*='size-'])]:size-3.5",

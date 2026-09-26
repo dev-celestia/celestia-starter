@@ -102,10 +102,7 @@ function initials(name: string): string {
 
 export function CaseStudiesSection() {
   return (
-    <section
-      id="case-studies"
-      className="mx-auto w-full max-w-7xl px-5 py-24 sm:px-8 sm:py-32"
-    >
+    <section id="case-studies" className="py-16 sm:py-20">
       <Reveal>
         <SectionHeading
           eyebrow="Case studies"

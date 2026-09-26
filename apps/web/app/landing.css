@@ -5,9 +5,10 @@
  * this file carries the plain-CSS extras only.
  */
 
-/* Anchor targets clear the fixed nav. */
+/* The nav scrolls away with the page (static top bar below lg, fixed rail
+   beside content from lg), so anchors only need a small breathing gap. */
 html {
-  scroll-padding-top: calc(5rem + env(safe-area-inset-top, 0px));
+  scroll-padding-top: 1.5rem;
 }
 
 @media (prefers-reduced-motion: no-preference) {

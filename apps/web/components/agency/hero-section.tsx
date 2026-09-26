@@ -17,81 +17,61 @@ const STATS = [
   { value: "4.9/5", label: "Average client rating" },
 ]
 
+/**
+ * Left-aligned hero in the rail layout. The headline starts on the same
+ * edge as every section heading below it, so the page reads as one column
+ * of work rather than a sequence of centered posters.
+ */
 export function AgencyHero() {
   return (
-    <section
-      id="hero"
-      className="relative flex min-h-svh flex-col justify-center overflow-hidden bg-background px-5 pt-28 pb-16 sm:px-8"
-    >
-      {/* Decorative wash. Purely ornamental, so it is hidden from AT. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 flex items-center justify-center"
-      >
-        <div className="size-[640px] rounded-full bg-primary/10 blur-[120px]" />
-      </div>
+    <section id="hero" className="pt-12 pb-16 sm:pt-20 sm:pb-20">
+      <Reveal>
+        <Badge
+          variant="outline"
+          mono
+          className="gap-2 border-primary/25 bg-primary/5 text-xs uppercase tracking-wider text-primary"
+        >
+          <span className="size-1.5 animate-pulse rounded-full bg-primary" />
+          Enterprise Software Development
+        </Badge>
 
-      {/* The section owns the vertical rhythm. An inner `py-*` used to make the
-          content taller than `min-h-svh`, so `justify-center` had no slack to
-          work with and the eyebrow badge was pinned under the fixed nav. */}
-      <div className="relative z-10 mx-auto w-full max-w-4xl text-center">
-        <Reveal>
-          <div className="flex justify-center">
-            <Badge
-              variant="outline"
-              mono
-              className="gap-2 border-primary/25 bg-primary/5 text-xs uppercase tracking-wider text-primary"
-            >
-              <span className="size-1.5 animate-pulse rounded-full bg-primary" />
-              Enterprise Software Development
-            </Badge>
-          </div>
+        <h1 className="mt-8 max-w-[700px] text-[clamp(2.625rem,6vw,3.75rem)] leading-[1.08] font-semibold tracking-[-0.03em] text-balance text-foreground">
+          {/* Non-breaking hyphen: the compound must not split after the dash
+              on narrow viewports. */}
+          Enterprise&#x2011;grade software that scales with your business.
+        </h1>
 
-          <h1 className="mt-8 text-[clamp(2.25rem,5.5vw,4.5rem)] font-semibold leading-[1.08] tracking-[-0.03em] text-balance text-foreground">
-            We Build Enterprise-Grade{" "}
-            <span className="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
-              Software
-            </span>{" "}
-            That Scales With Your Business
-          </h1>
+        <p className="mt-6 max-w-xl text-lg leading-relaxed text-pretty text-muted-foreground">
+          From concept to production, we deliver full-stack web, mobile, and
+          cloud solutions backed by rigorous engineering standards — on time,
+          on budget, with the architecture built to last.
+        </p>
 
-          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground text-pretty sm:text-lg">
-            From concept to production, we deliver full-stack web, mobile, and
-            cloud solutions backed by rigorous engineering standards — on time,
-            on budget, with the architecture built to last.
-          </p>
+        <div className="mt-8 flex flex-wrap items-center gap-3">
+          <Button
+            size="lg"
+            className="gap-2"
+            render={<Link href="#contact" />}
+          >
+            Book a Free Strategy Call
+            <ArrowRightIcon className="size-4" aria-hidden />
+          </Button>
+          <Button variant="secondary" size="lg" render={<Link href="#services" />}>
+            Explore Services
+          </Button>
+        </div>
 
-          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Button
-              size="lg"
-              className="w-full gap-2 shadow-md shadow-primary/10 sm:w-auto"
-              render={<Link href="#contact" />}
-            >
-              Schedule Free Tech Strategy Call
-              <ArrowRightIcon className="size-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full sm:w-auto"
-              render={<Link href="#services" />}
-            >
-              Explore Services
-            </Button>
-          </div>
-
-          <ul className="mx-auto mt-16 flex max-w-3xl flex-wrap items-start justify-center gap-x-10 gap-y-6 border-t border-border/60 pt-8">
-            {STATS.map((stat) => (
-              <li key={stat.label} className="flex flex-col items-center gap-0.5">
-                <span className="text-2xl font-semibold tracking-[-0.02em] text-foreground">
-                  {stat.value}
-                </span>
-                <span className="text-xs text-muted-foreground">{stat.label}</span>
-              </li>
-            ))}
-          </ul>
-        </Reveal>
-      </div>
+        <ul className="mt-16 flex max-w-3xl flex-wrap items-start gap-x-10 gap-y-6 border-t border-border pt-8">
+          {STATS.map((stat) => (
+            <li key={stat.label} className="flex flex-col gap-0.5">
+              <span className="text-2xl font-semibold tracking-[-0.02em] text-foreground">
+                {stat.value}
+              </span>
+              <span className="text-xs text-muted-foreground">{stat.label}</span>
+            </li>
+          ))}
+        </ul>
+      </Reveal>
     </section>
   )
 }

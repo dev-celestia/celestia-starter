@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 
 import { AgencyFooter } from "@/components/agency/agency-footer"
-import { AgencyNav } from "@/components/agency/agency-nav"
+import { LandingNav } from "@/components/shared/landing-nav"
 import { CaseStudiesSection } from "@/components/agency/case-studies-section"
 import { ContactSection } from "@/components/agency/contact-section"
 import { DeliveryModelsSection } from "@/components/agency/delivery-models-section"
@@ -26,17 +26,24 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <main className="bg-background text-foreground">
-      <AgencyNav />
-      <AgencyHero />
-      <ServicesSection />
-      {/* Proof sits directly after the claim it supports. */}
-      <CaseStudiesSection />
-      <ProcessSection />
-      <DeliveryModelsSection />
-      <TechStackSection />
-      <ContactSection />
-      <AgencyFooter />
+    <main className="min-h-screen bg-background text-foreground">
+      <LandingNav />
+      {/* Below lg the nav is a static top bar, so nothing offsets; from lg the
+          rail is fixed and the page content cedes its 20rem. The column caps
+          at 60rem so the measure stays readable next to the rail. */}
+      <div className="lg:ml-80">
+        <div className="mx-auto w-full max-w-[960px] px-5 sm:px-8">
+          <AgencyHero />
+          <ServicesSection />
+          {/* Proof sits directly after the claim it supports. */}
+          <CaseStudiesSection />
+          <ProcessSection />
+          <DeliveryModelsSection />
+          <TechStackSection />
+          <ContactSection />
+        </div>
+        <AgencyFooter />
+      </div>
     </main>
   )
 }

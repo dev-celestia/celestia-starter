@@ -81,10 +81,7 @@ const CATEGORIES = [
 
 export function TechStackSection() {
   return (
-    <section
-      id="tech-stack"
-      className="mx-auto w-full max-w-7xl px-5 py-24 sm:px-8 sm:py-32"
-    >
+    <section id="tech-stack" className="py-16 sm:py-20">
       <Reveal>
         <SectionHeading
           eyebrow="Tech stack"

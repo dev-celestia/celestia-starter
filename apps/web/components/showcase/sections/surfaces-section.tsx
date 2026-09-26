@@ -29,7 +29,7 @@ import {
   Badge,
   Button,
 } from "@celestia-project/ui"
-import { useTheme } from "next-themes"
+import { useTheme } from "@/lib/theme"
 import { ShowcaseCard } from "../showcase-card"
 
 const SAMPLE_CHART_DATA = [

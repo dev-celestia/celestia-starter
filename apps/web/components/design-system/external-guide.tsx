@@ -23,7 +23,7 @@ import {
   TabsContent,
   TextEditor,
 } from "@celestia-project/ui"
-import { useTheme } from "next-themes"
+import { useTheme } from "@/lib/theme"
 
 const INSTALL_PNPM = `pnpm add @celestia-project/ui @phosphor-icons/react @base-ui/react`
 const INSTALL_NPM = `npm install @celestia-project/ui @phosphor-icons/react @base-ui/react`

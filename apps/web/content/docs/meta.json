@@ -6,6 +6,7 @@
     "packages",
     "features",
     "design-system",
+    "theming",
     "components",
     "---Features---",
     "authentication",

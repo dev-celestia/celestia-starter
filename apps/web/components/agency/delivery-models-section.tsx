@@ -56,10 +56,7 @@ const MODELS = [
 
 export function DeliveryModelsSection() {
   return (
-    <section
-      id="engagement-models"
-      className="mx-auto w-full max-w-7xl px-5 py-24 sm:px-8 sm:py-32"
-    >
+    <section id="engagement-models" className="py-16 sm:py-20">
       <Reveal>
         <SectionHeading
           eyebrow="Engagement models"

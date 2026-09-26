@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
 
 import { ArchitectureSection } from "@/components/feature-installer/architecture-section"
-import { AutoDarkTheme } from "@/components/feature-installer/auto-dark-theme"
 import { CtaSection } from "@/components/feature-installer/cta-section"
 import { Footer } from "@/components/feature-installer/footer"
 import { HeroSection } from "@/components/feature-installer/hero-section"
@@ -22,7 +21,6 @@ export default function FeatureInstallerPage() {
     // "dark" scope forces the shadcn dark tokens for every component on
     // this page — the landing is always dark, regardless of system theme.
     <main className="dark bg-bg text-text-primary">
-      <AutoDarkTheme />
       <NavBar />
       <HeroSection />
       <StackSection />

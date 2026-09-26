@@ -1,7 +1,5 @@
 "use client"
 
-import * as React from "react"
-import { useTheme } from "next-themes"
 import {
   SunIcon,
   MoonIcon,
@@ -22,224 +20,43 @@ import {
 } from "@celestia-project/ui"
 import { toast } from "@celestia-project/ui/primitive/sonner"
 import { cn } from "@celestia-project/ui/lib/utils"
+import {
+  PALETTES,
+  PALETTE_BG_CLASSES,
+  RADII,
+  resolvePalette,
+  useTheme,
+  useThemeSettings,
+} from "@/lib/theme"
 
-export interface PaletteItem {
-  id: string
-  name: string
-  colorHex: string
-  light: {
-    primary: string
-    primaryForeground: string
-    ring: string
-  }
-  dark: {
-    primary: string
-    primaryForeground: string
-    ring: string
-  }
-}
-
-export const PALETTES: PaletteItem[] = [
-  {
-    id: "zinc",
-    name: "Zinc",
-    colorHex: "#71717a",
-    light: {
-      primary: "oklch(0.205 0 0)",
-      primaryForeground: "oklch(0.985 0 0)",
-      ring: "oklch(0.708 0 0)",
-    },
-    dark: {
-      primary: "oklch(0.922 0 0)",
-      primaryForeground: "oklch(0.205 0 0)",
-      ring: "oklch(0.556 0 0)",
-    },
-  },
-  {
-    id: "emerald",
-    name: "Emerald",
-    colorHex: "#10b981",
-    light: {
-      primary: "oklch(0.55 0.18 155)",
-      primaryForeground: "oklch(0.985 0 0)",
-      ring: "oklch(0.55 0.18 155)",
-    },
-    dark: {
-      primary: "oklch(0.696 0.17 162.48)",
-      primaryForeground: "oklch(0.145 0 0)",
-      ring: "oklch(0.696 0.17 162.48)",
-    },
-  },
-  {
-    id: "violet",
-    name: "Violet",
-    colorHex: "#8b5cf6",
-    light: {
-      primary: "oklch(0.55 0.22 285)",
-      primaryForeground: "oklch(0.985 0 0)",
-      ring: "oklch(0.55 0.22 285)",
-    },
-    dark: {
-      primary: "oklch(0.68 0.22 285)",
-      primaryForeground: "oklch(0.145 0 0)",
-      ring: "oklch(0.68 0.22 285)",
-    },
-  },
-  {
-    id: "blue",
-    name: "Blue",
-    colorHex: "#3b82f6",
-    light: {
-      primary: "oklch(0.55 0.20 250)",
-      primaryForeground: "oklch(0.985 0 0)",
-      ring: "oklch(0.55 0.20 250)",
-    },
-    dark: {
-      primary: "oklch(0.68 0.20 250)",
-      primaryForeground: "oklch(0.145 0 0)",
-      ring: "oklch(0.68 0.20 250)",
-    },
-  },
-  {
-    id: "rose",
-    name: "Rose",
-    colorHex: "#f43f5e",
-    light: {
-      primary: "oklch(0.55 0.24 15)",
-      primaryForeground: "oklch(0.985 0 0)",
-      ring: "oklch(0.55 0.24 15)",
-    },
-    dark: {
-      primary: "oklch(0.68 0.24 15)",
-      primaryForeground: "oklch(0.145 0 0)",
-      ring: "oklch(0.68 0.24 15)",
-    },
-  },
-  {
-    id: "orange",
-    name: "Orange",
-    colorHex: "#f97316",
-    light: {
-      primary: "oklch(0.62 0.20 45)",
-      primaryForeground: "oklch(0.985 0 0)",
-      ring: "oklch(0.62 0.20 45)",
-    },
-    dark: {
-      primary: "oklch(0.72 0.20 45)",
-      primaryForeground: "oklch(0.145 0 0)",
-      ring: "oklch(0.72 0.20 45)",
-    },
-  },
-  {
-    id: "teal",
-    name: "Teal",
-    colorHex: "#06b6d4",
-    light: {
-      primary: "oklch(0.56 0.16 200)",
-      primaryForeground: "oklch(0.985 0 0)",
-      ring: "oklch(0.56 0.16 200)",
-    },
-    dark: {
-      primary: "oklch(0.72 0.16 200)",
-      primaryForeground: "oklch(0.145 0 0)",
-      ring: "oklch(0.72 0.16 200)",
-    },
-  },
-  {
-    id: "yellow",
-    name: "Yellow",
-    colorHex: "#eab308",
-    light: {
-      primary: "oklch(0.65 0.18 85)",
-      primaryForeground: "oklch(0.145 0 0)",
-      ring: "oklch(0.65 0.18 85)",
-    },
-    dark: {
-      primary: "oklch(0.78 0.18 85)",
-      primaryForeground: "oklch(0.145 0 0)",
-      ring: "oklch(0.78 0.18 85)",
-    },
-  },
-]
-
-export const RADII = [
-  { label: "0", value: "0rem" },
-  { label: "0.3", value: "0.3rem" },
-  { label: "0.5", value: "0.5rem" },
-  { label: "0.625", value: "0.625rem" },
-  { label: "0.75", value: "0.75rem" },
-  { label: "1.0", value: "1.0rem" },
-]
-
-const PALETTE_BG_CLASSES: Record<string, string> = {
-  zinc: "bg-zinc-500",
-  emerald: "bg-emerald-500",
-  violet: "bg-violet-500",
-  blue: "bg-blue-500",
-  rose: "bg-rose-500",
-  orange: "bg-orange-500",
-  teal: "bg-teal-500",
-  yellow: "bg-yellow-500",
-}
-
+/**
+ * Theme customizer UI — accent palette, interface mode, corner radius.
+ *
+ * Pure presentation: state and persistence come from `useThemeSettings`
+ * (lib/theme), mode from `useTheme`. All selectable values and storage
+ * live in `lib/theme/palettes.ts`.
+ */
 export function ThemeCustomizer() {
   const { theme, setTheme, resolvedTheme } = useTheme()
-  const [selectedPalette, setSelectedPalette] = React.useState<string>("emerald")
-  const [selectedRadius, setSelectedRadius] = React.useState<string>("0.625rem")
-  const [mounted, setMounted] = React.useState(false)
+  const { settings, ready, setPalette, setRadius, reset } = useThemeSettings()
 
-  // Load from LocalStorage on mount
-  React.useEffect(() => {
-    setMounted(true)
-    const savedPalette = localStorage.getItem("celestia-theme-palette")
-    const savedRadius = localStorage.getItem("celestia-theme-radius")
-
-    if (savedPalette && PALETTES.some((p) => p.id === savedPalette)) {
-      setSelectedPalette(savedPalette)
-    }
-    if (savedRadius && RADII.some((r) => r.value === savedRadius)) {
-      setSelectedRadius(savedRadius)
-    }
-  }, [])
-
-  // Apply CSS variables dynamically whenever palette, radius, or theme mode changes
-  React.useEffect(() => {
-    if (!mounted) return
-
-    const palette = PALETTES.find((p) => p.id === selectedPalette) || PALETTES[0]
-    if (!palette) return
-
-    const isDark = resolvedTheme === "dark"
-    const colors = isDark ? palette.dark : palette.light
-    const root = document.documentElement
-
-    root.style.setProperty("--primary", colors.primary)
-    root.style.setProperty("--primary-foreground", colors.primaryForeground)
-    root.style.setProperty("--ring", colors.ring)
-    root.style.setProperty("--radius", selectedRadius)
-
-    localStorage.setItem("celestia-theme-palette", selectedPalette)
-    localStorage.setItem("celestia-theme-radius", selectedRadius)
-  }, [selectedPalette, selectedRadius, resolvedTheme, mounted])
-
-  const handlePaletteSelect = (palette: PaletteItem) => {
-    setSelectedPalette(palette.id)
-    toast.success(`Active palette: ${palette.name}`)
+  const handlePaletteSelect = (paletteId: string) => {
+    setPalette(paletteId)
+    toast.success(`Active palette: ${resolvePalette(paletteId).name}`)
   }
 
   const handleRadiusSelect = (radiusVal: string, label: string) => {
-    setSelectedRadius(radiusVal)
+    setRadius(radiusVal)
     toast.success(`Corner radius: ${label}`)
   }
 
   const handleReset = () => {
-    setSelectedPalette("emerald")
-    setSelectedRadius("0.625rem")
+    reset()
     setTheme("system")
     toast.success("Theme reset to defaults")
   }
 
-  if (!mounted) {
+  if (!ready) {
     return (
       <Button variant="ghost" size="icon-sm" aria-label="Customize Theme" title="Customize Theme">
         <PaletteIcon className="size-4 text-muted-foreground" />
@@ -247,7 +64,7 @@ export function ThemeCustomizer() {
     )
   }
 
-  const activePalette = (PALETTES.find((p) => p.id === selectedPalette) ?? PALETTES[1])!
+  const activePalette = resolvePalette(settings.paletteId)
 
   return (
     <Popover>
@@ -302,11 +119,11 @@ export function ThemeCustomizer() {
 
           <div className="grid grid-cols-4 gap-1.5">
             {PALETTES.map((palette) => {
-              const isActive = selectedPalette === palette.id
+              const isActive = settings.paletteId === palette.id
               return (
                 <button
                   key={palette.id}
-                  onClick={() => handlePaletteSelect(palette)}
+                  onClick={() => handlePaletteSelect(palette.id)}
                   title={palette.name}
                   className={cn(
                     "group relative flex items-center justify-start gap-1.5 rounded-sm border px-2 py-1.5 text-xs transition-all active:scale-95 cursor-pointer",
@@ -321,7 +138,6 @@ export function ThemeCustomizer() {
                       PALETTE_BG_CLASSES[palette.id] || "bg-primary"
                     )}
                   />
-                  {/* <span className="text-xs truncate">{palette.name}</span> */}
                   {isActive && (
                     <CheckIcon className="size-3 text-primary ms-auto shrink-0 animate-in fade-in zoom-in-75 duration-fast" weight="bold" />
                   )}
@@ -368,11 +184,11 @@ export function ThemeCustomizer() {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">Corner Radius</span>
-            <span className="text-xs font-mono text-muted-foreground">{selectedRadius}</span>
+            <span className="text-xs font-mono text-muted-foreground">{settings.radius}</span>
           </div>
 
           <Tabs
-            value={selectedRadius}
+            value={settings.radius}
             onValueChange={(val) => {
               if (!val) return
               const item = RADII.find((r) => r.value === val)
@@ -392,4 +208,3 @@ export function ThemeCustomizer() {
     </Popover>
   )
 }
-

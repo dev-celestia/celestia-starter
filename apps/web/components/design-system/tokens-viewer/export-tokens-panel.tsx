@@ -14,7 +14,7 @@ import {
   TabsTrigger,
   TextEditor,
 } from "@celestia-project/ui"
-import { useTheme } from "next-themes"
+import { useTheme } from "@/lib/theme"
 import type { ExportFormat } from "./types"
 import { EXPORT_TAILWIND_V4, EXPORT_CSS_VARS, EXPORT_JSON } from "./constants"
 

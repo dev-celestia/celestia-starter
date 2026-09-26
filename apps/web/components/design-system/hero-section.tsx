@@ -12,7 +12,7 @@ import {
   CursorClickIcon,
 } from "@phosphor-icons/react"
 import { Button, Badge, Card, CardContent, Tabs, TabsList, TabsTrigger } from "@celestia-project/ui"
-import { ThemeCustomizer } from "@/components/showcase/theme-customizer"
+import { ThemeCustomizer } from "@/components/shared/theme-customizer"
 import { useDesignSystem } from "./hooks/use-design-system"
 
 const PILLARS = [

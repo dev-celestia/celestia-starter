@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { Inter, Geist_Mono } from "next/font/google"
 
 import "@celestia-project/ui/globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@/lib/theme"
 import { cn } from "@celestia-project/ui/lib/utils"
 
 const inter = Inter({

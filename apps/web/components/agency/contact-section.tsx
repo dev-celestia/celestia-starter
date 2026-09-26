@@ -76,11 +76,11 @@ export function ContactSection() {
 
   if (state === "success") {
     return (
-      <section id="contact" className="mx-auto w-full max-w-4xl px-5 py-24 sm:px-8 sm:py-32">
+      <section id="contact" className="py-16 sm:py-20">
         <Empty
           role="status"
           aria-live="polite"
-          className="border border-border bg-card py-14"
+          className="mx-auto max-w-2xl border border-border bg-card py-14"
         >
           <EmptyMedia
             variant="icon"
@@ -106,7 +106,7 @@ export function ContactSection() {
   }
 
   return (
-    <section id="contact" className="mx-auto w-full max-w-7xl px-5 py-24 sm:px-8 sm:py-32">
+    <section id="contact" className="py-16 sm:py-20">
       <div className="grid gap-12 lg:grid-cols-[1fr_1.4fr] lg:gap-16">
         <Reveal>
           <div className="flex flex-col gap-8">

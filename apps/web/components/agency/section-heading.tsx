@@ -8,12 +8,15 @@ import { cn } from "@celestia-project/ui/lib/utils"
  * badge paddings, inconsistent heading margins, one section missing the
  * eyebrow entirely. One component keeps every section header identical, which
  * is what makes the page read as one page rather than four.
+ *
+ * Defaults to start-aligned: in the rail layout every section heading shares
+ * the hero headline's left edge, so the page reads as one column of work.
  */
 export function SectionHeading({
   eyebrow,
   title,
   description,
-  align = "center",
+  align = "start",
   className,
 }: Readonly<{
   eyebrow: string

@@ -7,15 +7,7 @@ import {
   UsersThreeIcon,
   WrenchIcon,
 } from "@phosphor-icons/react/dist/ssr"
-import {
-  Badge,
-  Button,
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@celestia-project/ui"
+import { Badge, Button } from "@celestia-project/ui"
 
 import { Reveal } from "@/components/feature-installer/reveal"
 
@@ -60,9 +52,15 @@ const SERVICES = [
   },
 ]
 
+/**
+ * Hairline-rule grid instead of cards: each cell opens with a top border and
+ * the row gap is carried entirely by the cells' own vertical padding, so the
+ * section reads as an index of services rather than a tray of boxes. The one
+ * cell that asks for something keeps a filled action.
+ */
 export function ServicesSection() {
   return (
-    <section id="services" className="mx-auto w-full max-w-7xl px-5 py-24 sm:px-8 sm:py-32">
+    <section id="services" className="py-16 sm:py-20">
       <Reveal>
         <SectionHeading
           eyebrow="Services"
@@ -71,53 +69,44 @@ export function ServicesSection() {
         />
       </Reveal>
 
-      <div className="reveal-stagger mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="reveal-stagger mt-10 grid gap-x-12 sm:grid-cols-2">
         {SERVICES.map((service) => (
-          <Reveal key={service.title}>
-            <Card className="h-full justify-between transition-colors duration-normal hover:ring-foreground/20">
-              <CardHeader className="gap-3">
-                <IconTile icon={service.icon} />
-                <CardTitle className="text-base font-semibold text-foreground">
-                  {service.title}
-                </CardTitle>
-                <CardDescription className="text-sm leading-relaxed">
-                  {service.description}
-                </CardDescription>
-              </CardHeader>
-              <CardFooter className="flex-wrap gap-1.5 pt-2">
-                {service.tags.map((tag) => (
-                  <Badge key={tag} variant="secondary" size="sm" mono className="text-3xs">
+          <Reveal key={service.title} className="border-t border-border py-7">
+            <IconTile icon={service.icon} />
+            <h3 className="mt-5 text-lg font-semibold tracking-tight text-foreground">
+              {service.title}
+            </h3>
+            <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
+              {service.description}
+            </p>
+            <ul className="mt-4 flex flex-wrap gap-1.5">
+              {service.tags.map((tag) => (
+                <li key={tag}>
+                  <Badge variant="secondary" size="sm" mono className="text-3xs">
                     {tag}
                   </Badge>
-                ))}
-              </CardFooter>
-            </Card>
+                </li>
+              ))}
+            </ul>
           </Reveal>
         ))}
 
-        {/* The one card that asks for something, so it leads the eye. */}
-        <Reveal>
-          <Card className="h-full justify-between bg-primary/5 ring-primary/20 sm:col-span-2 lg:col-span-1">
-            <CardHeader className="gap-3">
-              <Badge variant="default" mono className="w-fit uppercase tracking-wider">
-                Free review
-              </Badge>
-              <CardTitle className="text-base font-semibold text-foreground">
-                Architecture Review
-              </CardTitle>
-              <CardDescription className="text-sm leading-relaxed">
-                Talk to a senior engineer. No pitch, no commitment — just a
-                candid technical evaluation of your current architecture and
-                roadmap.
-              </CardDescription>
-            </CardHeader>
-            <CardFooter className="pt-2">
-              <Button size="sm" className="w-full gap-2" render={<Link href="#contact" />}>
-                Book 30-min Review
-                <ArrowRightIcon className="size-3.5" />
-              </Button>
-            </CardFooter>
-          </Card>
+        {/* The one cell that asks for something, so it leads the eye. */}
+        <Reveal className="border-t border-border py-7">
+          <Badge variant="default" mono className="uppercase tracking-wider">
+            Free review
+          </Badge>
+          <h3 className="mt-5 text-lg font-semibold tracking-tight text-foreground">
+            Architecture Review
+          </h3>
+          <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
+            Talk to a senior engineer. No pitch, no commitment — just a candid
+            technical evaluation of your current architecture and roadmap.
+          </p>
+          <Button size="sm" className="mt-6 gap-2" render={<Link href="#contact" />}>
+            Book 30-min Review
+            <ArrowRightIcon className="size-3.5" aria-hidden />
+          </Button>
         </Reveal>
       </div>
     </section>

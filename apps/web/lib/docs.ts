@@ -173,7 +173,7 @@ export function getDocsNavigation(): NavGroup[] {
       continue
     }
 
-    // Check if item is a subfolder with its own meta.json (e.g., "components", "libs/nuclei-run")
+    // Check if item is a subfolder with its own meta.json (e.g., "components")
     const subMetaPath = path.join(DOCS_DIRECTORY, item, "meta.json")
     if (fs.existsSync(subMetaPath)) {
       let subPages: string[] = []

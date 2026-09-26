@@ -278,7 +278,7 @@ export function TabBarItem({
       close: "size-3",
     },
     default: {
-      item: "h-7.5 px-2.5 py-1 text-xs gap-2",
+      item: "h-8 px-2.5 py-1 text-xs gap-2",
       text: "text-xs",
       icon: "size-3.5",
       close: "size-3.5",

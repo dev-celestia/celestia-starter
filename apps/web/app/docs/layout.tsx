@@ -1,6 +1,6 @@
 import * as React from "react"
 import { getDocsNavigation } from "@/lib/docs"
-import { DocsHeader } from "@/components/docs/header"
+import { Navbar } from "@/components/shared/navbar"
 import { DocsSidebar } from "@/components/docs/sidebar"
 import { Sheet, SheetContent, SheetTitle } from "@celestia-project/ui"
 
@@ -14,7 +14,7 @@ export default function DocsLayout({
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary/20">
       {/* Translucent Glass Header */}
-      <DocsHeader />
+      <Navbar />
 
       {/* Main Container */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-[calc(2rem+env(safe-area-inset-bottom,0px))]">
