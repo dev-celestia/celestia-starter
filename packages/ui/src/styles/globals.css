@@ -275,13 +275,23 @@
        --surface     bg-surface         cards, raised panels        hsl(0 0% 8%)   ≈ #141414
        --text        text-text-primary  headings, primary copy      hsl(0 0% 96%)  ≈ #f5f5f5
        --fog         text-fog           secondary/muted copy        hsl(0 0% 53%)  ≈ #878787
-       --stroke      border-stroke      borders, dividers           hsl(0 0% 12%)  ≈ #1f1f1f
+       --stroke      border-stroke      borders, dividers           hsl(0 0% 15%)  ≈ #262626
+
+       --stroke is used against BOTH --bg (dividers, nav and footer rules) and
+       --surface (card, panel and CTA borders, plus the 1px grid gaps in
+       .landing-metrics and .landing-trace-grid). The surface is the binding
+       constraint, the same way the filled button face binds --elevation-edge:
+       at 12% (#1f1f1f) it measured 1.20:1 against the page but only **1.12:1**
+       against a card — so the border that actually delineates a card was the
+       weaker of the two. 15% is the smallest step that clears 1.2:1 on both
+       (1.31:1 page, 1.22:1 surface); the cost is a uniform +0.11 on the page
+       rules. Measured, not eyeballed.
        --------------------------------------------------------------------- */
     --bg: 0 0% 4%;
     --surface: 0 0% 8%;
     --text: 0 0% 96%;
     --fog: 0 0% 53%;
-    --stroke: 0 0% 12%;
+    --stroke: 0 0% 15%;
 
     /* ---------------------------------------------------------------------
        Brand accent — the one chromatic value in the system.

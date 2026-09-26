@@ -1,0 +1,348 @@
+---
+title: Mobile (Expo)
+description: Native iOS and Android UI components built on @expo/ui — real SwiftUI and Jetpack Compose, organised into primitives, composites and layout screens
+icon: smartphone
+---
+
+`@celestia-project/mobile` is the native counterpart to `@celestia-project/ui`: a component
+library for Expo apps that renders **real platform views** — SwiftUI on iOS, Jetpack Compose on
+Android — through `@expo/ui`, rather than emulating them in JavaScript.
+
+It is not a port of the web library. The web components assume a DOM, hover states and a CSS
+box model; the mobile components assume a thumb, a safe area and a touch target floor. What the
+two packages share is the **taxonomy** (the same `primitive` / `composite` / `layout` split) and
+the **design tokens**, so a component sits in the same mental bucket whichever library you are in.
+
+<Callout type="info" title="Routing- and data-agnostic by contract">
+Every component here is presentational: props in, callbacks out. There is no navigation library,
+no data fetching, and no auth client. The host app owns routing, data and session state — which is
+why this package has no dependency on `apps/api` and can be dropped into any Expo project.
+</Callout>
+
+## Where it lives
+
+| Path | What it is |
+|------|------------|
+| `packages/mobile` | The library (`@celestia-project/mobile`) |
+| `apps/mobile` | The Expo showcase app that consumes it |
+
+```bash
+# Run the showcase on a simulator or device
+pnpm mobile
+
+# Typecheck just the library
+pnpm --filter @celestia-project/mobile typecheck
+```
+
+<Callout type="info" title="Publishing">
+`@celestia-project/mobile` is part of the npm publish set: `scripts/publish.sh` publishes
+`@celestia-project/ui`, `@celestia-project/create` and `@celestia-project/mobile`. Inside the
+workspace the package is consumed from source through the workspace protocol
+(`"@celestia-project/mobile": "workspace:*"`). Publish it standalone with `pnpm publish:mobile`,
+or all packages together with `pnpm publish:packages`.
+</Callout>
+
+## Installation
+
+Inside a workspace app the package resolves from the workspace protocol:
+
+```bash
+pnpm --filter mobile add @celestia-project/mobile@workspace:*
+```
+
+The native dependencies are peer dependencies and must be installed by the app, because they
+contain platform code that Expo has to autolink:
+
+```bash
+npx expo install @expo/ui expo-haptics react-native-safe-area-context
+```
+
+Pin `react-native` to the version Expo SDK 57 pairs with (`0.86.3`) — `npx expo install
+react-native` resolves it. Do not bump to `^0.87` manually: Expo 57's Metro tooling requires
+`rn-get-polyfills`, which React Native 0.87 removed.
+
+| Peer dependency | Required by | Notes |
+|-----------------|-------------|-------|
+| `@expo/ui` | `MobileSwitch`, `MobileList`, `MobileBottomSheet`, `MobileHost` | Real SwiftUI / Compose views |
+| `expo-haptics` | Every interactive component | Same-frame tactile feedback |
+| `react-native-safe-area-context` | `MobileScreen` and everything built on it | Safe-area insets |
+| `react` / `react-native` | — | React 19, RN 0.87 (Expo SDK 57) |
+
+## Component categories
+
+Components are grouped by **role**, not by atomicity — the same rule `@celestia-project/ui` uses,
+so the two libraries read the same way.
+
+| Category | Directory | What belongs here | Rule of thumb |
+|----------|-----------|-------------------|---------------|
+| **primitive** | `src/components/primitive/` | Generic building blocks. Each wraps one native control or one plain surface. | *"Would I reach for this in any app?"* |
+| **composite** | `src/components/composite/` | Opinionated assemblies built from primitives. | *"Is this a `<Primitive>` with a specific job?"* |
+| **layout** | `src/components/layout/` | Full-screen shells and screens. Own the frame; take content through slots. | *"Does it own the whole screen?"* |
+
+<Callout type="note" title="“Primitive” means generic, not atomic">
+`MobileCard` ships `MobileCardHeader`, `MobileCardTitle`, `MobileCardDescription`,
+`MobileCardContent` and `MobileCardFooter` — and is still a primitive, exactly as `Card` is in
+`@celestia-project/ui/primitive`. A compound component is not automatically a composite; only an
+*opinionated* one is.
+</Callout>
+
+### primitive — 20 modules
+
+`MobileText` · `MobileLabel` · `MobileButton` · `MobileIconButton` · `MobileTextInput`
+(`MobileInput`) · `MobileOtpInput` · `MobileSwitch` · `MobileCheckbox` · `MobileRadioGroup` ·
+`MobileSlider` · `MobileBadge` · `MobileAvatar` · `MobileSeparator` · `MobileProgress` ·
+`MobileSpinner` · `MobileSkeleton` · `MobileLink` · `MobileCard` · `MobileList` ·
+`MobileBottomSheet`
+
+### composite — 13 modules
+
+`MobileFormField` · `MobileSearchBar` · `MobileNavBar` · `MobileTabBar` ·
+`MobileSegmentedControl` · `MobileSettingRow` · `MobileAvatarGroup` · `MobileAlert` ·
+`MobileEmptyState` · `MobileSocialAuthButtons` · `MobileActionSheet` · `MobileConfirmDialog` ·
+`MobileToast` / `MobileToastProvider` / `useMobileToast`
+
+### layout — 10 modules
+
+`MobileScreen` · `MobileAuthShell` · `MobileOnboardingScreen` · `MobileSignInScreen` ·
+`MobileSignUpScreen` · `MobileForgotPasswordScreen` · `MobileResetPasswordScreen` ·
+`MobileOtpVerifyScreen` · `MobileSettingsScreen` / `MobileSettingsSection` · `MobileStatusScreen`
+
+## Import paths
+
+```tsx
+// Barrel — every category
+import { MobileButton, MobileHost } from "@celestia-project/mobile"
+
+// One category
+import { MobileButton } from "@celestia-project/mobile/primitive"
+
+// One component
+import { MobileButton } from "@celestia-project/mobile/primitive/button"
+
+// Infrastructure
+import { useMobileTheme } from "@celestia-project/mobile/host"
+import { darkColors, metrics } from "@celestia-project/mobile/tokens"
+```
+
+## Setup
+
+`MobileHost` bridges React Native to the native layer and provides the theme context every
+component reads. `SafeAreaProvider` must sit above it so `MobileScreen` can resolve insets, and
+`MobileToastProvider` must sit inside a **sized** parent, because its overlay positions itself
+absolutely against that parent.
+
+```tsx
+import * as React from "react"
+import { View } from "react-native"
+import { SafeAreaProvider } from "react-native-safe-area-context"
+import { MobileHost, MobileToastProvider } from "@celestia-project/mobile"
+
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <MobileHost style={{ flex: 1 }}>
+        <View style={{ flex: 1 }}>
+          <MobileToastProvider>{/* your navigator / screens */}</MobileToastProvider>
+        </View>
+      </MobileHost>
+    </SafeAreaProvider>
+  )
+}
+```
+
+Pass `forcedTheme="light" | "dark"` to `MobileHost` to override the device preference — the
+showcase uses this for its theme toggle.
+
+## Using the primitives
+
+```tsx
+import * as React from "react"
+import { MobileCard, MobileSwitch, MobileButton, MobileText } from "@celestia-project/mobile"
+
+export function Preferences() {
+  const [enabled, setEnabled] = React.useState(true)
+
+  return (
+    <MobileCard>
+      <MobileSwitch
+        label="Push notifications"
+        description="Real SwiftUI & Compose toggle via @expo/ui"
+        value={enabled}
+        onValueChange={setEnabled}
+      />
+      <MobileButton onPress={() => console.log("saved")}>Save</MobileButton>
+    </MobileCard>
+  )
+}
+```
+
+## Screens
+
+The `layout` category is where this package diverges most from the web one. A screen owns the
+whole frame — safe area, scrolling, keyboard avoidance, header, pinned footer — and takes its
+content through slots.
+
+### The shell + thin-screen split
+
+`MobileScreen` is the base frame. `MobileAuthShell` adds the logo / heading / form / aside /
+footer arrangement that all five auth screens share. Each auth screen then supplies **only** its
+own fields and defaults:
+
+```tsx
+import { MobileSignInScreen } from "@celestia-project/mobile"
+
+export default function SignIn() {
+  const [error, setError] = React.useState<string>()
+  const [loading, setLoading] = React.useState(false)
+
+  return (
+    <MobileSignInScreen
+      error={error}
+      loading={loading}
+      socialProviders={[
+        { id: "google", label: "Google" },
+        { id: "apple", label: "Apple" },
+      ]}
+      onForgotPassword={() => router.push("/forgot-password")}
+      onSignUp={() => router.push("/sign-up")}
+      onSubmit={async ({ email, password }) => {
+        setLoading(true)
+        setError(undefined)
+        try {
+          await auth.signIn(email, password)
+          router.replace("/")
+        } catch (cause) {
+          setError(cause instanceof Error ? cause.message : "Sign-in failed.")
+        } finally {
+          setLoading(false)
+        }
+      }}
+    />
+  )
+}
+```
+
+The screen owns its **field** state and reports the result; it never authenticates, stores a
+session or navigates. Server errors arrive back through `error`, which is why the same screen
+works for a credential rejection, a network failure and an offline queue.
+
+### Building a new screen
+
+A new screen that resembles an existing one **composes the shell** — it never re-implements the
+header. That is what stops six auth screens from drifting apart:
+
+```tsx
+import * as React from "react"
+import { MobileAuthShell, MobileButton, MobileFormField, MobileTextInput } from "@celestia-project/mobile"
+
+export function ChangeHandleScreen({ onSave }: { onSave: (handle: string) => void }) {
+  const [handle, setHandle] = React.useState("")
+
+  return (
+    <MobileAuthShell
+      heading="Choose a handle"
+      subheading="This is how others will find you."
+      onBack={() => history.back()}
+    >
+      <MobileFormField label="Handle" required>
+        <MobileTextInput
+          value={handle}
+          onChangeText={setHandle}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+      </MobileFormField>
+
+      <MobileButton onPress={() => onSave(handle)}>Save</MobileButton>
+    </MobileAuthShell>
+  )
+}
+```
+
+For a screen with no auth framing, compose `MobileScreen` directly and drive the header through
+props — it renders a `MobileNavBar` as soon as you pass `title`, `onBack` or either header slot:
+
+```tsx
+<MobileScreen title="Reports" onBack={goBack} largeTitle>
+  {/* content */}
+</MobileScreen>
+```
+
+<Callout type="tip" title="Onboarding and settings">
+`MobileOnboardingScreen` takes a `slides` array and handles paging, the page indicator and the
+skip / next / get-started actions. `MobileSettingsScreen` takes `MobileSettingsSection` groups and
+inserts the row separators for you — so a stray divider after the last row is impossible.
+</Callout>
+
+## Design rules
+
+Every component in this package follows the same non-negotiables. They are enforced by
+convention and review, not by a linter, so they are worth knowing before adding a component:
+
+1. **No hardcoded colours.** Everything reads `useMobileTheme()`; the light and dark ramps are both complete.
+2. **44×44pt minimum touch target** on every interactive element (`metrics.minTouchTarget`).
+3. **Haptics fire on the causal commit frame** — `Light` for normal presses, `Medium` for destructive, `selectionAsync` for toggles. Never on mount.
+4. **16px font floor** on text inputs, to prevent OS viewport zoom.
+5. **Tabular numerals** for counters, prices and timers.
+6. **Icons arrive as props.** The package takes no icon dependency; only structural marks (a tick, a chevron, a magnifier) may be drawn inline. The showcase app is the consumer side of that rule and supplies its own set — see [Icons in the showcase](#icons-in-the-showcase).
+7. **No hover-only affordances.**
+8. **Forms never disable the submit button for empty fields.** It stays pressable and names what is missing; it is disabled only while loading.
+9. **Screens are presentational.** Props in, callbacks out — no fetching, no auth client, no routing.
+
+## Dependencies
+
+The package adds **no runtime dependencies of its own**. Two deliberate consequences:
+
+- **Paging** uses `ScrollView` + `pagingEnabled`, not `reanimated` or `gesture-handler`.
+- **Motion** uses React Native's built-in `Animated`, and the `MobileSlider` is built on `PanResponder` — React Native core dropped `Slider`, and the community package is a native module that would force every consumer to rebuild.
+
+The only non-obvious dependency is `react-native-safe-area-context`, which `apps/mobile` already
+used before the package needed it.
+
+## Icons in the showcase
+
+`packages/mobile` ships no icon dependency, so `apps/mobile` picks its own. It uses
+[Heroicons](https://heroicons.com) drawn with `react-native-svg` — the SVG route rather than an icon font.
+
+```bash
+npx expo install react-native-svg
+pnpm --filter mobile add react-native-heroicons
+```
+
+Four reasons this route, and not a font:
+
+- **`@expo/vector-icons` is being retired.** Expo now recommends migrating to the
+  `@react-native-vector-icons/*` font packages, which work in Expo Go, dev builds and every platform.
+  Heroicons has no package in that scope, so the showcase takes the SVG route instead — the same
+  destination, a different mechanism.
+- **No native rebuild.** `react-native-svg` is *included in Expo Go*, so nothing here needs a development
+  build. Use `npx expo install` so the SDK-compatible version is picked — do not hand-pick one.
+- **No font loading at all.** Nothing is added to the `expo-font` config plugin, so the icon-font conflict
+  that the Expo migration guide warns about cannot arise.
+- **Per-icon imports.** `apps/mobile/src/showcase/icons.tsx` imports one module per icon, by deep path. The
+  package's barrel (`react-native-heroicons/outline`) re-exports all 324 icons from a single module and the
+  package declares no `exports` map, so importing from the barrel would ship the entire set.
+
+Every icon is drawn by one component, `ShowcaseIcon`, which maps a semantic name (`"trash"`, `"search"`) to
+a glyph and reads its colour from `useMobileTheme()`. Nothing outside `icons.tsx` names a Heroicons
+component, so the set — or the style, outline versus solid — is swappable in one file.
+
+<Callout type="warn" title="Heroicons has no brand logos">
+Tailwind excludes brand marks from the set, so there is no Apple, Google, GitHub or WeChat glyph. The
+federated sign-in rows are therefore label-only, which is also why `MobileSocialProvider.icon` stays
+optional. Real brand marks need a different source — they are not in any general-purpose UI icon set.
+</Callout>
+
+## Status
+
+<Callout type="warn" title="Not yet verified on a device">
+The library is typechecked end to end (package and showcase app) and the showcase Metro-bundles
+into a working Hermes bundle (`npx expo export --platform ios`), but it has **not been run on a
+simulator or device** in this workspace — the machine has no Xcode, so `@expo/ui`'s real native
+views and gesture behaviour cannot be exercised headlessly.
+
+Three things need a device before this is trusted: the whole package end to end; `MobileSlider`'s
+gesture geometry in particular — a `PanResponder` cannot be validated by a typecheck; and the showcase
+icons, where optical size, stroke weight and vertical alignment inside a 44pt control are all things a
+typecheck cannot see.
+</Callout>

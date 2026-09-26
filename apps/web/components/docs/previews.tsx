@@ -286,9 +286,64 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@celestia-project/ui/primitive/tooltip"
-import { BellIcon, NoteBlankIcon, UserIcon } from "@phosphor-icons/react"
-import { useState } from "react"
+import {
+  BellIcon,
+  CalendarBlankIcon,
+  ChartLineUpIcon,
+  CreditCardIcon,
+  DownloadSimpleIcon,
+  EnvelopeSimpleIcon,
+  FunnelSimpleIcon,
+  GearSixIcon,
+  GithubLogoIcon,
+  GoogleLogoIcon,
+  HouseIcon,
+  LinkSimpleIcon,
+  MagnifyingGlassIcon,
+  MapPinIcon,
+  MoonStarsIcon,
+  NoteBlankIcon,
+  PencilSimpleIcon,
+  PlusIcon,
+  ShieldCheckIcon,
+  SignOutIcon,
+  SquaresFourIcon,
+  TrendDownIcon,
+  TrashIcon,
+  UserIcon,
+  UsersThreeIcon,
+} from "@phosphor-icons/react"
+import { useMemo, useState } from "react"
+import type { ReactNode } from "react"
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
+import { AuthShell } from "@celestia-project/ui/layout/auth-shell"
+import { PageShell } from "@celestia-project/ui/layout/page-shell"
+import { DashboardShell } from "@celestia-project/ui/layout/dashboard-shell"
+import { SignInPage } from "@celestia-project/ui/layout/sign-in-page"
+import { SignUpPage } from "@celestia-project/ui/layout/sign-up-page"
+import { ForgotPasswordPage } from "@celestia-project/ui/layout/forgot-password-page"
+import { ResetPasswordPage } from "@celestia-project/ui/layout/reset-password-page"
+import { TwoFactorPage } from "@celestia-project/ui/layout/two-factor-page"
+import { DashboardPage } from "@celestia-project/ui/layout/dashboard-page"
+import { ProfilePage } from "@celestia-project/ui/layout/profile-page"
+import { SettingsPage } from "@celestia-project/ui/layout/settings-page"
+import { ListPage } from "@celestia-project/ui/layout/list-page"
+import { BillingPage } from "@celestia-project/ui/layout/billing-page"
+import { StatusPage } from "@celestia-project/ui/layout/status-page"
+import { NotFoundPage } from "@celestia-project/ui/layout/not-found-page"
+import { ErrorPage } from "@celestia-project/ui/layout/error-page"
+import type {
+  BillingInvoice,
+  BillingPlan,
+  BillingUsage,
+  DashboardStat,
+  ListColumn,
+  ProfileMetaItem,
+  ProfileStat,
+  ProfileTab,
+  SettingsSection,
+} from "@celestia-project/ui"
+import { cn } from "@celestia-project/ui/lib/utils"
 
 function PreviewShell({ children }: { children: React.ReactNode }) {
   return (
@@ -1628,5 +1683,779 @@ export function ColorsPreview() {
         </div>
       </div>
     </PreviewShell>
+  )
+}
+
+// ─── Layout & Pages previews ────────────────────────────────────────────────
+// Layout components are full pages, so unlike PreviewShell they render
+// edge-to-edge inside a fixed-height frame instead of floating on padding.
+
+function LayoutPreviewShell({
+  className,
+  children,
+}: {
+  className?: string
+  children: ReactNode
+}) {
+  return (
+    <div
+      className={cn(
+        "not-prose bg-background w-full overflow-hidden rounded-lg border border-fd-border",
+        className
+      )}
+    >
+      {children}
+    </div>
+  )
+}
+
+const noop = () => undefined
+
+function LayoutBrandMark() {
+  return (
+    <div className="bg-primary text-primary-foreground flex size-9 items-center justify-center rounded-lg">
+      <MoonStarsIcon className="size-5" weight="fill" />
+    </div>
+  )
+}
+
+const LAYOUT_PROJECT_ROWS = [
+  { id: "prj_01", name: "Atlas API", meta: "Deployed 12 minutes ago", status: "Live" },
+  { id: "prj_02", name: "Nebula Web", meta: "Build queued", status: "Building" },
+  { id: "prj_03", name: "Comet CLI", meta: "Last release v2.4.1", status: "Stable" },
+  { id: "prj_04", name: "Orbit Mobile", meta: "Review pending", status: "Draft" },
+]
+
+function LayoutProjectCards() {
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      {LAYOUT_PROJECT_ROWS.map((row) => (
+        <div key={row.id} className="rounded-lg border border-border/70 bg-card p-3">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs font-medium">{row.name}</span>
+            <Badge variant="secondary">{row.status}</Badge>
+          </div>
+          <p className="text-muted-foreground mt-1 text-xs">{row.meta}</p>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+const LAYOUT_SOCIAL_PROVIDERS = [
+  { id: "google", label: "Google", icon: <GoogleLogoIcon className="size-4" /> },
+  { id: "github", label: "GitHub", icon: <GithubLogoIcon className="size-4" /> },
+]
+
+const LAYOUT_NAV_ITEMS = [
+  { id: "overview", label: "Overview", icon: HouseIcon, active: true },
+  { id: "analytics", label: "Analytics", icon: ChartLineUpIcon, active: false },
+  { id: "projects", label: "Projects", icon: SquaresFourIcon, active: false },
+  { id: "team", label: "Team", icon: UsersThreeIcon, active: false },
+  { id: "settings", label: "Settings", icon: GearSixIcon, active: false },
+]
+
+function LayoutDashboardNav() {
+  return (
+    <nav className="flex flex-col gap-1">
+      {LAYOUT_NAV_ITEMS.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          aria-label={item.label}
+          title={item.label}
+          className={cn(
+            "flex items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none md:justify-start",
+            item.active
+              ? "bg-background text-foreground shadow-sm"
+              : "text-muted-foreground hover:bg-background/60 hover:text-foreground"
+          )}
+        >
+          <item.icon className="size-4 shrink-0" />
+          <span className="hidden md:inline">{item.label}</span>
+        </button>
+      ))}
+    </nav>
+  )
+}
+
+const LAYOUT_ACTIVITY = [
+  { id: "1", who: "Nadia", what: "deployed Atlas API", when: "12m" },
+  { id: "2", who: "Sam", what: "opened a pull request", when: "48m" },
+  { id: "3", who: "Ravi", what: "invited 3 teammates", when: "2h" },
+  { id: "4", who: "Ada", what: "changed the billing plan", when: "5h" },
+]
+
+function LayoutActivityList() {
+  return (
+    <div className="flex flex-col gap-3">
+      {LAYOUT_ACTIVITY.map((entry) => (
+        <div key={entry.id} className="flex items-start gap-2">
+          <span className="bg-muted text-muted-foreground mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-3xs font-medium">
+            {entry.who.slice(0, 1)}
+          </span>
+          <span className="min-w-0 flex-1 text-xs">
+            <span className="font-medium">{entry.who}</span>{" "}
+            <span className="text-muted-foreground">{entry.what}</span>
+          </span>
+          <span className="text-muted-foreground shrink-0 text-3xs tabular-nums">
+            {entry.when}
+          </span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export function AuthShellPreview() {
+  return (
+    <div className="not-prose flex w-full flex-col gap-3">
+      <LayoutPreviewShell className="h-[21rem]">
+        <AuthShell
+          className="h-full min-h-0"
+          maxWidth="sm"
+          logo={<LayoutBrandMark />}
+          heading="Celestia"
+          subheading="The design system that ships itself."
+          aside={
+            <div className="grid grid-cols-2 gap-3">
+              <Button variant="outline" className="w-full">
+                <GoogleLogoIcon className="size-4" />
+                Google
+              </Button>
+              <Button variant="outline" className="w-full">
+                <GithubLogoIcon className="size-4" />
+                GitHub
+              </Button>
+            </div>
+          }
+          footer={
+            <>
+              By continuing you agree to our{" "}
+              <span className="text-foreground font-medium">Terms of Service</span>
+            </>
+          }
+        >
+          <Button className="w-full">Continue with email</Button>
+        </AuthShell>
+      </LayoutPreviewShell>
+      <LayoutPreviewShell className="h-[22rem]">
+        <AuthShell
+          className="h-full min-h-0"
+          variant="split"
+          maxWidth="sm"
+          logo={<LayoutBrandMark />}
+          heading="Welcome back"
+          subheading="Sign in to your account to continue"
+          sidePanel={
+            <div className="flex h-full flex-col justify-end gap-3 p-10">
+              <blockquote className="text-foreground text-lg font-medium leading-snug tracking-tight">
+                “Celestia cut our design-to-ship time in half.”
+              </blockquote>
+              <p className="text-muted-foreground text-sm">
+                Ada Lin — Head of Product, Northwind
+              </p>
+            </div>
+          }
+        >
+          <Button className="w-full">Continue with email</Button>
+        </AuthShell>
+      </LayoutPreviewShell>
+    </div>
+  )
+}
+
+export function SignInPagePreview() {
+  return (
+    <LayoutPreviewShell className="h-[30rem]">
+      <SignInPage
+        className="h-full min-h-0"
+        socialProviders={LAYOUT_SOCIAL_PROVIDERS}
+        onSocialProviderClick={noop}
+        onForgotPassword={noop}
+        onSignUp={noop}
+        onSubmit={noop}
+      />
+    </LayoutPreviewShell>
+  )
+}
+
+export function SignUpPagePreview() {
+  return (
+    <LayoutPreviewShell className="h-[32rem]">
+      <SignUpPage
+        className="h-full min-h-0"
+        termsLabel="I agree to the terms and privacy policy"
+        onSignIn={noop}
+        onSubmit={noop}
+      />
+    </LayoutPreviewShell>
+  )
+}
+
+export function ForgotPasswordPagePreview() {
+  const [sent, setSent] = useState(false)
+
+  return (
+    <LayoutPreviewShell className="h-[26rem]">
+      <ForgotPasswordPage
+        className="h-full min-h-0"
+        sent={sent}
+        onSubmit={() => setSent(true)}
+        onBack={() => setSent(false)}
+      />
+    </LayoutPreviewShell>
+  )
+}
+
+export function ResetPasswordPagePreview() {
+  return (
+    <LayoutPreviewShell className="h-[26rem]">
+      <ResetPasswordPage className="h-full min-h-0" onSubmit={noop} />
+    </LayoutPreviewShell>
+  )
+}
+
+export function TwoFactorPagePreview() {
+  return (
+    <LayoutPreviewShell className="h-[26rem]">
+      <TwoFactorPage
+        className="h-full min-h-0"
+        onBack={noop}
+        onResend={noop}
+        onSubmit={noop}
+      />
+    </LayoutPreviewShell>
+  )
+}
+
+export function PageShellPreview() {
+  return (
+    <LayoutPreviewShell className="h-[24rem]">
+      <PageShell
+        className="h-full"
+        title="Projects"
+        description="Everything your team is building this quarter."
+        width="lg"
+        actions={
+          <>
+            <Button variant="outline" size="sm">
+              Import
+            </Button>
+            <Button size="sm">New project</Button>
+          </>
+        }
+      >
+        <LayoutProjectCards />
+      </PageShell>
+    </LayoutPreviewShell>
+  )
+}
+
+export function DashboardShellPreview() {
+  return (
+    <LayoutPreviewShell className="h-[30rem]">
+      <DashboardShell
+        className="h-full min-h-0"
+        contentWidth="xl"
+        brand={
+          <span className="flex items-center gap-2 font-semibold">
+            <span className="bg-primary text-primary-foreground flex size-7 items-center justify-center rounded-md">
+              <MoonStarsIcon className="size-4" weight="fill" />
+            </span>
+            <span className="hidden text-sm md:inline">Celestia</span>
+          </span>
+        }
+        nav={<LayoutDashboardNav />}
+        navFooter={
+          <div className="flex items-center justify-center gap-2 md:justify-start">
+            <Avatar>
+              <AvatarFallback>AL</AvatarFallback>
+            </Avatar>
+            <span className="hidden min-w-0 flex-col md:flex">
+              <span className="truncate text-xs font-medium">Ada Lin</span>
+              <span className="text-muted-foreground truncate text-3xs">
+                ada@northwind.dev
+              </span>
+            </span>
+          </div>
+        }
+        header={
+          <>
+            <span className="text-sm font-medium">Overview</span>
+            <div className="ms-auto flex items-center gap-1">
+              <Button variant="ghost" size="icon-sm" title="Search">
+                <MagnifyingGlassIcon />
+              </Button>
+              <Button variant="ghost" size="icon-sm" title="Notifications">
+                <BellIcon />
+              </Button>
+            </div>
+          </>
+        }
+        aside={
+          <>
+            <span className="text-xs font-medium">Activity</span>
+            <LayoutActivityList />
+          </>
+        }
+      >
+        <LayoutProjectCards />
+      </DashboardShell>
+    </LayoutPreviewShell>
+  )
+}
+
+const LAYOUT_STATS: DashboardStat[] = [
+  {
+    id: "mrr",
+    label: "Monthly revenue",
+    value: "$48,290",
+    delta: "+12.4%",
+    trend: "up",
+    hint: "vs. last month",
+    icon: <ChartLineUpIcon />,
+  },
+  {
+    id: "users",
+    label: "Active users",
+    value: "12,847",
+    delta: "+3.1%",
+    trend: "up",
+    hint: "vs. last month",
+    icon: <UsersThreeIcon />,
+  },
+  {
+    id: "churn",
+    label: "Churn",
+    value: "1.8%",
+    delta: "-0.4%",
+    trend: "down",
+    hint: "vs. last month",
+    icon: <TrendDownIcon />,
+  },
+  {
+    id: "uptime",
+    label: "Uptime",
+    value: "99.98%",
+    delta: "0.0%",
+    trend: "flat",
+    hint: "last 30 days",
+    icon: <ShieldCheckIcon />,
+  },
+]
+
+export function DashboardPagePreview() {
+  return (
+    <LayoutPreviewShell className="h-[30rem] overflow-y-auto">
+      <DashboardPage
+        className="h-full"
+        title="Overview"
+        description="Everything happening across your workspace."
+        width="xl"
+        statColumns={4}
+        stats={LAYOUT_STATS}
+        actions={
+          <>
+            <Button variant="outline" size="sm">
+              Export
+            </Button>
+            <Button size="sm">
+              <PlusIcon />
+              New project
+            </Button>
+          </>
+        }
+        aside={
+          <Card size="sm">
+            <CardHeader>
+              <CardTitle>Activity</CardTitle>
+              <CardDescription>Last 24 hours</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <LayoutActivityList />
+            </CardContent>
+          </Card>
+        }
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle>Projects</CardTitle>
+            <CardDescription>
+              Everything your team is building this quarter.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <LayoutProjectCards />
+          </CardContent>
+        </Card>
+      </DashboardPage>
+    </LayoutPreviewShell>
+  )
+}
+
+const LAYOUT_PROFILE_META: ProfileMetaItem[] = [
+  { id: "email", icon: <EnvelopeSimpleIcon />, label: "ada@northwind.dev" },
+  { id: "location", icon: <MapPinIcon />, label: "Lisbon, Portugal" },
+  { id: "site", icon: <LinkSimpleIcon />, label: "ada.northwind.dev" },
+  { id: "joined", icon: <CalendarBlankIcon />, label: "Joined March 2023" },
+]
+
+const LAYOUT_PROFILE_STATS: ProfileStat[] = [
+  { id: "posts", value: "128", label: "posts" },
+  { id: "followers", value: "4.2k", label: "followers" },
+  { id: "projects", value: "17", label: "projects" },
+]
+
+const LAYOUT_PROFILE_TABS: ProfileTab[] = [
+  { id: "overview", label: "Overview", icon: <SquaresFourIcon /> },
+  { id: "activity", label: "Activity", icon: <ChartLineUpIcon />, count: 24 },
+  { id: "settings", label: "Preferences", icon: <GearSixIcon /> },
+]
+
+export function ProfilePagePreview() {
+  return (
+    <LayoutPreviewShell className="h-[30rem] overflow-y-auto">
+      <ProfilePage
+        name="Ada Lin"
+        handle="@ada · ada@northwind.dev"
+        headline="Head of Product"
+        bio="Building the design system that ships itself. Previously platform at Northwind — now making sure the next team does not have to rewrite the button."
+        avatarFallback="AL"
+        badge={<Badge variant="secondary">Pro</Badge>}
+        meta={LAYOUT_PROFILE_META}
+        stats={LAYOUT_PROFILE_STATS}
+        actions={
+          <>
+            <Button variant="outline" size="sm">
+              <LinkSimpleIcon />
+              Copy link
+            </Button>
+            <Button size="sm">
+              <PencilSimpleIcon />
+              Edit profile
+            </Button>
+          </>
+        }
+        tabs={LAYOUT_PROFILE_TABS}
+        defaultValue="overview"
+      >
+        <LayoutProjectCards />
+      </ProfilePage>
+    </LayoutPreviewShell>
+  )
+}
+
+function LayoutSettingRow({
+  label,
+  description,
+  children,
+}: {
+  label: string
+  description?: string
+  children: ReactNode
+}) {
+  return (
+    <div className="border-border/70 bg-card flex items-start justify-between gap-6 rounded-lg border p-4">
+      <div className="flex min-w-0 flex-col gap-0.5">
+        <span className="text-xs font-medium">{label}</span>
+        {description && (
+          <span className="text-muted-foreground text-xs">{description}</span>
+        )}
+      </div>
+      <div className="shrink-0">{children}</div>
+    </div>
+  )
+}
+
+const LAYOUT_SETTING_SECTIONS: SettingsSection[] = [
+  {
+    id: "general",
+    label: "General",
+    description: "Workspace identity and defaults.",
+    icon: <GearSixIcon />,
+    content: (
+      <div className="flex flex-col gap-3">
+        <LayoutSettingRow label="Workspace name" description="Shown to every member.">
+          <Input defaultValue="Northwind" className="w-44" />
+        </LayoutSettingRow>
+        <LayoutSettingRow
+          label="Product updates"
+          description="A monthly digest of what shipped."
+        >
+          <Switch defaultChecked />
+        </LayoutSettingRow>
+      </div>
+    ),
+  },
+  {
+    id: "security",
+    label: "Security",
+    description: "Sign-in and session policy.",
+    icon: <ShieldCheckIcon />,
+    content: (
+      <div className="flex flex-col gap-3">
+        <LayoutSettingRow
+          label="Two-factor authentication"
+          description="Require a code at every sign-in."
+        >
+          <Switch defaultChecked />
+        </LayoutSettingRow>
+        <LayoutSettingRow label="Active sessions" description="3 devices signed in.">
+          <Button variant="outline" size="sm">
+            <SignOutIcon />
+            Sign out all
+          </Button>
+        </LayoutSettingRow>
+      </div>
+    ),
+  },
+  {
+    id: "danger",
+    label: "Danger zone",
+    description: "Irreversible actions.",
+    icon: <TrashIcon />,
+    danger: true,
+    content: (
+      <div className="border-destructive/30 bg-destructive/5 flex flex-col gap-3 rounded-lg border p-4">
+        <div className="flex flex-col gap-0.5">
+          <span className="text-destructive text-xs font-medium">
+            Delete this workspace
+          </span>
+          <span className="text-muted-foreground text-xs">
+            Every project, post and member will be removed. This cannot be undone.
+          </span>
+        </div>
+        <Button variant="destructive" size="sm" className="self-start">
+          <TrashIcon />
+          Delete workspace
+        </Button>
+      </div>
+    ),
+  },
+]
+
+export function SettingsPagePreview() {
+  return (
+    <LayoutPreviewShell className="h-[30rem] overflow-y-auto">
+      <SettingsPage
+        title="Settings"
+        description="Manage your workspace, plan and security policy."
+        sections={LAYOUT_SETTING_SECTIONS}
+        actions={<Button size="sm">Save changes</Button>}
+      />
+    </LayoutPreviewShell>
+  )
+}
+
+const LAYOUT_LIST_ROWS = [
+  { id: "prj_01", name: "Atlas API", owner: "Nadia Okonkwo", status: "Live", updated: "12 minutes ago" },
+  { id: "prj_02", name: "Nebula Web", owner: "Sam Iversen", status: "Building", updated: "48 minutes ago" },
+  { id: "prj_03", name: "Comet CLI", owner: "Ravi Shah", status: "Stable", updated: "2 hours ago" },
+  { id: "prj_04", name: "Orbit Mobile", owner: "Ada Lin", status: "Draft", updated: "5 hours ago" },
+  { id: "prj_05", name: "Pulsar Worker", owner: "Mira Chen", status: "Live", updated: "Yesterday" },
+  { id: "prj_06", name: "Vega Docs", owner: "Tom Ríos", status: "Stable", updated: "3 days ago" },
+]
+
+type LayoutListRow = (typeof LAYOUT_LIST_ROWS)[number]
+
+const LAYOUT_LIST_COLUMNS: ListColumn<LayoutListRow>[] = [
+  {
+    id: "name",
+    header: "Project",
+    cell: (row) => (
+      <div className="flex flex-col gap-0.5">
+        <span className="font-medium">{row.name}</span>
+        <span className="text-muted-foreground font-mono text-3xs">{row.id}</span>
+      </div>
+    ),
+  },
+  {
+    id: "owner",
+    header: "Owner",
+    cell: (row) => <span className="text-muted-foreground">{row.owner}</span>,
+  },
+  {
+    id: "status",
+    header: "Status",
+    cell: (row) => <Badge variant="secondary">{row.status}</Badge>,
+  },
+  {
+    id: "updated",
+    header: "Updated",
+    align: "end",
+    cell: (row) => (
+      <span className="text-muted-foreground tabular-nums">{row.updated}</span>
+    ),
+  },
+]
+
+export function ListPagePreview() {
+  const [query, setQuery] = useState("")
+  const [selected, setSelected] = useState<string[]>(["prj_02"])
+  const [page, setPage] = useState(1)
+
+  const rows = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    if (!q) return LAYOUT_LIST_ROWS
+    return LAYOUT_LIST_ROWS.filter((row) =>
+      [row.name, row.owner, row.status].some((field) =>
+        field.toLowerCase().includes(q)
+      )
+    )
+  }, [query])
+
+  return (
+    <LayoutPreviewShell className="h-[32rem] overflow-y-auto">
+      <ListPage
+        title="Projects"
+        description="Every project in the Northwind workspace."
+        width="xl"
+        columns={LAYOUT_LIST_COLUMNS}
+        rows={rows}
+        rowKey={(row) => row.id}
+        search={{
+          value: query,
+          onValueChange: setQuery,
+          placeholder: "Search projects…",
+        }}
+        filters={
+          <Button variant="outline" size="sm">
+            <FunnelSimpleIcon />
+            Status
+          </Button>
+        }
+        toolbar={
+          <Button size="sm">
+            <PlusIcon />
+            New project
+          </Button>
+        }
+        selectable
+        selectedIds={selected}
+        onSelectedIdsChange={setSelected}
+        page={page}
+        pageCount={3}
+        onPageChange={setPage}
+        totalLabel={`${rows.length} of ${LAYOUT_LIST_ROWS.length} projects${
+          selected.length > 0 ? ` · ${selected.length} selected` : ""
+        }`}
+        empty="No projects match that search."
+      />
+    </LayoutPreviewShell>
+  )
+}
+
+const LAYOUT_BILLING_PLAN: BillingPlan = {
+  name: "Team",
+  badge: <Badge variant="secondary">Current plan</Badge>,
+  price: "$96",
+  interval: "per month, billed annually",
+  description: "12 seats, unlimited projects, 90-day history.",
+  features: [
+    "Unlimited projects and environments",
+    "SSO and SCIM provisioning",
+    "Priority support with a 4-hour response",
+  ],
+}
+
+const LAYOUT_BILLING_USAGE: BillingUsage[] = [
+  { id: "seats", label: "Seats", used: 9, limit: 12 },
+  {
+    id: "builds",
+    label: "Build minutes",
+    used: 1840,
+    limit: 2000,
+    format: (used, limit) =>
+      `${used.toLocaleString()} / ${limit.toLocaleString()}`,
+  },
+  {
+    id: "storage",
+    label: "Artifact storage",
+    used: 78,
+    limit: 100,
+    format: (used, limit) => `${used} GB / ${limit} GB`,
+  },
+]
+
+const LAYOUT_BILLING_INVOICES: BillingInvoice[] = [
+  { id: "INV-0091", date: "1 Sep 2026", amount: "$96.00", status: <Badge variant="success">Paid</Badge> },
+  { id: "INV-0084", date: "1 Aug 2026", amount: "$96.00", status: <Badge variant="success">Paid</Badge> },
+  { id: "INV-0077", date: "1 Jul 2026", amount: "$72.00", status: <Badge variant="secondary">Refunded</Badge> },
+]
+
+export function BillingPagePreview() {
+  return (
+    <LayoutPreviewShell className="h-[36rem] overflow-y-auto">
+      <BillingPage
+        title="Billing"
+        description="Plan, usage and invoices for the Northwind workspace."
+        width="xl"
+        plan={LAYOUT_BILLING_PLAN}
+        usage={LAYOUT_BILLING_USAGE}
+        invoices={LAYOUT_BILLING_INVOICES}
+        onManagePlan={noop}
+        onUpdatePayment={noop}
+        actions={
+          <Button variant="outline" size="sm">
+            <DownloadSimpleIcon />
+            Export
+          </Button>
+        }
+        paymentMethod={
+          <div className="flex items-center gap-3">
+            <span className="bg-muted text-muted-foreground flex size-8 shrink-0 items-center justify-center rounded-md">
+              <CreditCardIcon className="size-4" />
+            </span>
+            <span className="flex min-w-0 flex-col">
+              <span className="text-xs font-medium">Visa ending 4242</span>
+              <span className="text-muted-foreground text-xs">Expires 04 / 2029</span>
+            </span>
+          </div>
+        }
+      />
+    </LayoutPreviewShell>
+  )
+}
+
+export function StatusPagePreview() {
+  return (
+    <LayoutPreviewShell className="h-[22rem]">
+      <StatusPage
+        className="h-full min-h-0"
+        code="403"
+        title="You do not have access"
+        description="Ask a workspace admin to invite you."
+        actionLabel="Back to dashboard"
+        onAction={noop}
+      />
+    </LayoutPreviewShell>
+  )
+}
+
+export function NotFoundPagePreview() {
+  return (
+    <LayoutPreviewShell className="h-[22rem]">
+      <NotFoundPage
+        className="h-full min-h-0"
+        onAction={noop}
+        secondaryLabel="Contact support"
+        onSecondaryAction={noop}
+      />
+    </LayoutPreviewShell>
+  )
+}
+
+export function ErrorPagePreview() {
+  return (
+    <LayoutPreviewShell className="h-[24rem]">
+      <ErrorPage
+        className="h-full min-h-0"
+        detail="digest_8f3a91c2"
+        onAction={noop}
+        secondaryLabel="Contact support"
+        onSecondaryAction={noop}
+      />
+    </LayoutPreviewShell>
   )
 }

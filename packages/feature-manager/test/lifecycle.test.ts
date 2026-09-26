@@ -69,7 +69,7 @@ function createFixture(): string {
   // ── alpha ──
   write(
     root,
-    "features/alpha/feature.json",
+    "packages/feature-manager/features/alpha/feature.json",
     `${JSON.stringify(
       {
         name: "alpha",
@@ -95,18 +95,18 @@ function createFixture(): string {
       2,
     )}\n`,
   )
-  write(root, "features/alpha/web/components/alpha.tsx", "export const alpha = 1\n")
-  write(root, "features/alpha/web/components/shared.tsx", ALPHA_SHARED)
-  write(root, "features/alpha/docs/alpha.mdx", "# Alpha\n")
-  write(root, "features/alpha/snippets/imports.ts", "import { alpha } from './alpha'")
-  write(root, "features/alpha/snippets/nav.ts", "  { label: 'Alpha', href: '/alpha' },")
-  write(root, "features/alpha/snippets/card.mdx", '<Card title="Alpha" href="/docs/alpha" />')
-  write(root, "features/alpha/snippets/readme.md", "- **alpha** — Alpha feature")
+  write(root, "packages/feature-manager/features/alpha/web/components/alpha.tsx", "export const alpha = 1\n")
+  write(root, "packages/feature-manager/features/alpha/web/components/shared.tsx", ALPHA_SHARED)
+  write(root, "packages/feature-manager/features/alpha/docs/alpha.mdx", "# Alpha\n")
+  write(root, "packages/feature-manager/features/alpha/snippets/imports.ts", "import { alpha } from './alpha'")
+  write(root, "packages/feature-manager/features/alpha/snippets/nav.ts", "  { label: 'Alpha', href: '/alpha' },")
+  write(root, "packages/feature-manager/features/alpha/snippets/card.mdx", '<Card title="Alpha" href="/docs/alpha" />')
+  write(root, "packages/feature-manager/features/alpha/snippets/readme.md", "- **alpha** — Alpha feature")
 
   // ── beta (requires alpha, shares a file, conflicts on react) ──
   write(
     root,
-    "features/beta/feature.json",
+    "packages/feature-manager/features/beta/feature.json",
     `${JSON.stringify(
       {
         name: "beta",
@@ -126,14 +126,14 @@ function createFixture(): string {
       2,
     )}\n`,
   )
-  write(root, "features/beta/web/components/shared.tsx", BETA_SHARED)
-  write(root, "features/beta/web/components/beta.tsx", "export const beta = 1\n")
-  write(root, "features/beta/snippets/nav.ts", "  { label: 'Beta', href: '/beta' },")
+  write(root, "packages/feature-manager/features/beta/web/components/shared.tsx", BETA_SHARED)
+  write(root, "packages/feature-manager/features/beta/web/components/beta.tsx", "export const beta = 1\n")
+  write(root, "packages/feature-manager/features/beta/snippets/nav.ts", "  { label: 'Beta', href: '/beta' },")
 
   // ── delta (overwrites a pre-existing, unowned file) ──
   write(
     root,
-    "features/delta/feature.json",
+    "packages/feature-manager/features/delta/feature.json",
     `${JSON.stringify(
       {
         name: "delta",
@@ -145,12 +145,12 @@ function createFixture(): string {
       2,
     )}\n`,
   )
-  write(root, "features/delta/web/existing.tsx", "DELTA\n")
+  write(root, "packages/feature-manager/features/delta/web/existing.tsx", "DELTA\n")
 
   // ── gamma (fails part-way through the copy phase) ──
   write(
     root,
-    "features/gamma/feature.json",
+    "packages/feature-manager/features/gamma/feature.json",
     `${JSON.stringify(
       {
         name: "gamma",
@@ -167,10 +167,10 @@ function createFixture(): string {
       2,
     )}\n`,
   )
-  write(root, "features/gamma/web/existing.tsx", "REPLACED\n")
-  write(root, "features/gamma/web/gamma-new.tsx", "export const gamma = 1\n")
-  write(root, "features/gamma/web/broken.tsx", "export const broken = 1\n")
-  write(root, "features/gamma/snippets/readme.md", "- **gamma** — Gamma")
+  write(root, "packages/feature-manager/features/gamma/web/existing.tsx", "REPLACED\n")
+  write(root, "packages/feature-manager/features/gamma/web/gamma-new.tsx", "export const gamma = 1\n")
+  write(root, "packages/feature-manager/features/gamma/web/broken.tsx", "export const broken = 1\n")
+  write(root, "packages/feature-manager/features/gamma/snippets/readme.md", "- **gamma** — Gamma")
 
   return root
 }
@@ -441,7 +441,7 @@ test("rejects manifests that try to write outside the repository", () => {
   const root = createFixture()
   write(
     root,
-    "features/evil/feature.json",
+    "packages/feature-manager/features/evil/feature.json",
     `${JSON.stringify(
       {
         name: "evil",
@@ -453,7 +453,7 @@ test("rejects manifests that try to write outside the repository", () => {
       2,
     )}\n`,
   )
-  write(root, "features/evil/payload.ts", "export const evil = 1\n")
+  write(root, "packages/feature-manager/features/evil/payload.ts", "export const evil = 1\n")
 
   const result = installFeature({ root, name: "evil" })
   assert.equal(result.ok, false)
@@ -467,8 +467,8 @@ test("--force upgrades an installed feature and clears the version drift", () =>
 
   write(
     root,
-    "features/alpha/feature.json",
-    read(root, "features/alpha/feature.json").replace('"version": "1.0.0"', '"version": "2.0.0"'),
+    "packages/feature-manager/features/alpha/feature.json",
+    read(root, "packages/feature-manager/features/alpha/feature.json").replace('"version": "1.0.0"', '"version": "2.0.0"'),
   )
 
   const drifted = verify(root)
@@ -527,7 +527,7 @@ test("a feature whose marker region is missing installs with a warning instead o
   write(root, "apps/web/components/plain.tsx", "export const plain = 1\n")
   write(
     root,
-    "features/partial/feature.json",
+    "packages/feature-manager/features/partial/feature.json",
     `${JSON.stringify(
       {
         name: "partial",
@@ -542,8 +542,8 @@ test("a feature whose marker region is missing installs with a warning instead o
       2,
     )}\n`,
   )
-  write(root, "features/partial/plain.tsx", "export const partial = 1\n")
-  write(root, "features/partial/snippet.ts", "// snippet")
+  write(root, "packages/feature-manager/features/partial/plain.tsx", "export const partial = 1\n")
+  write(root, "packages/feature-manager/features/partial/snippet.ts", "// snippet")
 
   const result = installFeature({ root, name: "partial" })
   assert.equal(result.ok, true)
@@ -560,7 +560,7 @@ test("--strict escalates warnings into a blocking error", () => {
   write(root, "apps/web/components/plain.tsx", "export const plain = 1\n")
   write(
     root,
-    "features/partial/feature.json",
+    "packages/feature-manager/features/partial/feature.json",
     `${JSON.stringify(
       {
         name: "partial",
@@ -574,7 +574,7 @@ test("--strict escalates warnings into a blocking error", () => {
       2,
     )}\n`,
   )
-  write(root, "features/partial/snippet.ts", "// snippet")
+  write(root, "packages/feature-manager/features/partial/snippet.ts", "// snippet")
 
   const result = installFeature({ root, name: "partial", strict: true })
   assert.equal(result.ok, false)

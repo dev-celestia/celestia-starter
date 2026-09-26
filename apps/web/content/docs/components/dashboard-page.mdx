@@ -1,0 +1,51 @@
+---
+title: "Dashboard Page"
+description: "Overview page with a metric tile grid, loading skeletons, empty slot and a secondary column — composed on top of PageShell."
+---
+
+The overview page for a dashboard: a header, a headline-metric tile grid, main content and an optional secondary column rendered beside it from `xl` up.
+
+It composes [PageShell](/docs/components/page-shell) rather than re-implementing the header, so a dashboard page gets the same sticky header, width presets and `actions` slot as any other page. The tile grid swaps to skeletons while `loading` is set — sized from the data when it is already known, and from `statColumns` when it is not, so the grid shape holds across the load.
+
+<DashboardPagePreview />
+
+```tsx
+import { DashboardPage, Card, CardHeader, CardTitle } from "@celestia-project/ui/layout/dashboard-page"
+
+export function OverviewPage() {
+  return (
+    <DashboardPage
+      title="Overview"
+      description="Everything happening across your workspace."
+      width="xl"
+      stickyHeader
+      statColumns={4}
+      actions={<Button size="sm">New project</Button>}
+      stats={[
+        { id: "mrr", label: "Monthly revenue", value: "$48,290", delta: "+12.4%", trend: "up" },
+        { id: "users", label: "Active users", value: "12,847", delta: "+3.1%", trend: "up" },
+        { id: "churn", label: "Churn", value: "1.8%", delta: "-0.4%", trend: "down" },
+      ]}
+      aside={<ActivityFeed />}
+    >
+      <Card>
+        <CardHeader>
+          <CardTitle>Traffic</CardTitle>
+        </CardHeader>
+      </Card>
+    </DashboardPage>
+  )
+}
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `stats` | `DashboardStat[]` | — | Headline metrics rendered as tiles |
+| `statColumns` | `2 \| 3 \| 4` | `4` | Column count of the tile grid from `sm` up |
+| `loading` | `boolean` | `false` | Swaps the tile grid for skeletons while metrics load |
+| `empty` | `React.ReactNode` | — | Replaces the tile grid when it has no items |
+| `aside` | `React.ReactNode` | — | Secondary column, rendered beside the content from `xl` up |
+
+Plus every [PageShell](/docs/components/page-shell) prop (`title`, `description`, `actions`, `width`, `stickyHeader`, …).
+
+`DashboardStat` is `{ id, label, value, delta?, trend?, hint?, icon? }`. `delta` is a pre-formatted string — formatting belongs at the call site — and `trend` (`"up" | "down" | "flat"`) colours it, with `flat` deliberately neutral. Colour carries the direction, but the delta text states the change so the tile still reads without colour vision.

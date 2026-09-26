@@ -471,7 +471,7 @@ export function ChatAiSection() {
           <div className="w-full max-w-xl">
             <PromptInput
               onSubmit={() => {}}
-              className="w-full rounded-2xl border border-border/80 bg-background/90 p-3 shadow-sm backdrop-blur-md transition-all focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/20"
+              className="w-full rounded-2xl border border-border/80 bg-background/90 p-3 shadow-sm backdrop-blur-md transition-all focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary"
             >
               <PromptInputHeader className="flex items-center justify-between pb-2 border-b border-border/40">
                 <PromptInputSelect value={selectedModel} onValueChange={(val) => { if (typeof val === "string") setSelectedModel(val) }}>

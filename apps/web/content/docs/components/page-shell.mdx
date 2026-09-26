@@ -1,0 +1,40 @@
+---
+title: "Page Shell"
+description: "App page frame with blurred sticky header, title, description, trailing actions and width presets."
+---
+
+The frame for any in-app page that is not a dashboard or profile: a blurred header with title, description and trailing actions above a width-capped content column. [DashboardPage](/docs/components/dashboard-page), [ListPage](/docs/components/list-page) and [BillingPage](/docs/components/billing-page) all compose on `PageShell`, so dropping down to it keeps you in the same visual system.
+
+The header only renders when at least one of `title`, `description` or `actions` is set.
+
+<PageShellPreview />
+
+```tsx
+import { PageShell, Button } from "@celestia-project/ui/layout/page-shell"
+
+<PageShell
+  title="Projects"
+  description="Everything your team is building this quarter."
+  width="lg"
+  stickyHeader
+  actions={
+    <>
+      <Button variant="outline">Import</Button>
+      <Button>New project</Button>
+    </>
+  }
+>
+  {/* scrollable page content */}
+</PageShell>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `title` | `React.ReactNode` | — | Page title in the header |
+| `description` | `React.ReactNode` | — | Supporting line under the title |
+| `actions` | `React.ReactNode` | — | Actions on the trailing edge of the header |
+| `stickyHeader` | `boolean` | `false` | Sticks the header to the top of the scroll container |
+| `width` | `"full" \| "md" \| "lg" \| "xl"` | `"full"` | Max content width (`md` = 3xl, `lg` = 5xl, `xl` = 7xl) |
+| `padded` | `boolean` | `true` | Content padding; turn off when the page supplies its own |
+
+Accepts all `<div>` props. Pass `className="h-full"` when nesting inside a fixed-height frame or a route-group layout.

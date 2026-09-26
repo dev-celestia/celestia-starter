@@ -1,0 +1,32 @@
+---
+title: "Status Page"
+description: "One full-viewport frame behind every not-the-page-you-asked-for state — 404, 403, 500, 503, maintenance."
+---
+
+The full-viewport status screen — the frame shared by every "this page is not the page you asked for" state. It exists so [NotFoundPage](/docs/components/not-found-page) and [ErrorPage](/docs/components/error-page) are thin wrappers that differ only in defaults and in whether they surface a technical detail, rather than two copies of the same centering, spacing and action-row markup. Reach for `StatusPage` directly when the two defaults don't cover your state (403, 503, maintenance).
+
+<StatusPagePreview />
+
+```tsx
+import { StatusPage } from "@celestia-project/ui/layout/status-page"
+
+<StatusPage
+  code="403"
+  title="You do not have access"
+  description="Ask a workspace admin to invite you."
+  actionLabel="Back to dashboard"
+  onAction={() => router.push("/")}
+/>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `code` | `React.ReactNode` | — | Large status code above the title; omit when passing `icon` |
+| `icon` | `React.ReactNode` | — | Replaces the status code with a mark |
+| `title` / `description` | `string` | — | Copy under the code |
+| `detailLabel` | `string` | — | Caption above the technical block |
+| `detail` | `React.ReactNode` | — | Error digest, trace id or request id — rendered in a monospace block, so keep it to something a person can read out loud |
+| `actionLabel` / `onAction` | `string` / `() => void` | `"Go back"` / — | Primary call to action |
+| `secondaryLabel` / `onSecondaryAction` | `string` / `() => void` | — | Secondary call to action |
+
+Accepts all `<div>` props. Actions render only when their handlers are set.

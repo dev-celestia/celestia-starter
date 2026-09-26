@@ -23,7 +23,7 @@ The Celestia Design System is a production-grade, accessible UI foundation packa
 - **No colour literals in components.** Add a token to `globals.css` instead. The only exceptions are documentation previews that display raw values.
 - **Never write `--x: var(--x)`.** A self-reference is a CSS dependency cycle and silently resolves to nothing, breaking the utility that consumes it.
 - **Elevation must increase**: `--background` < `--card` < `--muted`/`--secondary`.
-- **Every focus ring is `focus-visible:ring-2 focus-visible:ring-ring`** — 2px at full strength. Diluted rings (`ring-ring/30`) fail WCAG 2.4.11.
+- **Every focus ring is `focus-visible:ring-2 focus-visible:ring-ring`** — 2px at full strength. Diluted rings (`ring-ring/30`) fail WCAG 2.4.11. Enforced mechanically by `pnpm audit:ui`.
 - **Pair every surface with a foreground.** A surface token without a matching `-foreground` token is an accessibility bug waiting to happen.
 
 ---
@@ -123,7 +123,7 @@ Instead, add the `@source` directive in your main CSS file (`globals.css`):
   --color-surface: hsl(var(--surface, 0 0% 8%));
   --color-text-primary: hsl(var(--text, 0 0% 96%));
   --color-fog: hsl(var(--fog, 0 0% 53%));
-  --color-stroke: hsl(var(--stroke, 0 0% 12%));
+  --color-stroke: hsl(var(--stroke, 0 0% 15%));
 
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
@@ -183,9 +183,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   );
 }
 ```
-
-Inside this starter, mode switching and the accent/radius overrides are owned by
-the centralized theme module in `apps/web/lib/theme` — see [Theming](/docs/theming).
 
 ---
 
@@ -318,20 +315,76 @@ Gradient: `linear-gradient(90deg, hsl(var(--brand)) 0%, hsl(var(--brand-deep)) 1
 | `--surface` | `bg-surface` | `hsl(0 0% 8%)` ≈ `#141414` | Cards, raised panels |
 | `--text` | `text-text-primary` | `hsl(0 0% 96%)` ≈ `#f5f5f5` | Headings, primary copy |
 | `--fog` | `text-fog` | `hsl(0 0% 53%)` ≈ `#878787` | Secondary / muted copy |
-| `--stroke` | `border-stroke` | `hsl(0 0% 12%)` ≈ `#1f1f1f` | Borders, dividers |
+| `--stroke` | `border-stroke` | `hsl(0 0% 15%)` ≈ `#262626` | Borders, dividers |
 
 These are **forced dark** — literal HSL values that ignore the `.dark` class, so
 they only belong on a page that has opted into dark explicitly.
 
 | Page | Theme | Tokens to use |
 |---|---|---|
-| `/` (agency landing) | Follows the user's theme, with the theme customizer in the navbar | Semantic (`bg-background`, `text-foreground`, `text-muted-foreground`, `border-border`) |
+| `/` (home) | Always dark, via `<div className="landing dark">` | Landing palette + brand |
 | `/feature-installer` | Always dark, via `<main className="dark bg-bg text-text-primary">` | Landing palette + brand |
+| `/docs`, `/design-system`, `/components` | Follows the user's theme | Semantic (`bg-background`, `text-foreground`, `text-muted-foreground`, `border-border`) |
 
 Do not mix the two on one page. A single `bg-bg` bar inside an otherwise
 theme-switchable page renders as a black stripe across a white page in light
 mode — which is exactly what the landing nav did before it moved to
 `bg-background/85`.
+
+### Landing surface layer
+
+`apps/web/app/landing.css` carries the bespoke CSS the home page is built from.
+It is deliberately plain CSS rather than utilities, for two reasons: the
+compositions are long enough that a utility soup would be unreadable, and the
+same class layer is shared with `/feature-installer`.
+
+```txt
+apps/web/
+├── app/landing.css              # the .landing-* class layer + layout primitives
+└── components/landing/
+    ├── content.ts               # all copy, as typed data
+    ├── icons.ts                 # name → Phosphor icon map
+    ├── landing-nav.tsx          # sticky nav + mobile Sheet
+    ├── landing-hero.tsx         # headline, actions, trust strip
+    ├── command-bar.tsx          # the hero's copy-to-clipboard command bar
+    ├── landing-trace.tsx        # the request-trace panel
+    ├── landing-features.tsx     # feature cards
+    ├── landing-packages.tsx     # workspace package cards
+    ├── landing-lifecycle.tsx    # feature-manager steps + ledger panel
+    ├── landing-boundaries.tsx   # boundary rules + check panel
+    ├── landing-metrics.tsx      # counted metrics strip
+    ├── landing-cta.tsx
+    └── landing-footer.tsx
+```
+
+Three conventions this file follows, all of them load-bearing:
+
+1. **Colours are written as `hsl(var(--token))`**, not `var(--color-token)`. The
+   `--color-*` names are Tailwind theme variables and Tailwind only emits the
+   ones a utility references, so a plain stylesheet that depends on them breaks
+   the day the last utility using them is deleted. `--bg`, `--surface`, `--text`,
+   `--fog`, `--stroke` and `--brand` are always present.
+2. **Layout primitives are scoped under `.landing`** (`.landing .container`,
+   `.landing .stack-lg`, `.landing .grid-auto`, …). Unscoped, `.container` and
+   `.grow` would silently override Tailwind's own utilities of the same name on
+   every page that loads this stylesheet.
+3. **Theme-derived tokens are read with a fallback equal to their current value**
+   — `var(--text-2xs, 11px)`, `var(--radius-xl, 0.875rem)` — so a build that
+   drops an unreferenced theme variable degrades to the intended pixel value
+   instead of to nothing.
+
+The landing is composed from the same library components as the app
+(`Button`, `Badge`, `Separator`, `Progress`, `Kbd`, `Sheet`, `InputGroup*`).
+Where a component needs a size the library does not offer — the hero's
+full-height command bar — the override targets the library's own
+`data-slot` contract rather than passing a utility `className`:
+
+```css
+.landing-ask [data-slot="input-group"] {
+  height: 3.5rem;
+  border-radius: var(--radius-xl, 0.875rem);
+}
+```
 
 ### Radii Scale
 
@@ -396,7 +449,41 @@ One canonical treatment across the whole system:
 2px at full strength. WCAG 2.4.11 requires a focus indicator of at least 3:1
 against adjacent colours; `--ring` is picked to clear that in both themes
 (4.88:1 on white, 4.18:1 on the dark base). Do **not** dilute it with
-`ring-ring/30` — that drops the indicator to roughly 1.4:1.
+`ring-ring/30` — that drops the indicator to **1.48:1** (light) and **1.38:1**
+(dark), below the floor in both themes. `ring-ring/50` reaches only 1.98:1.
+
+A `focus-within` ring on a wrapper (`InputGroup`, `Combobox`, `Attachment`) is
+subject to the same rule: the trigger may differ, the dilution may not.
+
+This is enforced, not just documented. `pnpm audit:ui` runs
+`scripts/ui-audit/focus-rings.mjs`, which fails on any diluted ring in a
+`focus-visible` / `focus-within` / `data-[active]` / `data-[focused]` context,
+and on any width other than 2px — `ring-0` is allowed, for an input that defers
+to an ancestor owning the ring.
+
+One deliberate exception: `aria-invalid:ring-destructive/20` stays diluted. The
+same class list sets a full-strength `border-destructive`, so the border carries
+the invalid signal and the ring is decoration. The guard warns rather than fails.
+
+### Verification
+
+```bash
+pnpm audit:ui                 # all static checks, one pass
+node scripts/ui-audit/run.mjs --verbose
+```
+
+| Check | Catches |
+|---|---|
+| `contrast.mjs` | Token colour pairs below threshold, in both themes. Reads the values out of `globals.css`, so it cannot drift from them. |
+| `token-parity.mjs` | A token declared in `:root` but not `.dark` (silently inherits the light value), and a `--font-*` self-reference. |
+| `compile-tokens.mjs` | Custom-property cycles, and a token namespace that generates no utility (wrong namespace, or declared in `:root` instead of `@theme`). |
+| `focus-rings.mjs` | A diluted or wrong-width focus ring. |
+| `feature-drift.mjs` | A feature package writing a new file into `packages/ui/` without a barrel export — dead code inside a published package. |
+
+Each check carries a **control** that must produce the opposite result, so a
+detector that matches too loosely cannot pass everything: `compile-tokens.mjs`
+asserts a class that must be *absent*, and `contrast.mjs` runs a known-good pair
+first and aborts if it fails.
 
 ### Accessibility baseline
 

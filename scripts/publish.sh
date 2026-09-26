@@ -6,6 +6,7 @@
 #    bash scripts/publish.sh                         # publish all
 #    bash scripts/publish.sh --pkg ui                # publish only ui
 #    bash scripts/publish.sh --pkg cli               # publish only cli
+#    bash scripts/publish.sh --pkg mobile            # publish only mobile
 #    bash scripts/publish.sh --bump patch            # bump all + publish
 #    bash scripts/publish.sh --pkg ui --bump minor   # bump ui only + publish
 #    bash scripts/publish.sh --dry-run               # dry run all
@@ -31,6 +32,7 @@ get_pkg_dir() {
   case "$1" in
     ui) echo "packages/ui" ;;
     cli) echo "packages/cli" ;;
+    mobile) echo "packages/mobile" ;;
     *) echo "" ;;
   esac
 }
@@ -44,7 +46,7 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --dry-run)  DRY_RUN="--dry-run" ;;
     --bump)     BUMP="${2:?'--bump requires: patch | minor | major'}"; shift ;;
-    --pkg)      TARGET="${2:?'--pkg requires a package name: ui | cli'}"; shift ;;
+    --pkg)      TARGET="${2:?'--pkg requires a package name: ui | cli | mobile'}"; shift ;;
     *) error "Unknown argument: $1" ;;
   esac
   shift
@@ -54,16 +56,16 @@ done
 if [[ -n "$TARGET" ]]; then
   PKG_DIR=$(get_pkg_dir "$TARGET")
   if [[ -z "$PKG_DIR" ]]; then
-    error "Unknown package \"${TARGET}\". Valid options: ui, cli"
+    error "Unknown package \"${TARGET}\". Valid options: ui, cli, mobile"
   fi
   SELECTED=("$TARGET")
 else
-  SELECTED=("ui" "cli")
+  SELECTED=("ui" "cli" "mobile")
 fi
 
-# Respect a stable publish order: ui first, then cli
+# Respect a stable publish order: ui first, then cli, then mobile
 ORDERED=()
-for KEY in ui cli; do
+for KEY in ui cli mobile; do
   for S in "${SELECTED[@]}"; do
     if [[ "$S" == "$KEY" ]]; then ORDERED+=("$KEY"); fi
   done
@@ -100,7 +102,7 @@ fi
 info "Installing dependencies..."
 pnpm install --frozen-lockfile
 
-# Only build ui if it's in the target set
+# Only build ui if it's in the target set (mobile ships source directly — no build step)
 for KEY in "${ORDERED[@]}"; do
   if [[ "$KEY" == "ui" ]]; then
     info "Building @celestia-project/ui..."

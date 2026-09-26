@@ -1,0 +1,57 @@
+---
+title: "Settings Page"
+description: "Section navigation beside stacked panels. Inactive panels stay mounted, so half-typed input survives a section switch."
+---
+
+A settings screen: a section navigation column beside stacked panels, with an optional `actions` slot in the header and destructive sections rendered in the destructive tone.
+
+Every panel is rendered and the inactive ones are hidden, rather than the active panel being swapped in. That keeps uncontrolled inputs — half-typed passwords, unsaved toggles — alive while the user moves between sections, which is exactly what a settings page is for. Sections often arrive after a fetch; if the active id is no longer present, the page falls back to the first section.
+
+<SettingsPagePreview />
+
+```tsx
+import { SettingsPage } from "@celestia-project/ui/layout/settings-page"
+
+export function SettingsScreen() {
+  return (
+    <SettingsPage
+      title="Settings"
+      description="Manage your workspace."
+      sections={[
+        {
+          id: "general",
+          label: "General",
+          description: "Workspace identity and defaults.",
+          icon: <GearSixIcon />,
+          content: <GeneralForm />,
+        },
+        {
+          id: "billing",
+          label: "Billing",
+          icon: <CreditCardIcon />,
+          content: <BillingPanel />,
+        },
+        {
+          id: "danger",
+          label: "Danger zone",
+          icon: <TrashIcon />,
+          danger: true,
+          content: <DeleteWorkspace />,
+        },
+      ]}
+    />
+  )
+}
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `sections` | `SettingsSection[]` | — (required) | Section navigation and panel content |
+| `value` / `defaultValue` / `onValueChange` | `string` / `string` / `(id) => void` | — | Controlled or uncontrolled active section |
+| `actions` | `React.ReactNode` | — | Trailing actions in the header |
+| `title` / `description` | `React.ReactNode` | — | Header copy |
+| `navWidth` | `"sm" \| "md"` | `"md"` | Width of the section navigation column from `lg` up |
+| `navLabel` | `string` | `"Settings sections"` | Accessible name of the section navigation |
+| `width` | `"lg" \| "xl" \| "full"` | `"lg"` | Max width of the whole page |
+
+`SettingsSection` is `{ id, label, description?, icon?, content, danger? }`. The `id` doubles as the panel's `id` / `aria-controls` wiring; `danger: true` renders the entry in the destructive tone for delete, transfer and revoke actions.

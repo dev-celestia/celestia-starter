@@ -48,7 +48,7 @@ export interface ManifestValidation {
 export interface ValidateOptions {
   root: string
   featureDir: string
-  /** Names of features that exist under features/ (for `requires`). */
+  /** Names of features that exist under the features directory (for `requires`). */
   available: Set<string>
   /** Names of features recorded as installed (for `requires`). */
   installed: Set<string>
@@ -233,7 +233,7 @@ export function validateManifest(
   // ── requires ──
   for (const dep of manifest.requires) {
     if (dep === manifest.name) errors.push(`"requires" cannot list itself.`)
-    else if (!available.has(dep)) errors.push(`"requires" lists "${dep}", which is not a feature in features/.`)
+    else if (!available.has(dep)) errors.push(`"requires" lists "${dep}", which is not a feature in packages/feature-manager/features/.`)
     else if (!installed.has(dep)) warnings.push(`Requires "${dep}", which is not installed yet.`)
   }
 
@@ -379,7 +379,7 @@ export function loadManifest(featureDir: string): { raw: FeatureManifest; manife
   return { raw: typed, manifest: normalizeManifest(typed) }
 }
 
-/** Enumerate `features/<name>/` directories that contain a feature.json. */
+/** Enumerate the feature directories (each containing a feature.json) under `featuresDir`. */
 export function discoverFeatures(featuresDir: string): DiscoveredFeature[] {
   if (!existsSync(featuresDir)) return []
   return readdirSync(featuresDir, { withFileTypes: true })

@@ -4,6 +4,7 @@
     "index",
     "cli",
     "packages",
+    "mobile",
     "features",
     "design-system",
     "theming",

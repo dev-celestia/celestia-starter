@@ -1,0 +1,30 @@
+---
+title: "Error Page"
+description: "5xx screen with the technical digest a support ticket actually needs."
+---
+
+The 5xx / unexpected-failure screen — a sibling of [NotFoundPage](/docs/components/not-found-page) on the same [StatusPage](/docs/components/status-page) frame. What separates them is `detail`: a 404 is fully explained by its own copy, whereas a server error is the one case where showing the reader an opaque digest actually helps, because it is the thing they will paste into a bug report. Omit `detail` and the technical block does not render at all — the right default for a page a customer might screenshot.
+
+<ErrorPagePreview />
+
+```tsx
+import { ErrorPage } from "@celestia-project/ui/layout/error-page"
+
+<ErrorPage
+  detail="digest_8f3a91c2"
+  onAction={() => window.location.reload()}
+  secondaryLabel="Contact support"
+  onSecondaryAction={() => router.push("/support")}
+/>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `code` | `string` | `"500"` | Status code shown above the title |
+| `title` | `string` | `"Something went wrong"` | Headline |
+| `description` | `string` | `"An unexpected error occurred on our side. The team has been notified."` | Supporting copy |
+| `detail` | `React.ReactNode` | — | Error digest, trace id or request id in a monospace block |
+| `detailLabel` | `string` | `"Error details"` | Caption above the technical block |
+| `actionLabel` / `onAction` | `string` / `() => void` | `"Try again"` / — | Primary call to action — normally a retry |
+| `secondaryLabel` / `onSecondaryAction` | `string` / `() => void` | — | Secondary call to action |
+| `icon` | `React.ReactNode` | — | Replaces the status code with a mark |

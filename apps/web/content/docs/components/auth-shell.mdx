@@ -1,0 +1,58 @@
+---
+title: "Auth Shell"
+description: "Authentication page frame with logo, heading, provider aside, footer, and centered or split-screen variants."
+---
+
+The frame every signed-out screen starts from: a centered card or a split-screen layout with a brand mark, heading, social/SSO slot, and footer. Build a bespoke screen on `AuthShell` when the ready-made pages (`SignInPage`, `SignUpPage`, …) don't fit — they compose on the same shell, so everything stays visually consistent.
+
+In the `split` variant the side panel renders on the leading edge and hides below `lg`, where a half-width panel would starve the form.
+
+<AuthShellPreview />
+
+```tsx
+import { AuthShell, Button } from "@celestia-project/ui/layout/auth-shell"
+
+<AuthShell
+  variant="split"
+  maxWidth="md"
+  logo={<BrandMark />}
+  heading="Welcome back"
+  subheading="Sign in to your account to continue"
+  aside={
+    <div className="grid grid-cols-2 gap-3">
+      <Button variant="outline" className="w-full">Google</Button>
+      <Button variant="outline" className="w-full">GitHub</Button>
+    </div>
+  }
+  sidePanel={
+    <div className="flex h-full flex-col justify-end p-10">
+      <blockquote className="text-lg font-medium leading-snug">
+        Ship faster with a system that already agrees.
+      </blockquote>
+    </div>
+  }
+  footer={
+    <>
+      Don't have an account?{" "}
+      <a href="/sign-up" className="text-primary font-medium hover:underline">
+        Sign up
+      </a>
+    </>
+  }
+>
+  <form>{/* email + password fields */}</form>
+</AuthShell>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `heading` | `string` | — (required) | Headline above the form |
+| `subheading` | `string` | — | Supporting line under the heading |
+| `logo` | `React.ReactNode` | — | Brand mark rendered above the heading |
+| `aside` | `React.ReactNode` | — | Social / SSO providers, rendered above a divider |
+| `footer` | `React.ReactNode` | — | Footer text, typically a "Don't have an account?" link |
+| `sidePanel` | `React.ReactNode` | — | Side panel content for the `split` variant (hidden below `lg`) |
+| `variant` | `"centered" \| "split"` | `"centered"` | Layout variant |
+| `maxWidth` | `"sm" \| "md" \| "lg"` | `"sm"` | Max width of the form column |
+
+Accepts all `<div>` props (`className`, `children`, …). `SignInPage`, `SignUpPage`, `ForgotPasswordPage`, `ResetPasswordPage` and `TwoFactorPage` all render on this shell.

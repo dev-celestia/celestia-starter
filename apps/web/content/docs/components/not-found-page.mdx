@@ -1,0 +1,29 @@
+---
+title: "Not Found Page"
+description: "404 state with oversized status code, optional icon slot, and primary and secondary calls to action."
+---
+
+The 404 screen — a thin wrapper over [StatusPage](/docs/components/status-page) that supplies the copy. The frame itself lives in one place so it and [ErrorPage](/docs/components/error-page) cannot drift apart.
+
+<NotFoundPagePreview />
+
+```tsx
+import { NotFoundPage } from "@celestia-project/ui/layout/not-found-page"
+
+<NotFoundPage
+  onAction={() => router.push("/")}
+  secondaryLabel="Contact support"
+  onSecondaryAction={() => router.push("/support")}
+/>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `code` | `string` | `"404"` | Status code shown above the title |
+| `title` | `string` | `"Page not found"` | Headline |
+| `description` | `string` | `"The page you're looking for doesn't exist or has been moved."` | Supporting copy |
+| `actionLabel` / `onAction` | `string` / `() => void` | `"Go home"` / — | Primary call to action |
+| `secondaryLabel` / `onSecondaryAction` | `string` / `() => void` | — | Secondary call to action |
+| `icon` | `React.ReactNode` | — | Replaces the status code with a mark |
+
+With no props at all it renders a complete 404 — override only what you want to change.

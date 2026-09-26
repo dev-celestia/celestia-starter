@@ -36,7 +36,7 @@ These tokens are always dark and used exclusively on the landing page. They're d
 | `--surface` | `bg-surface` | Cards, raised panels | `hsl(0 0% 8%)` | `#141414` |
 | `--text` | `text-text-primary` | Headings, primary copy | `hsl(0 0% 96%)` | `#f5f5f5` |
 | (literal) | `text-fog` | Secondary/muted copy | `hsl(0 0% 53%)` | `#878787` |
-| `--stroke` | `border-stroke` | Borders, dividers | `hsl(0 0% 12%)` | `#1f1f1f` |
+| `--stroke` | `border-stroke` | Borders, dividers | `hsl(0 0% 15%)` | `#262626` |
 
 ### Brand Accent
 
@@ -180,7 +180,7 @@ Instead, add the `@source` directive in your project's main stylesheet (e.g. `sr
   --color-surface: hsl(var(--surface, 0 0% 8%));
   --color-text-primary: hsl(var(--text, 0 0% 96%));
   --color-fog: hsl(0 0% 53%);
-  --color-stroke: hsl(var(--stroke, 0 0% 12%));
+  --color-stroke: hsl(var(--stroke, 0 0% 15%));
 
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
@@ -260,6 +260,8 @@ Below is the complete mapping of all 142 component modules in `packages/ui/src/c
 ### Layout & Structure
 
 The `layout/` family is the page-level layer: a few **shells** own the frame (centred/split for auth, rail + header + content for the signed-in app, and a full-viewport frame for status screens), and thin **page** components supply their own fields and defaults on top of a shell. Every member is also re-exported from the `@celestia-project/ui` barrel.
+
+Each member has a dedicated page with a live preview and a full prop reference — see the sidebar under **Layout & Pages**, starting at [Auth Shell](/docs/components/auth-shell) and [Page Shell](/docs/components/page-shell).
 
 | Module | Deep Import | Exported Sub-Components | Base Primitive |
 |--------|-------------|-------------------------|----------------|

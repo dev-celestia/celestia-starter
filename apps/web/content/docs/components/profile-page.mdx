@@ -1,0 +1,54 @@
+---
+title: "Profile Page"
+description: "Banner, overlapping avatar, identity block, metadata and headline numbers, with a sliding line-variant tab bar over the content."
+---
+
+A profile screen: banner with an overlapping avatar, identity block (name, handle, headline, bio), metadata and headline-number rows, trailing actions, and an optional tab bar over the content.
+
+The tab bar is a real [Tabs](/docs/components/tabs) list rather than a row of styled buttons, so arrow-key navigation and the sliding indicator come for free. Content is a sibling of the tab list rather than a `TabsContent` panel — you own routing between sections, and a panel wrapper would only add a layer that fights your own layout.
+
+<ProfilePagePreview />
+
+```tsx
+import { ProfilePage, Badge, Button } from "@celestia-project/ui/layout/profile-page"
+
+export function ProfileScreen() {
+  return (
+    <ProfilePage
+      name="Ada Lin"
+      handle="@ada"
+      headline="Head of Product"
+      bio="Building the design system that ships itself."
+      avatarFallback="AL"
+      badge={<Badge variant="secondary">Pro</Badge>}
+      meta={[{ id: "email", label: "ada@northwind.dev", icon: <EnvelopeSimpleIcon /> }]}
+      stats={[{ id: "posts", value: "128", label: "posts" }]}
+      actions={<Button size="sm">Edit profile</Button>}
+      tabs={[
+        { id: "overview", label: "Overview" },
+        { id: "activity", label: "Activity", count: 24 },
+      ]}
+    >
+      {/* active tab content */}
+    </ProfilePage>
+  )
+}
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `name` | `string` | — (required) | Display name |
+| `handle` | `React.ReactNode` | — | Secondary line under the name — handle, email or id |
+| `headline` | `React.ReactNode` | — | Role or job title |
+| `bio` | `React.ReactNode` | — | Bio paragraph |
+| `avatarSrc` / `avatarFallback` | `string` | — | Avatar image and fallback initials |
+| `cover` | `React.ReactNode` | — | Banner slot behind the avatar; a token gradient stands in when omitted |
+| `badge` | `React.ReactNode` | — | Badge beside the name — plan tier, role, verification |
+| `meta` | `ProfileMetaItem[]` | — | Icon + label rows (email, location, joined) |
+| `stats` | `ProfileStat[]` | — | Headline numbers under the identity block |
+| `actions` | `React.ReactNode` | — | Trailing actions in the header |
+| `tabs` | `ProfileTab[]` | — | Tab bar over the content |
+| `value` / `defaultValue` / `onValueChange` | `string` / `string` / `(id) => void` | — | Controlled or uncontrolled active tab |
+| `footer` | `React.ReactNode` | — | Slot under the identity block — a divider, a notice, an inline form |
+
+`ProfileTab` is `{ id, label, icon?, count? }`; `ProfileMetaItem` is `{ id, label, icon? }`. The role prop is named `headline` rather than `title` on purpose — `title` is a real DOM attribute on the root `<div>`, and re-declaring it would collide with the HTML tooltip.

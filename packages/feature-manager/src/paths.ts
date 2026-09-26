@@ -47,11 +47,17 @@ export function findRepoRoot(start: string = process.cwd()): string {
   }
 }
 
+/** Feature templates live inside the feature-manager package, not at the repo root. */
+const FEATURES_SUBPATH = join("packages", "feature-manager", "features")
+
+/** Repo-root-relative path of a feature's manifest, for user-facing messages. */
+export const manifestDisplayPath = (name: string) => `${FEATURES_SUBPATH}/${name}/feature.json`
+
 export function repoContext(root: string): RepoContext {
   const abs = resolve(root)
   return {
     root: abs,
-    featuresDir: join(abs, "features"),
+    featuresDir: join(abs, FEATURES_SUBPATH),
     trackerFile: join(abs, "features.json"),
   }
 }

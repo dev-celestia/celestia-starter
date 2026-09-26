@@ -149,7 +149,7 @@ export function planRemove(options: RemoveOptions): PlanResult<RemovePlan> {
     return {
       ok: false,
       errors: [
-        `No readable manifest for "${name}" in features/ — cannot determine what to revert.`,
+        `No readable manifest for "${name}" in packages/feature-manager/features/ — cannot determine what to revert.`,
         found?.error ?? "",
       ].filter(Boolean),
     }

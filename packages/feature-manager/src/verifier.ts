@@ -4,7 +4,7 @@ import { join } from "node:path"
 import { sha256File } from "./fsx.js"
 import { getAtPath } from "./markers.js"
 import { discoverFeatures, loadManifest, type NormalizedManifest } from "./manifest.js"
-import { repoContext } from "./paths.js"
+import { manifestDisplayPath, repoContext } from "./paths.js"
 import { claimers, currentOwner, readTracker } from "./state.js"
 import type { FeatureTracker } from "./types.js"
 
@@ -99,8 +99,8 @@ export function verify(root: string, only?: string): VerifyReport {
         code: "missing_manifest",
         severity: "error",
         feature: name,
-        file: `features/${name}/feature.json`,
-        message: `"${name}" is recorded as installed but features/${name}/feature.json is gone.`,
+        file: manifestDisplayPath(name),
+        message: `"${name}" is recorded as installed but ${manifestDisplayPath(name)} is gone.`,
         hint: `Re-create the feature directory, or drop the entry from features.json.`,
       })
     }
@@ -163,8 +163,8 @@ export function verify(root: string, only?: string): VerifyReport {
         code: "unreadable_manifest",
         severity: "error",
         feature: name,
-        file: `features/${name}/feature.json`,
-        message: found?.error ?? `features/${name}/feature.json could not be read.`,
+        file: manifestDisplayPath(name),
+        message: found?.error ?? `${manifestDisplayPath(name)} could not be read.`,
       })
       results.push({
         name,
@@ -195,7 +195,7 @@ export function verify(root: string, only?: string): VerifyReport {
         code: "version_drift",
         severity: "warning",
         feature: name,
-        message: `Installed v${record.version} but features/${name} is v${manifest.version}.`,
+        message: `Installed v${record.version} but packages/feature-manager/features/${name} is v${manifest.version}.`,
         hint: `Upgrade with: pnpm add-feature ${name} --force`,
       })
     }

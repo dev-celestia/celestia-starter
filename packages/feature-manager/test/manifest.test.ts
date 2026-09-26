@@ -27,13 +27,13 @@ function createRepo(): string {
   write(root, "apps/web/package.json", '{ "name": "web" }\n')
   write(root, "apps/web/content/docs/meta.json", '{ "pages": ["index"] }\n')
   write(root, "apps/web/components/sidebar.tsx", "// feature-manager:nav:begin\n// feature-manager:nav:end\n")
-  write(root, "features/alpha/feature.json", '{ "name": "alpha", "version": "1.0.0", "description": "A" }\n')
-  write(root, "features/alpha/template.ts", "export const a = 1\n")
-  write(root, "features/alpha/snippet.ts", "// snippet\n")
+  write(root, "packages/feature-manager/features/alpha/feature.json", '{ "name": "alpha", "version": "1.0.0", "description": "A" }\n')
+  write(root, "packages/feature-manager/features/alpha/template.ts", "export const a = 1\n")
+  write(root, "packages/feature-manager/features/alpha/snippet.ts", "// snippet\n")
   return root
 }
 
-function validate(root: string, raw: FeatureManifest, featureDir = join(root, "features/alpha")) {
+function validate(root: string, raw: FeatureManifest, featureDir = join(root, "packages/feature-manager/features/alpha")) {
   return validateManifest(raw, normalizeManifest(raw), {
     root,
     featureDir,
@@ -209,12 +209,12 @@ test("rejects a prerequisite that is not a feature at all", () => {
     description: "A",
     requires: ["nope"],
   })
-  assert.match(result.errors.join("\n"), /not a feature in features\//)
+  assert.match(result.errors.join("\n"), /not a feature in packages\/feature-manager\/features\//)
 })
 
 test("warns (but does not fail) on a prerequisite that is merely not installed", () => {
   const root = createRepo()
-  // "gamma" exists in features/ but is not installed.
+  // "gamma" exists in features dir but is not installed.
   const result = validate(root, {
     name: "alpha",
     version: "1.0.0",
@@ -290,10 +290,10 @@ test("warns when a dependency target has no package.json", () => {
 
 test("discovers features and reports unreadable manifests without throwing", () => {
   const root = createRepo()
-  write(root, "features/broken/feature.json", "{ not json")
-  write(root, "features/empty/README.md", "no manifest here")
+  write(root, "packages/feature-manager/features/broken/feature.json", "{ not json")
+  write(root, "packages/feature-manager/features/empty/README.md", "no manifest here")
 
-  const discovered = discoverFeatures(join(root, "features"))
+  const discovered = discoverFeatures(join(root, "packages/feature-manager/features"))
   assert.deepEqual(
     discovered.map((feature) => feature.name),
     ["alpha", "broken"],

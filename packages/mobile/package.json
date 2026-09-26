@@ -12,23 +12,60 @@
       "import": "./src/index.ts",
       "default": "./src/index.ts"
     },
-    "./*": {
-      "types": "./src/*.tsx",
-      "import": "./src/*.tsx",
-      "default": "./src/*.tsx"
+    "./tokens": {
+      "types": "./src/tokens.ts",
+      "import": "./src/tokens.ts",
+      "default": "./src/tokens.ts"
+    },
+    "./host": {
+      "types": "./src/host.tsx",
+      "import": "./src/host.tsx",
+      "default": "./src/host.tsx"
+    },
+    "./primitive": {
+      "types": "./src/components/primitive/index.ts",
+      "import": "./src/components/primitive/index.ts",
+      "default": "./src/components/primitive/index.ts"
+    },
+    "./primitive/*": {
+      "types": "./src/components/primitive/*.tsx",
+      "import": "./src/components/primitive/*.tsx",
+      "default": "./src/components/primitive/*.tsx"
+    },
+    "./composite": {
+      "types": "./src/components/composite/index.ts",
+      "import": "./src/components/composite/index.ts",
+      "default": "./src/components/composite/index.ts"
+    },
+    "./composite/*": {
+      "types": "./src/components/composite/*.tsx",
+      "import": "./src/components/composite/*.tsx",
+      "default": "./src/components/composite/*.tsx"
+    },
+    "./layout": {
+      "types": "./src/components/layout/index.ts",
+      "import": "./src/components/layout/index.ts",
+      "default": "./src/components/layout/index.ts"
+    },
+    "./layout/*": {
+      "types": "./src/components/layout/*.tsx",
+      "import": "./src/components/layout/*.tsx",
+      "default": "./src/components/layout/*.tsx"
     }
   },
   "files": [
     "src"
   ],
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write \"**/*.{ts,tsx}\""
   },
   "peerDependencies": {
     "@expo/ui": "^57.0.19",
     "expo-haptics": "^57.0.3",
     "react": "^19",
-    "react-native": "*"
+    "react-native": "*",
+    "react-native-safe-area-context": ">=5"
   },
   "devDependencies": {
     "@expo/ui": "^57.0.19",
@@ -38,7 +75,8 @@
     "@workspace/typescript-config": "workspace:*",
     "expo-haptics": "^57.0.3",
     "react": "19.2.4",
-    "react-native": "^0.87.1",
+    "react-native": "0.86.3",
+    "react-native-safe-area-context": "^5.0.0",
     "typescript": "^5"
   }
 }

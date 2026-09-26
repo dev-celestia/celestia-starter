@@ -29,8 +29,7 @@ celestia-starter/
 │   ├── ui/           # Shared shadcn/ui component library
 │   ├── eslint-config/
 │   ├── typescript-config/
-│   └── feature-manager/  # CLI for installing features
-└── features/         # Installable feature modules
+│   └── feature-manager/  # CLI for installing features (features/ templates live here)
 ```
 
 ## Getting Started
@@ -56,6 +55,7 @@ pnpm dev                               # starts web + api + docs
   <Card title="Backend API" href="/docs/backend" description="Standalone Hono backend with Drizzle, auth, and typed RPC" />
   <Card title="Dashboard" href="/docs/dashboard" description="Protected dashboard with sidebar, route protection, and settings" />
   <Card title="CLI" href="/docs/cli" description="Scaffold a new project interactively with npx @celestia-project/create" />
+  <Card title="Mobile (Expo)" href="/docs/mobile" description="Native iOS & Android components built on @expo/ui — primitives, composites and full-screen layout shells" />
   {/* feature-manager:cards:begin */}
   {/* feature-manager:cards:blog:begin */}
   <Card title="Blog (CRUD)" href="/docs/blog" description="Full create-read-update-delete blog over the typed RPC client" />

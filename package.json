@@ -5,8 +5,9 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
-    "lint": "turbo lint",
+    "lint": "node scripts/ui-audit/lint-coverage.mjs && turbo lint",
     "format": "turbo format",
+    "audit:ui": "node scripts/ui-audit/run.mjs",
     "typecheck": "turbo typecheck",
     "test": "turbo test",
     "docs": "turbo dev --filter=web",
@@ -21,6 +22,7 @@
     "publish:dry-run": "bash scripts/publish.sh --dry-run",
     "publish:ui": "bash scripts/publish.sh --pkg ui",
     "publish:cli": "bash scripts/publish.sh --pkg cli",
+    "publish:mobile": "bash scripts/publish.sh --pkg mobile",
     "bump:ui:patch": "bash scripts/publish.sh --pkg ui --bump patch",
     "bump:ui:minor": "bash scripts/publish.sh --pkg ui --bump minor",
     "bump:ui:major": "bash scripts/publish.sh --pkg ui --bump major",

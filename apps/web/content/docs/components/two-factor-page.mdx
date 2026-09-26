@@ -1,0 +1,35 @@
+---
+title: "Two-Factor Page"
+description: "OTP challenge built on InputOTP with configurable length, resend link and back navigation."
+---
+
+A two-factor challenge screen on the [AuthShell](/docs/components/auth-shell) frame, built on [InputOTP](/docs/components/input-otp): a configurable-length one-time code, a resend link (or a custom hint), back navigation, and pending/error states.
+
+<TwoFactorPagePreview />
+
+```tsx
+import { TwoFactorPage } from "@celestia-project/ui/layout/two-factor-page"
+
+<TwoFactorPage
+  length={6}
+  onBack={() => {
+    // router.push("/sign-in")
+  }}
+  onResend={() => {
+    // auth.sendTwoFactorCode()
+  }}
+  onSubmit={({ code }) => {
+    // auth.verifyTwoFactor({ code })
+  }}
+/>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `length` | `number` | `6` | Number of code digits |
+| `onSubmit` | `({ code }) => void` | — | Form submit handler |
+| `onResend` | `() => void` | — | Renders the resend link when set |
+| `resendHint` | `React.ReactNode` | — | Replaces the resend link when set (e.g. cooldown copy) |
+| `onBack` | `() => void` | — | Renders the "Back to sign in" footer link when set |
+| `backLabel` | `string` | `"Back to sign in"` | Back-link copy |
+| `loading` / `error` | `boolean` / `string` | `false` / — | Pending and error states |
