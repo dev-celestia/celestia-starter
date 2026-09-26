@@ -85,7 +85,7 @@ export const FEATURES: Feature[] = [
   {
     icon: "Cube",
     title: "Features that install themselves",
-    body: "Every feature ships as a package under features/ with a manifest describing the files it copies and the markers it edits. pnpm add-feature applies it transactionally and can roll the whole thing back.",
+    body: "Every feature ships as a package under packages/feature-manager/features/ with a manifest describing the files it copies and the markers it edits. pnpm add-feature applies it transactionally and can roll the whole thing back.",
   },
   {
     icon: "Key",
@@ -292,7 +292,7 @@ export interface Metric {
 /**
  * Counted from the repository, not estimated:
  *   88   — packages/ui primitives + composites + layouts
- *   7    — directories under features/
+ *   7    — directories under packages/feature-manager/features/
  *   163  — .mdx pages under apps/web/content/docs
  *   0    — secret env reads reachable from apps/web (that is the point)
  */

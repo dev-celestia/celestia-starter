@@ -204,7 +204,7 @@ Reusable `tsconfig` profiles that all workspace projects extend.
 
 ## @workspace/feature-manager
 
-A CLI and runtime registry that discovers, installs, and tracks features defined by `feature.json` manifests under the project's `features/` directory.
+A CLI and runtime registry that discovers, installs, and tracks features defined by `feature.json` manifests under the project's `packages/feature-manager/features/` directory.
 
 **CLI commands (via root scripts):**
 
@@ -222,7 +222,7 @@ or override removal safety checks), `--strict` (treat warnings as errors),
 
 **How `add` works:**
 
-1. Reads `features/<name>/feature.json` (legacy v1 manifests using `files` are normalized)
+1. Reads `packages/feature-manager/features/<name>/feature.json` (legacy v1 manifests using `files` are normalized)
 2. Validates it — malformed fields and paths that escape the repository are rejected
    before anything is written
 3. Verifies `requires` against the tracker (root `features.json`)

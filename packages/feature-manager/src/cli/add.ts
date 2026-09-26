@@ -52,7 +52,7 @@ export function addCommand(ctx: CliContext, name: string | undefined): number {
     if (json) ui.emitJson({ ok: false, feature: name, errors: planned.errors })
     else {
       for (const error of planned.errors) ui.error(error)
-      if (planned.errors.some((e) => e.includes("not found in features/"))) printAvailable(ctx)
+      if (planned.errors.some((e) => e.includes("not found in packages/feature-manager/features/"))) printAvailable(ctx)
     }
     return 1
   }

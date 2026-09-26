@@ -9,7 +9,7 @@ import {
   validateManifest,
   type NormalizedManifest,
 } from "./manifest.js"
-import { featurePath, repoContext, repoPath } from "./paths.js"
+import { featurePath, manifestDisplayPath, repoContext, repoPath } from "./paths.js"
 import { allocateSeq, currentOwner, readTracker, writeTracker } from "./state.js"
 import { FileTransaction } from "./txn.js"
 import type { InsertionReport, WarningReport } from "./types.js"
@@ -122,7 +122,7 @@ export function planInstall(options: InstallOptions): PlanResult<InstallPlan> {
     return {
       ok: false,
       errors: [
-        `Feature "${name}" not found in features/.`,
+        `Feature "${name}" not found in packages/feature-manager/features/.`,
         available.length ? `Available features: ${available.join(", ")}` : "No features are available.",
       ],
     }
@@ -131,7 +131,7 @@ export function planInstall(options: InstallOptions): PlanResult<InstallPlan> {
   if (found.error || !found.raw || !found.manifest) {
     return {
       ok: false,
-      errors: [`Cannot read features/${name}/feature.json: ${found.error ?? "unknown error"}`],
+      errors: [`Cannot read ${manifestDisplayPath(name)}: ${found.error ?? "unknown error"}`],
     }
   }
 
@@ -172,7 +172,7 @@ export function planInstall(options: InstallOptions): PlanResult<InstallPlan> {
 
   const warnings: WarningReport[] = validation.warnings.map((message) => ({
     type: "other" as const,
-    file: `features/${name}/feature.json`,
+    file: manifestDisplayPath(name),
     message,
   }))
 

@@ -14,7 +14,7 @@
 //       media-r2 features -- a generic filename that will always collide with
 //       something. Two more false positives.
 //
-// The genuinely wrong shape is exactly one, and it is what `features/blog`
+// The genuinely wrong shape is exactly one, and it is what the `blog` feature
 // shipped:
 //
 //     { "from": "ui/components/textarea.tsx",
@@ -40,7 +40,7 @@ import { join, resolve, dirname } from "node:path"
 import { fileURLToPath } from "node:url"
 
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "../..")
-const FEATURES = join(REPO, "features")
+const FEATURES = join(REPO, "packages/feature-manager/features")
 const UI_BARREL = "packages/ui/src/index.ts"
 const SHOW_DRIFT = process.argv.includes("--drift")
 
@@ -80,7 +80,7 @@ for (const name of featureDirs) {
     const toAbs = join(REPO, entry.to)
 
     if (!existsSync(fromAbs)) {
-      problems.push(`[${name}] missing source template: features/${name}/${entry.from}`)
+      problems.push(`[${name}] missing source template: packages/feature-manager/features/${name}/${entry.from}`)
       continue
     }
 

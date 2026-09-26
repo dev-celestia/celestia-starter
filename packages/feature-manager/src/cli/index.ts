@@ -28,7 +28,7 @@ Exit codes:
 
 Examples:
   pnpm add-feature blog --dry-run       Preview an install without writing anything
-  pnpm add-feature blog                 Install features/blog
+  pnpm add-feature blog                 Install packages/feature-manager/features/blog
   pnpm add-feature blog --force         Reinstall or upgrade an installed feature
   pnpm remove-feature blog              Uninstall and restore shared files
   pnpm list-features                    Show the feature table
@@ -38,8 +38,8 @@ Examples:
 const COMMAND_HELP: Record<string, string> = {
   add: `feature-manager add <name>
 
-Install features/<name> into the workspace: copies files, inserts snippet blocks
-into marker regions, appends JSON entries and merges dependencies.
+Install packages/feature-manager/features/<name> into the workspace: copies files, inserts
+snippet blocks into marker regions, appends JSON entries and merges dependencies.
 
 Every path the command will touch is snapshotted first, so a failure rolls the
 repository back instead of leaving a half-installed state.
@@ -72,8 +72,8 @@ Options:
 `,
   list: `feature-manager list
 
-List features found in features/ with their install status, installed vs
-available version, and prerequisites.
+List the features found in packages/feature-manager/features/ with their install status,
+installed vs available version, and prerequisites.
 
 Options:
   -j, --json      Emit the table as JSON

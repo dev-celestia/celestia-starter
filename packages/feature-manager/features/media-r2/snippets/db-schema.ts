@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// Media storage (BYOK Cloudflare R2) — added by features/media-r2
+// Media storage (BYOK Cloudflare R2) — added by the media-r2 feature
 // ---------------------------------------------------------------------------
 
 export const mediaStorageSetting = pgTable("media_storage_setting", {

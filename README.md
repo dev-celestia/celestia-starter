@@ -83,10 +83,9 @@ celestia-starter/
 │   ├── mobile/             # @celestia-project/mobile native components (workspace-only)
 │   ├── db/                 # @workspace/db (Drizzle schema & PostgreSQL client)
 │   ├── cli/                # @celestia-project/create CLI package
-│   ├── feature-manager/    # @workspace/feature-manager CLI & installer engine
+│   ├── feature-manager/    # @workspace/feature-manager CLI & installer engine (features/ templates live here)
 │   ├── eslint-config/      # Shared ESLint flat-config presets
 │   └── typescript-config/  # Shared TypeScript config presets
-├── features/               # Modular, installable features (manifests + code)
 └── scripts/
     ├── publish.sh          # Automated npm publishing script (ui + cli only)
     └── ui-audit/           # Static UI audit checks, run via `pnpm audit:ui`

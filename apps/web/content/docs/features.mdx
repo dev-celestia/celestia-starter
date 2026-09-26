@@ -6,12 +6,12 @@ icon: features
 
 # Creating Features
 
-New features MUST be authored as installable feature packages under `features/<name>/`
+New features MUST be authored as installable feature packages under `packages/feature-manager/features/<name>/`
 and installed with the feature-manager CLI — **never hand-copy files into `apps/` or
 `packages/` while authoring**. The `feature-manager add` command performs the actual
 copies and insertions, which keeps features installable, removable, and portable.
 
-Use `features/blog/` as the canonical reference implementation.
+Use `packages/feature-manager/features/blog/` as the canonical reference implementation.
 
 ## Architecture constraints (hard rules)
 
@@ -28,8 +28,8 @@ Use `features/blog/` as the canonical reference implementation.
 
 ## Workflow
 
-1. **Plan** — Read `features.json` (installed features) and manifests in `features/*/feature.json`. Decide `requires`, DB tables, env vars, dependencies, dashboard pages. Ask the user for anything unclear.
-2. **Scaffold** — Create `features/<name>/` with the directory layout below and a valid starter `feature.json`.
+1. **Plan** — Read `features.json` (installed features) and manifests in `packages/feature-manager/features/*/feature.json`. Decide `requires`, DB tables, env vars, dependencies, dashboard pages. Ask the user for anything unclear.
+2. **Scaffold** — Create `packages/feature-manager/features/<name>/` with the directory layout below and a valid starter `feature.json`.
 3. **Author** — Write template files per target (`api/`, `web/`, `ui/`, `docs/`) and one snippet file per insertion.
 4. **Self-check** — For every manifest entry verify: `copies[].from` exists; every `insertions[].snippet` exists; every `insertions[].file` exists in the repo and contains the referenced marker region (`feature-manager:<marker>:begin`); `requires` lists only installed features; no orphan files in the feature dir. `pnpm add-feature <name> --dry-run --strict` performs these checks for you and prints the full plan without writing anything.
 5. **Install** — Run `pnpm add-feature <name>` from the repo root, then `pnpm install`, env vars, and the printed `postInstall` commands.
@@ -38,7 +38,7 @@ Use `features/blog/` as the canonical reference implementation.
 ## Directory layout
 
 ```text
-features/<name>/
+packages/feature-manager/features/<name>/
 ├── api/          → files copied into apps/api  (e.g. api/src/features/<name>/routes.ts)
 ├── web/          → files copied into apps/web  (pages, components, hooks)
 ├── ui/           → files copied into packages/ui
@@ -112,7 +112,7 @@ Current regions:
 
 ## Writing documentation for a feature
 
-1. Author `docs/<name>.mdx` inside `features/<name>/`.
+1. Author `docs/<name>.mdx` inside `packages/feature-manager/features/<name>/`.
 2. Copy it via `copies` to `apps/web/content/docs/<name>.mdx`.
 3. `jsonAppends` entry for `apps/web/content/docs/meta.json` → `pages`.
 4. `insertions` entry for the `cards` marker in `apps/web/content/docs/index.mdx`.
@@ -121,7 +121,7 @@ Current regions:
 ## CLI reference
 
 ```bash
-pnpm add-feature <name>       # install features/<name> into the workspace
+pnpm add-feature <name>       # install packages/feature-manager/features/<name> into the workspace
 pnpm remove-feature <name>    # uninstall cleanly (removes copies + marker blocks)
 pnpm list-features            # show available/installed features
 pnpm verify-features [name]   # check installed features for drift or breakage

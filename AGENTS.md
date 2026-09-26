@@ -26,12 +26,12 @@ This project uses a **separated architecture**. All new features MUST respect th
 4. **Database access** uses the shared `@workspace/db` package — never create a local `db.ts` or `Pool` inside an app.
 5. **Env vars with secrets** (`DATABASE_URL`, `BETTER_AUTH_SECRET`, OAuth secrets) go in `apps/api/.env` only.
 
-## Feature template structure (`features/<name>/`)
+## Feature template structure (`packages/feature-manager/features/<name>/`)
 
 Features MUST organize template files by target:
 
 ```
-features/<name>/
+packages/feature-manager/features/<name>/
 ├── api/          → files copied into apps/api  (routes, services)
 ├── web/          → files copied into apps/web  (pages, components, hooks)
 ├── ui/           → files copied into packages/ui (shared components)
@@ -49,7 +49,7 @@ features/<name>/
 <!-- BEGIN:feature-scaffolding-agent-rules -->
 # Creating new features (mandatory)
 
-New features MUST be authored as installable feature packages under `features/<name>/` and installed with `pnpm add-feature <name>` — never hand-copied into `apps/` or `packages/`. Before scaffolding any feature, read and follow the guide at `apps/web/content/docs/features.mdx` (published at `/docs/features`). Use `features/blog/` as the reference implementation.
+New features MUST be authored as installable feature packages under `packages/feature-manager/features/<name>/` and installed with `pnpm add-feature <name>` — never hand-copied into `apps/` or `packages/`. Before scaffolding any feature, read and follow the guide at `apps/web/content/docs/features.mdx` (published at `/docs/features`). Use `packages/feature-manager/features/blog/` as the reference implementation.
 <!-- END:feature-scaffolding-agent-rules -->
 
 <!-- BEGIN:docs-agent-rules -->

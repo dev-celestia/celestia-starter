@@ -13,9 +13,9 @@ export function LandingLifecycle() {
             Adding a feature is a command, not a merge
           </h2>
           <p className="landing-lede">
-            Features are packages under features/ with a manifest describing
-            what they copy and which markers they edit. Installing one is
-            transactional, previewable, and reversible.
+            Features are packages under packages/feature-manager/features/
+            with a manifest describing what they copy and which markers they
+            edit. Installing one is transactional, previewable, and reversible.
           </p>
         </div>
 
