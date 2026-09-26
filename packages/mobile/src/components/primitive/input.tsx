@@ -2,8 +2,6 @@ import * as React from "react"
 import {
   TextInput as RNTextInput,
   type TextInputProps as RNTextInputProps,
-  type NativeSyntheticEvent,
-  type TextInputFocusEventData,
   Pressable,
   StyleSheet,
   View,
@@ -112,14 +110,12 @@ export function MobileTextInput({
   const [isFocused, setIsFocused] = React.useState(false)
   const [revealed, setRevealed] = React.useState(false)
 
-  const handleFocus = (
-    event: NativeSyntheticEvent<TextInputFocusEventData>
-  ) => {
+  const handleFocus: NonNullable<RNTextInputProps["onFocus"]> = (event) => {
     setIsFocused(true)
     onFocus?.(event)
   }
 
-  const handleBlur = (event: NativeSyntheticEvent<TextInputFocusEventData>) => {
+  const handleBlur: NonNullable<RNTextInputProps["onBlur"]> = (event) => {
     setIsFocused(false)
     onBlur?.(event)
   }

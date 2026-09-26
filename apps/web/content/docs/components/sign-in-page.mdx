@@ -1,0 +1,48 @@
+---
+title: "Sign In Page"
+description: "Ready-made credential sign-in with social providers, remember-me, error and loading states."
+---
+
+A complete credential sign-in screen on the [AuthShell](/docs/components/auth-shell) frame: email + password fields, remember-me checkbox, optional social provider buttons, inline error banner and a loading state on the submit button. Field state is owned by the component; your `onSubmit` receives the values and hands them to your auth client.
+
+<SignInPagePreview />
+
+```tsx
+import { SignInPage } from "@celestia-project/ui/layout/sign-in-page"
+
+<SignInPage
+  socialProviders={[
+    { id: "google", label: "Google" },
+    { id: "github", label: "GitHub" },
+  ]}
+  onSocialProviderClick={(provider) => {
+    // route to your Better Auth social sign-in
+  }}
+  onForgotPassword={() => {
+    // router.push("/forgot-password")
+  }}
+  onSignUp={() => {
+    // router.push("/sign-up")
+  }}
+  onSubmit={({ email, password, remember }) => {
+    // auth.signIn.email({ email, password, rememberMe: remember })
+  }}
+  loading={false}
+  error={undefined}
+/>
+```
+
+Every label, placeholder and heading has a prop with a sensible default, so the minimal usage above is all a standard screen needs.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `socialProviders` | `SocialProvider[]` | — | Buttons rendered above the divider |
+| `onSocialProviderClick` | `(provider: SocialProvider) => void` | — | Social button handler |
+| `onSubmit` | `({ email, password, remember }) => void` | — | Form submit handler |
+| `loading` | `boolean` | `false` | Disables the form and shows progress on the submit button |
+| `error` | `string` | — | Inline error banner above the fields |
+| `onForgotPassword` | `() => void` | — | "Forgot password?" link handler |
+| `onSignUp` | `() => void` | — | Footer sign-up link handler |
+| `heading` / `subheading` | `string` | `"Welcome back"` / … | Copy overrides |
+
+`SocialProvider` is `{ id, label, icon? }` — pass an `icon` node to render a logo on the button.

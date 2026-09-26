@@ -1,0 +1,63 @@
+---
+title: "Billing Page"
+description: "Current plan, usage meters against their limits, payment method and invoice history. Every figure is a prop — it never computes a prorated amount or a renewal date."
+---
+
+The billing screen: current plan card with a feature list, usage meters against their limits, payment method and invoice history — composed on [PageShell](/docs/components/page-shell) like every other page.
+
+Every figure is a prop. The component does not know your pricing, and it deliberately does not compute a "renews on" date or a prorated amount, because getting those subtly wrong is worse than not showing them.
+
+<BillingPagePreview />
+
+```tsx
+import { BillingPage, Badge } from "@celestia-project/ui/layout/billing-page"
+import type { BillingPlan, BillingUsage } from "@celestia-project/ui/layout/billing-page"
+
+const plan: BillingPlan = {
+  name: "Team",
+  badge: <Badge variant="secondary">Current plan</Badge>,
+  price: "$96",
+  interval: "per month, billed annually",
+  description: "12 seats, unlimited projects.",
+  features: ["Unlimited projects", "SSO and SCIM", "Priority support"],
+}
+
+const usage: BillingUsage[] = [
+  { id: "seats", label: "Seats", used: 9, limit: 12 },
+  {
+    id: "builds",
+    label: "Build minutes",
+    used: 1840,
+    limit: 2000,
+    format: (used, limit) => used.toLocaleString() + " / " + limit.toLocaleString(),
+  },
+]
+
+export function BillingScreen() {
+  return (
+    <BillingPage
+      title="Billing"
+      description="Plan, usage and invoices."
+      width="xl"
+      plan={plan}
+      usage={usage}
+      invoices={invoices}
+      onManagePlan={() => router.push("/pricing")}
+      onUpdatePayment={() => setPaymentOpen(true)}
+      paymentMethod={<PaymentMethodCard />}
+    />
+  )
+}
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `plan` | `BillingPlan` | — | Current plan card; omit to hide the section |
+| `usage` | `BillingUsage[]` | — | Usage meters against their limits |
+| `invoices` | `BillingInvoice[]` | — | Invoice history table |
+| `paymentMethod` | `React.ReactNode` | — | Payment method slot beside its update action |
+| `onManagePlan` | `() => void` | — | Plan card action handler |
+| `onUpdatePayment` | `() => void` | — | Payment method action handler |
+| `empty` | `React.ReactNode` | — | Replaces the invoice table's empty state |
+
+`BillingPlan` is `{ name, price, interval?, description?, features?, badge? }`. `BillingUsage` is `{ id, label, used, limit, format? }` — the default caption is `used / limit`, and `format` overrides it. `BillingInvoice` is `{ id, date, amount, status? }` where `status` is any node (typically a [Badge](/docs/components/badge)).

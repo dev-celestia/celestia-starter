@@ -261,6 +261,8 @@ Below is the complete mapping of all 142 component modules in `packages/ui/src/c
 
 The `layout/` family is the page-level layer: a few **shells** own the frame (centred/split for auth, rail + header + content for the signed-in app, and a full-viewport frame for status screens), and thin **page** components supply their own fields and defaults on top of a shell. Every member is also re-exported from the `@celestia-project/ui` barrel.
 
+Each member has a dedicated page with a live preview and a full prop reference — see the sidebar under **Layout & Pages**, starting at [Auth Shell](/docs/components/auth-shell) and [Page Shell](/docs/components/page-shell).
+
 | Module | Deep Import | Exported Sub-Components | Base Primitive |
 |--------|-------------|-------------------------|----------------|
 | `aspect-ratio` | `@celestia-project/ui/primitive/aspect-ratio` | `AspectRatio` | Radix AspectRatio |

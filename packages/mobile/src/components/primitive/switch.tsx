@@ -71,16 +71,19 @@ export function MobileSwitch({
   }
 
   const switchElement = (
-    <Host matchContents>
-      <ExpoUISwitch
-        value={value}
-        onValueChange={handleChange}
-        disabled={disabled}
-        testID={testID}
-        accessibilityLabel={accessibilityLabel ?? label}
-        accessibilityHint={accessibilityHint}
-      />
-    </Host>
+    <View
+      accessibilityLabel={accessibilityLabel ?? label}
+      accessibilityHint={accessibilityHint}
+    >
+      <Host matchContents>
+        <ExpoUISwitch
+          value={value}
+          onValueChange={handleChange}
+          disabled={disabled}
+          testID={testID}
+        />
+      </Host>
+    </View>
   )
 
   if (!label) {

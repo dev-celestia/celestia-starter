@@ -1,0 +1,70 @@
+---
+title: "List Page"
+description: "The table-driven index screen: toolbar with search and filters, optional row selection with a select-all, loading skeletons, an empty state and pagination."
+---
+
+The table-driven index page — the CRUD "list" screen. A [PageShell](/docs/components/page-shell) header over a toolbar (search, `filters`, `toolbar` actions), a [Table](/docs/components/table) with optional row selection and a select-all, loading skeletons, an empty state, and a pagination bar.
+
+`ListPage` owns layout and selection state only: it never filters, sorts or paginates `rows`. The consumer already has that logic (or a server), and re-implementing it here would mean two sources of truth for what page 2 contains. Search and pagination are controlled props for the same reason.
+
+<ListPagePreview />
+
+```tsx
+import { ListPage, Button, Badge } from "@celestia-project/ui/layout/list-page"
+import type { ListColumn } from "@celestia-project/ui/layout/list-page"
+
+type Project = { id: string; name: string; owner: string; status: string }
+
+const columns: ListColumn<Project>[] = [
+  { id: "name", header: "Project", cell: (row) => row.name },
+  { id: "owner", header: "Owner", cell: (row) => row.owner },
+  { id: "status", header: "Status", cell: (row) => <Badge>{row.status}</Badge> },
+  { id: "updated", header: "Updated", align: "end", cell: (row) => row.updated },
+]
+
+export function ProjectsPage() {
+  const [query, setQuery] = React.useState("")
+  const [selected, setSelected] = React.useState<string[]>([])
+  const [page, setPage] = React.useState(1)
+
+  return (
+    <ListPage
+      title="Projects"
+      description="Every project in the workspace."
+      width="xl"
+      columns={columns}
+      rows={rows}
+      rowKey={(row) => row.id}
+      search={{ value: query, onValueChange: setQuery }}
+      toolbar={<Button size="sm">New project</Button>}
+      selectable
+      selectedIds={selected}
+      onSelectedIdsChange={setSelected}
+      page={page}
+      pageCount={pageCount}
+      onPageChange={setPage}
+      totalLabel="128 projects"
+      empty="No projects match that search."
+    />
+  )
+}
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `columns` | `ListColumn<T>[]` | — (required) | Column definitions |
+| `rows` | `T[]` | — (required) | Row data, already filtered/sorted/paginated by you |
+| `rowKey` | `(row, index) => string` | — (required) | Stable row identity — selection is keyed on it |
+| `search` | `{ value, onValueChange, placeholder? }` | — | Controlled search box; omit to hide it |
+| `filters` | `React.ReactNode` | — | Filter controls rendered beside the search box |
+| `toolbar` | `React.ReactNode` | — | Trailing toolbar actions, pushed to the end of the row |
+| `selectable` | `boolean` | `false` | Renders a leading checkbox column and a select-all |
+| `selectedIds` / `onSelectedIdsChange` | `string[]` / `(ids) => void` | — | Controlled selection |
+| `onRowClick` | `(row: T) => void` | — | Row click handler |
+| `loading` | `boolean` | `false` | Swaps the body for skeleton rows |
+| `skeletonRows` | `number` | `5` | Skeleton row count while loading |
+| `empty` | `React.ReactNode` | — | Replaces the body when `rows` is empty and not loading |
+| `page` / `pageCount` / `onPageChange` | `number` / `number` / `(page) => void` | `1` / `1` / — | Pagination state |
+| `totalLabel` | `React.ReactNode` | — | Caption on the left of the pagination bar |
+
+Plus every [PageShell](/docs/components/page-shell) prop. `ListColumn<T>` is `{ id, header, cell: (row, index) => node, align?: "start" | "end", className? }`.

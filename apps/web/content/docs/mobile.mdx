@@ -34,11 +34,12 @@ pnpm mobile
 pnpm --filter @celestia-project/mobile typecheck
 ```
 
-<Callout type="warn" title="Workspace-only today">
-`@celestia-project/mobile` is **not published to npm**. `scripts/publish.sh` publishes only
-`@celestia-project/ui` and `@celestia-project/create`, so the mobile package is currently
-consumed through the workspace (`"@celestia-project/mobile": "workspace:*"`) only. Adding it to
-the publish set is a deliberate follow-up, not an oversight to assume away.
+<Callout type="info" title="Publishing">
+`@celestia-project/mobile` is part of the npm publish set: `scripts/publish.sh` publishes
+`@celestia-project/ui`, `@celestia-project/create` and `@celestia-project/mobile`. Inside the
+workspace the package is consumed from source through the workspace protocol
+(`"@celestia-project/mobile": "workspace:*"`). Publish it standalone with `pnpm publish:mobile`,
+or all packages together with `pnpm publish:packages`.
 </Callout>
 
 ## Installation
@@ -55,6 +56,10 @@ contain platform code that Expo has to autolink:
 ```bash
 npx expo install @expo/ui expo-haptics react-native-safe-area-context
 ```
+
+Pin `react-native` to the version Expo SDK 57 pairs with (`0.86.3`) — `npx expo install
+react-native` resolves it. Do not bump to `^0.87` manually: Expo 57's Metro tooling requires
+`rn-get-polyfills`, which React Native 0.87 removed.
 
 | Peer dependency | Required by | Notes |
 |-----------------|-------------|-------|
@@ -331,10 +336,10 @@ optional. Real brand marks need a different source — they are not in any gener
 ## Status
 
 <Callout type="warn" title="Not yet verified on a device">
-The library is typechecked and statically verified, but it has **not been run on a simulator or
-device** in this workspace — `pnpm install` cannot complete in the environment it was authored in,
-so the Expo app has no `node_modules`. `@expo/ui` renders real native views, so visual and gesture
-behaviour cannot be checked headlessly.
+The library is typechecked end to end (package and showcase app) and the showcase Metro-bundles
+into a working Hermes bundle (`npx expo export --platform ios`), but it has **not been run on a
+simulator or device** in this workspace — the machine has no Xcode, so `@expo/ui`'s real native
+views and gesture behaviour cannot be exercised headlessly.
 
 Three things need a device before this is trusted: the whole package end to end; `MobileSlider`'s
 gesture geometry in particular — a `PanResponder` cannot be validated by a typecheck; and the showcase

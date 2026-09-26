@@ -102,7 +102,7 @@ export function MobileAlert({
         accessible={false}
         importantForAccessibility="no"
         style={[
-          StyleSheet.absoluteFillObject,
+          StyleSheet.absoluteFill,
           { backgroundColor: accent, opacity: 0.1 },
         ]}
       />

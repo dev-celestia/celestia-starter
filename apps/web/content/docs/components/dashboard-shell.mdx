@@ -1,0 +1,48 @@
+---
+title: "Dashboard Shell"
+description: "Signed-in app frame: navigation rail with brand and footer slots, sticky header, scrolling content column and an optional right rail."
+---
+
+The frame a signed-in app lives in: a navigation rail with `brand` and `navFooter` slots, a sticky `header`, a scrolling content column, and an optional `aside` rail that hides below `xl` where it would starve the content.
+
+`DashboardShell` is deliberately slot-based rather than opinionated about navigation — `nav` takes whatever list the consumer already has (links, buttons, a [Sidebar](/docs/components/sidebar)), so the shell can back an existing route group without rewriting its navigation. That is the difference between a layout you can adopt and one you can only copy.
+
+<DashboardShellPreview />
+
+```tsx
+import { DashboardShell, Button } from "@celestia-project/ui/layout/dashboard-shell"
+
+export function AppLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <DashboardShell
+      brand={<LogoMark />}
+      nav={<AppNav />}
+      navFooter={<UserMenu />}
+      header={
+        <>
+          <span className="text-sm font-medium">Overview</span>
+          <Button variant="ghost" size="icon-sm"><BellIcon /></Button>
+        </>
+      }
+      aside={<ActivityFeed />}
+      contentWidth="xl"
+    >
+      {children}
+    </DashboardShell>
+  )
+}
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `brand` | `React.ReactNode` | — | Slot pinned to the top of the navigation rail |
+| `nav` | `React.ReactNode` | — | Primary navigation — takes whatever list you already have |
+| `navFooter` | `React.ReactNode` | — | Slot pinned to the bottom of the rail (user menu, upgrade CTA) |
+| `navWidth` | `"sm" \| "md"` | `"md"` | `md` keeps a full-label rail from `md` up and collapses to icons below; `sm` stays an icon rail at every width |
+| `header` | `React.ReactNode` | — | Sticky header rendered above the content column |
+| `aside` | `React.ReactNode` | — | Right-hand rail, hidden below `xl` |
+| `asideWidth` | `"sm" \| "md"` | `"sm"` | Right rail width (64 / 80) |
+| `contentWidth` | `"full" \| "lg" \| "xl"` | `"full"` | Max width of the content column |
+| `padded` | `boolean` | `true` | Content padding; turn off when the page supplies its own scroll container |
+
+Accepts all `<div>` props. Use it as a route-group layout by rendering it around `{children}`.

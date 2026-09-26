@@ -3,8 +3,7 @@ import {
   StyleSheet,
   TextInput,
   View,
-  type NativeSyntheticEvent,
-  type TextInputKeyPressEventData,
+  type TextInputKeyPressEvent,
   type ViewStyle,
 } from "react-native"
 import * as Haptics from "expo-haptics"
@@ -115,9 +114,7 @@ export function MobileOtpInput({
     }
   }
 
-  const handleKeyPress = (
-    event: NativeSyntheticEvent<TextInputKeyPressEventData>
-  ) => {
+  const handleKeyPress = (event: TextInputKeyPressEvent) => {
     // Backspace on an empty field should clear the previous digit rather than
     // do nothing, which is what users expect from a code entry.
     if (event.nativeEvent.key === "Backspace" && value.length === 0) {
@@ -203,7 +200,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   hiddenInput: {
-    ...StyleSheet.absoluteFillObject,
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
     opacity: 0.01,
     fontSize: 16,
   },

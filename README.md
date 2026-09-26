@@ -66,7 +66,7 @@ Celestia Starter enforces a strict **separated architecture** between frontend a
 - **Mobile App (`apps/mobile`)**: Expo (React Native) client that consumes `@celestia-project/mobile` **from source** — there is no build step, Metro compiles the package's `.ts`/`.tsx` directly. It is not part of the `pnpm dev` pipeline; start it with `pnpm mobile`.
 - **Shared DB (`packages/db`)**: Drizzle ORM schema and PostgreSQL client (`@workspace/db`).
 - **Shared UI (`packages/ui`)**: `@celestia-project/ui` component library built on Base UI and Tailwind CSS v4.
-- **Shared Mobile UI (`packages/mobile`)**: `@celestia-project/mobile` — native iOS/Android components built on `@expo/ui` (real SwiftUI & Jetpack Compose), organised with the same `primitive` / `composite` / `layout` taxonomy as the web library. **Workspace-only** — not published to npm.
+- **Shared Mobile UI (`packages/mobile`)**: `@celestia-project/mobile` — native iOS/Android components built on `@expo/ui` (real SwiftUI & Jetpack Compose), organised with the same `primitive` / `composite` / `layout` taxonomy as the web library. Consumed from source by `apps/mobile`; published to npm via `pnpm publish:mobile`.
 
 ---
 
@@ -80,14 +80,14 @@ celestia-starter/
 │   └── web/                # Next.js 15 frontend (pure UI, landing, docs, showcase)
 ├── packages/
 │   ├── ui/                 # @celestia-project/ui component library (Base UI + Tailwind v4)
-│   ├── mobile/             # @celestia-project/mobile native components (workspace-only)
+│   ├── mobile/             # @celestia-project/mobile native components (ships source, publishable)
 │   ├── db/                 # @workspace/db (Drizzle schema & PostgreSQL client)
 │   ├── cli/                # @celestia-project/create CLI package
 │   ├── feature-manager/    # @workspace/feature-manager CLI & installer engine (features/ templates live here)
 │   ├── eslint-config/      # Shared ESLint flat-config presets
 │   └── typescript-config/  # Shared TypeScript config presets
 └── scripts/
-    ├── publish.sh          # Automated npm publishing script (ui + cli only)
+    ├── publish.sh          # Automated npm publishing script (ui + cli + mobile)
     └── ui-audit/           # Static UI audit checks, run via `pnpm audit:ui`
 ```
 
@@ -171,10 +171,11 @@ rather than deleting a file it still needs.
 | `pnpm remove-feature <name>` | Uninstall a feature, restoring files shared with other features |
 | `pnpm verify-features` | Verify installed features are intact; non-zero exit on problems |
 | `pnpm format` | Prettify code using Prettier and Tailwind plugin |
-| `pnpm publish:packages` | Build and publish `@celestia-project/ui` & `@celestia-project/create` to npm |
+| `pnpm publish:packages` | Build and publish `@celestia-project/ui`, `@celestia-project/create` & `@celestia-project/mobile` to npm |
 | `pnpm publish:dry-run` | Preview npm publish tarballs without uploading |
 | `pnpm publish:ui` | Publish only the `@celestia-project/ui` package |
 | `pnpm publish:cli` | Publish only the `@celestia-project/create` CLI package |
+| `pnpm publish:mobile` | Publish only the `@celestia-project/mobile` package |
 
 ---
 
@@ -183,7 +184,7 @@ rather than deleting a file it still needs.
 - **[@celestia-project/create](https://www.npmjs.com/package/@celestia-project/create)** — Interactive CLI tool for scaffolding new Celestia Starter projects (`npx @celestia-project/create`).
 - **[@celestia-project/ui](https://www.npmjs.com/package/@celestia-project/ui)** — 60+ accessible React UI primitives built on Base UI & Tailwind CSS v4.
 
-> **`@celestia-project/mobile` is not published.** Although it carries the `@celestia-project` scope, `scripts/publish.sh` only knows about `ui` and `cli`, so there is no `pnpm publish:mobile`. Add it to a workspace with `"@celestia-project/mobile": "workspace:*"` and import it from source. Its documentation lives in `apps/web/content/docs/mobile.mdx` (published at `/docs/mobile`).
+> **`@celestia-project/mobile`** also ships through `scripts/publish.sh` (`pnpm publish:mobile`), but inside the workspace it is consumed from source: add it with `"@celestia-project/mobile": "workspace:*"` and import it directly — Metro compiles its `.ts`/`.tsx` with no build step. Its documentation lives in `apps/web/content/docs/mobile.mdx` (published at `/docs/mobile`).
 
 ---
 

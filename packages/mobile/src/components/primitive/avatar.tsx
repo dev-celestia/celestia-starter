@@ -4,6 +4,7 @@ import {
   View,
   StyleSheet,
   type ImageSourcePropType,
+  type ImageStyle,
   type ViewStyle,
 } from "react-native"
 import { useMobileTheme } from "../../host"
@@ -57,7 +58,7 @@ export interface MobileAvatarProps {
   /**
    * Optional style override.
    */
-  style?: ViewStyle
+  style?: ViewStyle & ImageStyle
 }
 
 /**

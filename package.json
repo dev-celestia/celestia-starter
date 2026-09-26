@@ -22,6 +22,7 @@
     "publish:dry-run": "bash scripts/publish.sh --dry-run",
     "publish:ui": "bash scripts/publish.sh --pkg ui",
     "publish:cli": "bash scripts/publish.sh --pkg cli",
+    "publish:mobile": "bash scripts/publish.sh --pkg mobile",
     "bump:ui:patch": "bash scripts/publish.sh --pkg ui --bump patch",
     "bump:ui:minor": "bash scripts/publish.sh --pkg ui --bump minor",
     "bump:ui:major": "bash scripts/publish.sh --pkg ui --bump major",

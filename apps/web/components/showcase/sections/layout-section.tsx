@@ -960,6 +960,7 @@ export function LayoutSection() {
         {/* 1. Auth Shell */}
         <ShowcaseCard
           id="auth-shell"
+          docsSlug="auth-shell"
           title="Auth Shell"
           category="Layout"
           description="Authentication page frame with logo, heading, provider aside, footer, and centered or split-screen variants."
@@ -1032,6 +1033,7 @@ export function LayoutSection() {
         {/* 2. Sign In Page */}
         <ShowcaseCard
           id="sign-in-page"
+          docsSlug="sign-in-page"
           title="Sign In Page"
           category="Layout"
           description="Ready-made credential sign-in with social providers, remember-me, error and loading states."
@@ -1054,6 +1056,7 @@ export function LayoutSection() {
         {/* 3. Sign Up Page */}
         <ShowcaseCard
           id="sign-up-page"
+          docsSlug="sign-up-page"
           title="Sign Up Page"
           category="Layout"
           description="Registration screen with name, email, password confirmation, terms gate and mismatch validation."
@@ -1073,6 +1076,7 @@ export function LayoutSection() {
         {/* 4. Forgot Password Page */}
         <ShowcaseCard
           id="forgot-password-page"
+          docsSlug="forgot-password-page"
           title="Forgot Password Page"
           category="Layout"
           description="Email recovery request that swaps to a confirmation state once the reset link has been sent."
@@ -1092,6 +1096,7 @@ export function LayoutSection() {
         {/* 5. Reset Password Page */}
         <ShowcaseCard
           id="reset-password-page"
+          docsSlug="reset-password-page"
           title="Reset Password Page"
           category="Layout"
           description="New-password form with live confirmation matching and a disabled submit until the pair agrees."
@@ -1106,6 +1111,7 @@ export function LayoutSection() {
         {/* 6. Two-Factor Page */}
         <ShowcaseCard
           id="two-factor-page"
+          docsSlug="two-factor-page"
           title="Two-Factor Page"
           category="Layout"
           description="OTP challenge built on InputOTP with configurable length, resend link and back navigation."
@@ -1125,6 +1131,7 @@ export function LayoutSection() {
         {/* 7. Page Shell */}
         <ShowcaseCard
           id="page-shell"
+          docsSlug="page-shell"
           title="Page Shell"
           category="Layout"
           description="App page frame with blurred sticky header, title, description, trailing actions and width presets."
@@ -1172,6 +1179,7 @@ export function LayoutSection() {
         {/* 8. Not Found Page */}
         <ShowcaseCard
           id="not-found-page"
+          docsSlug="not-found-page"
           title="Not Found Page"
           category="Layout"
           description="404 state with oversized status code, optional icon slot, and primary and secondary calls to action."
@@ -1191,6 +1199,7 @@ export function LayoutSection() {
         {/* 9. Dashboard Shell */}
         <ShowcaseCard
           id="dashboard-shell"
+          docsSlug="dashboard-shell"
           title="Dashboard Shell"
           category="Layout"
           description="Signed-in app frame: navigation rail with brand and footer slots, sticky header, scrolling content column and an optional right rail."
@@ -1281,6 +1290,7 @@ export function LayoutSection() {
         {/* 10. Dashboard Page */}
         <ShowcaseCard
           id="dashboard-page"
+          docsSlug="dashboard-page"
           title="Dashboard Page"
           category="Layout"
           description="Overview page with a metric tile grid, loading skeletons, empty slot and a secondary column — composed on top of PageShell."
@@ -1363,6 +1373,7 @@ export function LayoutSection() {
         {/* 11. Profile Page */}
         <ShowcaseCard
           id="profile-page"
+          docsSlug="profile-page"
           title="Profile Page"
           category="Layout"
           description="Banner, overlapping avatar, identity block, metadata and headline numbers, with a sliding line-variant tab bar over the content."
@@ -1415,6 +1426,7 @@ export function LayoutSection() {
         {/* 12. Settings Page */}
         <ShowcaseCard
           id="settings-page"
+          docsSlug="settings-page"
           title="Settings Page"
           category="Layout"
           description="Section navigation beside stacked panels. Inactive panels stay mounted, so half-typed input survives a section switch."
@@ -1435,6 +1447,7 @@ export function LayoutSection() {
         {/* 13. List Page */}
         <ShowcaseCard
           id="list-page"
+          docsSlug="list-page"
           title="List Page"
           category="Layout"
           description="The table-driven index screen: toolbar with search and filters, optional row selection with a select-all, loading skeletons, an empty state and pagination."
@@ -1450,6 +1463,7 @@ export function LayoutSection() {
         {/* 14. Billing Page */}
         <ShowcaseCard
           id="billing-page"
+          docsSlug="billing-page"
           title="Billing Page"
           category="Layout"
           description="Current plan, usage meters against their limits, payment method and invoice history. Every figure is a prop — it never computes a prorated amount or a renewal date."
@@ -1465,6 +1479,7 @@ export function LayoutSection() {
         {/* 15. Status & Error Pages */}
         <ShowcaseCard
           id="status-page"
+          docsSlug="status-page"
           title="Status & Error Pages"
           category="Layout"
           description="One full-viewport frame behind every not-the-page-you-asked-for state. NotFoundPage and ErrorPage are thin wrappers over StatusPage; what separates them is whether a technical digest is surfaced."
