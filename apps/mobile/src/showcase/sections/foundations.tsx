@@ -18,7 +18,8 @@ import {
   type MobileTextVariant,
 } from "@celestia-project/mobile"
 import type { ShowcaseContext } from "../types"
-import { Glyph, Readout, Row, Spacer, Specimen, Stack, Swatch } from "../ui"
+import { ShowcaseIcon } from "../icons"
+import { Readout, Row, Spacer, Specimen, Stack, Swatch } from "../ui"
 
 /**
  * Foundations — the nine generic display modules.
@@ -188,7 +189,7 @@ export function FoundationsSection({ ctx }: { ctx: ShowcaseContext }) {
         <Row gap={12}>
           <MobileAvatar initials="Ada Lovelace" />
           <MobileAvatar initials="" />
-          <MobileAvatar fallback={<Glyph glyph="?" />} />
+          <MobileAvatar fallback={<ShowcaseIcon name="person" size="md" />} />
           <MobileAvatar
             initials="WL"
             accessibilityLabel="Profile for Wang Lei"

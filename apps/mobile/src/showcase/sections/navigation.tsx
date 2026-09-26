@@ -7,11 +7,13 @@ import {
   MobileSegmentedControl,
   MobileTabBar,
   MobileText,
+  useMobileTheme,
   type MobileSegmentedControlOption,
   type MobileTabItem,
 } from "@celestia-project/mobile"
 import type { ShowcaseContext } from "../types"
-import { Glyph, Readout, Row, Spacer, Specimen, Stack } from "../ui"
+import { ShowcaseIcon, type ShowcaseIconName } from "../icons"
+import { Readout, Row, Spacer, Specimen, Stack } from "../ui"
 
 /**
  * Navigation chrome — the four modules that tell the user where they are.
@@ -24,31 +26,23 @@ import { Glyph, Readout, Row, Spacer, Specimen, Stack } from "../ui"
  * own copy of the route would be able to disagree with the actual screen.
  */
 
-const TABS: MobileTabItem[] = [
-  { key: "home", label: "Home", icon: <Glyph glyph="⌂" size="callout" /> },
-  {
-    key: "search",
-    label: "Search",
-    icon: <Glyph glyph="⌕" size="callout" />,
-    badge: 3,
-  },
-  {
-    key: "inbox",
-    label: "Inbox",
-    icon: <Glyph glyph="✉" size="callout" />,
-    badge: "12",
-  },
-  {
-    key: "settings",
-    label: "Settings",
-    icon: <Glyph glyph="⚙" size="callout" />,
-  },
-  {
-    key: "archive",
-    label: "Archive",
-    icon: <Glyph glyph="▤" size="callout" />,
-    disabled: true,
-  },
+/**
+ * Tab definitions, deliberately without their icons.
+ *
+ * `MobileTabBar` takes a node rather than a render prop, so the icon's colour
+ * has to be decided by the caller — and the correct colour depends on which tab
+ * is active. Holding only the semantic name here and building the node inside
+ * the component is what lets the icon follow the same active/inactive tint as
+ * the label beside it.
+ */
+type TabDefinition = Omit<MobileTabItem, "icon"> & { icon: ShowcaseIconName }
+
+const TABS: TabDefinition[] = [
+  { key: "home", label: "Home", icon: "home" },
+  { key: "search", label: "Search", icon: "search", badge: 3 },
+  { key: "inbox", label: "Inbox", icon: "mail", badge: "12" },
+  { key: "settings", label: "Settings", icon: "settings" },
+  { key: "archive", label: "Archive", icon: "archive", disabled: true },
 ]
 
 const RANGES: MobileSegmentedControlOption[] = [
@@ -59,10 +53,27 @@ const RANGES: MobileSegmentedControlOption[] = [
 ]
 
 export function NavigationSection({ ctx }: { ctx: ShowcaseContext }) {
+  const { colors } = useMobileTheme()
   const [tab, setTab] = React.useState("home")
   const [range, setRange] = React.useState("week")
   const [query, setQuery] = React.useState("")
   const [submitted, setSubmitted] = React.useState("—")
+
+  /**
+   * `MobileTabBar` tints its label from the active state but renders `icon`
+   * untouched, so the same rule is applied by hand here — mirrored rather than
+   * shared, because the bar's tint is internal to it.
+   */
+  const tabItems: MobileTabItem[] = TABS.map(({ icon, ...item }) => ({
+    ...item,
+    icon: (
+      <ShowcaseIcon
+        name={icon}
+        size="md"
+        color={item.key === tab ? colors.primary : colors.muted}
+      />
+    ),
+  }))
 
   return (
     <View>
@@ -88,7 +99,7 @@ export function NavigationSection({ ctx }: { ctx: ShowcaseContext }) {
             onBack={() => setSubmitted("nav back")}
             left={
               <MobileIconButton
-                icon={<Glyph glyph="≡" />}
+                icon={<ShowcaseIcon name="menu" size="md" />}
                 accessibilityLabel="Open menu"
                 variant="ghost"
                 onPress={() => setSubmitted("menu")}
@@ -97,13 +108,13 @@ export function NavigationSection({ ctx }: { ctx: ShowcaseContext }) {
             right={
               <Row gap={4} wrap={false}>
                 <MobileIconButton
-                  icon={<Glyph glyph="⌕" />}
+                  icon={<ShowcaseIcon name="search" size="md" />}
                   accessibilityLabel="Search"
                   variant="ghost"
                   onPress={() => setSubmitted("search")}
                 />
                 <MobileIconButton
-                  icon={<Glyph glyph="＋" />}
+                  icon={<ShowcaseIcon name="add" size="md" />}
                   accessibilityLabel="Compose"
                   variant="ghost"
                   onPress={() => setSubmitted("compose")}
@@ -120,7 +131,7 @@ export function NavigationSection({ ctx }: { ctx: ShowcaseContext }) {
         description="Badges accept a string or a number, so a count and a dot can share one slot. A disabled tab is skipped by the press handler rather than silently doing nothing."
         modulePath="composite/tab-bar"
       >
-        <MobileTabBar items={TABS} activeKey={tab} onTabPress={setTab} />
+        <MobileTabBar items={tabItems} activeKey={tab} onTabPress={setTab} />
         <Readout label="activeKey" value={tab} />
         <Readout label="Scheme in context" value={ctx.scheme} />
       </Specimen>

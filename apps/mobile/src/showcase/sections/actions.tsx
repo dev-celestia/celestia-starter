@@ -8,6 +8,8 @@ import {
   MobileSlider,
   MobileSwitch,
   MobileText,
+  useMobileTheme,
+  type ColorRamp,
   type MobileButtonSize,
   type MobileButtonVariant,
   type MobileIconButtonSize,
@@ -15,7 +17,8 @@ import {
   type MobileRadioOption,
 } from "@celestia-project/mobile"
 import type { ShowcaseContext } from "../types"
-import { Glyph, Readout, Row, Spacer, Specimen, Stack } from "../ui"
+import { ShowcaseIcon } from "../icons"
+import { Readout, Row, Spacer, Specimen, Stack } from "../ui"
 
 /**
  * Actions — the six modules whose whole job is to accept a gesture.
@@ -47,6 +50,22 @@ const ICON_VARIANTS: MobileIconButtonVariant[] = [
 
 const ICON_SIZES: MobileIconButtonSize[] = ["sm", "md", "lg"]
 
+/**
+ * Each icon-button variant paints its own surface, so a single icon colour
+ * would sit at the wrong contrast on two of the four: near-black on the primary
+ * surface, near-white on the destructive one. This mirrors the text colour each
+ * variant already uses for a string child.
+ */
+const ICON_VARIANT_FOREGROUND: Record<
+  MobileIconButtonVariant,
+  keyof ColorRamp
+> = {
+  default: "primaryForeground",
+  outline: "foreground",
+  ghost: "foreground",
+  destructive: "destructiveForeground",
+}
+
 const PLAN_OPTIONS: MobileRadioOption[] = [
   {
     value: "free",
@@ -72,6 +91,7 @@ const PLAN_OPTIONS: MobileRadioOption[] = [
 ]
 
 export function ActionsSection({ ctx }: { ctx: ShowcaseContext }) {
+  const { colors } = useMobileTheme()
   const [lastAction, setLastAction] = React.useState("—")
   const [terms, setTerms] = React.useState(true)
   const [marketing, setMarketing] = React.useState(false)
@@ -134,7 +154,11 @@ export function ActionsSection({ ctx }: { ctx: ShowcaseContext }) {
             accessibilityHint="Opens the invite form"
             onPress={() => setLastAction("icon-only button")}
           >
-            <Glyph glyph="＋" />
+            <ShowcaseIcon
+              name="add"
+              size="md"
+              color={colors.secondaryForeground}
+            />
           </MobileButton>
         </Stack>
       </Specimen>
@@ -172,7 +196,13 @@ export function ActionsSection({ ctx }: { ctx: ShowcaseContext }) {
             <MobileIconButton
               key={variant}
               variant={variant}
-              icon={<Glyph glyph="★" />}
+              icon={
+                <ShowcaseIcon
+                  name="star"
+                  size="md"
+                  color={colors[ICON_VARIANT_FOREGROUND[variant]]}
+                />
+              }
               accessibilityLabel={`${variant} icon button`}
               onPress={() => setLastAction(`icon-button · ${variant}`)}
             />
@@ -185,14 +215,20 @@ export function ActionsSection({ ctx }: { ctx: ShowcaseContext }) {
               key={size}
               size={size}
               variant="outline"
-              icon={<Glyph glyph="◎" />}
+              icon={<ShowcaseIcon name="share" size="md" />}
               accessibilityLabel={`${size} icon button`}
               onPress={() => setLastAction(`icon size · ${size}`)}
             />
           ))}
           <MobileIconButton
             variant="destructive"
-            icon={<Glyph glyph="⌫" />}
+            icon={
+              <ShowcaseIcon
+                name="trash"
+                size="md"
+                color={colors.destructiveForeground}
+              />
+            }
             accessibilityLabel="Delete item"
             disabled
             onPress={() => setLastAction("should never fire")}

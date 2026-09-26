@@ -9,7 +9,6 @@
     { "from": "web/app/(dashboard)/dashboard/posts/page.tsx", "to": "apps/web/app/(dashboard)/dashboard/posts/page.tsx" },
     { "from": "web/app/(dashboard)/dashboard/posts/new/page.tsx", "to": "apps/web/app/(dashboard)/dashboard/posts/new/page.tsx" },
     { "from": "web/app/(dashboard)/dashboard/posts/[id]/edit/page.tsx", "to": "apps/web/app/(dashboard)/dashboard/posts/[id]/edit/page.tsx" },
-    { "from": "ui/components/textarea.tsx", "to": "packages/ui/src/components/textarea.tsx" },
     { "from": "docs/blog.mdx", "to": "apps/web/content/docs/blog.mdx" }
   ],
   "insertions": [

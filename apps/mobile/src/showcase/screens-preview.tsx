@@ -20,11 +20,14 @@ import {
   MobileSwitch,
   MobileText,
   MobileTextInput,
+  useMobileTheme,
+  type ColorRamp,
   type MobileOnboardingSlide,
   type MobileSocialProvider,
   type MobileStatusVariant,
 } from "@celestia-project/mobile"
-import { Glyph, Row, Spacer, Stack } from "./ui"
+import { ShowcaseIcon, type ShowcaseIconName } from "./icons"
+import { Row, Spacer, Stack } from "./ui"
 
 /**
  * Full-screen previews of the ten `layout/` modules.
@@ -57,33 +60,14 @@ export interface ScreenPreview {
   render: (ctx: ScreenPreviewContext) => React.ReactNode
 }
 
+/**
+ * Label-only on purpose: Heroicons ships no brand logos, so there is no Apple or
+ * Google mark to draw. `MobileSocialProvider.icon` is optional, which is why the
+ * sign-in and sign-up screens render these as plain outline buttons.
+ */
 const OAUTH_PROVIDERS: MobileSocialProvider[] = [
-  { id: "apple", label: "Apple", icon: <Glyph glyph="◉" size="callout" /> },
-  { id: "google", label: "Google", icon: <Glyph glyph="G" size="callout" /> },
-]
-
-const ONBOARDING_SLIDES: MobileOnboardingSlide[] = [
-  {
-    id: "capture",
-    title: "Capture anything",
-    description:
-      "Notes, links and files land in one inbox. No folders to file them into before you can move on.",
-    media: <Glyph glyph="◇" size="display" />,
-  },
-  {
-    id: "organise",
-    title: "Organise later",
-    description:
-      "Triage in batches when you have time. Every capture keeps its original context and source.",
-    media: <Glyph glyph="▤" size="display" />,
-  },
-  {
-    id: "share",
-    title: "Share the result",
-    description:
-      "Publish a read-only view, or invite collaborators into the workspace with role-based access.",
-    media: <Glyph glyph="◎" size="display" />,
-  },
+  { id: "apple", label: "Apple" },
+  { id: "google", label: "Google" },
 ]
 
 /* -------------------------------------------------------------------------- */
@@ -171,7 +155,7 @@ function AuthShellPreview({ onClose }: ScreenPreviewContext) {
 
   return (
     <MobileAuthShell
-      logo={<Glyph glyph="◎" size="display" />}
+      logo={<ShowcaseIcon name="logo" size="xl" />}
       heading="The auth shell"
       subheading="Logo, heading, form, aside and footer — the frame every authentication screen shares."
       onBack={onClose}
@@ -204,9 +188,35 @@ function AuthShellPreview({ onClose }: ScreenPreviewContext) {
 function OnboardingPreview({ onClose }: ScreenPreviewContext) {
   const [index, setIndex] = React.useState(0)
 
+  // Built during render rather than at module scope: the media slots are icons,
+  // and `ShowcaseIcon` reads the theme — which only exists inside a component.
+  const slides: MobileOnboardingSlide[] = [
+    {
+      id: "capture",
+      title: "Capture anything",
+      description:
+        "Notes, links and files land in one inbox. No folders to file them into before you can move on.",
+      media: <ShowcaseIcon name="capture" size="lg" />,
+    },
+    {
+      id: "organise",
+      title: "Organise later",
+      description:
+        "Triage in batches when you have time. Every capture keeps its original context and source.",
+      media: <ShowcaseIcon name="organise" size="lg" />,
+    },
+    {
+      id: "share",
+      title: "Share the result",
+      description:
+        "Publish a read-only view, or invite collaborators into the workspace with role-based access.",
+      media: <ShowcaseIcon name="share" size="lg" />,
+    },
+  ]
+
   return (
     <MobileOnboardingScreen
-      slides={ONBOARDING_SLIDES}
+      slides={slides}
       activeIndex={index}
       onIndexChange={setIndex}
       onDone={onClose}
@@ -415,43 +425,63 @@ const STATUS_VARIANTS: MobileStatusVariant[] = [
   "maintenance",
 ]
 
+/**
+ * Copy, icon and accent for each outcome.
+ *
+ * The accent mapping deliberately mirrors `MobileStatusScreen`'s own internal
+ * `ACCENT_TOKEN` table. The screen colours its built-in glyph from that table but
+ * renders a supplied `icon` untouched, so the caller has to tint it — and the
+ * tint should be the one the screen would have chosen itself.
+ */
 const STATUS_COPY: Record<
   MobileStatusVariant,
-  { title: string; message: string; glyph: string }
+  {
+    title: string
+    message: string
+    icon: ShowcaseIconName
+    accent: keyof ColorRamp
+  }
 > = {
   success: {
     title: "Payment received",
     message: "Your receipt is on its way to ada@example.com.",
-    glyph: "✓",
+    icon: "check",
+    accent: "success",
   },
   info: {
     title: "Export ready",
     message: "The archive holds 1,284 records and expires in 24 hours.",
-    glyph: "i",
+    icon: "info",
+    accent: "info",
   },
   warning: {
     title: "Storage nearly full",
     message: "You have used 47 of 50 GB. New uploads will fail soon.",
-    glyph: "!",
+    icon: "warning",
+    accent: "warning",
   },
   error: {
     title: "Something went wrong",
     message: "The request timed out. Nothing was charged.",
-    glyph: "✕",
+    icon: "error",
+    accent: "destructive",
   },
   notFound: {
     title: "Page not found",
     message: "That link may have expired, or the item was deleted.",
-    glyph: "?",
+    icon: "help",
+    accent: "muted",
   },
   maintenance: {
     title: "Back shortly",
     message: "We are deploying. This usually takes under five minutes.",
-    glyph: "⌛",
+    icon: "time",
+    accent: "warning",
   },
 }
 
 function StatusPreview({ onClose }: ScreenPreviewContext) {
+  const { colors } = useMobileTheme()
   const [index, setIndex] = React.useState(0)
   const variant = STATUS_VARIANTS[index] ?? "success"
   const copy = STATUS_COPY[variant]
@@ -461,7 +491,9 @@ function StatusPreview({ onClose }: ScreenPreviewContext) {
   return (
     <MobileStatusScreen
       variant={variant}
-      icon={<Glyph glyph={copy.glyph} size="display" />}
+      icon={
+        <ShowcaseIcon name={copy.icon} size="xl" color={colors[copy.accent]} />
+      }
       title={copy.title}
       message={copy.message}
       onBack={onClose}

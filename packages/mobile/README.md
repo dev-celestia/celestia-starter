@@ -258,7 +258,7 @@ Every component in this package follows the same non-negotiables:
 3. **Haptics fire on the causal commit frame** — `Light` for normal presses, `Medium` for destructive, `selectionAsync` for toggles. Never on mount.
 4. **16px font floor** on text inputs, to prevent OS viewport zoom.
 5. **Tabular numerals** for counters, prices and timers.
-6. **Icons arrive as props.** The package takes no icon dependency; only structural marks (a tick, a chevron) may be drawn inline.
+6. **Icons arrive as props.** The package takes no icon dependency; only structural marks (a tick, a chevron) may be drawn inline. The `apps/mobile` showcase is the consumer side of this rule and supplies its own set — Heroicons drawn with `react-native-svg`. The package footprint is unchanged: nothing here needs an icon library.
 7. **No hover-only affordances.**
 8. **Zero extra runtime dependencies.** Paging uses `ScrollView` + `pagingEnabled`, motion uses RN `Animated`, keyboard handling uses `KeyboardAvoidingView` — no `reanimated`, no `gesture-handler`, no navigation library.
 9. **Forms never disable the submit button for empty fields.** The button stays pressable and names what is missing; it is disabled only while loading. A dead button with no explanation is the single most common form defect — the user cannot tell whether the form is broken or their input is wrong.

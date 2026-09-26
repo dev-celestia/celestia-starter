@@ -279,7 +279,7 @@ convention and review, not by a linter, so they are worth knowing before adding 
 3. **Haptics fire on the causal commit frame** — `Light` for normal presses, `Medium` for destructive, `selectionAsync` for toggles. Never on mount.
 4. **16px font floor** on text inputs, to prevent OS viewport zoom.
 5. **Tabular numerals** for counters, prices and timers.
-6. **Icons arrive as props.** The package takes no icon dependency; only structural marks (a tick, a chevron, a magnifier) may be drawn inline.
+6. **Icons arrive as props.** The package takes no icon dependency; only structural marks (a tick, a chevron, a magnifier) may be drawn inline. The showcase app is the consumer side of that rule and supplies its own set — see [Icons in the showcase](#icons-in-the-showcase).
 7. **No hover-only affordances.**
 8. **Forms never disable the submit button for empty fields.** It stays pressable and names what is missing; it is disabled only while loading.
 9. **Screens are presentational.** Props in, callbacks out — no fetching, no auth client, no routing.
@@ -294,6 +294,40 @@ The package adds **no runtime dependencies of its own**. Two deliberate conseque
 The only non-obvious dependency is `react-native-safe-area-context`, which `apps/mobile` already
 used before the package needed it.
 
+## Icons in the showcase
+
+`packages/mobile` ships no icon dependency, so `apps/mobile` picks its own. It uses
+[Heroicons](https://heroicons.com) drawn with `react-native-svg` — the SVG route rather than an icon font.
+
+```bash
+npx expo install react-native-svg
+pnpm --filter mobile add react-native-heroicons
+```
+
+Four reasons this route, and not a font:
+
+- **`@expo/vector-icons` is being retired.** Expo now recommends migrating to the
+  `@react-native-vector-icons/*` font packages, which work in Expo Go, dev builds and every platform.
+  Heroicons has no package in that scope, so the showcase takes the SVG route instead — the same
+  destination, a different mechanism.
+- **No native rebuild.** `react-native-svg` is *included in Expo Go*, so nothing here needs a development
+  build. Use `npx expo install` so the SDK-compatible version is picked — do not hand-pick one.
+- **No font loading at all.** Nothing is added to the `expo-font` config plugin, so the icon-font conflict
+  that the Expo migration guide warns about cannot arise.
+- **Per-icon imports.** `apps/mobile/src/showcase/icons.tsx` imports one module per icon, by deep path. The
+  package's barrel (`react-native-heroicons/outline`) re-exports all 324 icons from a single module and the
+  package declares no `exports` map, so importing from the barrel would ship the entire set.
+
+Every icon is drawn by one component, `ShowcaseIcon`, which maps a semantic name (`"trash"`, `"search"`) to
+a glyph and reads its colour from `useMobileTheme()`. Nothing outside `icons.tsx` names a Heroicons
+component, so the set — or the style, outline versus solid — is swappable in one file.
+
+<Callout type="warn" title="Heroicons has no brand logos">
+Tailwind excludes brand marks from the set, so there is no Apple, Google, GitHub or WeChat glyph. The
+federated sign-in rows are therefore label-only, which is also why `MobileSocialProvider.icon` stays
+optional. Real brand marks need a different source — they are not in any general-purpose UI icon set.
+</Callout>
+
 ## Status
 
 <Callout type="warn" title="Not yet verified on a device">
@@ -302,7 +336,8 @@ device** in this workspace — `pnpm install` cannot complete in the environment
 so the Expo app has no `node_modules`. `@expo/ui` renders real native views, so visual and gesture
 behaviour cannot be checked headlessly.
 
-Two things need a device before this is trusted: the whole package end to end, and
-`MobileSlider`'s gesture geometry in particular — a `PanResponder` cannot be validated by a
-typecheck.
+Three things need a device before this is trusted: the whole package end to end; `MobileSlider`'s
+gesture geometry in particular — a `PanResponder` cannot be validated by a typecheck; and the showcase
+icons, where optical size, stroke weight and vertical alignment inside a 44pt control are all things a
+typecheck cannot see.
 </Callout>

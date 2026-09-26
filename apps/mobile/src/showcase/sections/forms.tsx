@@ -11,7 +11,8 @@ import {
   type MobileSocialProvider,
 } from "@celestia-project/mobile"
 import type { ShowcaseContext } from "../types"
-import { Glyph, Readout, Row, Spacer, Specimen, Stack } from "../ui"
+import { ShowcaseIcon, type ShowcaseIconName } from "../icons"
+import { Readout, Row, Spacer, Specimen, Stack } from "../ui"
 
 /**
  * Forms — the four modules that collect input.
@@ -27,11 +28,25 @@ import { Glyph, Readout, Row, Spacer, Specimen, Stack } from "../ui"
  *    or they are. These screens validate on submit and *name* the missing field.
  */
 
-const SOCIAL_PROVIDERS: MobileSocialProvider[] = [
-  { id: "apple", label: "Apple", icon: <Glyph glyph="◉" /> },
-  { id: "google", label: "Google", icon: <Glyph glyph="G" /> },
-  { id: "github", label: "GitHub", icon: <Glyph glyph="◆" /> },
-  { id: "wechat", label: "WeChat", icon: <Glyph glyph="◍" /> },
+/**
+ * Federated sign-in providers, without their marks.
+ *
+ * `MobileSocialProvider.icon` is optional, and the four brand rows are exactly
+ * why that matters: **Heroicons ships no brand logos** — Tailwind excludes them
+ * deliberately — so there is no Apple, Google, GitHub or WeChat glyph to draw.
+ * The SSO row carries a mark instead, which keeps the `icon` slot exercised
+ * without inventing a logo the set does not contain.
+ */
+type ProviderDefinition = Omit<MobileSocialProvider, "icon"> & {
+  icon?: ShowcaseIconName
+}
+
+const SOCIAL_PROVIDERS: ProviderDefinition[] = [
+  { id: "apple", label: "Apple" },
+  { id: "google", label: "Google" },
+  { id: "github", label: "GitHub" },
+  { id: "wechat", label: "WeChat" },
+  { id: "sso", label: "Company SSO", icon: "sso" },
 ]
 
 export function FormsSection({ ctx }: { ctx: ShowcaseContext }) {
@@ -44,6 +59,15 @@ export function FormsSection({ ctx }: { ctx: ShowcaseContext }) {
   const [handleError, setHandleError] = React.useState<string | boolean>(false)
   const [terms, setTerms] = React.useState(false)
   const [lastEvent, setLastEvent] = React.useState("—")
+
+  // The icon node has to be built during render: `ShowcaseIcon` reads the theme,
+  // which only exists inside a component.
+  const providers: MobileSocialProvider[] = SOCIAL_PROVIDERS.map(
+    ({ icon, ...provider }) => ({
+      ...provider,
+      icon: icon ? <ShowcaseIcon name={icon} size="sm" /> : undefined,
+    })
+  )
 
   return (
     <View>
@@ -78,8 +102,8 @@ export function FormsSection({ ctx }: { ctx: ShowcaseContext }) {
           />
           <MobileTextInput
             placeholder="With leading and trailing slots"
-            leading={<Glyph glyph="@" size="callout" />}
-            trailing={<Glyph glyph="✓" size="callout" />}
+            leading={<ShowcaseIcon name="at" size="sm" />}
+            trailing={<ShowcaseIcon name="check" size="sm" />}
           />
           <MobileTextInput
             placeholder="Error state"
@@ -188,7 +212,7 @@ export function FormsSection({ ctx }: { ctx: ShowcaseContext }) {
 
       <Specimen
         title="Social sign-in"
-        description="Providers arrive as data, icons included, so the package keeps its no-icon-dependency rule. One column is the default; two is for short labels."
+        description="Providers arrive as data, so the package keeps its no-icon-dependency rule. icon is optional — Heroicons has no brand logos, so only the SSO row carries a mark. One column is the default; two is for short labels."
         modulePath="composite/social-auth-buttons"
       >
         <MobileText variant="caption" color="muted">
@@ -196,7 +220,7 @@ export function FormsSection({ ctx }: { ctx: ShowcaseContext }) {
         </MobileText>
         <Spacer size={10} />
         <MobileSocialAuthButtons
-          providers={SOCIAL_PROVIDERS.slice(0, 2)}
+          providers={providers.slice(0, 2)}
           onProviderPress={(provider) => setLastEvent(`oauth · ${provider.id}`)}
         />
         <Spacer size={18} />
@@ -205,12 +229,12 @@ export function FormsSection({ ctx }: { ctx: ShowcaseContext }) {
         </MobileText>
         <Spacer size={10} />
         <MobileSocialAuthButtons
-          providers={SOCIAL_PROVIDERS}
+          providers={providers}
           columns={2}
           onProviderPress={(provider) => setLastEvent(`oauth · ${provider.id}`)}
         />
         <Spacer size={10} />
-        <MobileSocialAuthButtons providers={SOCIAL_PROVIDERS} disabled />
+        <MobileSocialAuthButtons providers={providers} disabled />
         <Readout label="Last event" value={lastEvent} />
         <Readout label="Scheme in context" value={ctx.scheme} />
       </Specimen>

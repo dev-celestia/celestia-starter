@@ -8,7 +8,6 @@ import {
   MobileCardTitle,
   MobileText,
   useMobileTheme,
-  type MobileTextVariant,
 } from "@celestia-project/mobile"
 
 /**
@@ -126,25 +125,13 @@ export function Spacer({ size }: { size: number }) {
 }
 
 /**
- * Icon stand-in.
+ * Icons live in `./icons`.
  *
- * The package ships **no icon dependency** — every icon arrives as a prop. That
- * is why the showcase can render icon slots with a text glyph: it proves the
- * seam is real, and it keeps the demo honest about what the library provides.
+ * This module used to export a `Glyph` helper that rendered an icon slot with a
+ * text character, because the showcase had no icon set. It has one now, so every
+ * slot gets a real icon and the stand-in is gone — `ShowcaseIcon` is the single
+ * entry point.
  */
-export function Glyph({
-  glyph,
-  size = "title",
-}: {
-  glyph: string
-  size?: MobileTextVariant
-}) {
-  return (
-    <MobileText variant={size} align="center">
-      {glyph}
-    </MobileText>
-  )
-}
 
 /** A colour chip labelled with its token name. */
 export function Swatch({ token, value }: { token: string; value: string }) {

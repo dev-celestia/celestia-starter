@@ -8,7 +8,8 @@
     "ios": "expo start --ios",
     "android": "expo start --android",
     "web": "expo start --web",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write \"**/*.{ts,tsx}\""
   },
   "dependencies": {
     "@celestia-project/mobile": "workspace:*",
@@ -18,7 +19,9 @@
     "expo-status-bar": "^57.0.0",
     "react": "19.2.4",
     "react-native": "^0.87.1",
-    "react-native-safe-area-context": "^5.0.0"
+    "react-native-heroicons": "^4.0.0",
+    "react-native-safe-area-context": "^5.0.0",
+    "react-native-svg": "15.15.4"
   },
   "devDependencies": {
     "@types/react": "19",

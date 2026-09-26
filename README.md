@@ -40,7 +40,7 @@ pnpm --filter @workspace/db db:push
 pnpm dev
 ```
 
-- **Web App & Docs** → [http://localhost:3000](http://localhost:3000) (Docs at [/docs](http://localhost:3000/docs))
+- **Web App & Docs** → [http://localhost:1212](http://localhost:1212) (Docs at [/docs](http://localhost:1212/docs))
 - **API Server (Backend)** → [http://localhost:4000](http://localhost:4000)
 - **Mobile App (Expo)** → not started by `pnpm dev`; run `pnpm mobile` in a second terminal (Metro bundler, then press `i` / `a` for a simulator)
 
@@ -62,7 +62,7 @@ Celestia Starter enforces a strict **separated architecture** between frontend a
 ```
 
 - **Backend API (`apps/api`)**: Powered by Hono running on Node.js (port 4000). Owns the database connection, business logic, authentication server instance, and CRUD endpoints. Exposes end-to-end typed contracts via Hono RPC.
-- **Frontend (`apps/web`)**: Next.js 15 App Router (port 3000). Pure UI layer with zero direct database access and no server-side auth secrets. Houses landing pages, interactive component showcase, and full documentation. Proxies `/api/*` to the backend.
+- **Frontend (`apps/web`)**: Next.js 15 App Router (port 1212). Pure UI layer with zero direct database access and no server-side auth secrets. Houses landing pages, interactive component showcase, and full documentation. Proxies `/api/*` to the backend.
 - **Mobile App (`apps/mobile`)**: Expo (React Native) client that consumes `@celestia-project/mobile` **from source** — there is no build step, Metro compiles the package's `.ts`/`.tsx` directly. It is not part of the `pnpm dev` pipeline; start it with `pnpm mobile`.
 - **Shared DB (`packages/db`)**: Drizzle ORM schema and PostgreSQL client (`@workspace/db`).
 - **Shared UI (`packages/ui`)**: `@celestia-project/ui` component library built on Base UI and Tailwind CSS v4.
@@ -88,7 +88,8 @@ celestia-starter/
 │   └── typescript-config/  # Shared TypeScript config presets
 ├── features/               # Modular, installable features (manifests + code)
 └── scripts/
-    └── publish.sh          # Automated npm publishing script (ui + cli only)
+    ├── publish.sh          # Automated npm publishing script (ui + cli only)
+    └── ui-audit/           # Static UI audit checks, run via `pnpm audit:ui`
 ```
 
 ---
@@ -162,9 +163,10 @@ rather than deleting a file it still needs.
 | `pnpm dev` | Start development servers for web and api in parallel |
 | `pnpm mobile` | Start the Expo dev server (Metro) for `apps/mobile` |
 | `pnpm build` | Build all applications and workspace packages via Turborepo |
-| `pnpm lint` | Run ESLint checks across all apps and packages |
+| `pnpm lint` | Verify lint coverage across the workspace, then run ESLint in the packages that declare it |
 | `pnpm typecheck` | Run `tsc --noEmit` across all workspace targets |
 | `pnpm test` | Run the feature-manager test suite (marker engine, manifests, install/remove lifecycle) |
+| `pnpm audit:ui` | Run the static UI audit: token contrast, theme parity, stylesheet compile, focus rings, feature templates |
 | `pnpm list-features` | List available and installed features |
 | `pnpm add-feature <name>` | Install a feature (add `--dry-run` to preview, `--force` to upgrade) |
 | `pnpm remove-feature <name>` | Uninstall a feature, restoring files shared with other features |

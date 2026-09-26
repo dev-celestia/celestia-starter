@@ -17,10 +17,12 @@ import {
   MobileSettingRow,
   MobileSeparator,
   MobileText,
+  useMobileTheme,
   type MobileAvatarGroupItem,
 } from "@celestia-project/mobile"
 import type { ShowcaseContext } from "../types"
-import { Glyph, Readout, Row, Spacer, Specimen, Stack } from "../ui"
+import { ShowcaseIcon } from "../icons"
+import { Readout, Row, Spacer, Specimen, Stack } from "../ui"
 
 /**
  * Data display — the five modules that present a collection or a record.
@@ -45,6 +47,7 @@ const COLLABORATORS: MobileAvatarGroupItem[] = [
 ]
 
 export function DataSection({ ctx }: { ctx: ShowcaseContext }) {
+  const { colors } = useMobileTheme()
   const [lastRow, setLastRow] = React.useState("—")
 
   return (
@@ -152,13 +155,15 @@ export function DataSection({ ctx }: { ctx: ShowcaseContext }) {
           <MobileSettingRow
             label="Two-factor authentication"
             description="Recommended"
-            trailing={<Glyph glyph="✓" size="callout" />}
+            trailing={<ShowcaseIcon name="check" size="sm" />}
             onPress={() => setLastRow("2FA")}
           />
           <MobileSeparator />
           <MobileSettingRow
             label="Delete workspace"
-            leading={<Glyph glyph="⌫" size="callout" />}
+            leading={
+              <ShowcaseIcon name="trash" size="sm" color={colors.destructive} />
+            }
             disabled
             onPress={() => setLastRow("should never fire")}
           />
@@ -171,7 +176,7 @@ export function DataSection({ ctx }: { ctx: ShowcaseContext }) {
         modulePath="composite/empty-state"
       >
         <MobileEmptyState
-          icon={<Glyph glyph="◇" size="display" />}
+          icon={<ShowcaseIcon name="note" size="xl" />}
           title="No projects yet"
           description="Projects group your documents, deployments and environments."
           action={

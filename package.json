@@ -5,8 +5,9 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
-    "lint": "turbo lint",
+    "lint": "node scripts/ui-audit/lint-coverage.mjs && turbo lint",
     "format": "turbo format",
+    "audit:ui": "node scripts/ui-audit/run.mjs",
     "typecheck": "turbo typecheck",
     "test": "turbo test",
     "docs": "turbo dev --filter=web",
