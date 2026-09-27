@@ -310,6 +310,13 @@ Below is the complete mapping of all 126 component modules in `packages/ui/src/c
 | `calendar` | `@celestia-project/ui/primitive/calendar` | `Calendar` | `react-day-picker` |
 | `carousel` | `@celestia-project/ui/primitive/carousel` | `Carousel`, `CarouselContent`, `CarouselItem`, `CarouselPrevious`, `CarouselNext` | `embla-carousel-react` |
 | `chart` | `@celestia-project/ui/composite/chart` | `ChartContainer`, `ChartTooltip`, `ChartTooltipContent`, `ChartLegend`, `ChartLegendContent`, `ChartStyle` | Recharts wrapper |
+| `chart-area` | `@celestia-project/ui/composite/chart-area` | `ChartArea` | Prefab area chart (gradient fill, stacking) |
+| `chart-bar` | `@celestia-project/ui/composite/chart-bar` | `ChartBar` | Prefab bar chart (vertical, horizontal, stacked) |
+| `chart-line` | `@celestia-project/ui/composite/chart-line` | `ChartLine` | Prefab line chart |
+| `chart-pie` | `@celestia-project/ui/composite/chart-pie` | `ChartPie` | Prefab pie/donut chart with center content |
+| `chart-radial` | `@celestia-project/ui/composite/chart-radial` | `ChartRadial` | Prefab radial gauge |
+| `chart-radar` | `@celestia-project/ui/composite/chart-radar` | `ChartRadar` | Prefab radar chart |
+| `chart-sparkline` | `@celestia-project/ui/composite/chart-sparkline` | `ChartSparkline` | Inline sparkline (line, area, bar) |
 | `progress` | `@celestia-project/ui/primitive/progress` | `Progress` | Base UI `Progress` |
 | `scroll-area` | `@celestia-project/ui/primitive/scroll-area` | `ScrollArea`, `ScrollBar` | Radix ScrollArea |
 

@@ -1,6 +1,6 @@
 ---
 title: "Chart"
-description: "Accessible, themeable charts built on `recharts`. `ChartContainer` injects color variables from a `ChartConfig`."
+description: "Accessible, themeable charts built on `recharts`. `ChartContainer` injects color variables from a `ChartConfig`, and the prefab `Chart*` components wrap it with axes, tooltip, and palette defaults."
 ---
 
 Accessible, themeable charts built on `recharts`. `ChartContainer` injects color variables from a `ChartConfig`.
@@ -36,3 +36,145 @@ const chartConfig = {
 ```
 
 Chart colors are defined by the `--chart-1` … `--chart-5` tokens in `globals.css`. Also exports `ChartLegend` / `ChartLegendContent`.
+
+## Ready-made chart components
+
+For common cases you don't need to compose recharts primitives yourself. The prefab components wrap `ChartContainer` with axes, tooltip, legend, and palette defaults — pass `data` and they render:
+
+<ChartKitPreview />
+
+All prefab charts share the same data model:
+
+- `data` — an array of row objects.
+- `xKey` — the category axis key. Defaults to the first non-numeric key of the first row.
+- `series` — which keys to plot, with optional `label` and `color`. Defaults to every key except `xKey`, colored by cycling through `--chart-1` … `--chart-5`.
+- `showGrid` / `showTooltip` / `showLegend` — toggle the chrome (grid and tooltip on, legend off by default).
+- `children` — extra recharts elements (e.g. `<ReferenceLine />`) rendered inside the chart.
+
+### ChartArea
+
+```tsx
+import { ChartArea } from "@celestia-project/ui/composite/chart-area"
+
+// Series and colors are inferred from the data keys.
+<ChartArea
+  data={[
+    { month: "Jan", revenue: 4200, expenses: 2400 },
+    { month: "Feb", revenue: 5100, expenses: 2900 },
+  ]}
+  xKey="month"
+  showLegend
+/>
+
+// Stacked, explicit series labels and colors
+<ChartArea
+  data={data}
+  xKey="month"
+  stacked
+  series={[
+    { key: "desktop", label: "Desktop", color: "var(--chart-1)" },
+    { key: "mobile", label: "Mobile", color: "var(--chart-2)" },
+  ]}
+/>
+```
+
+Accepts `curveType` (`"monotone" | "natural" | "linear" | "step"`, default `"monotone"`). Areas render with a vertical gradient fill.
+
+### ChartBar
+
+```tsx
+import { ChartBar } from "@celestia-project/ui/composite/chart-bar"
+
+<ChartBar data={data} xKey="browser" />
+<ChartBar data={data} xKey="browser" horizontal />
+<ChartBar data={data} xKey="month" stacked />
+```
+
+Accepts `horizontal`, `stacked`, and `barSize`. Radius and axis layout adapt to the orientation.
+
+### ChartLine
+
+```tsx
+import { ChartLine } from "@celestia-project/ui/composite/chart-line"
+
+<ChartLine data={data} xKey="month" dots showLegend />
+```
+
+Accepts `dots` and `curveType`, same as `ChartArea`.
+
+### ChartPie
+
+Takes one row per slice instead of the wide series model:
+
+```tsx
+import { ChartPie } from "@celestia-project/ui/composite/chart-pie"
+
+<ChartPie
+  data={[
+    { name: "Direct", value: 300 },
+    { name: "Organic", value: 220 },
+    { name: "Referral", value: 140 },
+  ]}
+  showLegend
+/>
+
+// Donut with centered content
+<ChartPie data={data} donut className="max-w-56">
+  <span className="text-3xl font-bold tabular-nums">750</span>
+  <span className="text-xs text-muted-foreground">Visitors</span>
+</ChartPie>
+```
+
+Accepts `donut`, `innerRadius`, `outerRadius`, `paddingAngle`, and `cornerRadius`. Slice colors cycle through the chart palette.
+
+### ChartRadial
+
+A radial gauge for a single value:
+
+```tsx
+import { ChartRadial } from "@celestia-project/ui/composite/chart-radial"
+
+<ChartRadial value={65} />
+
+// 270° gauge with a bottom gap and custom center content
+<ChartRadial value={42} max={80} startAngle={225} endAngle={-45} color="var(--chart-4)">
+  <span className="text-3xl font-bold tabular-nums">42/80</span>
+  <span className="text-xs text-muted-foreground">Tasks done</span>
+</ChartRadial>
+```
+
+Angles follow the recharts polar convention (0° = 3 o'clock, increasing counterclockwise); the defaults (`90` → `-270`) sweep clockwise from 12 o'clock. The center shows the percentage unless you pass `children`.
+
+### ChartRadar
+
+```tsx
+import { ChartRadar } from "@celestia-project/ui/composite/chart-radar"
+
+<ChartRadar data={data} xKey="skill" showLegend />
+```
+
+Accepts `fillOpacity` (default `0.3`) and `dots`. Uses the same series model as the cartesian charts.
+
+### ChartSparkline
+
+A minimal inline chart for KPI cards — no axes, grid, or tooltip:
+
+```tsx
+import { ChartSparkline } from "@celestia-project/ui/composite/chart-sparkline"
+
+<ChartSparkline data={[12, 18, 9, 22, 15, 27]} className="w-32" showDot />
+<ChartSparkline data={rows} dataKey="price" variant="area" className="h-8 w-24" />
+<ChartSparkline data={rows} dataKey="count" variant="bar" color="var(--chart-2)" />
+```
+
+Accepts plain numbers or row objects (with `dataKey`), plus `variant` (`"line" | "area" | "bar"`), `color`, `strokeWidth`, and `showDot` (highlights the last data point).
+
+### Helpers
+
+`@celestia-project/ui/composite/chart` also exports the building blocks the prefabs use:
+
+- `ChartSeries` / `ResolvedChartSeries` — the series types.
+- `CHART_COLORS` and `chartColor(index)` — the chart palette with cycling.
+- `resolveChartSeries(data, xKey?, series?)` — the series/xKey inference, useful for custom charts built on `ChartContainer`.
+
+Note: series keys are used as CSS variable names (`--color-{key}`) by `ChartStyle`, so avoid keys with spaces or characters that are invalid in CSS custom property names.

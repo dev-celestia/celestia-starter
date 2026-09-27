@@ -68,6 +68,9 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@celestia-project/ui/composite/chart"
+import { ChartArea } from "@celestia-project/ui/composite/chart-area"
+import { ChartPie } from "@celestia-project/ui/composite/chart-pie"
+import { ChartSparkline } from "@celestia-project/ui/composite/chart-sparkline"
 import { Checkbox } from "@celestia-project/ui/primitive/checkbox"
 import {
   Collapsible,
@@ -613,6 +616,42 @@ export function ChartPreview() {
           <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
         </BarChart>
       </ChartContainer>
+    </PreviewShell>
+  )
+}
+
+const chartKitData = [
+  { month: "Jan", revenue: 4200, expenses: 2400 },
+  { month: "Feb", revenue: 5100, expenses: 2900 },
+  { month: "Mar", revenue: 4800, expenses: 2700 },
+  { month: "Apr", revenue: 6200, expenses: 3100 },
+  { month: "May", revenue: 5900, expenses: 3300 },
+  { month: "Jun", revenue: 7400, expenses: 3600 },
+]
+
+const chartKitPie = [
+  { name: "Direct", value: 300 },
+  { name: "Organic", value: 220 },
+  { name: "Referral", value: 140 },
+  { name: "Social", value: 90 },
+]
+
+export function ChartKitPreview() {
+  return (
+    <PreviewShell>
+      <div className="grid w-full gap-8 md:grid-cols-2">
+        <ChartArea data={chartKitData} xKey="month" showLegend className="h-56" />
+        <ChartPie data={chartKitPie} donut className="max-w-56">
+          <span className="text-2xl font-bold tabular-nums">750</span>
+          <span className="text-xs text-muted-foreground">Visitors</span>
+        </ChartPie>
+        <ChartSparkline
+          data={[12, 18, 9, 22, 15, 27, 19, 31, 24]}
+          variant="area"
+          className="w-40"
+          showDot
+        />
+      </div>
     </PreviewShell>
   )
 }

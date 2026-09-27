@@ -11,7 +11,7 @@
 
 ## Features
 
-- **126 component modules** — organized as primitives (47), composites (25), and AI chat components (54)
+- **133 component modules** — organized as primitives (47), composites (32), and AI chat components (54)
 - Built on [Base UI](https://base-ui.com) for accessible, unstyled primitives
 - Styled with **Tailwind CSS v4** and `tw-animate-css`
 - Full **TypeScript** support with bundled `.d.ts` types
@@ -462,6 +462,9 @@ All three tiers are also re-exported from the barrel `@celestia-project/ui`.
 | `ArticleCard` (+ parts)                   | `composite/article-card` |
 | `Attachment`                              | `composite/attachment` |
 | `Chart` (+ parts)                         | `composite/chart` |
+| `ChartArea`, `ChartBar`, `ChartLine`      | `composite/chart-area`, `composite/chart-bar`, `composite/chart-line` |
+| `ChartPie`, `ChartRadial`, `ChartRadar`   | `composite/chart-pie`, `composite/chart-radial`, `composite/chart-radar` |
+| `ChartSparkline`                          | `composite/chart-sparkline` |
 | `DataTable` (+ parts)                     | `composite/data-table` |
 | `Empty` (+ parts)                         | `composite/empty` |
 | `Message`, `MessageBubble`                | `composite/message` |
