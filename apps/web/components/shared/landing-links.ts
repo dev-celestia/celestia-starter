@@ -11,7 +11,6 @@
 /** In-page sections, in the order they appear on the page. */
 export const LANDING_ANCHORS = [
   { label: "Services", href: "#services" },
-  { label: "Case Studies", href: "#case-studies" },
   { label: "Process", href: "#process" },
   { label: "Tech Stack", href: "#tech-stack" },
 ] as const
@@ -21,6 +20,7 @@ export const LANDING_ANCHORS = [
 export const LANDING_SURFACES = [
   { label: "Design System", href: "/design-system", external: false },
   { label: "Documentation", href: "/docs", external: false },
+  { label: "Layout & Pages", href: "/layout", external: false },
   { label: "Feature Installer", href: "/feature-installer", external: false },
   { label: "Hexbuffer", href: "https://0xbuffer.com/", external: true },
 ] as const

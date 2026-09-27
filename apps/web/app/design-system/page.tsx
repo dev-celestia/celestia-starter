@@ -3,25 +3,22 @@
 import * as React from "react"
 import { SonnerToaster } from "@celestia-project/ui"
 import { DesignSystemProvider, useDesignSystem } from "@/components/design-system/hooks/use-design-system"
-import { DesignSystemHeader } from "@/components/design-system/design-system-header"
 import { HeroSection } from "@/components/design-system/hero-section"
 import { ShowcaseTab } from "@/components/design-system/showcase-tab"
 import { TokensTab } from "@/components/design-system/tokens-tab"
 import { GuideTab } from "@/components/design-system/guide-tab"
 import { PrinciplesTab } from "@/components/design-system/principles-tab"
 import { BackToTop } from "@/components/design-system/back-to-top"
+import { SiteLayout } from "@/components/shared/site-layout"
 
 function DesignSystemContent() {
   const { activeSection } = useDesignSystem()
 
   return (
-    <div className="min-h-screen bg-background text-foreground selection:bg-primary/20">
+    <>
       <SonnerToaster position="bottom-right" />
 
-      {/* Navigation Header */}
-      <DesignSystemHeader />
-
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-[calc(6rem+env(safe-area-inset-bottom,0px))]">
+      <main className="mx-auto max-w-7xl px-5 pb-[calc(6rem+env(safe-area-inset-bottom,0px))] sm:px-8">
         {/* Hero & Navigation Section */}
         <HeroSection />
 
@@ -34,7 +31,7 @@ function DesignSystemContent() {
 
       {/* Floating Back to Top Button */}
       <BackToTop />
-    </div>
+    </>
   )
 }
 
@@ -42,7 +39,16 @@ export default function DesignSystemPage() {
   return (
     <React.Suspense fallback={<div className="min-h-screen bg-background" />}>
       <DesignSystemProvider>
-        <DesignSystemContent />
+        <SiteLayout
+          anchors={[]}
+          cta={null}
+          footerGroups={{}}
+          className="selection:bg-primary/20"
+          constrainContent={false}
+          footerMaxWidth="max-w-7xl"
+        >
+          <DesignSystemContent />
+        </SiteLayout>
       </DesignSystemProvider>
     </React.Suspense>
   )

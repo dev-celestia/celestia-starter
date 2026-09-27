@@ -192,7 +192,6 @@ export function ContactSection() {
                     <NativeSelectOption value="web">Web Application</NativeSelectOption>
                     <NativeSelectOption value="mobile">Mobile App</NativeSelectOption>
                     <NativeSelectOption value="dedicated">Dedicated Team</NativeSelectOption>
-                    <NativeSelectOption value="cloud">Cloud / DevOps</NativeSelectOption>
                     <NativeSelectOption value="other">Other</NativeSelectOption>
                   </NativeSelect>
                 </Field>

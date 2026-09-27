@@ -1,7 +1,6 @@
 import Link from "next/link"
 import {
   ArrowRightIcon,
-  CloudIcon,
   CodeIcon,
   DeviceMobileIcon,
   UsersThreeIcon,
@@ -28,13 +27,6 @@ const SERVICES = [
     description:
       "iOS, Android, and cross-platform mobile experiences. Native performance with Flutter and React Native, shipped with automated CI/CD pipelines.",
     tags: ["Flutter", "React Native", "Swift", "Kotlin"],
-  },
-  {
-    icon: CloudIcon,
-    title: "Cloud & DevOps Transformation",
-    description:
-      "AWS, GCP, and Azure migrations with zero-downtime deployment strategies, containerized microservices, and fully automated CI/CD infrastructure.",
-    tags: ["AWS", "Kubernetes", "Terraform", "Docker"],
   },
   {
     icon: WrenchIcon,

@@ -52,19 +52,6 @@ const CATEGORIES = [
     ],
   },
   {
-    id: "cloud",
-    label: "Cloud & DevOps",
-    techs: [
-      { name: "AWS", tag: "Cloud" },
-      { name: "GCP", tag: "Cloud" },
-      { name: "Azure", tag: "Cloud" },
-      { name: "Docker", tag: "Containers" },
-      { name: "Kubernetes", tag: "Orchestration" },
-      { name: "Terraform", tag: "IaC" },
-      { name: "GitHub Actions", tag: "CI/CD" },
-    ],
-  },
-  {
     id: "data",
     label: "Data & AI",
     techs: [
