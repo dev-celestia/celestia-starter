@@ -327,6 +327,88 @@ function ChartLegendContent({
   )
 }
 
+const CHART_COLORS = [
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+] as const
+
+export type ChartSeries = {
+  /** Data key for the series. */
+  key: string
+  /** Display label. Defaults to a humanized version of the key. */
+  label?: string
+  /** Series color. Defaults to the next chart palette color. */
+  color?: string
+}
+
+export type ResolvedChartSeries = Required<ChartSeries>
+
+function humanizeKey(key: string) {
+  const spaced = key
+    .replace(/[_-]+/g, " ")
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1)
+}
+
+function inferXKey(data: Record<string, unknown>[]) {
+  const first = data.find((row) => row != null && typeof row === "object")
+  if (!first) {
+    return undefined
+  }
+
+  const keys = Object.keys(first)
+  return (
+    keys.find(
+      (key) =>
+        typeof first[key] !== "number" && typeof first[key] !== "boolean"
+    ) ?? keys[0]
+  )
+}
+
+/**
+ * Chart palette color at `index`, cycling through the five chart tokens.
+ */
+function chartColor(index: number): string {
+  return CHART_COLORS[index % CHART_COLORS.length] ?? CHART_COLORS[0]
+}
+
+/**
+ * Derives the category axis key and a fully-resolved series list for the
+ * prefab chart components. When `series` is omitted, every data key except
+ * `xKey` becomes a series, colored by cycling through the chart palette.
+ */
+function resolveChartSeries(
+  data: Record<string, unknown>[],
+  xKey?: string,
+  series?: ChartSeries[]
+): { xKey?: string; series: ResolvedChartSeries[] } {
+  const resolvedXKey = xKey ?? inferXKey(data)
+  const firstRow = data.find((row) => row != null && typeof row === "object")
+  const derived =
+    series ??
+    (firstRow
+      ? Object.keys(firstRow)
+          .filter((key) => key !== resolvedXKey)
+          .map((key, index) => ({
+            key,
+            label: humanizeKey(key),
+            color: chartColor(index),
+          }))
+      : [])
+
+  return {
+    xKey: resolvedXKey,
+    series: derived.map((item, index) => ({
+      key: item.key,
+      label: item.label ?? humanizeKey(item.key),
+      color: item.color ?? chartColor(index),
+    })),
+  }
+}
+
 function getPayloadConfigFromPayload(
   config: ChartConfig,
   payload: unknown,
@@ -370,6 +452,9 @@ export {
   ChartLegend,
   ChartLegendContent,
   ChartStyle,
+  CHART_COLORS,
+  chartColor,
+  resolveChartSeries,
 }
 
 export {

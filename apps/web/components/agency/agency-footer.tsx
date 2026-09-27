@@ -13,7 +13,6 @@ import { LogoMark } from "@/components/shared/logo-mark"
 const LINKS = {
   Company: [
     { label: "Services", href: "#services" },
-    { label: "Case Studies", href: "#case-studies" },
     { label: "How We Work", href: "#process" },
     { label: "Tech Stack", href: "#tech-stack" },
   ],

@@ -2,7 +2,6 @@ import type { Metadata } from "next"
 
 import { AgencyFooter } from "@/components/agency/agency-footer"
 import { LandingNav } from "@/components/shared/landing-nav"
-import { CaseStudiesSection } from "@/components/agency/case-studies-section"
 import { ContactSection } from "@/components/agency/contact-section"
 import { DeliveryModelsSection } from "@/components/agency/delivery-models-section"
 import { AgencyHero } from "@/components/agency/hero-section"
@@ -35,8 +34,6 @@ export default function HomePage() {
         <div className="mx-auto w-full max-w-[960px] px-5 sm:px-8">
           <AgencyHero />
           <ServicesSection />
-          {/* Proof sits directly after the claim it supports. */}
-          <CaseStudiesSection />
           <ProcessSection />
           <DeliveryModelsSection />
           <TechStackSection />

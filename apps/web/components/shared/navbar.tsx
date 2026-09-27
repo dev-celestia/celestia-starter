@@ -48,7 +48,6 @@ import { ThemeCustomizer } from "@/components/shared/theme-customizer"
 /** Landing: in-page sections, in the order they appear on the page. */
 const LANDING_LINKS = [
   { label: "Services", href: "#services" },
-  { label: "Case Studies", href: "#case-studies" },
   { label: "Process", href: "#process" },
   { label: "Tech Stack", href: "#tech-stack" },
 ]

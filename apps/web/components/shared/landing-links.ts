@@ -11,7 +11,6 @@
 /** In-page sections, in the order they appear on the page. */
 export const LANDING_ANCHORS = [
   { label: "Services", href: "#services" },
-  { label: "Case Studies", href: "#case-studies" },
   { label: "Process", href: "#process" },
   { label: "Tech Stack", href: "#tech-stack" },
 ] as const
