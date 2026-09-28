@@ -214,7 +214,7 @@ export function getDocsNavigation(): NavGroup[] {
             subItems = []
           }
           const rawHeader = subSlug.replace(/^---+|---+$/g, "").trim()
-          subGroupName = subMetaTitle ? `${subMetaTitle}: ${rawHeader}` : rawHeader
+          subGroupName = rawHeader
           continue
         }
 

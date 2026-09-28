@@ -1,6 +1,6 @@
 # Celestia Starter
 
-> A production-ready, full-stack monorepo starter built with **Next.js 15**, **Hono**, **Better Auth**, **Drizzle ORM**, **Base UI**, **Tailwind CSS v4**, and **Expo / React Native**.
+> A production-ready, full-stack monorepo starter built with **Next.js 16**, **Hono**, **Better Auth**, **Drizzle ORM**, **Base UI**, **Tailwind CSS v4**, and **Expo / React Native**.
 
 [![npm @celestia-project/create](https://img.shields.io/npm/v/@celestia-project/create?label=%40celestia-project%2Fcreate)](https://www.npmjs.com/package/@celestia-project/create)
 [![npm @celestia-project/ui](https://img.shields.io/npm/v/@celestia-project/ui?label=%40celestia-project%2Fui)](https://www.npmjs.com/package/@celestia-project/ui)
@@ -42,7 +42,7 @@ pnpm dev
 
 - **Web App & Docs** → [http://localhost:1212](http://localhost:1212) (Docs at [/docs](http://localhost:1212/docs))
 - **API Server (Backend)** → [http://localhost:4000](http://localhost:4000)
-- **Mobile App (Expo)** → not started by `pnpm dev`; run `pnpm mobile` in a second terminal (Metro bundler, then press `i` / `a` for a simulator)
+- **Mobile App (Expo)** → not started by `pnpm dev`; run `pnpm mobile` in a second terminal (Metro bundler, then press `i` / `a` for a simulator), or `pnpm --filter mobile ios` / `android` to target one directly. Web is not a supported target: `@expo/ui` has no web implementation — see [Platform support](apps/web/content/docs/mobile.mdx)
 
 ---
 
@@ -53,7 +53,7 @@ Celestia Starter enforces a strict **separated architecture** between frontend a
 ```
 ┌────────────────────────────────┐       /api/* (proxy)       ┌────────────────────────────────┐
 │         apps/web (UI)          │  ───────────────────────▶  │        apps/api (Hono)         │
-│  Next.js 15 App Router · Pure  │  same-origin via rewrites  │  Backend API · Better Auth     │
+│  Next.js 16 App Router · Pure  │  same-origin via rewrites  │  Backend API · Better Auth     │
 └────────────────────────────────┘                            └───────────────┬────────────────┘
                                                                               │ Drizzle ORM
                                                                       ┌───────▼────────┐
@@ -62,7 +62,7 @@ Celestia Starter enforces a strict **separated architecture** between frontend a
 ```
 
 - **Backend API (`apps/api`)**: Powered by Hono running on Node.js (port 4000). Owns the database connection, business logic, authentication server instance, and CRUD endpoints. Exposes end-to-end typed contracts via Hono RPC.
-- **Frontend (`apps/web`)**: Next.js 15 App Router (port 1212). Pure UI layer with zero direct database access and no server-side auth secrets. Houses landing pages, interactive component showcase, and full documentation. Proxies `/api/*` to the backend.
+- **Frontend (`apps/web`)**: Next.js 16 App Router (port 1212). Pure UI layer with zero direct database access and no server-side auth secrets. Houses landing pages, interactive component showcase, and full documentation. Proxies `/api/*` to the backend.
 - **Mobile App (`apps/mobile`)**: Expo (React Native) client that consumes `@celestia-project/mobile` **from source** — there is no build step, Metro compiles the package's `.ts`/`.tsx` directly. It is not part of the `pnpm dev` pipeline; start it with `pnpm mobile`.
 - **Shared DB (`packages/db`)**: Drizzle ORM schema and PostgreSQL client (`@workspace/db`).
 - **Shared UI (`packages/ui`)**: `@celestia-project/ui` component library built on Base UI and Tailwind CSS v4.
@@ -77,7 +77,7 @@ celestia-starter/
 ├── apps/
 │   ├── api/                # Standalone Hono backend (owns DB, auth, RPC routes)
 │   ├── mobile/             # Expo (React Native) showcase app for @celestia-project/mobile
-│   └── web/                # Next.js 15 frontend (pure UI, landing, docs, showcase)
+│   └── web/                # Next.js 16 frontend (pure UI, landing, docs, showcase)
 ├── packages/
 │   ├── ui/                 # @celestia-project/ui component library (Base UI + Tailwind v4)
 │   ├── mobile/             # @celestia-project/mobile native components (ships source, publishable)
@@ -160,7 +160,8 @@ rather than deleting a file it still needs.
 | Command | Purpose |
 |---------|---------|
 | `pnpm dev` | Start development servers for web and api in parallel |
-| `pnpm mobile` | Start the Expo dev server (Metro) for `apps/mobile` |
+| `pnpm mobile` | Start the Expo dev server (Metro) for `apps/mobile`; press `i` / `a` to open a target |
+| `pnpm --filter mobile ios` \| `android` | Start Metro and go straight to the iOS simulator / Android emulator (web is not a supported target) |
 | `pnpm build` | Build all applications and workspace packages via Turborepo |
 | `pnpm lint` | Verify lint coverage across the workspace, then run ESLint in the packages that declare it |
 | `pnpm typecheck` | Run `tsc --noEmit` across all workspace targets |

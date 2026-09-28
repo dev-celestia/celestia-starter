@@ -26,13 +26,59 @@ why this package has no dependency on `apps/api` and can be dropped into any Exp
 | `packages/mobile` | The library (`@celestia-project/mobile`) |
 | `apps/mobile` | The Expo showcase app that consumes it |
 
-```bash
-# Run the showcase on a simulator or device
-pnpm mobile
+## Running the showcase
 
+`pnpm mobile` starts the Metro dev server for `apps/mobile`. The root script is
+`turbo dev --filter=mobile`, which resolves to the package's `dev` script (`expo start`); Turbo
+auto-detects the `expo` framework and `turbo.json` marks `dev` persistent and uncached, so it stays
+attached like any other dev server. Metro itself is platform-agnostic — you pick a target after it
+boots, or ask for one up front:
+
+| Command | Target | Status |
+|---------|--------|--------|
+| `pnpm mobile` | Metro only — press `i`, `a` or `w` in the terminal | — |
+| `pnpm --filter mobile ios` | iOS simulator or device (`expo start --ios`) | Supported |
+| `pnpm --filter mobile android` | Android emulator or device (`expo start --android`) | Supported |
+| `pnpm --filter mobile web` | Browser (`expo start --web`) | Not supported — see [Platform support](#platform-support) |
+
+Each target needs its own toolchain: Xcode and a booted simulator for iOS, the Android SDK and a
+running emulator for Android. Because `@expo/ui` autolinks native code, the real SwiftUI and
+Compose views need a **development build** rather than Expo Go — `npx expo run:ios` or
+`npx expo run:android` from `apps/mobile` produces one and launches it.
+
+```bash
 # Typecheck just the library
 pnpm --filter @celestia-project/mobile typecheck
 ```
+
+## Platform support
+
+The library targets **iOS and Android**. Web is out of scope, and the reason is structural, not a
+missing config flag:
+
+| | iOS | Android | Web |
+|---|-----|---------|-----|
+| Components built on `@expo/ui` | ✅ SwiftUI | ✅ Compose | ❌ |
+| Rest of the package (plain React Native) | ✅ | ✅ | Needs `react-native-web` |
+| `apps/mobile` showcase | ✅ | ✅ | ❌ |
+
+`@expo/ui@57` ships no web implementation. Its export map is `./swift-ui`, `./jetpack-compose` and
+`./community/*`, and the package contains no `.web.js` modules at all. Four modules in
+`packages/mobile` import it directly — `host.tsx` (`Host`), `primitive/switch.tsx`,
+`primitive/list.tsx` and `primitive/bottom-sheet.tsx` — so those cannot render in a browser at any
+version, and `pnpm --filter mobile web` fails at import time. `apps/mobile` separately has no
+`react-native-web`, `react-dom` or `@expo/metro-runtime`, so even the `@expo/ui`-free components
+have nothing to render into. `expo-haptics`, which every interactive component calls, is likewise
+native-only.
+
+Everything else is already web-clean by construction: each animation guards its driver with
+`Platform.OS !== "web"` (`button.tsx`, `icon-button.tsx`, `skeleton.tsx`, `toast.tsx`,
+`progress.tsx`, `segmented-control.tsx`), and `screen.tsx` puts the iOS-only `padding` keyboard
+behind a `Platform.OS === "ios"` check. Adding web would therefore mean installing those three
+packages *and* giving the four `@expo/ui` modules a `Platform.select` fallback — a code change to
+`packages/mobile`, not a docs or config change. Until that lands, use `@celestia-project/ui` for
+the web face of a feature; the two libraries share design tokens and the primitive / composite /
+layout taxonomy precisely so the same screen can have a native and a browser implementation.
 
 <Callout type="info" title="Publishing">
 `@celestia-project/mobile` is part of the npm publish set: `scripts/publish.sh` publishes
@@ -66,7 +112,7 @@ react-native` resolves it. Do not bump to `^0.87` manually: Expo 57's Metro tool
 | `@expo/ui` | `MobileSwitch`, `MobileList`, `MobileBottomSheet`, `MobileHost` | Real SwiftUI / Compose views |
 | `expo-haptics` | Every interactive component | Same-frame tactile feedback |
 | `react-native-safe-area-context` | `MobileScreen` and everything built on it | Safe-area insets |
-| `react` / `react-native` | — | React 19, RN 0.87 (Expo SDK 57) |
+| `react` / `react-native` | — | React 19, RN 0.86.3 (Expo SDK 57) |
 
 ## Component categories
 

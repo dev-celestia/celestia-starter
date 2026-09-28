@@ -22,8 +22,9 @@ export type { SiteLink }
 const AGENCY_FOOTER_GROUPS: Record<string, readonly SiteLink[]> = {
   Company: [
     { label: "Services", href: "#services" },
+    { label: "Projects", href: "#projects" },
+    { label: "Open Source", href: "#open-source" },
     { label: "How We Work", href: "#process" },
-    { label: "Tech Stack", href: "#tech-stack" },
   ],
   Engagement: [
     { label: "Dedicated Squads", href: "#engagement-models" },
@@ -209,7 +210,7 @@ export function SiteLayout({
   footerMaxWidth,
 }: SiteLayoutProps) {
   return (
-    <main className={cn("min-h-screen bg-background text-foreground", className)}>
+    <main className={cn("min-h-screen bg-background text-foreground scroll-smooth", className)}>
       <SiteNav anchors={anchors} showSurfaces={showSurfaces} cta={cta} />
       {/* Below lg the nav is a static top bar, so nothing offsets; from lg the
           rail is fixed and the page content cedes its 20rem. */}

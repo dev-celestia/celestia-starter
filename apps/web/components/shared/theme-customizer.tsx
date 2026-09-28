@@ -20,6 +20,7 @@ import {
 } from "@celestia-project/ui"
 import { toast } from "@celestia-project/ui/primitive/sonner"
 import { cn } from "@celestia-project/ui/lib/utils"
+import { BackToTop } from "@/components/design-system/back-to-top"
 import {
   PALETTES,
   PALETTE_BG_CLASSES,
@@ -36,7 +37,15 @@ import {
  * (lib/theme), mode from `useTheme`. All selectable values and storage
  * live in `lib/theme/palettes.ts`.
  */
-export function ThemeCustomizer() {
+export interface ThemeCustomizerProps {
+  className?: string
+  showBackToTop?: boolean
+}
+
+export function ThemeCustomizer({
+  className,
+  showBackToTop = true,
+}: ThemeCustomizerProps = {}) {
   const { theme, setTheme, resolvedTheme } = useTheme()
   const { settings, ready, setPalette, setRadius, reset } = useThemeSettings()
 
@@ -58,49 +67,71 @@ export function ThemeCustomizer() {
 
   if (!ready) {
     return (
-      <Button variant="ghost" size="icon-sm" aria-label="Customize Theme" title="Customize Theme">
-        <PaletteIcon className="size-4 text-muted-foreground" />
-      </Button>
+      <div
+        className={cn(
+          "fixed z-50 flex items-center gap-2 bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] end-[calc(1.5rem+env(safe-area-inset-right,0px))]",
+          className
+        )}
+      >
+        {showBackToTop && <BackToTop floating={false} />}
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 gap-2 rounded-full border border-border/80 bg-background/85 px-3 text-xs font-medium text-muted-foreground shadow-lg backdrop-blur-md"
+          aria-label="Customize Theme"
+          title="Customize Theme"
+        >
+          <PaletteIcon className="size-3.5 text-muted-foreground animate-pulse" />
+          <span className="hidden sm:inline font-medium text-xs">Theme</span>
+        </Button>
+      </div>
     )
   }
 
   const activePalette = resolvePalette(settings.paletteId)
 
   return (
-    <Popover>
-      <PopoverTrigger
-        render={
-          <Button
-            variant="ghost"
-            size="sm"
-            className="gap-1.5 px-2 text-xs text-muted-foreground hover:text-foreground active:scale-95 transition-all cursor-pointer"
-            aria-label="Customize Theme"
-            title="Theme Customizer"
+    <div
+      className={cn(
+        "fixed z-50 flex items-center gap-2 bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] end-[calc(1.5rem+env(safe-area-inset-right,0px))]",
+        className
+      )}
+    >
+      {showBackToTop && <BackToTop floating={false} />}
+      <Popover>
+        <PopoverTrigger
+          render={
+            <Button
+              variant="outline"
+              size="sm"
+              className="group h-8 gap-2 rounded-full border border-border/80 bg-background/85 px-3 text-xs font-medium text-foreground shadow-lg backdrop-blur-md transition-all hover:bg-background hover:shadow-xl active:scale-95 cursor-pointer"
+              aria-label="Customize Theme"
+              title="Theme Customizer"
+            />
+          }
+        >
+          <span
+            className={cn(
+              "size-2.5 rounded-full shrink-0 shadow-xs ring-1 ring-black/10 dark:ring-white/20 transition-transform group-hover:scale-125",
+              PALETTE_BG_CLASSES[activePalette.id] || "bg-primary"
+            )}
           />
-        }
-      >
-        <span
-          className={cn(
-            "size-3 rounded-full shrink-0 shadow-xs ring-1 ring-black/10 dark:ring-white/20 transition-transform group-hover:scale-110",
-            PALETTE_BG_CLASSES[activePalette.id] || "bg-primary"
+          <span className="hidden sm:inline font-medium text-xs">Theme</span>
+          {resolvedTheme === "dark" ? (
+            <MoonIcon className="size-3.5 text-muted-foreground ms-0.5" />
+          ) : resolvedTheme === "light" ? (
+            <SunIcon className="size-3.5 text-muted-foreground ms-0.5" />
+          ) : (
+            <DesktopIcon className="size-3.5 text-muted-foreground ms-0.5" />
           )}
-        />
-        <span className="hidden sm:inline font-medium text-xs">Theme</span>
-        {resolvedTheme === "dark" ? (
-          <MoonIcon className="size-3.5 text-muted-foreground ms-0.5" />
-        ) : resolvedTheme === "light" ? (
-          <SunIcon className="size-3.5 text-muted-foreground ms-0.5" />
-        ) : (
-          <DesktopIcon className="size-3.5 text-muted-foreground ms-0.5" />
-        )}
-      </PopoverTrigger>
+        </PopoverTrigger>
 
-      <PopoverContent
-        align="end"
-        side="bottom"
-        sideOffset={8}
-        className="w-80 rounded-2xl bg-popover/90 backdrop-blur-2xl p-3.5 shadow-2xl ring-1 ring-foreground/10 outline-none space-y-3 animate-in fade-in-0 zoom-in-95"
-      >
+        <PopoverContent
+          align="end"
+          side="top"
+          sideOffset={8}
+          className="w-80 rounded-2xl bg-popover/90 backdrop-blur-2xl p-3.5 shadow-2xl ring-1 ring-foreground/10 outline-none space-y-3 animate-in fade-in-0 zoom-in-95"
+        >
         {/* Section 1: Color Accent Palette */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
@@ -206,5 +237,6 @@ export function ThemeCustomizer() {
         </div>
       </PopoverContent>
     </Popover>
-  )
+  </div>
+)
 }

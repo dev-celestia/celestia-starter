@@ -8,7 +8,6 @@ import { ShowcaseTab } from "@/components/design-system/showcase-tab"
 import { TokensTab } from "@/components/design-system/tokens-tab"
 import { GuideTab } from "@/components/design-system/guide-tab"
 import { PrinciplesTab } from "@/components/design-system/principles-tab"
-import { BackToTop } from "@/components/design-system/back-to-top"
 import { SiteLayout } from "@/components/shared/site-layout"
 
 function DesignSystemContent() {
@@ -28,9 +27,6 @@ function DesignSystemContent() {
         {activeSection === "guide" && <GuideTab />}
         {activeSection === "principles" && <PrinciplesTab />}
       </main>
-
-      {/* Floating Back to Top Button */}
-      <BackToTop />
     </>
   )
 }

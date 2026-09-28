@@ -1,14 +1,15 @@
 ---
 title: "Other components"
-description: "The package also ships these components without live previews on this page:"
+description: "Additional utility and composite components provided by @celestia-project/ui:"
 ---
 
-The package also ships these components without live previews on this page:
+The package also ships these utility and composite components:
 
 | Component | Import | Notes |
 |-----------|--------|-------|
-| `direction` | `@celestia-project/ui/primitive/direction` | `DirectionProvider` + `useDirection` for RTL support |
-| `toast` | `@celestia-project/ui/primitive/toast` | Base UI toast primitives (`toast`, `Toaster`, `ToastViewport`); prefer `sonner` for app toasts |
-| `sidebar` | `@celestia-project/ui/composite/sidebar` | Full app-shell sidebar (see the dashboard feature) |
-| `bubble` | `@celestia-project/ui/primitive/bubble` | Chat message speech bubble primitive |
-| `attachment`, `marker`, `message`, `message-scroller` | `@celestia-project/ui/composite/<name>` | Chat/AI message UI composites |
+| `form` | `@celestia-project/ui/composite/form` | `react-hook-form` integration: `Form`, `FormField`, `FormItem`, `FormLabel`, `FormControl`, `FormDescription`, `FormMessage`, `useFormField` |
+| `data-table` | `@celestia-project/ui/composite/data-table` | Typed data table component built on `@tanstack/react-table` with sorting, filtering, and pagination |
+| `ripple` | `@celestia-project/ui/primitive/ripple` | `Ripple` click effect component for touch and mouse interactions |
+| `article-card` | `@celestia-project/ui/composite/article-card` | Media and blog post card composite with author, date, and tag metadata |
+| `tab-bar` | `@celestia-project/ui/composite/tab-bar` | Mobile-friendly segmented tab bar navigation |
+| `select-env-input` | `@celestia-project/ui/composite/select-env-input` | Environment selector dropdown and input composite |

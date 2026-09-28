@@ -138,11 +138,29 @@ export const mdxComponents = {
       />
     )
   },
-  pre: ({ children, className, ...props }: React.ComponentProps<"pre">) => (
-    <CodeBlock className={className} {...(props as unknown as React.HTMLAttributes<HTMLDivElement>)}>
-      {children}
-    </CodeBlock>
-  ),
+  pre: ({ children, className, ...props }: React.ComponentProps<"pre">) => {
+    let language: string | undefined
+    let title: string | undefined
+    if (React.isValidElement(children)) {
+      const childProps = children.props as { className?: string; metastring?: string; title?: string; [key: string]: unknown }
+      const match = childProps?.className?.match(/language-([\w-]+)/)
+      if (match) {
+        language = match[1]
+      }
+      const meta = typeof childProps?.metastring === "string" ? childProps.metastring : typeof childProps?.["data-meta"] === "string" ? childProps["data-meta"] : ""
+      const titleMatch = meta.match(/title="([^"]+)"/) || meta.match(/title=([^\s]+)/)
+      if (titleMatch?.[1]) {
+        title = titleMatch[1]
+      } else if (typeof childProps?.title === "string") {
+        title = childProps.title
+      }
+    }
+    return (
+      <CodeBlock className={className} language={language} title={title} {...(props as unknown as React.HTMLAttributes<HTMLDivElement>)}>
+        {children}
+      </CodeBlock>
+    )
+  },
   code: ({ className, ...props }: React.HTMLAttributes<HTMLElement>) => {
     if (className?.includes("language-")) {
       return <code className={className} {...props} />

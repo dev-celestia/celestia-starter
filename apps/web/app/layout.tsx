@@ -3,6 +3,7 @@ import { Inter, Geist_Mono } from "next/font/google"
 
 import "@celestia-project/ui/globals.css"
 import { ThemeProvider } from "@/lib/theme"
+import { ThemeCustomizer } from "@/components/shared/theme-customizer"
 import { cn } from "@celestia-project/ui/lib/utils"
 
 const inter = Inter({
@@ -43,7 +44,10 @@ export default function RootLayout({
       className={cn("antialiased", fontMono.variable, "font-sans", inter.variable)}
     >
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          {children}
+          <ThemeCustomizer />
+        </ThemeProvider>
       </body>
     </html>
   )

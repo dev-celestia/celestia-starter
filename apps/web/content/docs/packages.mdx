@@ -4,13 +4,13 @@ description: Shared workspace packages for UI components, linting, TypeScript co
 icon: package
 ---
 
-The `packages/` directory contains shared workspace packages. Some are private workspace-only packages (`@workspace/*`), others are published to npm under the `@celestia-project` org. One package — `@celestia-project/mobile` — carries the public scope but is **not** published yet; see its section below.
+The `packages/` directory contains shared workspace packages. Some are private workspace-only packages (`@workspace/*`), others are published to npm under the `@celestia-project` org.
 
 ## @celestia-project/ui
 
 [![npm](https://img.shields.io/npm/v/@celestia-project/ui)](https://www.npmjs.com/package/@celestia-project/ui)
 
-A shadcn-style React component library built on **Base UI** and **Tailwind CSS v4**, with 126 components.
+A shadcn-style React component library built on **Base UI** and **Tailwind CSS v4**, with 150+ components.
 
 **Exports:**
 
@@ -18,8 +18,11 @@ A shadcn-style React component library built on **Base UI** and **Tailwind CSS v
 |-------------|-------------|
 | `@celestia-project/ui` | Barrel export of every component (tree-shaken) |
 | `@celestia-project/ui/globals.css` | Global styles and CSS variables |
-| `@celestia-project/ui/primitive/*` | Primitive components (button, card, input, label) |
-| `@celestia-project/ui/composite/*` | Composite components (field, sidebar, data-table) |
+| `@celestia-project/ui/primitive/*` | Primitive components (button, card, input, label, etc.) |
+| `@celestia-project/ui/composite/*` | Composite components (field, sidebar, data-table, form, etc.) |
+| `@celestia-project/ui/layout` | Barrel export of all layout and page-shell components |
+| `@celestia-project/ui/layout/*` | Layout and page-shell components (auth-shell, dashboard-shell, etc.) |
+| `@celestia-project/ui/ai` | Barrel export of all AI chat & agent components |
 | `@celestia-project/ui/components/ai/*` | AI chat & agent components |
 | `@celestia-project/ui/hooks/*` | Shared React hooks |
 | `@celestia-project/ui/lib/*` | Utilities (`cn` helper) |
@@ -70,8 +73,8 @@ See the [Components docs](/docs/components) and the [npm package](https://www.np
 
 Native iOS and Android UI components built on **`@expo/ui`** — real SwiftUI on iOS and Jetpack Compose on Android, with no web-shim layer in between. The package reuses the same `primitive` / `composite` / `layout` taxonomy and the same design tokens as `@celestia-project/ui`, but it is **not** a port: mobile-only affordances (haptics, safe areas, native sheets) have no web counterpart.
 
-<Callout type="warn" title="Workspace-only — not published to npm">
-Despite the `@celestia-project` scope, this package is **not** on npm. `scripts/publish.sh` publishes only `ui` and `cli`, so `pnpm add @celestia-project/mobile` will fail. Consume it through the workspace protocol (`"@celestia-project/mobile": "workspace:*"`) from inside the monorepo.
+<Callout type="info" title="Publishing & Workspace Usage">
+`@celestia-project/mobile` is part of the npm publish set: `scripts/publish.sh` supports publishing `@celestia-project/ui`, `@celestia-project/create`, and `@celestia-project/mobile`. Inside the workspace, it is consumed from source through the workspace protocol (`"@celestia-project/mobile": "workspace:*"`). Publish it standalone with `pnpm publish:mobile`, or all packages together with `pnpm publish:packages`.
 </Callout>
 
 **Exports:**
@@ -104,29 +107,35 @@ See the [Mobile (Expo) docs](/docs/mobile) for setup, the full component invento
 
 ---
 
-## @celestia-project/alpine-ui
+## @workspace/db
 
-[![npm](https://img.shields.io/npm/v/@celestia-project/alpine-ui)](https://www.npmjs.com/package/@celestia-project/alpine-ui)
+The shared database package containing the Drizzle ORM schema, relations, and pooled PostgreSQL connection client.
 
-Component primitives built on **Alpine.js** and **Tailwind CSS v4** — referenced and cloned from `@celestia-project/ui`.
+<Callout type="warn" title="Backend-only package">
+`@workspace/db` is imported exclusively by the backend API (`apps/api`). The frontend (`apps/web`) must never import this package or access the database directly.
+</Callout>
 
 **Exports:**
 
 | Import path | Resolves to |
 |-------------|-------------|
-| `@celestia-project/alpine-ui` | Barrel export of all primitives, class utilities, and Alpine plugin |
-| `@celestia-project/alpine-ui/globals.css` | Global styles and Tailwind CSS v4 setup |
-| `@celestia-project/alpine-ui/plugin` | `alpineUI(Alpine)` plugin registering Alpine `Alpine.data(...)` stores |
+| `@workspace/db` | Database client (`db`) and table schemas |
+| `@workspace/db/schema` | Direct export of all Drizzle tables and relations |
 
-**Usage:**
+**Key CLI Commands:**
 
-```typescript
-import Alpine from "alpinejs"
-import { alpineUI } from "@celestia-project/alpine-ui"
+```bash
+# Push schema changes directly to PostgreSQL
+pnpm --filter @workspace/db db:push
 
-Alpine.plugin(alpineUI)
-Alpine.start()
+# Generate Drizzle SQL migrations
+pnpm --filter @workspace/db db:generate
+
+# Launch Drizzle Studio web GUI
+pnpm --filter @workspace/db db:studio
 ```
+
+**Key dependencies:** `drizzle-orm`, `pg`, `@types/pg`
 
 ---
 

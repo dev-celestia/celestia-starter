@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { CopyIcon, CheckIcon } from "@phosphor-icons/react"
-import { Button, Badge, TextEditor } from "@celestia-project/ui"
+import { Button, Badge, TextEditor, CodeBlockContent } from "@celestia-project/ui"
 import { toast } from "@celestia-project/ui/primitive/sonner"
 import { cn } from "@celestia-project/ui/lib/utils"
 import { useTheme } from "@/lib/theme"
@@ -21,6 +21,8 @@ export interface CodeBlockProps extends React.HTMLAttributes<HTMLDivElement> {
   minHeight?: number | string
   maxHeight?: number | string
   preClassName?: string
+  showLineNumbers?: boolean
+  editor?: boolean
 }
 
 function extractText(node: React.ReactNode): string {
@@ -61,6 +63,8 @@ export function CodeBlock({
   minHeight,
   maxHeight,
   preClassName,
+  showLineNumbers = false,
+  editor = false,
   style,
   ...props
 }: Readonly<CodeBlockProps>) {
@@ -72,16 +76,61 @@ export function CodeBlock({
     setMounted(true)
   }, [])
 
-  // Derive language from prop, data attribute, or className (e.g. language-bash -> bash)
-  const langMatch = className?.match(/language-([\w-]+)/)
-  const derivedLang = language || dataLanguage || (langMatch ? langMatch[1] : "")
+  // Derive language and code from props, data attribute, className, or child code element
+  let childLang = ""
+  let childCode: string | undefined
 
-  const rawCode =
+  if (React.isValidElement(children)) {
+    const childProps = children.props as { className?: string; children?: React.ReactNode }
+    if (childProps?.className) {
+      const match = childProps.className.match(/language-([\w-]+)/)
+      if (match?.[1]) {
+        childLang = match[1] ?? ""
+      }
+    }
+    if (childProps?.children !== undefined) {
+      childCode = extractText(childProps.children)
+    }
+  }
+
+  const langMatch = className?.match(/language-([\w-]+)/)
+  const derivedLang = language || dataLanguage || langMatch?.[1] || childLang
+
+  const rawCode = (
     code ??
     value ??
+    childCode ??
     (children !== undefined ? extractText(children) : "")
+  ).replace(/\n$/, "")
 
-  const editorLang = mapLanguage(derivedLang)
+  const isTree =
+    rawCode.includes("├──") ||
+    rawCode.includes("└──") ||
+    (/^[a-zA-Z0-9_.\-/]+\/\s*\n\s*[├└│]/.test(rawCode))
+
+  const lines = React.useMemo(() => rawCode.split("\n"), [rawCode])
+
+  const autoTitle = React.useMemo(() => {
+    if (title) return title
+    if (isTree) {
+      const first = lines[0]?.trim()
+      if (first && (first.endsWith("/") || first.includes("/"))) {
+        return first
+      }
+      return "File Overview"
+    }
+    return undefined
+  }, [title, isTree, lines])
+
+  const autoBadge = React.useMemo(() => {
+    if (badge) return badge
+    if (isTree) return "Directory Structure"
+    return undefined
+  }, [badge, isTree])
+
+  const effectiveLang = derivedLang || (isTree ? "tree" : "")
+
+  const editorLang = mapLanguage(effectiveLang)
 
   const handleCopy = () => {
     if (!rawCode) return
@@ -91,10 +140,23 @@ export function CodeBlock({
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const formattedLang =
-    derivedLang && (derivedLang.toLowerCase() === "tsx" || derivedLang.toLowerCase() === "typescript")
-      ? "TypeScript / JSX"
-      : derivedLang || ""
+  const formattedLang = React.useMemo(() => {
+    if (!effectiveLang) return ""
+    const l = effectiveLang.toLowerCase()
+    if (l === "tsx" || l === "jsx") return "React / JSX"
+    if (l === "ts" || l === "typescript") return "TypeScript"
+    if (l === "js" || l === "javascript") return "JavaScript"
+    if (l === "bash" || l === "sh" || l === "shell" || l === "zsh") return "Terminal"
+    if (l === "json") return "JSON"
+    if (l === "html") return "HTML"
+    if (l === "css") return "CSS"
+    if (l === "sql") return "SQL"
+    if (l === "yaml" || l === "yml") return "YAML"
+    if (l === "md" || l === "markdown" || l === "mdx") return "Markdown"
+    if (l === "tree" || l === "files") return "File Tree"
+    if (l === "txt" || l === "text") return "Plain Text"
+    return effectiveLang.toUpperCase()
+  }, [effectiveLang])
 
   return (
     <div
@@ -109,23 +171,23 @@ export function CodeBlock({
       {showHeader && (
         <div className="flex items-center justify-between border-b border-border/50 bg-muted/60 px-4 py-1.5 text-xs shrink-0">
           <div className="flex items-center gap-2">
-            {title ? (
-              <span className="font-mono text-xs font-medium text-foreground">{title}</span>
-            ) : derivedLang ? (
-              <span className="font-mono text-[11px] text-muted-foreground uppercase">{derivedLang}</span>
+            {autoTitle ? (
+              <span className="font-mono text-xs font-medium text-foreground">{autoTitle}</span>
+            ) : effectiveLang ? (
+              <span className="font-mono text-[11px] text-muted-foreground uppercase">{effectiveLang}</span>
             ) : (
               <span className="font-mono text-[11px] text-muted-foreground">Code</span>
             )}
 
-            {badge && (
+            {autoBadge && (
               <Badge variant="outline" className="font-mono text-[9px] uppercase px-1.5 py-0">
-                {badge}
+                {autoBadge}
               </Badge>
             )}
           </div>
 
           <div className="flex items-center gap-2">
-            {!title && formattedLang && (
+            {!autoTitle && formattedLang && formattedLang.toLowerCase() !== effectiveLang.toLowerCase() && (
               <Badge variant="outline" className="hidden sm:inline-flex font-mono text-[10px] text-muted-foreground px-1.5 py-0">
                 {formattedLang}
               </Badge>
@@ -156,21 +218,21 @@ export function CodeBlock({
         </div>
       )}
 
-      {/* Code Content using Monaco TextEditor */}
-      {mounted ? (
+      {/* Code Content */}
+      {editor && mounted ? (
         <TextEditor
           value={rawCode}
           language={editorLang}
           theme={resolvedTheme === "light" ? "light" : "dark"}
           options={{ readOnly: true, renderValidationDecorations: "off" }}
           disableValidation
-          height={height}
+          height={height ?? 200}
           minHeight={minHeight}
           maxHeight={maxHeight}
           detectLinks={true}
           className={cn("w-full overflow-hidden text-xs", preClassName)}
         />
-      ) : (
+      ) : isTree ? (
         <pre
           style={{
             height: height !== undefined ? (typeof height === "number" ? `${height}px` : height) : undefined,
@@ -184,6 +246,22 @@ export function CodeBlock({
         >
           <code>{rawCode}</code>
         </pre>
+      ) : (
+        <CodeBlockContent
+          code={rawCode}
+          language={derivedLang || "tsx"}
+          showLineNumbers={showLineNumbers}
+          style={{
+            height: height !== undefined ? (typeof height === "number" ? `${height}px` : height) : undefined,
+            minHeight: minHeight !== undefined ? (typeof minHeight === "number" ? `${minHeight}px` : minHeight) : undefined,
+            maxHeight: maxHeight !== undefined ? (typeof maxHeight === "number" ? `${maxHeight}px` : maxHeight) : undefined,
+          }}
+          className={cn(
+            "p-4 font-mono text-xs leading-relaxed select-text scrollbar-thin",
+            preClassName
+          )}
+          transparent
+        />
       )}
     </div>
   )

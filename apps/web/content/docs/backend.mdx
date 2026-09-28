@@ -63,7 +63,7 @@ The backend owns all secrets. Add the following to `apps/api/.env`:
 ```bash
 PORT=4000
 # Public URL the browser uses to reach auth (the frontend, via the proxy)
-BETTER_AUTH_URL=http://localhost:3000
+BETTER_AUTH_URL=http://localhost:1212
 BETTER_AUTH_SECRET=<generate with: openssl rand -base64 32>
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/celestia
 GOOGLE_CLIENT_ID=your-google-client-id

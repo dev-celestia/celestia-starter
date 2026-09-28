@@ -11,8 +11,9 @@
 /** In-page sections, in the order they appear on the page. */
 export const LANDING_ANCHORS = [
   { label: "Services", href: "#services" },
+  { label: "Projects", href: "#projects" },
+  { label: "Open Source", href: "#open-source" },
   { label: "Process", href: "#process" },
-  { label: "Tech Stack", href: "#tech-stack" },
 ] as const
 
 /** The starter's own surfaces. Rail shows these on lg+; the footer carries

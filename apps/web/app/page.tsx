@@ -3,9 +3,10 @@ import type { Metadata } from "next"
 import { ContactSection } from "@/components/agency/contact-section"
 import { DeliveryModelsSection } from "@/components/agency/delivery-models-section"
 import { AgencyHero } from "@/components/agency/hero-section"
+import { OpenSourceSection } from "@/components/agency/open-source-section"
 import { ProcessSection } from "@/components/agency/process-section"
+import { RecentProjectsSection } from "@/components/agency/recent-projects-section"
 import { ServicesSection } from "@/components/agency/services-section"
-import { TechStackSection } from "@/components/agency/tech-stack-section"
 import { SiteLayout } from "@/components/shared/site-layout"
 
 import "./landing.css"
@@ -27,9 +28,10 @@ export default function HomePage() {
     <SiteLayout>
       <AgencyHero />
       <ServicesSection />
+      <RecentProjectsSection />
+      <OpenSourceSection />
       <ProcessSection />
       <DeliveryModelsSection />
-      <TechStackSection />
       <ContactSection />
     </SiteLayout>
   )

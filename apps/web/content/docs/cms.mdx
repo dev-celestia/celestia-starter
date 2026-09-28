@@ -3,7 +3,11 @@ title: CMS (Blog Post Management)
 description: Editorial workflow, markdown editor integration, SEO controls, revisions, scheduling, and a public blog for the Celestia app.
 ---
 
-The CMS feature adds end-to-end blog post management to the **Celestia app** (`apps/celestia`): a distraction-free markdown editing experience, a full editorial workflow, technical SEO automation, revision history, and a public, indexable blog at `/blog`.
+The CMS feature adds end-to-end blog post management: a distraction-free markdown editing experience, a full editorial workflow, technical SEO automation, revision history, and a public, indexable blog at `/blog`.
+
+<Callout type="info" title="Architecture Note">
+In Celestia Starter's separated architecture, database tables are defined in `@workspace/db` (`packages/db/src/schema.ts`), API routes run on Hono (`apps/api`), and UI components live in `apps/web`. For a reference decoupled feature implementation, see [Blog (CRUD)](/docs/blog) and [Creating Features](/docs/features).
+</Callout>
 
 ## What it does
 

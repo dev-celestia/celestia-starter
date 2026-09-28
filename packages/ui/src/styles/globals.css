@@ -3,8 +3,11 @@
 @import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
-@source "../..";
-@source "../../..";
+@source "..";
+@source "../../../apps/web/app";
+@source "../../../apps/web/components";
+@source "../../../apps/web/content";
+@source "../../../apps/web/lib";
 
 /* ==========================================================================
    Celestia Design System — token layer

@@ -16,10 +16,14 @@ export function HeroSection() {
 
   return (
     <>
-      <section className="relative flex flex-col items-start gap-5 py-10 sm:py-14">
+      <section className="relative flex flex-col items-start gap-3 py-10 sm:py-14">
         <h1 className="text-3xl font-bold tracking-tight text-foreground lg:text-4xl">
           Design System
         </h1>
+        <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+          A production-grade, accessible UI foundation and component library engineered for modern web applications.
+          Combining unstyled Base UI primitives with compile-time Tailwind CSS v4 tokens in the OKLCH color space for zero-runtime styling and seamless theme consistency.
+        </p>
       </section>
 
       {/* Sticky Controls & Tab Navigation Toolbar — top-0: the site rail

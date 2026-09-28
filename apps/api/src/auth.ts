@@ -33,8 +33,8 @@ export const auth = betterAuth({
     // feature-manager:auth-plugins:access:end
     // feature-manager:auth-plugins:end
   ],
-  // The browser reaches auth through the frontend proxy (http://localhost:3000).
-  trustedOrigins: ["http://localhost:3000"],
+  // The browser reaches auth through the frontend proxy (http://localhost:1212).
+  trustedOrigins: ["http://localhost:1212", "http://localhost:3000"],
 })
 
 export type Session = typeof auth.$Infer.Session

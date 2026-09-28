@@ -18,7 +18,7 @@ Use `packages/feature-manager/features/blog/` as the canonical reference impleme
 | Layer | Location | Rule |
 |---|---|---|
 | Backend | `apps/api` (Hono, port 4000) | All API routes, auth server, DB access. Secrets env only here. |
-| Frontend | `apps/web` (Next.js, port 3000) | Pure UI. No DB access, no Better Auth server instance, no secrets. |
+| Frontend | `apps/web` (Next.js, port 1212) | Pure UI. No DB access, no Better Auth server instance, no secrets. |
 | Database | `packages/db` | Drizzle schema + pooled client (`@workspace/db`). Never create local `db.ts`. |
 | Shared UI | `packages/ui` | Reusable shadcn/ui components (`@celestia-project/ui`). |
 
