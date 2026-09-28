@@ -11,6 +11,7 @@ import * as Haptics from "expo-haptics"
 import { useMobileTheme } from "../../host"
 import { MobileText } from "./text"
 import { metrics } from "../../tokens"
+import { isTextChildren } from "../../utils"
 
 export type MobileButtonVariant =
   | "default"

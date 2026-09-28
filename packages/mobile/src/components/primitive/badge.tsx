@@ -3,6 +3,7 @@ import { View, StyleSheet, type ViewStyle } from "react-native"
 import { useMobileTheme } from "../../host"
 import { MobileText } from "./text"
 import { metrics } from "../../tokens"
+import { isTextChildren } from "../../utils"
 
 export type MobileBadgeVariant =
   | "default"
@@ -110,16 +111,16 @@ export function MobileBadge({
         style,
       ]}
     >
-      {React.isValidElement(children) ? (
-        children
-      ) : (
+      {isTextChildren(children) ? (
         <MobileText
           variant="label"
           tabular={tabular}
           style={{ color: text, fontWeight: "600" }}
         >
-          {children as React.ReactNode}
+          {children}
         </MobileText>
+      ) : (
+        children
       )}
     </View>
   )
