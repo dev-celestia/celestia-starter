@@ -1,8 +1,8 @@
 import * as React from "react"
 import { getDocsNavigation } from "@/lib/docs"
-import { Navbar } from "@/components/shared/navbar"
+import { SiteLayout } from "@/components/shared/site-layout"
 import { DocsSidebar } from "@/components/docs/sidebar"
-import { Sheet, SheetContent, SheetTitle } from "@celestia-project/ui"
+import { DocsSearchTrigger } from "@/components/docs/docs-search-trigger"
 
 export default function DocsLayout({
   children,
@@ -12,24 +12,30 @@ export default function DocsLayout({
   const groups = getDocsNavigation()
 
   return (
-    <div className="min-h-screen bg-background text-foreground selection:bg-primary/20">
-      {/* Translucent Glass Header */}
-      <Navbar />
-
+    <SiteLayout
+      anchors={[]}
+      cta={null}
+      footerGroups={{}}
+      className="selection:bg-primary/20"
+      constrainContent={false}
+      footerMaxWidth="max-w-7xl"
+    >
       {/* Main Container */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-[calc(2rem+env(safe-area-inset-bottom,0px))]">
-        <div className="flex gap-8 py-6">
+      <div className="mx-auto max-w-7xl px-5 pb-[calc(2rem+env(safe-area-inset-bottom,0px))] sm:px-8">
+        <div className="flex justify-end pt-5">
+          <DocsSearchTrigger />
+        </div>
+
+        <div className="flex gap-8 pb-6">
           {/* Sticky Left Sidebar (Desktop) */}
-          <aside className="sticky top-20 hidden w-64 shrink-0 lg:flex lg:flex-col self-start h-[calc(100vh-5.5rem)] max-h-[calc(100vh-5.5rem)] overflow-hidden pe-2">
+          <aside className="sticky top-6 hidden w-64 shrink-0 self-start overflow-hidden pe-2 lg:flex lg:flex-col lg:h-[calc(100vh-3rem)] lg:max-h-[calc(100vh-3rem)]">
             <DocsSidebar groups={groups} />
           </aside>
 
           {/* Center Main Content & Right TOC */}
-          <main className="flex-1 min-w-0 max-w-full">
-            {children}
-          </main>
+          <main className="min-w-0 max-w-full flex-1">{children}</main>
         </div>
       </div>
-    </div>
+    </SiteLayout>
   )
 }
