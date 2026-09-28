@@ -381,7 +381,8 @@ function Foundations() {
           <h3 className="text-sm font-semibold">Semantic colour</h3>
           <p className="text-muted-foreground text-2xs">
             The complete <code className="font-mono">ColorRamp</code> — a closed set, which is what
-            keeps the two themes from drifting apart.
+            keeps the two themes from drifting apart. Translucent values are written as 8-digit
+            hex, <code className="font-mono">#RRGGBBAA</code>, so every entry stays one notation.
           </p>
         </div>
 
