@@ -84,7 +84,7 @@ export function applyThemeSettings(settings: ThemeSettings, resolvedTheme?: stri
 
 /**
  * Remove inline overrides, falling back to the stylesheet defaults
- * (zinc accent, 0.625rem radius) in the current theme.
+ * (red accent, 0.625rem radius) in the current theme.
  */
 export function clearAppliedThemeSettings(): void {
   if (typeof document === "undefined") return

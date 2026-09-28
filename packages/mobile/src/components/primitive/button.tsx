@@ -223,15 +223,15 @@ export function MobileButton({
           style,
         ]}
       >
-        {typeof children === "string" ? (
+        {React.isValidElement(children) ? (
+          children
+        ) : (
           <MobileText
             variant={size === "sm" ? "callout" : "bodyMedium"}
             style={{ color: textColor, fontWeight: "600" }}
           >
-            {children}
+            {children as React.ReactNode}
           </MobileText>
-        ) : (
-          children
         )}
       </Pressable>
     </Animated.View>

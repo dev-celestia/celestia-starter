@@ -78,12 +78,12 @@ export function MobileLink({
         style={[styles.standalone, { opacity: disabled ? 0.45 : 1 }, style]}
       >
         <View style={styles.standaloneText}>
-          {typeof children === "string" ? (
-            <MobileText variant="bodyMedium" color="primary">
-              {children}
-            </MobileText>
-          ) : (
+          {React.isValidElement(children) ? (
             children
+          ) : (
+            <MobileText variant="bodyMedium" color="primary">
+              {children as React.ReactNode}
+            </MobileText>
           )}
         </View>
         <MobileText variant="bodyMedium" color="muted" style={styles.chevron}>
@@ -103,7 +103,9 @@ export function MobileLink({
       hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
       style={disabled ? { opacity: 0.45 } : undefined}
     >
-      {typeof children === "string" ? (
+      {React.isValidElement(children) ? (
+        children
+      ) : (
         <MobileText
           variant="body"
           style={{
@@ -111,10 +113,8 @@ export function MobileLink({
             textDecorationLine: "underline",
           }}
         >
-          {children}
+          {children as React.ReactNode}
         </MobileText>
-      ) : (
-        children
       )}
     </Pressable>
   )

@@ -37,6 +37,21 @@ export interface ThemeSettings {
 
 export const PALETTES: AccentPalette[] = [
   {
+    id: "red",
+    name: "Red",
+    colorHex: "#ef4444",
+    light: {
+      primary: "oklch(0.55 0.22 27)",
+      primaryForeground: "oklch(0.985 0 0)",
+      ring: "oklch(0.55 0.22 27)",
+    },
+    dark: {
+      primary: "oklch(0.68 0.22 27)",
+      primaryForeground: "oklch(0.145 0 0)",
+      ring: "oklch(0.68 0.22 27)",
+    },
+  },
+  {
     id: "zinc",
     name: "Zinc",
     colorHex: "#71717a",
@@ -169,12 +184,13 @@ export const RADII: ThemeRadiusOption[] = [
 
 /** Shipped defaults. `--radius` in globals.css matches DEFAULT_RADIUS. */
 export const DEFAULT_THEME_SETTINGS: ThemeSettings = {
-  paletteId: "emerald",
+  paletteId: "red",
   radius: "0.625rem",
 }
 
 /** Tailwind swatch classes for the palette picker, keyed by palette id. */
 export const PALETTE_BG_CLASSES: Record<string, string> = {
+  red: "bg-red-500",
   zinc: "bg-zinc-500",
   emerald: "bg-emerald-500",
   violet: "bg-violet-500",

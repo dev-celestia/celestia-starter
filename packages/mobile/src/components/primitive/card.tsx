@@ -52,7 +52,7 @@ export function MobileCardTitle({
   children?: React.ReactNode
   style?: ViewStyle
 }) {
-  if (typeof children === "string") {
+  if (!React.isValidElement(children)) {
     return (
       <MobileText variant="title" style={style}>
         {children}
@@ -69,7 +69,7 @@ export function MobileCardDescription({
   children?: React.ReactNode
   style?: ViewStyle
 }) {
-  if (typeof children === "string") {
+  if (!React.isValidElement(children)) {
     return (
       <MobileText
         variant="callout"

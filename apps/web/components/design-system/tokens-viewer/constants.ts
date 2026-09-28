@@ -22,8 +22,8 @@ export const COLOR_TOKENS: ColorToken[] = [
     name: "Primary",
     cssVar: "--primary",
     token: "bg-primary",
-    lightVal: "oklch(0.205 0 0)",
-    darkVal: "oklch(0.985 0 0)",
+    lightVal: "oklch(0.55 0.22 27)",
+    darkVal: "oklch(0.68 0.22 27)",
     description: "Brand identity, primary actions, and focused states.",
   },
   {
@@ -31,7 +31,7 @@ export const COLOR_TOKENS: ColorToken[] = [
     cssVar: "--primary-foreground",
     token: "text-primary-foreground",
     lightVal: "oklch(0.985 0 0)",
-    darkVal: "oklch(0.205 0 0)",
+    darkVal: "oklch(0.145 0 0)",
     description: "Contrasting text placed on top of primary elements.",
   },
   {
@@ -94,8 +94,8 @@ export const COLOR_TOKENS: ColorToken[] = [
     name: "Ring",
     cssVar: "--ring",
     token: "ring-ring",
-    lightVal: "oklch(0.708 0 0)",
-    darkVal: "oklch(0.439 0 0)",
+    lightVal: "oklch(0.55 0.22 27)",
+    darkVal: "oklch(0.68 0.22 27)",
     description: "Accessible focus rings applied during keyboard navigation.",
   },
   {

@@ -167,7 +167,7 @@ export function FoundationsSection({ ctx }: { ctx: ShowcaseContext }) {
             {counter.toString()}
           </MobileBadge>
           <MobileBadge variant="success" tabular>
-            +{counter.toString()}%
+            {`+${counter.toString()}%`}
           </MobileBadge>
           <MobileBadge variant="outline" tabular>
             {(counter / 100).toFixed(2)}

@@ -110,16 +110,16 @@ export function MobileBadge({
         style,
       ]}
     >
-      {typeof children === "string" || typeof children === "number" ? (
+      {React.isValidElement(children) ? (
+        children
+      ) : (
         <MobileText
           variant="label"
           tabular={tabular}
           style={{ color: text, fontWeight: "600" }}
         >
-          {String(children)}
+          {children as React.ReactNode}
         </MobileText>
-      ) : (
-        children
       )}
     </View>
   )

@@ -298,13 +298,13 @@
 
     /* ---------------------------------------------------------------------
        Brand accent — the one chromatic value in the system.
-       --brand       text-brand, border-brand, bg-brand   #89aacc
-       --brand-deep  gradient end, pressed states         #4e85bf
-       --brand-foreground  text/icons on a --brand fill
+       --brand       text-brand, border-brand, bg-brand   #dc2626
+       --brand-deep  gradient end, pressed states         #b51230
+       --brand-foreground  text/icons on a --brand fill   #ffffff
        --------------------------------------------------------------------- */
-    --brand: 210 40% 67%;
-    --brand-deep: 211 47% 53%;
-    --brand-foreground: 211 65% 12%;
+    --brand: 0 72% 51%;
+    --brand-deep: 350 78% 40%;
+    --brand-foreground: 0 0% 100%;
 
     /* ---------------------------------------------------------------------
        Semantic palette — app shell (shadcn names).
@@ -316,7 +316,7 @@
     --card-foreground: oklch(0.145 0 0);
     --popover: oklch(1 0 0);
     --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
+    --primary: oklch(0.55 0.22 27);
     --primary-foreground: oklch(0.985 0 0);
     --secondary: oklch(0.97 0 0);
     --secondary-foreground: oklch(0.205 0 0);
@@ -350,11 +350,9 @@
     --info-foreground: oklch(1 0 0);
     --border: oklch(0.922 0 0);
     --input: oklch(0.922 0 0);
-    /* 0.55 → #717171 = 4.88:1 on white. The old 0.708 gave only 2.58:1,
-       below the 3:1 that WCAG 2.4.11 requires of a focus indicator. */
-    --ring: oklch(0.55 0 0);
+    --ring: oklch(0.55 0.22 27);
     --overlay: oklch(0 0 0 / 70%);
-    --selection-bg: oklch(0.55 0 0 / 22%);
+    --selection-bg: oklch(0.55 0.22 27 / 22%);
     --chart-1: oklch(0.87 0 0);
     --chart-2: oklch(0.556 0 0);
     --chart-3: oklch(0.439 0 0);
@@ -363,12 +361,12 @@
     --radius: 0.625rem;
     --sidebar: oklch(0.985 0 0);
     --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
+    --sidebar-primary: oklch(0.55 0.22 27);
     --sidebar-primary-foreground: oklch(0.985 0 0);
     --sidebar-accent: oklch(0.97 0 0);
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.55 0 0);
+    --sidebar-ring: oklch(0.55 0.22 27);
 
     /* Elevation edge for the "3D" raised-control shadow. Dark mode mirrors
        this with a *light* band (`rgb(255 255 255 / 18%)`) — see the note in
@@ -393,8 +391,8 @@
     --card-foreground: oklch(0.985 0 0);
     --popover: oklch(0.205 0 0);
     --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
+    --primary: oklch(0.68 0.22 27);
+    --primary-foreground: oklch(0.145 0 0);
     --secondary: oklch(0.269 0 0);
     --secondary-foreground: oklch(0.985 0 0);
     --muted: oklch(0.269 0 0);
@@ -413,8 +411,8 @@
     --info-foreground: oklch(0.205 0 0);
     --border: oklch(1 0 0 / 10%);
     --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --selection-bg: oklch(0.985 0 0 / 22%);
+    --ring: oklch(0.68 0.22 27);
+    --selection-bg: oklch(0.68 0.22 27 / 22%);
     --chart-1: oklch(0.87 0 0);
     --chart-2: oklch(0.556 0 0);
     --chart-3: oklch(0.439 0 0);
@@ -422,15 +420,12 @@
     --chart-5: oklch(0.269 0 0);
     --sidebar: oklch(0.205 0 0);
     --sidebar-foreground: oklch(0.985 0 0);
-    /* Was oklch(0.488 0.243 264.376) — a saturated blue-violet and the only
-       chromatic value in an otherwise achromatic palette. Now matches its
-       light counterpart's role. */
-    --sidebar-primary: oklch(0.922 0 0);
-    --sidebar-primary-foreground: oklch(0.205 0 0);
+    --sidebar-primary: oklch(0.68 0.22 27);
+    --sidebar-primary-foreground: oklch(0.145 0 0);
     --sidebar-accent: oklch(0.269 0 0);
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+    --sidebar-ring: oklch(0.68 0.22 27);
 
     --elevation-edge: rgb(255 255 255 / 18%);
 }
