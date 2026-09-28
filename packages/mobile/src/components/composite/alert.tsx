@@ -9,6 +9,7 @@ import * as Haptics from "expo-haptics"
 import { useMobileTheme } from "../../host"
 import { MobileText } from "../primitive/text"
 import { metrics } from "../../tokens"
+import { isTextChildren } from "../../utils"
 
 export type MobileAlertVariant = "info" | "success" | "warning" | "destructive"
 
@@ -118,7 +119,7 @@ export function MobileAlert({
             </MobileText>
           ) : null}
 
-          {typeof children === "string" ? (
+          {isTextChildren(children) ? (
             <MobileText
               variant="callout"
               color="muted"

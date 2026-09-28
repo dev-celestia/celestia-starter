@@ -9,6 +9,7 @@ import {
   MobileText,
   useMobileTheme,
 } from "@celestia-project/mobile"
+import { useSectionKey, useShowcaseNav } from "./nav"
 
 /**
  * Presentational helpers used by every showcase section.
@@ -50,6 +51,12 @@ export function ShowcaseSectionHeader({
 /**
  * A titled card wrapping one demonstration, with the module path printed
  * underneath so it is obvious which import produced the result.
+ *
+ * Each specimen files itself with the jump menu (`nav.tsx`) as it mounts — it
+ * knows its own title, and the section key arrives by context — so the menu is
+ * assembled from what actually rendered rather than from a second hand-kept list
+ * that could drift. The wrapper `View` exists only to give `jumpTo` a node it can
+ * measure: `MobileCard` takes no ref.
  */
 export function Specimen({
   title,
@@ -62,23 +69,44 @@ export function Specimen({
   modulePath?: string
   children?: React.ReactNode
 }) {
+  const nav = useShowcaseNav()
+  const sectionKey = useSectionKey()
+
+  const anchorKey = `specimen:${sectionKey}:${title}`
+
+  React.useEffect(() => {
+    nav?.declareEntry({
+      key: anchorKey,
+      title,
+      sectionKey,
+      kind: "specimen",
+    })
+  }, [nav, anchorKey, title, sectionKey])
+
+  const setAnchor = React.useCallback(
+    (node: View | null) => nav?.attachAnchor(anchorKey, node),
+    [nav, anchorKey]
+  )
+
   return (
-    <MobileCard style={styles.specimen}>
-      <MobileCardHeader>
-        <MobileCardTitle>{title}</MobileCardTitle>
-        {description ? (
-          <MobileCardDescription>{description}</MobileCardDescription>
-        ) : null}
-      </MobileCardHeader>
-      <MobileCardContent>
-        {children}
-        {modulePath ? (
-          <MobileText variant="caption" color="muted" style={styles.modulePath}>
-            {modulePath}
-          </MobileText>
-        ) : null}
-      </MobileCardContent>
-    </MobileCard>
+    <View ref={setAnchor}>
+      <MobileCard style={styles.specimen}>
+        <MobileCardHeader>
+          <MobileCardTitle>{title}</MobileCardTitle>
+          {description ? (
+            <MobileCardDescription>{description}</MobileCardDescription>
+          ) : null}
+        </MobileCardHeader>
+        <MobileCardContent>
+          {children}
+          {modulePath ? (
+            <MobileText variant="caption" color="muted" style={styles.modulePath}>
+              {modulePath}
+            </MobileText>
+          ) : null}
+        </MobileCardContent>
+      </MobileCard>
+    </View>
   )
 }
 

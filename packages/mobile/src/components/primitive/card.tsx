@@ -3,6 +3,7 @@ import { View, StyleSheet, type ViewStyle, Platform } from "react-native"
 import { useMobileTheme } from "../../host"
 import { MobileText } from "./text"
 import { metrics } from "../../tokens"
+import { isTextChildren } from "../../utils"
 
 export interface MobileCardProps {
   children?: React.ReactNode
@@ -52,7 +53,7 @@ export function MobileCardTitle({
   children?: React.ReactNode
   style?: ViewStyle
 }) {
-  if (!React.isValidElement(children)) {
+  if (isTextChildren(children)) {
     return (
       <MobileText variant="title" style={style}>
         {children}
@@ -69,7 +70,7 @@ export function MobileCardDescription({
   children?: React.ReactNode
   style?: ViewStyle
 }) {
-  if (!React.isValidElement(children)) {
+  if (isTextChildren(children)) {
     return (
       <MobileText
         variant="callout"

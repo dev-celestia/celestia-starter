@@ -74,7 +74,10 @@ export interface MobileIconButtonProps {
  *
  * Square icon-only control adhering to:
  * - a 44×44pt minimum touch target regardless of the visual size
- * - the same 0.97 press-scale + same-frame haptics as `MobileButton`
+ * - a 0.97 press-scale, springing back on release. `MobileButton` presses with
+ *   the web button's 2pt bottom edge instead; a square icon box has no label
+ *   width for that edge to read against, so the press reads as a shrink.
+ * - the same-frame haptics `MobileButton` uses
  * - a *required* `accessibilityLabel`, since the icon carries no text
  */
 export function MobileIconButton({

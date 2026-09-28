@@ -9,6 +9,7 @@ import * as Haptics from "expo-haptics"
 import { useMobileTheme } from "../../host"
 import { MobileText } from "./text"
 import { metrics } from "../../tokens"
+import { isTextChildren } from "../../utils"
 
 export interface MobileLinkProps {
   /**
@@ -78,12 +79,12 @@ export function MobileLink({
         style={[styles.standalone, { opacity: disabled ? 0.45 : 1 }, style]}
       >
         <View style={styles.standaloneText}>
-          {React.isValidElement(children) ? (
-            children
-          ) : (
+          {isTextChildren(children) ? (
             <MobileText variant="bodyMedium" color="primary">
-              {children as React.ReactNode}
+              {children}
             </MobileText>
+          ) : (
+            children
           )}
         </View>
         <MobileText variant="bodyMedium" color="muted" style={styles.chevron}>
@@ -103,9 +104,7 @@ export function MobileLink({
       hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
       style={disabled ? { opacity: 0.45 } : undefined}
     >
-      {React.isValidElement(children) ? (
-        children
-      ) : (
+      {isTextChildren(children) ? (
         <MobileText
           variant="body"
           style={{
@@ -113,8 +112,10 @@ export function MobileLink({
             textDecorationLine: "underline",
           }}
         >
-          {children as React.ReactNode}
+          {children}
         </MobileText>
+      ) : (
+        children
       )}
     </Pressable>
   )

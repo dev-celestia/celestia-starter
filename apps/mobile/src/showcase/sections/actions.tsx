@@ -104,7 +104,7 @@ export function ActionsSection({ ctx }: { ctx: ShowcaseContext }) {
     <View>
       <Specimen
         title="Buttons"
-        description="Five variants at the default size. The press-scale is 0.97 and the haptic fires on the commit frame, not on release."
+        description="Five variants at the default size, drawn to the web Button's anatomy — a 32px surface, a 6px radius and a hard 2px bottom edge. The press slides the surface down over the edge, and the haptic fires on the commit frame, not on release."
         modulePath="primitive/button"
       >
         <Stack gap={10}>

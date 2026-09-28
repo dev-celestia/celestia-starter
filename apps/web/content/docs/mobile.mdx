@@ -8,6 +8,12 @@ icon: smartphone
 library for Expo apps that renders **real platform views** — SwiftUI on iOS, Jetpack Compose on
 Android — through `@expo/ui`, rather than emulating them in JavaScript.
 
+<Callout type="info" title="Looking for the visual tour?">
+This page is the technical reference — install, peer dependencies, platform support, API.
+For the token ramp, the component index and a gallery of the screens, see the dedicated
+**[Mobile showcase](/mobile)** surface.
+</Callout>
+
 It is not a port of the web library. The web components assume a DOM, hover states and a CSS
 box model; the mobile components assume a thumb, a safe area and a touch target floor. What the
 two packages share is the **taxonomy** (the same `primitive` / `composite` / `layout` split) and
@@ -39,12 +45,16 @@ boots, or ask for one up front:
 | `pnpm mobile` | Metro only — press `i`, `a` or `w` in the terminal | — |
 | `pnpm --filter mobile ios` | iOS simulator or device (`expo start --ios`) | Supported |
 | `pnpm --filter mobile android` | Android emulator or device (`expo start --android`) | Supported |
-| `pnpm --filter mobile web` | Browser (`expo start --web`) | Not supported — see [Platform support](#platform-support) |
+| `pnpm --filter mobile web` | Browser (`expo start --web`) | Supported — see [Platform support](#platform-support) |
 
 Each target needs its own toolchain: Xcode and a booted simulator for iOS, the Android SDK and a
-running emulator for Android. Because `@expo/ui` autolinks native code, the real SwiftUI and
-Compose views need a **development build** rather than Expo Go — `npx expo run:ios` or
-`npx expo run:android` from `apps/mobile` produces one and launches it.
+running emulator for Android. Web needs nothing beyond the three packages listed under
+[Enabling web](#enabling-web).
+
+`@expo/ui` is **included in Expo Go**, so the real SwiftUI and Compose views run in the sandbox
+client with no native build at all — scan the QR code from `pnpm mobile` and the showcase opens on
+a physical device. A development build (`npx expo run:ios` / `npx expo run:android`) is only
+needed once you add native code of your own.
 
 ```bash
 # Typecheck just the library
@@ -53,32 +63,63 @@ pnpm --filter @celestia-project/mobile typecheck
 
 ## Platform support
 
-The library targets **iOS and Android**. Web is out of scope, and the reason is structural, not a
-missing config flag:
+The library targets **iOS, Android and web**. The native platforms get real SwiftUI and Jetpack
+Compose views through `@expo/ui`; web is served by `@expo/ui`'s **universal** entry, which is what
+every component in this package imports.
 
 | | iOS | Android | Web |
 |---|-----|---------|-----|
-| Components built on `@expo/ui` | ✅ SwiftUI | ✅ Compose | ❌ |
-| Rest of the package (plain React Native) | ✅ | ✅ | Needs `react-native-web` |
-| `apps/mobile` showcase | ✅ | ✅ | ❌ |
+| Components built on `@expo/ui` | ✅ SwiftUI | ✅ Compose | ✅ DOM equivalents |
+| Rest of the package (plain React Native) | ✅ | ✅ | ✅ via `react-native-web` |
+| `apps/mobile` showcase | ✅ | ✅ | ✅ |
 
-`@expo/ui@57` ships no web implementation. Its export map is `./swift-ui`, `./jetpack-compose` and
-`./community/*`, and the package contains no `.web.js` modules at all. Four modules in
-`packages/mobile` import it directly — `host.tsx` (`Host`), `primitive/switch.tsx`,
-`primitive/list.tsx` and `primitive/bottom-sheet.tsx` — so those cannot render in a browser at any
-version, and `pnpm --filter mobile web` fails at import time. `apps/mobile` separately has no
-`react-native-web`, `react-dom` or `@expo/metro-runtime`, so even the `@expo/ui`-free components
-have nothing to render into. `expo-haptics`, which every interactive component calls, is likewise
-native-only.
+`@expo/ui@57` exposes three entry points, and *which one you import* decides whether web works:
 
-Everything else is already web-clean by construction: each animation guards its driver with
-`Platform.OS !== "web"` (`button.tsx`, `icon-button.tsx`, `skeleton.tsx`, `toast.tsx`,
-`progress.tsx`, `segmented-control.tsx`), and `screen.tsx` puts the iOS-only `padding` keyboard
-behind a `Platform.OS === "ios"` check. Adding web would therefore mean installing those three
-packages *and* giving the four `@expo/ui` modules a `Platform.select` fallback — a code change to
-`packages/mobile`, not a docs or config change. Until that lands, use `@celestia-project/ui` for
-the web face of a feature; the two libraries share design tokens and the primitive / composite /
-layout taxonomy precisely so the same screen can have a native and a browser implementation.
+| Import | Implementation |
+|--------|----------------|
+| `@expo/ui` | **Universal** — resolves to `.ios.tsx` / `.android.tsx` / a generic DOM implementation |
+| `@expo/ui/swift-ui` | iOS only |
+| `@expo/ui/jetpack-compose` | Android only |
+
+Every component in `packages/mobile` imports from `"@expo/ui"` — the universal entry — and never
+from `/swift-ui` or `/jetpack-compose`. The universal implementations are real rather than stubs:
+`Host` renders a plain `View`, `Switch` builds a DOM switch, `List` and `ListItem` use plain React
+Native primitives, and `BottomSheet` renders through [`vaul`](https://vaul.emilkowal.ski/).
+
+The rest of the chain is web-clean as well. `react-native-safe-area-context` resolves through
+`react-native-web`; `expo-haptics` — which every interactive component calls — ships a no-op
+`ExpoHaptics.web.ts`, so haptics simply do nothing in a browser; `expo-status-bar` ships
+`StatusBar.web.js`; and `react-native-svg`, which the showcase icons are drawn with, ships a web
+build. Each animation guards its driver with `Platform.OS !== "web"` (`button.tsx`,
+`icon-button.tsx`, `skeleton.tsx`, `toast.tsx`, `progress.tsx`, `segmented-control.tsx`), and
+`screen.tsx` puts the iOS-only `padding` keyboard behind a `Platform.OS === "ios"` check.
+
+### Enabling web
+
+`apps/mobile` needs three packages for the browser target; `expo install` picks the SDK-compatible
+versions:
+
+```bash
+npx expo install react-native-web react-dom @expo/metro-runtime
+```
+
+and `app.json` has to declare the web bundler:
+
+```json
+"web": { "bundler": "metro", "output": "single" }
+```
+
+Both are already in place, so `pnpm --filter mobile web` serves the showcase in a browser. Two
+things to know:
+
+- **Props marked `@platform ios` / `@platform android` are inert on web.** `MobileList`'s
+  `onRefresh` is the one in this package: the prop is accepted and ignored, because there is no
+  native refresh affordance to show.
+- **Web is a preview surface, not a port.** The DOM rendering comes from `@expo/ui` and
+  `react-native-web`, so it is close to, but not pixel-identical with, the SwiftUI / Compose
+  rendering. When a feature needs a first-class web implementation, use `@celestia-project/ui`;
+  the two libraries share design tokens and the primitive / composite / layout taxonomy precisely
+  so that the same screen can have a native and a browser implementation.
 
 <Callout type="info" title="Publishing">
 `@celestia-project/mobile` is part of the npm publish set: `scripts/publish.sh` publishes
@@ -173,7 +214,19 @@ import { darkColors, metrics } from "@celestia-project/mobile/tokens"
 ## Setup
 
 `MobileHost` bridges React Native to the native layer and provides the theme context every
-component reads. `SafeAreaProvider` must sit above it so `MobileScreen` can resolve insets, and
+component reads.
+
+<Callout type="warn" title="MobileHost must be given a size">
+`MobileHost` renders `@expo/ui`'s `Host`, whose `matchContents` and `useViewportSizeMeasurement`
+props both default to `false`. An **unsized host lays out to zero height**, so every child
+collapses with it and the app renders as a blank screen — the root view's background, and nothing
+else. `style={{ flex: 1 }}` is the fix, and it is not optional.
+
+Reach for `useViewportSizeMeasurement` instead when the host should size to the available viewport,
+or `matchContents` when it should shrink to fit its content.
+</Callout>
+
+`SafeAreaProvider` must sit above it so `MobileScreen` can resolve insets, and
 `MobileToastProvider` must sit inside a **sized** parent, because its overlay positions itself
 absolutely against that parent.
 
@@ -326,7 +379,7 @@ Every component in this package follows the same non-negotiables. They are enfor
 convention and review, not by a linter, so they are worth knowing before adding a component:
 
 1. **No hardcoded colours.** Everything reads `useMobileTheme()`; the light and dark ramps are both complete.
-2. **44×44pt minimum touch target** on every interactive element (`metrics.minTouchTarget`).
+2. **44×44pt minimum touch target** on every interactive element (`metrics.minTouchTarget`). A control drawn shorter to match the web design system — `MobileButton` is 32px — meets the floor with `hitSlop` rather than by inflating the box.
 3. **Haptics fire on the causal commit frame** — `Light` for normal presses, `Medium` for destructive, `selectionAsync` for toggles. Never on mount.
 4. **16px font floor** on text inputs, to prevent OS viewport zoom.
 5. **Tabular numerals** for counters, prices and timers.
@@ -334,6 +387,7 @@ convention and review, not by a linter, so they are worth knowing before adding 
 7. **No hover-only affordances.**
 8. **Forms never disable the submit button for empty fields.** It stays pressable and names what is missing; it is disabled only while loading.
 9. **Screens are presentational.** Props in, callbacks out — no fetching, no auth client, no routing.
+10. **Text children are wrapped; composed children are not.** `MobileButton`, `MobileBadge`, `MobileLink`, `MobileCardTitle` and `MobileCardDescription` route their children through `isTextChildren()` (`src/utils.ts`) to decide whether to wrap them in `MobileText`. Never replace it with `typeof children === "string"` or `React.isValidElement(children)`: JSX turns any element with more than one child into an **array** (`+{count}%` becomes `["+", count, "%"]`), and both of those checks mis-classify that array — the first renders bare strings outside a `<Text>` and the second nests a `<View>` inside one. Either way the app crashes at render.
 
 ## Dependencies
 
@@ -383,9 +437,10 @@ optional. Real brand marks need a different source — they are not in any gener
 
 <Callout type="warn" title="Not yet verified on a device">
 The library is typechecked end to end (package and showcase app) and the showcase Metro-bundles
-into a working Hermes bundle (`npx expo export --platform ios`), but it has **not been run on a
-simulator or device** in this workspace — the machine has no Xcode, so `@expo/ui`'s real native
-views and gesture behaviour cannot be exercised headlessly.
+into a working Hermes bundle (`npx expo export --platform ios`) and a working web bundle
+(`npx expo export --platform web`, 506 modules). It has **not been run on a simulator or device**
+in this workspace — the machine has no Xcode, so `@expo/ui`'s real native views and gesture
+behaviour cannot be exercised headlessly.
 
 Three things need a device before this is trusted: the whole package end to end; `MobileSlider`'s
 gesture geometry in particular — a `PanResponder` cannot be validated by a typecheck; and the showcase

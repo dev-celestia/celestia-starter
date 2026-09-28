@@ -5,6 +5,12 @@
  * - better-colors (semantic roles, WCAG AA contrast floors, dark/light coherence)
  * - better-typography (proportional line-heights, tabular-nums, mobile font floors)
  * - better-interface (44x44pt minimum touch target, physical depth)
+ *
+ * `primary` is the design system's brand accent, kept in step with
+ * `packages/ui/src/styles/globals.css` — it is the one chromatic role in the
+ * ramp, and the red is the brand's. `packages/ui` declares it in OKLCH
+ * (`oklch(0.55 0.22 27)` light / `oklch(0.68 0.22 27)` dark); React Native
+ * cannot parse `oklch()`, so the sRGB equivalents are written out here.
  */
 
 export interface ColorRamp {
@@ -31,6 +37,27 @@ export interface ColorRamp {
   infoForeground: string
   border: string
   inputBorder: string
+  /**
+   * The hard 2px bottom edge of a raised control — what `@celestia-project/ui`
+   * spells `--shadow-3d`, `--shadow-3d-primary` and `--shadow-destructive-3d`.
+   *
+   * Web gets these free: `box-shadow: 0 2px 0 0 <colour>` draws a solid,
+   * zero-blur silhouette. React Native has no such shadow, so the button draws
+   * the edge as a real layer instead, which means the value has to be a
+   * concrete colour here rather than a composed shadow.
+   *
+   * `primaryEdge` is the same value as `primary` (web reads the live
+   * `--primary`), but it is named separately so the variant table can say what
+   * it means instead of reaching for an unrelated role.
+   *
+   * `elevationEdge` is translucent — web spells it `rgb(0 0 0 / 15%)` — so it is
+   * written as 8-digit hex, `#RRGGBBAA`, which keeps the whole ramp in one
+   * notation. React Native parses it to the same value as the `rgba()` form
+   * (verified against `@react-native/normalize-colors`).
+   */
+  elevationEdge: string
+  primaryEdge: string
+  destructiveEdge: string
 }
 
 export const lightColors: ColorRamp = {
@@ -41,8 +68,8 @@ export const lightColors: ColorRamp = {
   foreground: "#0f172a",
   muted: "#64748b",
   mutedBackground: "#f1f5f9",
-  primary: "#0f172a",
-  primaryForeground: "#ffffff",
+  primary: "#d40c1a",
+  primaryForeground: "#fafafa",
   secondary: "#f1f5f9",
   secondaryForeground: "#0f172a",
   accent: "#f1f5f9",
@@ -57,6 +84,9 @@ export const lightColors: ColorRamp = {
   infoForeground: "#ffffff",
   border: "#e2e8f0",
   inputBorder: "#cbd5e1",
+  elevationEdge: "#00000026",
+  primaryEdge: "#d40c1a",
+  destructiveEdge: "#942626",
 }
 
 export const darkColors: ColorRamp = {
@@ -67,8 +97,8 @@ export const darkColors: ColorRamp = {
   foreground: "#f8fafc",
   muted: "#94a3b8",
   mutedBackground: "#27272a",
-  primary: "#f8fafc",
-  primaryForeground: "#09090b",
+  primary: "#ff4d46",
+  primaryForeground: "#0a0a0a",
   secondary: "#27272a",
   secondaryForeground: "#f8fafc",
   accent: "#27272a",
@@ -83,6 +113,9 @@ export const darkColors: ColorRamp = {
   infoForeground: "#09090b",
   border: "#27272a",
   inputBorder: "#3f3f46",
+  elevationEdge: "#ffffff2e",
+  primaryEdge: "#ff4d46",
+  destructiveEdge: "#9e3b3d",
 }
 
 export const typography = {

@@ -1,11 +1,11 @@
 /**
  * Landing navigation data — the single source for the left-rail nav
- * (`landing-nav.tsx`) and the footer's Explore group.
+ * (`site-nav.tsx`) and the footer's Explore group.
  *
  * Two kinds of destination, kept apart because they behave differently:
  * anchors scroll within this page; surfaces leave it (app routes or
- * external sites). The marketing navbar's Products dropdown has its own
- * richer copy of the surfaces list in `navbar.tsx`.
+ * external sites). Both the rail and the footer read `LANDING_SURFACES`
+ * directly, so there is no second copy to keep in sync.
  */
 
 /** In-page sections, in the order they appear on the page. */
@@ -22,6 +22,7 @@ export const LANDING_SURFACES = [
   { label: "Design System", href: "/design-system", external: false },
   { label: "Documentation", href: "/docs", external: false },
   { label: "Layout & Pages", href: "/layout", external: false },
+  { label: "Mobile", href: "/mobile", external: false },
   { label: "Feature Installer", href: "/feature-installer", external: false },
   { label: "Hexbuffer", href: "https://0xbuffer.com/", external: true },
 ] as const

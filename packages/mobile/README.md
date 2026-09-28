@@ -5,7 +5,7 @@ Native React Native & Expo UI component suite built on **@expo/ui** (real SwiftU
 ## Features
 
 - **Real Native Primitives**: Uses `@expo/ui` to render SwiftUI and Jetpack Compose without JavaScript emulation.
-- **Physical Depth & Motion**: Micro-motion press scale (`0.97`) and same-frame haptic feedback via `expo-haptics`.
+- **Physical Depth & Motion**: Buttons carry the web design system's hard 2px bottom edge (`shadow-3d-*`), and every press fires same-frame haptic feedback via `expo-haptics`.
 - **Accessible & Ergonomic**: 44×44pt minimum touch targets and WCAG AA contrast compliance.
 - **Mobile-First Typography**: 16px minimum text input font floor and tabular numerals support.
 - **Routing & Data Agnostic**: No navigation library, no data fetching, no auth client. Components receive props and emit callbacks.
@@ -55,7 +55,7 @@ infrastructure (design tokens + the theme context every component reads), not co
 |---|---|---|
 | `MobileText` | RN `Text` | 8 typographic roles, `tabular` numerals, semantic `color` |
 | `MobileLabel` | RN `Text` | `callout` role, structural required marker |
-| `MobileButton` | RN `Pressable` | 5 variants × 3 sizes, `0.97` press scale, haptics |
+| `MobileButton` | RN `Pressable` | 5 variants × 3 sizes; web `Button` anatomy (32px surface, 6px radius, 2px bottom edge), haptics |
 | `MobileIconButton` | RN `Pressable` | 44pt square, **required** `accessibilityLabel` |
 | `MobileTextInput` / `MobileInput` | RN `TextInput` | 16px font floor, focus/error borders, `leading`/`trailing` slots, `clearable` |
 | `MobileOtpInput` | RN `TextInput` (single) | fixed-length code cells, SMS autofill, auto-advance |
@@ -254,7 +254,7 @@ export default function MyScreen() {
 Every component in this package follows the same non-negotiables:
 
 1. **No hardcoded colors.** Everything reads `useMobileTheme()`; light and dark ramps are both complete.
-2. **44×44pt minimum touch target** on every interactive element (`metrics.minTouchTarget`).
+2. **44×44pt minimum touch target** on every interactive element (`metrics.minTouchTarget`). A control drawn shorter to match the web design system — `MobileButton` is 32px — meets the floor with `hitSlop` rather than by inflating the box.
 3. **Haptics fire on the causal commit frame** — `Light` for normal presses, `Medium` for destructive, `selectionAsync` for toggles. Never on mount.
 4. **16px font floor** on text inputs, to prevent OS viewport zoom.
 5. **Tabular numerals** for counters, prices and timers.
