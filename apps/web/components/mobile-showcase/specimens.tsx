@@ -665,7 +665,10 @@ const chartPy = (value: number) =>
   CHART_PLOT.bottom -
   (value / 100) * (CHART_PLOT.bottom - CHART_PLOT.top)
 
-const CHART_SERIES_DATA = [
+const CHART_SERIES_DATA: {
+  label: string
+  points: [number, number][]
+}[] = [
   {
     label: "Control",
     points: [
