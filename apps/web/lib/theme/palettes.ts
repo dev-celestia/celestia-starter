@@ -37,21 +37,6 @@ export interface ThemeSettings {
 
 export const PALETTES: AccentPalette[] = [
   {
-    id: "red",
-    name: "Red",
-    colorHex: "#ef4444",
-    light: {
-      primary: "oklch(0.55 0.22 27)",
-      primaryForeground: "oklch(0.985 0 0)",
-      ring: "oklch(0.55 0.22 27)",
-    },
-    dark: {
-      primary: "oklch(0.68 0.22 27)",
-      primaryForeground: "oklch(0.145 0 0)",
-      ring: "oklch(0.68 0.22 27)",
-    },
-  },
-  {
     id: "zinc",
     name: "Zinc",
     colorHex: "#71717a",
