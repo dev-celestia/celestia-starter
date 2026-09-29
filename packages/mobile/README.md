@@ -74,7 +74,7 @@ infrastructure (design tokens + the theme context every component reads), not co
 | `MobileList`, `MobileListItem` | `@expo/ui` `List` | native grouped table rows |
 | `MobileBottomSheet` | `@expo/ui` `BottomSheet` | native slide-up presentation |
 
-**composite** — 13 modules
+**composite** — 14 modules
 
 | Component | Composes | Notes |
 |---|---|---|
@@ -90,6 +90,7 @@ infrastructure (design tokens + the theme context every component reads), not co
 | `MobileSocialAuthButtons` | `MobileButton` | explicit row chunking rather than `flexWrap` |
 | `MobileActionSheet` | `MobileBottomSheet` | dismisses **before** running the action |
 | `MobileConfirmDialog` | `MobileBottomSheet` + `MobileButton` | stays open until the caller dismisses it |
+| `MobileChartScatter` | `victory-native` over Skia | the only module with dependencies — optional peers; one `Scatter` per series |
 | `MobileToast` + `MobileToastProvider` + `useMobileToast` | `Animated` + context | one toast at a time; imperative `show()` / `hide()` |
 
 **layout** — 10 modules
@@ -260,7 +261,7 @@ Every component in this package follows the same non-negotiables:
 5. **Tabular numerals** for counters, prices and timers.
 6. **Icons arrive as props.** The package takes no icon dependency; only structural marks (a tick, a chevron) may be drawn inline. The `apps/mobile` showcase is the consumer side of this rule and supplies its own set — Heroicons drawn with `react-native-svg`. The package footprint is unchanged: nothing here needs an icon library.
 7. **No hover-only affordances.**
-8. **Zero extra runtime dependencies.** Paging uses `ScrollView` + `pagingEnabled`, motion uses RN `Animated`, keyboard handling uses `KeyboardAvoidingView` — no `reanimated`, no `gesture-handler`, no navigation library.
+8. **Zero runtime dependencies, with one declared exception.** Paging uses `ScrollView` + `pagingEnabled`, motion uses RN `Animated`, keyboard handling uses `KeyboardAvoidingView`, and `MobileSlider` is built on `PanResponder`. The exception is `MobileChartScatter`, which renders through `victory-native` on Skia — those four packages are **optional** peer dependencies, so an app that draws no chart installs none of them.
 9. **Forms never disable the submit button for empty fields.** The button stays pressable and names what is missing; it is disabled only while loading. A dead button with no explanation is the single most common form defect — the user cannot tell whether the form is broken or their input is wrong.
 10. **Screens are presentational.** Props in, callbacks out. No fetching, no auth client, no routing — the host app owns all three.
 

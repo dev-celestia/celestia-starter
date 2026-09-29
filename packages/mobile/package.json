@@ -62,13 +62,24 @@
   },
   "peerDependencies": {
     "@expo/ui": "^57.0.19",
+    "@shopify/react-native-skia": ">=2.6.0 <3.0.0",
     "expo-haptics": "^57.0.3",
     "react": "^19",
     "react-native": "*",
-    "react-native-safe-area-context": ">=5"
+    "react-native-gesture-handler": ">=2.0.0",
+    "react-native-reanimated": ">=3.19.1",
+    "react-native-safe-area-context": ">=5",
+    "victory-native": ">=42"
+  },
+  "peerDependenciesMeta": {
+    "@shopify/react-native-skia": { "optional": true },
+    "react-native-gesture-handler": { "optional": true },
+    "react-native-reanimated": { "optional": true },
+    "victory-native": { "optional": true }
   },
   "devDependencies": {
     "@expo/ui": "^57.0.19",
+    "@shopify/react-native-skia": "2.6.2",
     "@types/node": "^20",
     "@types/react": "19",
     "@types/react-native": "^0.73.0",
@@ -76,7 +87,10 @@
     "expo-haptics": "^57.0.3",
     "react": "19.2.3",
     "react-native": "0.86.3",
+    "react-native-gesture-handler": "~2.32.0",
+    "react-native-reanimated": "4.5.1",
     "react-native-safe-area-context": "^5.0.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "victory-native": "^42.0.1"
   }
 }

@@ -265,7 +265,7 @@ export function ShowcaseRoot({ onToggleTheme }: ShowcaseRootProps) {
               <Spacer size={40} />
 
               <MobileText variant="caption" color="muted" align="center">
-                {`${SHOWCASE_SECTIONS.length} sections · 43 modules · 139 exports`}
+                {`${SHOWCASE_SECTIONS.length} sections · 44 modules · 145 exports`}
               </MobileText>
               <Spacer size={16} />
             </View>

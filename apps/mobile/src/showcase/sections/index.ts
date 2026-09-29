@@ -15,14 +15,14 @@ import { ScreensSection } from "./screens"
  * section file, so the copy and the structure cannot drift apart — and adding a
  * section is a one-line change in one place.
  *
- * The seven sections cover all 43 modules of `@celestia-project/mobile`:
+ * The seven sections cover all 44 modules of `@celestia-project/mobile`:
  *
  * | Section     | Category   | Modules |
  * |-------------|------------|---------|
  * | Foundations | primitive  | 9       |
  * | Actions     | primitive  | 6       |
  * | Forms       | both       | 4       |
- * | Data        | both       | 5       |
+ * | Data        | both       | 6       |
  * | Navigation  | both       | 4       |
  * | Overlays    | both       | 5       |
  * | Screens     | layout     | 10      |

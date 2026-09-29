@@ -6,7 +6,7 @@
  *
  * - the module inventory and its functional grouping mirror
  *   `apps/mobile/src/showcase/sections/index.ts`, which is the showcase app's
- *   own table of contents and covers all 43 modules;
+ *   own table of contents and covers all 44 modules;
  * - the token values mirror `packages/mobile/src/tokens.ts`;
  * - the design rules and the platform matrix mirror `content/docs/mobile.mdx`.
  *
@@ -47,7 +47,7 @@ export const MOBILE_CATEGORIES: MobileCategory[] = [
     directory: "src/components/composite/",
     belongs: "Opinionated assemblies built from primitives.",
     rule: "Is this a <Primitive> with a specific job?",
-    count: 13,
+    count: 14,
   },
   {
     id: "layout",
@@ -89,7 +89,7 @@ export interface MobileGroup {
 /**
  * The seven groups the showcase app uses. Unlike the folder split, these are
  * organised by *what the module is for*, which is how a consumer actually
- * looks for one. Together they cover all 43 modules exactly once.
+ * looks for one. Together they cover all 44 modules exactly once.
  */
 export const MOBILE_GROUPS: MobileGroup[] = [
   {
@@ -247,7 +247,7 @@ export const MOBILE_GROUPS: MobileGroup[] = [
     id: "data",
     name: "Data display",
     summary:
-      "The native grouped list, card surfaces, avatar stacks, settings rows and the empty state.",
+      "The native grouped list, card surfaces, avatar stacks, settings rows, the empty state and the scatter plot.",
     modules: [
       {
         name: "MobileList",
@@ -283,6 +283,13 @@ export const MOBILE_GROUPS: MobileGroup[] = [
         modulePath: "composite/empty-state",
         summary:
           "`title` is required — an illustration with no explanation is not an empty state.",
+      },
+      {
+        name: "MobileChartScatter",
+        category: "composite",
+        modulePath: "composite/chart-scatter",
+        summary:
+          "The one module that takes dependencies — victory-native over Skia, declared as optional peers. Series colours come from the chart ramp, and the readout is pinned rather than following the finger.",
       },
     ],
   },
@@ -493,6 +500,11 @@ export const MOBILE_COLOR_TOKENS: MobileColorToken[] = [
     light: "#942626",
     dark: "#9e3b3d",
   },
+  { token: "chart1", role: "Series 1 · red", light: "#d40c1a", dark: "#ff4d46" },
+  { token: "chart2", role: "Series 2 · amber", light: "#b45309", dark: "#fbbf24" },
+  { token: "chart3", role: "Series 3 · teal", light: "#0f766e", dark: "#2dd4bf" },
+  { token: "chart4", role: "Series 4 · blue", light: "#1d4ed8", dark: "#60a5fa" },
+  { token: "chart5", role: "Series 5 · violet", light: "#7e22ce", dark: "#c084fc" },
 ]
 
 export interface MobileTypeStep {

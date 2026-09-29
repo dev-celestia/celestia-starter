@@ -640,6 +640,168 @@ function ToastSpecimen() {
   )
 }
 
+/* -------------------------------------------------------------------------- */
+/* Chart                                                                       */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The mobile chart ramp, transcribed from `packages/mobile/src/tokens.ts`.
+ *
+ * Deliberately *not* `--chart-1…5`: those are the web chart slots and they are
+ * neutral greys. The mobile ramp is a hue wheel anchored on the brand red,
+ * because a 9pt dot needs far more separation than a filled band does.
+ */
+const MOBILE_CHART_SERIES = ["#d40c1a", "#b45309", "#0f766e"]
+
+/** The plot box inside the SVG viewBox, in user units. */
+const CHART_PLOT = { left: 34, top: 6, right: 312, bottom: 132 }
+const CHART_TICKS = [0, 25, 50, 75, 100]
+
+const chartPx = (value: number) =>
+  CHART_PLOT.left +
+  (value / 100) * (CHART_PLOT.right - CHART_PLOT.left)
+
+const chartPy = (value: number) =>
+  CHART_PLOT.bottom -
+  (value / 100) * (CHART_PLOT.bottom - CHART_PLOT.top)
+
+const CHART_SERIES_DATA = [
+  {
+    label: "Control",
+    points: [
+      [8, 18], [19, 26], [28, 23], [37, 39], [46, 42],
+      [58, 51], [67, 55], [79, 64], [88, 73], [95, 81],
+    ],
+  },
+  {
+    label: "Variant A",
+    points: [
+      [10, 34], [21, 41], [31, 47], [42, 52], [53, 61],
+      [64, 66], [75, 72], [86, 79], [94, 88],
+    ],
+  },
+  {
+    label: "Variant B",
+    points: [
+      [6, 9], [17, 14], [27, 12], [38, 21], [49, 26],
+      [60, 31], [71, 36], [82, 44], [91, 49], [97, 57],
+    ],
+  },
+]
+
+function ChartSpecimen() {
+  return (
+    <Specimen title="Scatter plot" modulePath="composite/chart-scatter">
+      <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5">
+        {CHART_SERIES_DATA.map((series, index) => (
+          <span key={series.label} className="flex items-center gap-1.5">
+            <span
+              className="size-2.5 rounded-full"
+              style={{ backgroundColor: MOBILE_CHART_SERIES[index] }}
+            />
+            <span className="text-muted-foreground text-2xs">{series.label}</span>
+          </span>
+        ))}
+      </div>
+
+      <div className="relative">
+        <svg
+          viewBox="0 0 320 148"
+          className="w-full"
+          role="img"
+          aria-label="Scatter plot of three series"
+        >
+          {CHART_TICKS.map((tick) => (
+            <line
+              key={`grid-x-${tick}`}
+              x1={chartPx(tick)}
+              y1={CHART_PLOT.top}
+              x2={chartPx(tick)}
+              y2={CHART_PLOT.bottom}
+              className="stroke-border"
+              strokeWidth={1}
+            />
+          ))}
+          {CHART_TICKS.map((tick) => (
+            <line
+              key={`grid-y-${tick}`}
+              x1={CHART_PLOT.left}
+              y1={chartPy(tick)}
+              x2={CHART_PLOT.right}
+              y2={chartPy(tick)}
+              className="stroke-border"
+              strokeWidth={1}
+            />
+          ))}
+
+          {CHART_TICKS.map((tick) => (
+            <text
+              key={`label-y-${tick}`}
+              x={CHART_PLOT.left - 5}
+              y={chartPy(tick) + 3}
+              textAnchor="end"
+              className="fill-muted-foreground text-[9px] tabular-nums"
+            >
+              {tick}
+            </text>
+          ))}
+          {CHART_TICKS.map((tick) => (
+            <text
+              key={`label-x-${tick}`}
+              x={chartPx(tick)}
+              y={CHART_PLOT.bottom + 13}
+              textAnchor="middle"
+              className="fill-muted-foreground text-[9px] tabular-nums"
+            >
+              {tick}
+            </text>
+          ))}
+
+          {CHART_SERIES_DATA.map((series, seriesIndex) =>
+            series.points.map(([x, y], pointIndex) => (
+              <circle
+                key={`${series.label}-${pointIndex}`}
+                cx={chartPx(x)}
+                cy={chartPy(y)}
+                r={4.5}
+                fill={MOBILE_CHART_SERIES[seriesIndex]}
+              />
+            ))
+          )}
+
+          {/* The selected point, marked the way the press state marks it. */}
+          <circle
+            cx={chartPx(58)}
+            cy={chartPy(51)}
+            r={9}
+            fill="none"
+            className="stroke-foreground"
+            strokeWidth={2}
+          />
+        </svg>
+
+        {/*
+          Pinned, not following the finger. A bubble at the touch point sits
+          under the thumb on a phone, which is why the native component puts the
+          numbers in a fixed corner instead.
+        */}
+        <div className="bg-card border-border absolute end-0 top-0 rounded-sm border px-2 py-1">
+          <div className="text-foreground text-[9px] font-semibold tabular-nums">
+            58 · 51
+          </div>
+          <div className="text-muted-foreground text-[9px]">Control</div>
+        </div>
+      </div>
+
+      <p className="text-muted-foreground text-2xs leading-relaxed">
+        Rendered by victory-native over Skia, the one module in the package with dependencies —
+        declared as optional peers. Series colours come from the chart ramp, and the readout is
+        pinned rather than following the finger.
+      </p>
+    </Specimen>
+  )
+}
+
 export const MOBILE_SPECIMENS = [
   ButtonsSpecimen,
   SwitchesSpecimen,
@@ -658,4 +820,5 @@ export const MOBILE_SPECIMENS = [
   EmptyStateSpecimen,
   ToastSpecimen,
   TabBarSpecimen,
+  ChartSpecimen,
 ]

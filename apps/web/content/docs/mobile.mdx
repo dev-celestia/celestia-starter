@@ -181,12 +181,12 @@ so the two libraries read the same way.
 `MobileSpinner` · `MobileSkeleton` · `MobileLink` · `MobileCard` · `MobileList` ·
 `MobileBottomSheet`
 
-### composite — 13 modules
+### composite — 14 modules
 
 `MobileFormField` · `MobileSearchBar` · `MobileNavBar` · `MobileTabBar` ·
 `MobileSegmentedControl` · `MobileSettingRow` · `MobileAvatarGroup` · `MobileAlert` ·
 `MobileEmptyState` · `MobileSocialAuthButtons` · `MobileActionSheet` · `MobileConfirmDialog` ·
-`MobileToast` / `MobileToastProvider` / `useMobileToast`
+`MobileChartScatter` · `MobileToast` / `MobileToastProvider` / `useMobileToast`
 
 ### layout — 10 modules
 
@@ -391,12 +391,32 @@ convention and review, not by a linter, so they are worth knowing before adding 
 
 ## Dependencies
 
-The package adds **no runtime dependencies of its own**. Two deliberate consequences:
+The package adds **no runtime dependencies of its own** — with one declared exception. Two deliberate consequences:
 
 - **Paging** uses `ScrollView` + `pagingEnabled`, not `reanimated` or `gesture-handler`.
 - **Motion** uses React Native's built-in `Animated`, and the `MobileSlider` is built on `PanResponder` — React Native core dropped `Slider`, and the community package is a native module that would force every consumer to rebuild.
 
-The only non-obvious dependency is `react-native-safe-area-context`, which `apps/mobile` already
+### The chart exception
+
+`MobileChartScatter` is the one module that takes dependencies. It renders through [`victory-native`](https://nearform.com/open-source/victory-native/) on top of Skia, because real curve interpolation, UI-thread gestures and pan/zoom are not things a hand-rolled view tree does well.
+
+| Package | Why it is needed |
+|---|---|
+| `victory-native` | the chart primitives — `CartesianChart`, `Scatter` |
+| `@shopify/react-native-skia` | the renderer victory-native draws through |
+| `react-native-reanimated` | the press state and animated paths run on the UI thread |
+| `react-native-gesture-handler` | the gesture layer underneath reanimated |
+
+All four are declared as **optional peer dependencies**, so the package installs and works without them and nothing else in it pulls them in. Install them only if you render a chart:
+
+```bash
+npx expo install @shopify/react-native-skia react-native-reanimated react-native-gesture-handler
+pnpm add victory-native
+```
+
+Axis tick labels are drawn through Skia rather than React Native, so `MobileChartScatter` needs a Skia font from `useFont()` and takes it as the `font` prop. With no font the dots still plot — only the labels are missing. The font is a prop rather than a bundled asset on purpose: shipping a `.ttf` would force every consumer to carry a font file it may not want, and would stop the chart matching the app's own typeface.
+
+The only other non-obvious dependency is `react-native-safe-area-context`, which `apps/mobile` already
 used before the package needed it.
 
 ## Icons in the showcase

@@ -16,6 +16,7 @@
 export * from "./action-sheet"
 export * from "./alert"
 export * from "./avatar-group"
+export * from "./chart-scatter"
 export * from "./confirm-dialog"
 export * from "./empty-state"
 export * from "./form-field"
