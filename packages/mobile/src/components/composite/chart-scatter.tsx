@@ -18,9 +18,10 @@ const DEFAULT_SERIES = "Series 1"
  * domain from it, so every series is flattened into the same two columns — the
  * per-series split happens later, on the way out, not on the way in.
  */
-interface ChartRow {
+type ChartRow = {
   x: number
   y: number
+  [key: string]: unknown
 }
 
 function defaultFormat(value: number): string {
@@ -204,7 +205,7 @@ export function MobileChartScatter({
 
   useAnimatedReaction(
     () => ({
-      active: isActive.value,
+      active: state.isActive.value,
       x: state.x.value.value,
       y: state.y.y.value.value,
     }),
@@ -294,7 +295,7 @@ export function MobileChartScatter({
             <CartesianChart
               data={rows}
               xKey="x"
-              yKeys={["y"]}
+              yKeys={["y"] as const}
               // Victory-native wants a little room so the extreme dots are not
               // bisected by the axis frame.
               domainPadding={{ top: dotSize, bottom: dotSize }}
