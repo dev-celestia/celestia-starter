@@ -25,10 +25,10 @@ export function HeroSection() {
         </h1>
 
         <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground text-pretty sm:text-lg">
-          Celestia is a full-stack monorepo starter with a real architecture:
-          a Next.js 16 frontend that stays pure UI, a Hono backend that owns
-          auth and data, and a feature installer so you only carry what you
-          use.
+          Building user interfaces should not restart every project. Celestia is
+          a full-stack monorepo starter with a real architecture: a Next.js 16
+          frontend that stays pure UI, a Hono backend that owns auth and data,
+          and a feature installer so you only carry what you use.
         </p>
 
         <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">

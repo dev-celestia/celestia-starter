@@ -13,7 +13,7 @@ import "../landing.css"
 export const metadata: Metadata = {
   title: "Feature Installer — Celestia",
   description:
-    "Next.js 16 frontend, Hono backend, Better Auth, Drizzle ORM — a decoupled full-stack starter installed in one command.",
+    "Building user interfaces should not restart every project. Next.js 16 frontend, Hono backend, Better Auth, Drizzle ORM — a decoupled full-stack starter installed in one command.",
 }
 
 export default function FeatureInstallerPage() {
