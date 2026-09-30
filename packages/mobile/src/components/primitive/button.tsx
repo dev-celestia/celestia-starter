@@ -5,10 +5,10 @@ import {
   View,
   type ViewStyle,
   Animated,
-  Platform,
 } from "react-native"
 import * as Haptics from "expo-haptics"
 import { useMobileTheme } from "../../host"
+import { usePressSpring } from "../../motion"
 import { MobileText } from "./text"
 import { metrics } from "../../tokens"
 import { isTextChildren } from "../../utils"
@@ -136,27 +136,11 @@ export function MobileButton({
   accessibilityHint,
 }: MobileButtonProps) {
   const { colors } = useMobileTheme()
-  const translateAnim = React.useRef(new Animated.Value(0)).current
-
-  const handlePressIn = () => {
-    if (disabled) return
-    Animated.timing(translateAnim, {
-      toValue: EDGE_HEIGHT,
-      duration: 90,
-      useNativeDriver: Platform.OS !== "web",
-    }).start()
-  }
-
-  const handlePressOut = () => {
-    if (disabled) return
-    Animated.spring(translateAnim, {
-      toValue: 0,
-      damping: 18,
-      mass: 1,
-      stiffness: 320,
-      useNativeDriver: Platform.OS !== "web",
-    }).start()
-  }
+  const {
+    value: translateAnim,
+    onPressIn: handlePressIn,
+    onPressOut: handlePressOut,
+  } = usePressSpring(0, EDGE_HEIGHT)
 
   const handlePress = () => {
     if (disabled || !onPress) return

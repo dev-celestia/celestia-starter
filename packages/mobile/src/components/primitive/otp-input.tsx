@@ -3,11 +3,13 @@ import {
   StyleSheet,
   TextInput,
   View,
+  Animated,
   type TextInputKeyPressEvent,
   type ViewStyle,
 } from "react-native"
 import * as Haptics from "expo-haptics"
 import { useMobileTheme } from "../../host"
+import { SPRING_SNAPPY, SPRING_SOFT, springTo } from "../../motion"
 import { MobileText } from "./text"
 import { metrics } from "../../tokens"
 
@@ -71,6 +73,10 @@ export interface MobileOtpInputProps {
  *
  * Tapping anywhere in the row focuses that field, and a light haptic fires each
  * time the code is completed.
+ *
+ * Animation: each cell pops with a spring scale whenever its character is
+ * entered or removed, and the active cell's primary border is a stacked overlay
+ * layer crossfaded in via opacity (colour strings are never interpolated).
  */
 export function MobileOtpInput({
   length = 6,
@@ -135,23 +141,16 @@ export function MobileOtpInput({
 
           return (
             // biome-ignore lint/suspicious/noArrayIndexKey: cells are generated from a fixed count and never reordered
-            <View
+            <OtpCell
               key={`otp-cell-${index}`}
-              style={[
-                styles.cell,
-                {
-                  borderColor: isActive ? colors.primary : borderColor,
-                  backgroundColor: colors.surface,
-                  opacity: disabled ? 0.5 : 1,
-                },
-              ]}
-            >
-              {char ? (
-                <MobileText variant="title">
-                  {secure ? "•" : char}
-                </MobileText>
-              ) : null}
-            </View>
+              char={char}
+              isActive={isActive}
+              disabled={disabled}
+              secure={secure}
+              borderColor={borderColor}
+              surfaceColor={colors.surface}
+              primaryColor={colors.primary}
+            />
           )
         })}
       </View>
@@ -186,6 +185,77 @@ export function MobileOtpInput({
   )
 }
 
+/**
+ * A single presentational OTP cell.
+ *
+ * Animation: the cell "pops" (spring scale 1 → 1.15 → 1) whenever its
+ * character is entered or removed, and the active-cell primary border is a
+ * stacked overlay layer crossfaded in via an opacity spring — colour strings
+ * are never interpolated. Disabled cells skip both animations.
+ */
+function OtpCell({
+  char,
+  isActive,
+  disabled,
+  secure,
+  borderColor,
+  surfaceColor,
+  primaryColor,
+}: {
+  char: string
+  isActive: boolean
+  disabled: boolean
+  secure: boolean
+  borderColor: string
+  surfaceColor: string
+  primaryColor: string
+}) {
+  const popAnim = React.useRef(new Animated.Value(1)).current
+  const focusAnim = React.useRef(new Animated.Value(isActive ? 1 : 0)).current
+  const prevChar = React.useRef(char)
+
+  React.useEffect(() => {
+    if (prevChar.current === char) return
+    prevChar.current = char
+    if (disabled) return
+    popAnim.setValue(1.15)
+    springTo(popAnim, 1, SPRING_SNAPPY).start()
+  }, [char, disabled, popAnim])
+
+  React.useEffect(() => {
+    if (disabled) {
+      focusAnim.setValue(isActive ? 1 : 0)
+      return
+    }
+    springTo(focusAnim, isActive ? 1 : 0, SPRING_SOFT).start()
+  }, [isActive, disabled, focusAnim])
+
+  return (
+    <Animated.View
+      style={[
+        styles.cell,
+        {
+          borderColor,
+          backgroundColor: surfaceColor,
+          opacity: disabled ? 0.5 : 1,
+          transform: [{ scale: popAnim }],
+        },
+      ]}
+    >
+      <Animated.View
+        pointerEvents="none"
+        style={[
+          styles.cellFocusRing,
+          { borderColor: primaryColor, opacity: focusAnim },
+        ]}
+      />
+      {char ? (
+        <MobileText variant="title">{secure ? "•" : char}</MobileText>
+      ) : null}
+    </Animated.View>
+  )
+}
+
 const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
@@ -198,6 +268,17 @@ const styles = StyleSheet.create({
     borderRadius: metrics.radius.md,
     alignItems: "center",
     justifyContent: "center",
+  },
+  // Sits exactly over the cell's 1px border (children are laid out inside the
+  // border box, hence the -1 insets) and crossfades in on the active cell.
+  cellFocusRing: {
+    position: "absolute",
+    top: -1,
+    left: -1,
+    right: -1,
+    bottom: -1,
+    borderWidth: 1,
+    borderRadius: metrics.radius.md + 1,
   },
   hiddenInput: {
     position: "absolute",

@@ -1,5 +1,6 @@
 import * as React from "react"
 import {
+  Animated,
   Pressable,
   View,
   StyleSheet,
@@ -7,6 +8,7 @@ import {
 } from "react-native"
 import * as Haptics from "expo-haptics"
 import { useMobileTheme } from "../../host"
+import { springTo, usePressSpring } from "../../motion"
 import { MobileText } from "../primitive/text"
 import { metrics } from "../../tokens"
 
@@ -57,6 +59,99 @@ export interface MobileTabBarProps {
 }
 
 /**
+ * One tab: an equal-width `Pressable` with a press bounce (scale 0.92 → 1 on
+ * release) and an icon pop whenever it becomes the selected tab. Extracted to
+ * module scope so each tab owns its own `Animated.Value`s across renders.
+ */
+function TabItem({
+  item,
+  isActive,
+  tint,
+  badgeColor,
+  badgeForeground,
+  onPress,
+}: {
+  item: MobileTabItem
+  isActive: boolean
+  tint: string
+  badgeColor: string
+  badgeForeground: string
+  onPress: () => void
+}) {
+  // Press feedback: dip to 0.92 on a short timing, spring back on release.
+  // The old handlers' item.disabled guards were redundant — the Pressable
+  // below is disabled on the same condition, so it never fires these events.
+  const { value: pressScale, onPressIn, onPressOut } = usePressSpring(1, 0.92)
+  const iconScale = React.useRef(new Animated.Value(1)).current
+
+  // Pop the icon each time the tab becomes selected; inactive tabs rest at 1.
+  React.useEffect(() => {
+    if (!isActive) {
+      iconScale.setValue(1)
+      return
+    }
+    iconScale.setValue(0.8)
+    springTo(iconScale, 1).start()
+  }, [isActive, iconScale])
+
+  return (
+    <Pressable
+      onPress={onPress}
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
+      disabled={item.disabled === true}
+      accessibilityRole="tab"
+      accessibilityLabel={item.label}
+      accessibilityState={{
+        selected: isActive,
+        disabled: item.disabled === true,
+      }}
+      style={[styles.tab, { opacity: item.disabled ? 0.45 : 1 }]}
+    >
+      <Animated.View
+        style={[styles.tabInner, { transform: [{ scale: pressScale }] }]}
+      >
+        <Animated.View
+          style={[styles.iconWrap, { transform: [{ scale: iconScale }] }]}
+        >
+          {item.icon}
+          {item.badge !== undefined ? (
+            <View
+              style={[
+                styles.badge,
+                { backgroundColor: badgeColor },
+              ]}
+            >
+              <MobileText
+                variant="label"
+                tabular
+                style={[
+                  styles.badgeText,
+                  { color: badgeForeground },
+                ]}
+              >
+                {String(item.badge)}
+              </MobileText>
+            </View>
+          ) : null}
+        </Animated.View>
+
+        <MobileText
+          variant="caption"
+          numberOfLines={1}
+          style={{
+            color: tint,
+            fontWeight: isActive ? "600" : "400",
+          }}
+        >
+          {item.label}
+        </MobileText>
+      </Animated.View>
+    </Pressable>
+  )
+}
+
+/**
  * MobileTabBar
  *
  * Bottom navigation. Each tab is an equal-width `Pressable` with
@@ -100,55 +195,17 @@ export function MobileTabBar({
     >
       {items.map((item) => {
         const isActive = item.key === activeKey
-        const tint = isActive ? colors.primary : colors.muted
 
         return (
-          <Pressable
+          <TabItem
             key={item.key}
+            item={item}
+            isActive={isActive}
+            tint={isActive ? colors.primary : colors.muted}
+            badgeColor={colors.destructive}
+            badgeForeground={colors.destructiveForeground}
             onPress={() => handlePress(item)}
-            disabled={item.disabled === true}
-            accessibilityRole="tab"
-            accessibilityLabel={item.label}
-            accessibilityState={{
-              selected: isActive,
-              disabled: item.disabled === true,
-            }}
-            style={[styles.tab, { opacity: item.disabled ? 0.45 : 1 }]}
-          >
-            <View style={styles.iconWrap}>
-              {item.icon}
-              {item.badge !== undefined ? (
-                <View
-                  style={[
-                    styles.badge,
-                    { backgroundColor: colors.destructive },
-                  ]}
-                >
-                  <MobileText
-                    variant="label"
-                    tabular
-                    style={[
-                      styles.badgeText,
-                      { color: colors.destructiveForeground },
-                    ]}
-                  >
-                    {String(item.badge)}
-                  </MobileText>
-                </View>
-              ) : null}
-            </View>
-
-            <MobileText
-              variant="caption"
-              numberOfLines={1}
-              style={{
-                color: tint,
-                fontWeight: isActive ? "600" : "400",
-              }}
-            >
-              {item.label}
-            </MobileText>
-          </Pressable>
+          />
         )
       })}
     </View>
@@ -165,6 +222,10 @@ const styles = StyleSheet.create({
   tab: {
     flex: 1,
     minHeight: metrics.minTouchTarget,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  tabInner: {
     alignItems: "center",
     justifyContent: "center",
     gap: 2,

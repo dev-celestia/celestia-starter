@@ -9,7 +9,11 @@ import {
 } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { MobileButton, MobileText, useMobileTheme } from "@celestia-project/mobile"
+import {
+  MobileButton,
+  MobileText,
+  useMobileTheme,
+} from "@celestia-project/mobile"
 import {
   ActiveSectionProvider,
   SectionKeyProvider,
@@ -21,7 +25,7 @@ import {
 import { findScreenPreview } from "./screens-preview"
 import { SHOWCASE_SECTIONS } from "./sections"
 import type { ShowcaseContext } from "./types"
-import { ShowcaseSectionHeader, Spacer } from "./ui"
+import { ShowcaseSectionHeader, SPACE, Spacer } from "./ui"
 
 /**
  * The showcase shell.
@@ -45,6 +49,21 @@ const JUMP_INSET = 8
 /** How far a section must reach the top before the menu calls it current. */
 const ACTIVE_THRESHOLD = 72
 
+/**
+ * The gallery's maximum column width.
+ *
+ * These are *mobile* components, so an unconstrained column misrepresents them:
+ * at a desktop viewport the cards ran the full width, which stretched every
+ * description to a 120-character line and blew the bottom bar's two buttons up
+ * to ~500px each. Capping the column keeps the specimens at the width they are
+ * designed for and keeps the gallery reading as a workbench at every viewport,
+ * which is the whole point of the product brief.
+ *
+ * 640 is the largest width at which a specimen's inner rows — a label column
+ * plus a control — still read as a pair rather than as two distant columns.
+ */
+const COLUMN_MAX_WIDTH = 640
+
 /** The section the gallery opens on, and the fallback when nothing else matches. */
 const FIRST_SECTION_KEY = SHOWCASE_SECTIONS[0]?.key ?? ""
 
@@ -59,7 +78,8 @@ export function ShowcaseRoot({ onToggleTheme }: ShowcaseRootProps) {
 
   // An unknown key resolves to `undefined` and falls through to the gallery,
   // which is a better failure mode than a blank screen.
-  const preview = previewKey === null ? undefined : findScreenPreview(previewKey)
+  const preview =
+    previewKey === null ? undefined : findScreenPreview(previewKey)
 
   const openPreview = React.useCallback((key: string) => {
     setPreviewKey(key)
@@ -93,6 +113,12 @@ export function ShowcaseRoot({ onToggleTheme }: ShowcaseRootProps) {
   const [menuOpen, setMenuOpen] = React.useState(false)
   const [menuEntries, setMenuEntries] = React.useState<ShowcaseNavEntry[]>([])
   const [activeSection, setActiveSection] = React.useState(FIRST_SECTION_KEY)
+  /**
+   * Live specimen tally, so the footer can never go stale the way a
+   * hand-written "44 modules" did. `declareEntry` is idempotent, and this
+   * counts the same deduped list the menu renders from.
+   */
+  const [specimenCount, setSpecimenCount] = React.useState(0)
 
   const attachAnchor = React.useCallback((key: string, node: View | null) => {
     if (node) anchors.current.set(key, node)
@@ -103,6 +129,9 @@ export function ShowcaseRoot({ onToggleTheme }: ShowcaseRootProps) {
     const list = declared.current
     if (list.some((existing) => existing.key === entry.key)) return
     list.push(entry)
+    if (entry.kind === "specimen") {
+      setSpecimenCount(list.filter((item) => item.kind === "specimen").length)
+    }
   }, [])
 
   const reportSectionOffset = React.useCallback((key: string, y: number) => {
@@ -145,7 +174,9 @@ export function ShowcaseRoot({ onToggleTheme }: ShowcaseRootProps) {
         }
       }
 
-      setActiveSection((previous) => (previous === current ? previous : current))
+      setActiveSection((previous) =>
+        previous === current ? previous : current
+      )
     },
     []
   )
@@ -178,7 +209,9 @@ export function ShowcaseRoot({ onToggleTheme }: ShowcaseRootProps) {
       if (node) anchors.current.set(key, node)
       else anchors.current.delete(key)
     }
-    return new Map(SHOWCASE_SECTIONS.map((section) => [section.key, make(section.key)]))
+    return new Map(
+      SHOWCASE_SECTIONS.map((section) => [section.key, make(section.key)])
+    )
   }, [])
 
   const handleSectionLayout = React.useCallback(
@@ -231,7 +264,7 @@ export function ShowcaseRoot({ onToggleTheme }: ShowcaseRootProps) {
             // keyboard and the user has to tap a second time to hit the control.
             keyboardShouldPersistTaps="handled"
           >
-            <View ref={contentRef}>
+            <View ref={contentRef} style={styles.column}>
               <View style={styles.header}>
                 <MobileText variant="label" color="muted">
                   CELESTIA STARTER
@@ -240,10 +273,10 @@ export function ShowcaseRoot({ onToggleTheme }: ShowcaseRootProps) {
               </View>
 
               <MobileText variant="callout" color="muted">
-                Every module in @celestia-project/mobile, grouped by role. Use the
-                bar at the bottom of the screen to jump straight to a section or a
-                component; tap any screen in the last section to open it
-                full-screen.
+                Every module in @celestia-project/mobile, grouped by role. Use
+                the bar at the bottom of the screen to jump straight to a
+                section or a component; tap any screen in the last section to
+                open it full-screen.
               </MobileText>
 
               {SHOWCASE_SECTIONS.map((section, index) => (
@@ -262,12 +295,12 @@ export function ShowcaseRoot({ onToggleTheme }: ShowcaseRootProps) {
                 </SectionKeyProvider>
               ))}
 
-              <Spacer size={40} />
+              <Spacer size={SPACE.section} />
 
               <MobileText variant="caption" color="muted" align="center">
-                {`${SHOWCASE_SECTIONS.length} sections · 44 modules · 145 exports`}
+                {`${SHOWCASE_SECTIONS.length} sections · ${specimenCount} specimens · @celestia-project/mobile`}
               </MobileText>
-              <Spacer size={16} />
+              <Spacer size={SPACE.block} />
             </View>
           </ScrollView>
 
@@ -281,21 +314,23 @@ export function ShowcaseRoot({ onToggleTheme }: ShowcaseRootProps) {
               { borderTopColor: colors.border, backgroundColor: colors.card },
             ]}
           >
-            <MobileButton
-              variant="outline"
-              containerStyle={styles.barButton}
-              onPress={openMenu}
-              testID="showcase-nav-button"
-            >
-              Browse
-            </MobileButton>
-            <MobileButton
-              variant="outline"
-              containerStyle={styles.barButton}
-              onPress={onToggleTheme}
-            >
-              {colorScheme === "dark" ? "☀️ Light" : "🌙 Dark"}
-            </MobileButton>
+            <View style={styles.barRow}>
+              <MobileButton
+                variant="outline"
+                containerStyle={styles.barButton}
+                onPress={openMenu}
+                testID="showcase-nav-button"
+              >
+                Browse
+              </MobileButton>
+              <MobileButton
+                variant="outline"
+                containerStyle={styles.barButton}
+                onPress={onToggleTheme}
+              >
+                {colorScheme === "dark" ? "☀️ Light" : "🌙 Dark"}
+              </MobileButton>
+            </View>
           </View>
         </SafeAreaView>
 
@@ -318,23 +353,40 @@ const styles = StyleSheet.create({
   scroll: {
     flex: 1,
   },
+  /**
+   * The column gutter is `SPACE.block` so the bleed specimens — which claw the
+   * card's padding back — line up with it by construction rather than by a
+   * hand-matched `-16`.
+   */
   galleryContent: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 8,
+    paddingHorizontal: SPACE.block,
+    paddingTop: SPACE.row,
+    paddingBottom: SPACE.label,
   },
   header: {
     gap: 2,
-    marginTop: 8,
-    marginBottom: 10,
+    marginTop: SPACE.label,
+    marginBottom: SPACE.row,
+  },
+  /** Centred and capped, so a wide viewport cannot stretch the specimens. */
+  column: {
+    width: "100%",
+    maxWidth: COLUMN_MAX_WIDTH,
+    alignSelf: "center",
   },
   bottomBar: {
+    paddingHorizontal: SPACE.block,
+    paddingVertical: SPACE.row,
+    borderTopWidth: 1,
+  },
+  /** The bar's rule spans the window; its contents stay on the column. */
+  barRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderTopWidth: 1,
+    gap: SPACE.label,
+    width: "100%",
+    maxWidth: COLUMN_MAX_WIDTH,
+    alignSelf: "center",
   },
   /** Both controls share the width evenly, so neither reads as the afterthought. */
   barButton: {

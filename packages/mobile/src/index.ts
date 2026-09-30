@@ -24,6 +24,9 @@
 
 export * from "./tokens"
 export * from "./host"
+export * from "./utils"
+export * from "./hooks"
+export * from "./motion"
 
 // ---------------------------------------------------------------------------
 // Components

@@ -1,6 +1,6 @@
 import * as React from "react"
 import {
-  Image,
+  Animated,
   View,
   StyleSheet,
   type ImageSourcePropType,
@@ -8,6 +8,7 @@ import {
   type ViewStyle,
 } from "react-native"
 import { useMobileTheme } from "../../host"
+import { canUseNativeDriver } from "../../motion"
 import { MobileText } from "./text"
 import type { MobileTextVariant } from "./text"
 
@@ -79,6 +80,10 @@ export function MobileAvatar({
   const { colors } = useMobileTheme()
   const diameter = mobileAvatarSizes[size]
   const trimmed = initials?.trim().slice(0, 2).toUpperCase()
+  // Fades the image in once it resolves, so a slow network never paints a
+  // blank circle that abruptly becomes a face. `onLoadEnd` (not `onLoad`)
+  // fires on error too, so a broken source can't strand the avatar invisible.
+  const imageOpacity = React.useRef(new Animated.Value(0)).current
 
   const boxStyle = {
     width: diameter,
@@ -88,13 +93,20 @@ export function MobileAvatar({
 
   if (source) {
     return (
-      <Image
+      <Animated.Image
         source={source}
+        onLoadEnd={() => {
+          Animated.timing(imageOpacity, {
+            toValue: 1,
+            duration: 200,
+            useNativeDriver: canUseNativeDriver,
+          }).start()
+        }}
         accessibilityRole="image"
         accessibilityLabel={accessibilityLabel ?? trimmed}
         style={[
           boxStyle,
-          { borderColor: colors.cardBorder, borderWidth: 1 },
+          { borderColor: colors.cardBorder, borderWidth: 1, opacity: imageOpacity },
           style,
         ]}
       />

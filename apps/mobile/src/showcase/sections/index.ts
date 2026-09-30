@@ -15,17 +15,12 @@ import { ScreensSection } from "./screens"
  * section file, so the copy and the structure cannot drift apart — and adding a
  * section is a one-line change in one place.
  *
- * The seven sections cover all 44 modules of `@celestia-project/mobile`:
- *
- * | Section     | Category   | Modules |
- * |-------------|------------|---------|
- * | Foundations | primitive  | 9       |
- * | Actions     | primitive  | 6       |
- * | Forms       | both       | 4       |
- * | Data        | both       | 6       |
- * | Navigation  | both       | 4       |
- * | Overlays    | both       | 5       |
- * | Screens     | layout     | 10      |
+ * The seven sections cover all 130 modules of `@celestia-project/mobile`:
+ * foundations (surfaces, layout, media, tokens, loading, charts), actions
+ * (buttons, toggles, pickers, haptic commits), forms (inputs, OTP, PIN),
+ * data display (lists, cards, rows, tables, messaging), navigation (bars,
+ * tabs, steppers, pagination), overlays (sheets, modals, alerts, toasts) and
+ * screens (the twenty full-page layouts).
  */
 export const SHOWCASE_SECTIONS: ShowcaseSectionDefinition[] = [
   {
@@ -74,7 +69,7 @@ export const SHOWCASE_SECTIONS: ShowcaseSectionDefinition[] = [
     key: "screens",
     title: "Screens",
     summary:
-      "The ten full-screen layout modules. Each opens full-screen so it can own its own safe area and header.",
+      "The twenty full-screen layout modules. Each opens full-screen so it can own its own safe area and header.",
     Component: ScreensSection,
   },
 ]

@@ -3,12 +3,14 @@ import {
   PanResponder,
   View,
   StyleSheet,
+  Animated,
   type GestureResponderEvent,
   type LayoutChangeEvent,
   type ViewStyle,
 } from "react-native"
 import * as Haptics from "expo-haptics"
 import { useMobileTheme } from "../../host"
+import { springTo } from "../../motion"
 import { metrics } from "../../tokens"
 
 export interface MobileSliderProps {
@@ -72,6 +74,10 @@ const CONTAINER_HEIGHT = metrics.minTouchTarget
  *
  * The gesture handler is created **once** and reads the live props through refs,
  * so it never closes over a stale `value` or `onValueChange`.
+ *
+ * Animation: the thumb scales up (~1.15) with an `Animated.spring` on grant and
+ * springs back on release/terminate (transform only, native driver). The fill
+ * width tracks `value` on every render, so it follows the finger continuously.
  *
  * ⚠️ This is the one Phase 2 component that most needs on-device verification —
  * gesture geometry cannot be checked by a typecheck.
@@ -138,22 +144,34 @@ export function MobileSlider({
     [quantise]
   )
 
+  // Thumb scale spring: grows on grant, settles back on release/terminate.
+  // Transform only, so it runs on the native driver. Declared before the
+  // (once-created) PanResponder so its handlers can close over it.
+  const thumbScale = React.useRef(new Animated.Value(1)).current
+
+  const springThumb = (toValue: number) => {
+    springTo(thumbScale, toValue).start()
+  }
+
   const panResponder = React.useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => !propsRef.current.disabled,
       onMoveShouldSetPanResponder: () => !propsRef.current.disabled,
       onPanResponderGrant: (event: GestureResponderEvent) => {
+        springThumb(1.15)
         setFromX(event.nativeEvent.locationX)
       },
       onPanResponderMove: (event: GestureResponderEvent) => {
         setFromX(event.nativeEvent.locationX)
       },
       onPanResponderRelease: () => {
+        springThumb(1)
         if (propsRef.current.disabled) return
         Haptics.selectionAsync().catch(() => {})
         propsRef.current.onSlidingComplete?.(propsRef.current.value)
       },
       onPanResponderTerminate: () => {
+        springThumb(1)
         propsRef.current.onSlidingComplete?.(propsRef.current.value)
       },
     })
@@ -208,13 +226,14 @@ export function MobileSlider({
         />
       </View>
 
-      <View
+      <Animated.View
         style={[
           styles.thumb,
           {
             left: thumbLeft,
             backgroundColor: colors.card,
             borderColor: colors.primary,
+            transform: [{ scale: thumbScale }],
           },
         ]}
       />

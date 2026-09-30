@@ -1,5 +1,6 @@
 import * as React from "react"
 import {
+  Animated,
   Pressable,
   View,
   StyleSheet,
@@ -7,6 +8,7 @@ import {
 } from "react-native"
 import * as Haptics from "expo-haptics"
 import { useMobileTheme } from "../../host"
+import { pressInTiming, springTo } from "../../motion"
 import { MobileBottomSheet } from "../primitive/bottom-sheet"
 import { MobileText } from "../primitive/text"
 import { metrics } from "../../tokens"
@@ -69,6 +71,44 @@ export interface MobileActionSheetProps {
    * Test identifier.
    */
   testID?: string
+}
+
+/**
+ * A sheet row with a press highlight: opacity dips on press-in and springs
+ * back on release. The sheet's own slide-up/down and backdrop belong to the
+ * native SwiftUI/Compose presentation (MobileBottomSheet), so this is the one
+ * piece of motion the JS layer owns.
+ */
+function HighlightRow({
+  children,
+  onPressIn,
+  onPressOut,
+  ...pressableProps
+}: Omit<React.ComponentProps<typeof Pressable>, "children"> & {
+  children?: React.ReactNode
+}) {
+  const highlight = React.useRef(new Animated.Value(1)).current
+  return (
+    <Pressable
+      {...pressableProps}
+      onPressIn={(event) => {
+        if (!pressableProps.disabled) {
+          pressInTiming(highlight, 0.55).start()
+        }
+        onPressIn?.(event)
+      }}
+      onPressOut={(event) => {
+        if (!pressableProps.disabled) {
+          springTo(highlight, 1).start()
+        }
+        onPressOut?.(event)
+      }}
+    >
+      <Animated.View style={[styles.rowInner, { opacity: highlight }]}>
+        {children}
+      </Animated.View>
+    </Pressable>
+  )
 }
 
 /**
@@ -140,7 +180,7 @@ export function MobileActionSheet({
 
       <View style={styles.actions}>
         {actions.map((action) => (
-          <Pressable
+          <HighlightRow
             key={action.key}
             onPress={() => handleAction(action)}
             disabled={action.disabled === true}
@@ -166,11 +206,11 @@ export function MobileActionSheet({
             >
               {action.label}
             </MobileText>
-          </Pressable>
+          </HighlightRow>
         ))}
       </View>
 
-      <Pressable
+      <HighlightRow
         onPress={handleCancel}
         accessibilityRole="button"
         style={[
@@ -186,7 +226,7 @@ export function MobileActionSheet({
         >
           {cancelLabel}
         </MobileText>
-      </Pressable>
+      </HighlightRow>
     </MobileBottomSheet>
   )
 }
@@ -204,6 +244,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 12,
     borderTopWidth: 1,
+  },
+  rowInner: {
+    alignItems: "center",
+    justifyContent: "center",
   },
   cancel: {
     marginTop: 12,

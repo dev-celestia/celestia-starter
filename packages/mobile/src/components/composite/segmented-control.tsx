@@ -1,7 +1,6 @@
 import * as React from "react"
 import {
   Animated,
-  Platform,
   Pressable,
   View,
   StyleSheet,
@@ -12,6 +11,7 @@ import * as Haptics from "expo-haptics"
 import { useMobileTheme } from "../../host"
 import { MobileText } from "../primitive/text"
 import { metrics } from "../../tokens"
+import { springTo } from "../../motion"
 
 export interface MobileSegmentedControlOption {
   /**
@@ -93,13 +93,7 @@ export function MobileSegmentedControl({
 
   React.useEffect(() => {
     if (segmentWidth === 0) return
-    Animated.spring(translateX, {
-      toValue: activeIndex * segmentWidth,
-      damping: 18,
-      mass: 1,
-      stiffness: 220,
-      useNativeDriver: Platform.OS !== "web",
-    }).start()
+    springTo(translateX, activeIndex * segmentWidth).start()
   }, [activeIndex, segmentWidth, translateX])
 
   const handleLayout = (event: LayoutChangeEvent) => {

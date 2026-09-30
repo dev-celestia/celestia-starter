@@ -1,12 +1,16 @@
 ---
 title: Mobile (Expo)
-description: Native iOS and Android UI components built on @expo/ui — real SwiftUI and Jetpack Compose, organised into primitives, composites and layout screens
+description: 130 native iOS and Android UI modules — primitives, composites and layout screens — drawn in React Native with spring animation, and hosted through @expo/ui where a real platform view wins
 icon: smartphone
 ---
 
 `@celestia-project/mobile` is the native counterpart to `@celestia-project/ui`: a component
-library for Expo apps that renders **real platform views** — SwiftUI on iOS, Jetpack Compose on
-Android — through `@expo/ui`, rather than emulating them in JavaScript.
+library for Expo apps with **130 modules**. A small set of components hosts **real platform
+views** — SwiftUI on iOS, Jetpack Compose on Android — through `@expo/ui`; the rest are drawn
+in React Native and animated through a centralized `motion` module — named spring presets over
+core `Animated` (the house spring `SPRING` is damping 18 / mass 1 / stiffness 320) plus
+procedural loops for spinners, pulses and indeterminate progress. `MobileSwitch` is now
+**drawn and animated** rather than a hosted `@expo/ui` control.
 
 <Callout type="info" title="Looking for the visual tour?">
 This page is the technical reference — install, peer dependencies, platform support, API.
@@ -69,7 +73,7 @@ every component in this package imports.
 
 | | iOS | Android | Web |
 |---|-----|---------|-----|
-| Components built on `@expo/ui` | ✅ SwiftUI | ✅ Compose | ✅ DOM equivalents |
+| Hosted `@expo/ui` components (`MobileHost`, `MobileList`, `MobileBottomSheet`) | ✅ SwiftUI | ✅ Compose | ✅ DOM equivalents |
 | Rest of the package (plain React Native) | ✅ | ✅ | ✅ via `react-native-web` |
 | `apps/mobile` showcase | ✅ | ✅ | ✅ |
 
@@ -81,18 +85,19 @@ every component in this package imports.
 | `@expo/ui/swift-ui` | iOS only |
 | `@expo/ui/jetpack-compose` | Android only |
 
-Every component in `packages/mobile` imports from `"@expo/ui"` — the universal entry — and never
-from `/swift-ui` or `/jetpack-compose`. The universal implementations are real rather than stubs:
-`Host` renders a plain `View`, `Switch` builds a DOM switch, `List` and `ListItem` use plain React
-Native primitives, and `BottomSheet` renders through [`vaul`](https://vaul.emilkowal.ski/).
+The modules that host native views — `MobileHost`, `MobileList` and `MobileBottomSheet` —
+import from `"@expo/ui"` (the universal entry), never from `/swift-ui` or `/jetpack-compose`.
+The universal implementations are real rather than stubs: `Host` renders a plain `View`, `List`
+and `ListItem` use plain React Native primitives, and `BottomSheet` renders through
+[`vaul`](https://vaul.emilkowal.ski/). Everything else in the package is plain React Native and
+needs no `@expo/ui` at runtime.
 
 The rest of the chain is web-clean as well. `react-native-safe-area-context` resolves through
 `react-native-web`; `expo-haptics` — which every interactive component calls — ships a no-op
 `ExpoHaptics.web.ts`, so haptics simply do nothing in a browser; `expo-status-bar` ships
 `StatusBar.web.js`; and `react-native-svg`, which the showcase icons are drawn with, ships a web
-build. Each animation guards its driver with `Platform.OS !== "web"` (`button.tsx`,
-`icon-button.tsx`, `skeleton.tsx`, `toast.tsx`, `progress.tsx`, `segmented-control.tsx`), and
-`screen.tsx` puts the iOS-only `padding` keyboard behind a `Platform.OS === "ios"` check.
+build. Every animation takes its driver guard from `canUseNativeDriver` in `src/motion.ts`, and `screen.tsx` puts the
+iOS-only `padding` keyboard behind a `Platform.OS === "ios"` check.
 
 ### Enabling web
 
@@ -150,7 +155,7 @@ react-native` resolves it. Do not bump to `^0.87` manually: Expo 57's Metro tool
 
 | Peer dependency | Required by | Notes |
 |-----------------|-------------|-------|
-| `@expo/ui` | `MobileSwitch`, `MobileList`, `MobileBottomSheet`, `MobileHost` | Real SwiftUI / Compose views |
+| `@expo/ui` | `MobileHost`, `MobileList`, `MobileBottomSheet` | Real SwiftUI / Compose views |
 | `expo-haptics` | Every interactive component | Same-frame tactile feedback |
 | `react-native-safe-area-context` | `MobileScreen` and everything built on it | Safe-area insets |
 | `react` / `react-native` | — | React 19, RN 0.86.3 (Expo SDK 57) |
@@ -173,26 +178,58 @@ so the two libraries read the same way.
 *opinionated* one is.
 </Callout>
 
-### primitive — 20 modules
+### primitive — 52 modules
 
-`MobileText` · `MobileLabel` · `MobileButton` · `MobileIconButton` · `MobileTextInput`
-(`MobileInput`) · `MobileOtpInput` · `MobileSwitch` · `MobileCheckbox` · `MobileRadioGroup` ·
-`MobileSlider` · `MobileBadge` · `MobileAvatar` · `MobileSeparator` · `MobileProgress` ·
-`MobileSpinner` · `MobileSkeleton` · `MobileLink` · `MobileCard` · `MobileList` ·
-`MobileBottomSheet`
+`MobileText` · `MobileLabel` · `MobileLink` · `MobileButton` · `MobileIconButton` ·
+`MobileFab` (floating action button) · `MobilePressableScale` (press-scale base for custom
+controls; `style` is the surface, `containerStyle` is the wrapper the parent lays out) · `MobileTextInput` (`MobileInput`) · `MobileTextarea` · `MobileNumberInput` ·
+`MobilePasswordInput` · `MobileOtpInput` · `MobileSwitch` (drawn + spring-animated, not hosted) ·
+`MobileCheckbox` · `MobileRadioGroup` · `MobileToggleGroup` · `MobileSlider` · `MobileStepper`
+(numeric −/+) · `MobileRating` (star input) · `MobileBadge` · `MobileChip` · `MobileTag` ·
+`MobileAvatar` · `MobileImage` · `MobileSeparator` · `MobileDividerText` ("or"-style rule) ·
+`MobileSpacer` · `MobileStack` / `MobileZStack` · `MobileGrid` · `MobileAspectRatio` ·
+`MobileSurface` · `MobileCard` · `MobileProgress` · `MobileProgressRing` · `MobileSpinner` ·
+`MobileSkeleton` · `MobileStatusDot` (optionally pulsing presence dot) · `MobileSwatch` (colour
+chip with selection ring) · `MobilePageDots` (paging indicator) · `MobileBanner` ·
+`MobileCallout` · `MobileTooltip` · `MobileMenu` · `MobileModal` · `MobileAccordion` ·
+`MobileCollapsible` · `MobileExpandableText` (clamped text with show-more) · `MobileCopyableText`
+(tap-to-copy) · `MobileToolbar` · `MobileTabs` · `MobileList` · `MobileBottomSheet`
 
-### composite — 14 modules
+### composite — 58 modules
 
-`MobileFormField` · `MobileSearchBar` · `MobileNavBar` · `MobileTabBar` ·
-`MobileSegmentedControl` · `MobileSettingRow` · `MobileAvatarGroup` · `MobileAlert` ·
-`MobileEmptyState` · `MobileSocialAuthButtons` · `MobileActionSheet` · `MobileConfirmDialog` ·
-`MobileChartScatter` · `MobileToast` / `MobileToastProvider` / `useMobileToast`
+Navigation & chrome: `MobileNavBar` · `MobileTabBar` · `MobileSearchBar` ·
+`MobileSegmentedControl` · `MobilePagination` · `MobileSpeedDial` (FAB that springs open into a
+stack of actions) · `MobileWizardStepper` · `MobileThemeSelector` · `MobileSocialAuthButtons`
 
-### layout — 10 modules
+Fields & inputs: `MobileFormField` · `MobileSelectField` · `MobileSheetPicker` (bottom-sheet
+single-choice picker) · `MobilePhoneInput` · `MobilePinPad` · `MobileFilterChips` ·
+`MobileChatInput` · `MobileAttachmentChip`
+
+Overlays & feedback: `MobileAlert` · `MobileActionSheet` · `MobileConfirmDialog` ·
+`MobileToast` / `MobileToastProvider` / `useMobileToast` · `MobileEmptyState` ·
+`MobileOfflineBanner` · `MobileErrorBoundary` · `MobileInfiniteScrollFooter` ·
+`MobileCountdownTimer` · `MobileOtpTimer` (resend countdown)
+
+Rows & cards: `MobileSettingRow` · `MobileKeyValueRow` · `MobileUserRow` · `MobileTaskRow` ·
+`MobileFileRow` · `MobileTransactionRow` · `MobileUploadProgressRow` · `MobileNotificationCard` ·
+`MobileCommentCard` · `MobileReviewCard` · `MobileEventCard` · `MobileMediaCard` ·
+`MobileProgressCard` · `MobileStatCard` · `MobileBalanceCard` · `MobileProfileHeader` ·
+`MobileAvatarGroup` · `MobileFaqItem` · `MobileTimeline` · `MobileRatingSummary` (star
+histogram) · `MobileMessageBubble` · `MobileDataTable` · `MobileKpiRow`
+
+Charts: `MobileChartScatter` · `MobileChartBar` · `MobileChartLine` · `MobileChartPie` ·
+`MobileSparkline` (dependency-free inline trend)
+
+Skeletons: `MobileSkeletonCard` · `MobileSkeletonList` · `MobileSkeletonProfile`
+
+### layout — 20 modules
 
 `MobileScreen` · `MobileAuthShell` · `MobileOnboardingScreen` · `MobileSignInScreen` ·
 `MobileSignUpScreen` · `MobileForgotPasswordScreen` · `MobileResetPasswordScreen` ·
-`MobileOtpVerifyScreen` · `MobileSettingsScreen` / `MobileSettingsSection` · `MobileStatusScreen`
+`MobileOtpVerifyScreen` · `MobilePinLockScreen` · `MobileSettingsScreen` /
+`MobileSettingsSection` · `MobileProfileScreen` · `MobileNotificationsScreen` ·
+`MobileChatScreen` · `MobileListScreen` · `MobileDetailScreen` · `MobileMediaGridScreen` ·
+`MobileDashboardScreen` · `MobileTabsScreen` · `MobileWizardScreen` · `MobileStatusScreen`
 
 ## Import paths
 
@@ -209,7 +246,29 @@ import { MobileButton } from "@celestia-project/mobile/primitive/button"
 // Infrastructure
 import { useMobileTheme } from "@celestia-project/mobile/host"
 import { darkColors, metrics } from "@celestia-project/mobile/tokens"
+
+// Motion presets and helpers (barrel only, like utils/hooks)
+import {
+  SPRING, SPRING_SNAPPY, springTo, springLayoutTo,
+  pressInTiming, canUseNativeDriver,
+  useSpringValue, usePressSpring,
+} from "@celestia-project/mobile"
+
+// Shared helpers and hooks (barrel only)
+import {
+  clamp, chunk, range, truncate, getInitials,
+  formatCompactNumber, formatRelativeTime, hitSlopFor,
+  hapticLight, hapticMedium, hapticSelect,
+  useToggle, useDebounce, useCountdown,
+} from "@celestia-project/mobile"
 ```
+
+The `src/utils.ts` helpers (`clamp`, `chunk`, `range`, `truncate`, `getInitials`,
+`formatCompactNumber`, `formatRelativeTime`, `hitSlopFor`, `hapticLight` / `hapticMedium` /
+`hapticSelect`), the `src/hooks.ts` hooks (`useToggle`, `useDebounce`, `useCountdown`) and the
+`src/motion.ts` presets and helpers (see [Motion](#motion)) are exported from the root barrel —
+they are what the components themselves are built with, offered so host apps can match the
+library's behaviour.
 
 ## Setup
 
@@ -265,7 +324,7 @@ export function Preferences() {
     <MobileCard>
       <MobileSwitch
         label="Push notifications"
-        description="Real SwiftUI & Compose toggle via @expo/ui"
+        description="Drawn and spring-animated in React Native"
         value={enabled}
         onValueChange={setEnabled}
       />
@@ -274,6 +333,70 @@ export function Preferences() {
   )
 }
 ```
+
+## Motion
+
+All spring physics lives in one module, `src/motion.ts`. Before it existed, every component
+carried its own hand-tuned `damping`/`stiffness` pair — nine distinct dampings and eleven
+distinct stiffnesses across the library, with the house spring retyped in full in a dozen
+files. Components now import a name that describes the *intent* of the motion, so the feel of
+the whole system is tunable in one place:
+
+| Preset | Values | Intent |
+|--------|--------|--------|
+| `SPRING` | 18 / 1 / 320 | The house spring — state changes: selection, toggles, indicator travel |
+| `SPRING_SOFT` | 22 / 1 / 260 | Layout reveals (height, collapse) where a tight spring reads as a jump-cut |
+| `SPRING_SNAPPY` | 14 / 1 / 380 | Confirmation pops — the check tick, the radio dot, the badge pop — where the overshoot IS the feedback |
+| `SPRING_ENTRANCE` | 16 / 1 / 240 | Arrivals: content enters with a small overshoot and a little energy |
+| `SPRING_EXIT` | 22 / 1 / 320 | Dismissals: overdamped and decisive — nothing re-enters the frame to apologize |
+| `SPRING_GAUGE` | 20 / 1 / 120 | Gauges and progress fills, where overshoot would misreport the value |
+
+Three helpers attach the native-driver guard every call site used to repeat
+(`canUseNativeDriver` is `false` on web, so a browser build degrades to the JS driver instead
+of throwing):
+
+- `springTo(value, toValue, config?)` — one-line `Animated.spring` with a preset.
+- `springLayoutTo(value, toValue, config?)` — the same for layout props (width, height), which
+  cannot ride the native driver and are forced onto the JS driver.
+- `pressInTiming(value, toValue, duration?)` — the 90 ms press-in dip. Press-in is deliberately
+  **not** a spring: the finger is already down, and an overshoot under a held press reads as a
+  wobble. A fixed timing gets the surface to its pressed position before the release spring
+  ever starts.
+
+Two hooks cover the patterns nearly every interactive component used to re-roll.
+`useSpringValue(target, config?)` is the declarative chase — an `Animated.Value` seeded at
+`target` (so the first render never springs from zero) that springs after every subsequent
+change. `usePressSpring(rest, pressed, config?)` returns a `value` plus `onPressIn`/`onPressOut`
+handlers to spread on a `Pressable`; the pair drives whichever property the press should move —
+buttons and FABs translate 0 → 2 over their hard edge, chips scale 1 → 0.96:
+
+```tsx
+import * as React from "react"
+import { Animated, Pressable } from "react-native"
+import { usePressSpring } from "@celestia-project/mobile"
+
+export function Tile({ onPress }: { onPress?: () => void }) {
+  // Press feedback in one line: dip to 0.96 on a 90ms timing in,
+  // spring back to 1 on the house spring out.
+  const { value: pressAnim, onPressIn, onPressOut } = usePressSpring(1, 0.96)
+
+  return (
+    <Animated.View style={{ transform: [{ scale: pressAnim }] }}>
+      <Pressable onPress={onPress} onPressIn={onPressIn} onPressOut={onPressOut}>
+        {/* ... */}
+      </Pressable>
+    </Animated.View>
+  )
+}
+```
+
+Two conventions keep the module honest:
+
+- **Components never hand-type a `damping`/`mass`/`stiffness` tuple.** If no preset matches the
+  intent, the preset list is wrong — extend `motion.ts`, not the call site.
+- **Raw `Animated.timing` is reserved for intentional durations**: skeleton and status-dot
+  pulses, the indeterminate progress loop, image load fades, the error shake. Those are timed
+  effects, not springs, and stay written as such.
 
 ## Screens
 
@@ -379,8 +502,8 @@ Every component in this package follows the same non-negotiables. They are enfor
 convention and review, not by a linter, so they are worth knowing before adding a component:
 
 1. **No hardcoded colours.** Everything reads `useMobileTheme()`; the light and dark ramps are both complete.
-2. **44×44pt minimum touch target** on every interactive element (`metrics.minTouchTarget`). A control drawn shorter to match the web design system — `MobileButton` is 32px — meets the floor with `hitSlop` rather than by inflating the box.
-3. **Haptics fire on the causal commit frame** — `Light` for normal presses, `Medium` for destructive, `selectionAsync` for toggles. Never on mount.
+2. **44×44pt minimum touch target** on every interactive element (`metrics.minTouchTarget`). A control drawn shorter to match the web design system — `MobileButton` is 32px — meets the floor with `hitSlop` (`hitSlopFor()` in `src/utils.ts` computes it) rather than by inflating the box.
+3. **Haptics fire on the causal commit frame** — `hapticLight()` for normal presses, `hapticMedium()` for destructive, `hapticSelect()` for toggles (all in `src/utils.ts`). Never on mount.
 4. **16px font floor** on text inputs, to prevent OS viewport zoom.
 5. **Tabular numerals** for counters, prices and timers.
 6. **Icons arrive as props.** The package takes no icon dependency; only structural marks (a tick, a chevron, a magnifier) may be drawn inline. The showcase app is the consumer side of that rule and supplies its own set — see [Icons in the showcase](#icons-in-the-showcase).
@@ -388,17 +511,29 @@ convention and review, not by a linter, so they are worth knowing before adding 
 8. **Forms never disable the submit button for empty fields.** It stays pressable and names what is missing; it is disabled only while loading.
 9. **Screens are presentational.** Props in, callbacks out — no fetching, no auth client, no routing.
 10. **Text children are wrapped; composed children are not.** `MobileButton`, `MobileBadge`, `MobileLink`, `MobileCardTitle` and `MobileCardDescription` route their children through `isTextChildren()` (`src/utils.ts`) to decide whether to wrap them in `MobileText`. Never replace it with `typeof children === "string"` or `React.isValidElement(children)`: JSX turns any element with more than one child into an **array** (`+{count}%` becomes `["+", count, "%"]`), and both of those checks mis-classify that array — the first renders bare strings outside a `<Text>` and the second nests a `<View>` inside one. Either way the app crashes at render.
+11. **Animation goes through `src/motion.ts`.** Import the preset whose *intent* matches (`SPRING`, `SPRING_SNAPPY`, `SPRING_ENTRANCE`, …) or the `springTo` / `pressInTiming` / `usePressSpring` helpers — never a hand-typed `damping`/`stiffness` tuple. Raw `Animated.timing` is only for intentional durations (pulses, shakes, fades).
 
 ## Dependencies
 
 The package adds **no runtime dependencies of its own** — with one declared exception. Two deliberate consequences:
 
 - **Paging** uses `ScrollView` + `pagingEnabled`, not `reanimated` or `gesture-handler`.
-- **Motion** uses React Native's built-in `Animated`, and the `MobileSlider` is built on `PanResponder` — React Native core dropped `Slider`, and the community package is a native module that would force every consumer to rebuild.
+- **Motion** uses React Native's built-in `Animated` behind the centralized `motion` module
+  (`src/motion.ts`) — interactive components press, toggle and settle on named spring presets
+  (the house spring `SPRING` is damping 18 / mass 1 / stiffness 320; see [Motion](#motion)), and
+  spinners, pulses and indeterminate bars run procedural `Animated` loops. The `MobileSlider` is built on
+  `PanResponder` — React Native core dropped `Slider`, and the community package is a native
+  module that would force every consumer to rebuild.
 
 ### The chart exception
 
-`MobileChartScatter` is the one module that takes dependencies. It renders through [`victory-native`](https://nearform.com/open-source/victory-native/) on top of Skia, because real curve interpolation, UI-thread gestures and pan/zoom are not things a hand-rolled view tree does well.
+The chart family is the one group of modules that takes dependencies. `MobileChartScatter`,
+`MobileChartBar` and `MobileChartLine` render through
+[`victory-native`](https://nearform.com/open-source/victory-native/) on top of Skia, because real
+curve interpolation, UI-thread gestures and pan/zoom are not things a hand-rolled view tree does
+well; `MobileChartPie` draws straight through Skia (victory-native's polar support is its
+shakiest corner). `MobileSparkline` is the exception inside the exception: plain `Animated`, no
+Skia.
 
 | Package | Why it is needed |
 |---|---|
@@ -414,7 +549,7 @@ npx expo install @shopify/react-native-skia react-native-reanimated react-native
 pnpm add victory-native
 ```
 
-Axis tick labels are drawn through Skia rather than React Native, so `MobileChartScatter` needs a Skia font from `useFont()` and takes it as the `font` prop. With no font the dots still plot — only the labels are missing. The font is a prop rather than a bundled asset on purpose: shipping a `.ttf` would force every consumer to carry a font file it may not want, and would stop the chart matching the app's own typeface.
+Axis tick labels are drawn through Skia rather than React Native, so the Cartesian charts (`MobileChartScatter`, `MobileChartBar`, `MobileChartLine`) need a Skia font from `useFont()` and take it as the `font` prop. With no font the data still renders — only the labels are missing. The font is a prop rather than a bundled asset on purpose: shipping a `.ttf` would force every consumer to carry a font file it may not want, and would stop the charts matching the app's own typeface.
 
 The only other non-obvious dependency is `react-native-safe-area-context`, which `apps/mobile` already
 used before the package needed it.
@@ -458,7 +593,7 @@ optional. Real brand marks need a different source — they are not in any gener
 <Callout type="warn" title="Not yet verified on a device">
 The library is typechecked end to end (package and showcase app) and the showcase Metro-bundles
 into a working Hermes bundle (`npx expo export --platform ios`) and a working web bundle
-(`npx expo export --platform web`, 506 modules). It has **not been run on a simulator or device**
+(`npx expo export --platform web`). It has **not been run on a simulator or device**
 in this workspace — the machine has no Xcode, so `@expo/ui`'s real native views and gesture
 behaviour cannot be exercised headlessly.
 

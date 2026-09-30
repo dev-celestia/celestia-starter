@@ -4,9 +4,11 @@ import {
   View,
   StyleSheet,
   type ViewStyle,
+  Animated,
 } from "react-native"
 import * as Haptics from "expo-haptics"
 import { useMobileTheme } from "../../host"
+import { SPRING_SNAPPY, springTo } from "../../motion"
 import { MobileText } from "./text"
 import { metrics } from "../../tokens"
 
@@ -66,6 +68,10 @@ export interface MobileRadioGroupProps {
  *
  * Selection haptics fire on the causal commit frame, and only when the value
  * actually changes — re-tapping the current option stays silent.
+ *
+ * Animation: the inner selected dot scales/fades in with an `Animated.spring`
+ * when the option is selected and springs back out on deselection (see
+ * `RadioDot`); disabled options skip the animation.
  */
 export function MobileRadioGroup({
   options,
@@ -110,14 +116,7 @@ export function MobileRadioGroup({
                 },
               ]}
             >
-              {isSelected ? (
-                <View
-                  style={[
-                    styles.radioDot,
-                    { backgroundColor: colors.primary },
-                  ]}
-                />
-              ) : null}
+              <RadioDot selected={isSelected} disabled={isDisabled} />
             </View>
 
             <View style={styles.textContainer}>
@@ -136,6 +135,43 @@ export function MobileRadioGroup({
         )
       })}
     </View>
+  )
+}
+
+/**
+ * The inner selected dot. Scales and fades in with a spring on selection and
+ * springs back out on deselection; when disabled it snaps instead of animating.
+ */
+function RadioDot({
+  selected,
+  disabled,
+}: {
+  selected: boolean
+  disabled: boolean
+}) {
+  const { colors } = useMobileTheme()
+  const dotAnim = React.useRef(new Animated.Value(selected ? 1 : 0)).current
+
+  React.useEffect(() => {
+    if (disabled) {
+      dotAnim.setValue(selected ? 1 : 0)
+      return
+    }
+    springTo(dotAnim, selected ? 1 : 0, SPRING_SNAPPY).start()
+  }, [selected, disabled, dotAnim])
+
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={[
+        styles.radioDot,
+        {
+          backgroundColor: colors.primary,
+          opacity: dotAnim,
+          transform: [{ scale: dotAnim }],
+        },
+      ]}
+    />
   )
 }
 

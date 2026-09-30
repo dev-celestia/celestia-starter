@@ -3,12 +3,20 @@ import {
   MobileAuthShell,
   MobileAvatar,
   MobileButton,
+  MobileChatScreen,
   MobileCheckbox,
+  MobileDashboardScreen,
+  MobileDetailScreen,
   MobileForgotPasswordScreen,
   MobileFormField,
   MobileLink,
+  MobileListScreen,
+  MobileMediaGridScreen,
+  MobileNotificationsScreen,
   MobileOnboardingScreen,
   MobileOtpVerifyScreen,
+  MobilePinLockScreen,
+  MobileProfileScreen,
   MobileResetPasswordScreen,
   MobileScreen,
   MobileSettingRow,
@@ -16,21 +24,44 @@ import {
   MobileSettingsSection,
   MobileSignInScreen,
   MobileSignUpScreen,
+  MobileSparkline,
   MobileStatusScreen,
   MobileSwitch,
+  MobileTabsScreen,
+  MobileTag,
   MobileText,
   MobileTextInput,
+  MobileWizardScreen,
   useMobileTheme,
   type ColorRamp,
+  type MobileChatScreenMessage,
+  type MobileNotificationsScreenItem,
   type MobileOnboardingSlide,
   type MobileSocialProvider,
   type MobileStatusVariant,
+  type MobileTabsScreenTab,
 } from "@celestia-project/mobile"
 import { ShowcaseIcon, type ShowcaseIconName } from "./icons"
+import {
+  ADA,
+  CHAT_TIMES,
+  GRACE,
+  INITIAL_CHAT,
+  METRICS,
+  NOTIFICATIONS,
+  TRANSACTIONS,
+  WEEKLY_ACTIVE_USERS,
+  amountTone,
+} from "./sample-data"
 import { Row, Spacer, Stack } from "./ui"
 
+// `noUncheckedIndexedAccess` types the fixture shortcuts as possibly
+// undefined; the cast is fixed at six members, so narrow the two used here once.
+const ada = ADA!
+const grace = GRACE!
+
 /**
- * Full-screen previews of the ten `layout/` modules.
+ * Full-screen previews of the twenty `layout/` modules.
  *
  * This registry is the reason the showcase can demonstrate the screens at all.
  * The screens own the entire frame — safe area, scrolling, keyboard avoidance,
@@ -99,8 +130,8 @@ function BaseScreenPreview({ onClose }: ScreenPreviewContext) {
       </MobileText>
       <Spacer size={16} />
       <MobileText variant="callout" color="muted">
-        The footer is rendered outside the scroll view, which is why it stays put
-        while you scroll. Toggle it off below to see the content reclaim the
+        The footer is rendered outside the scroll view, which is why it stays
+        put while you scroll. Toggle it off below to see the content reclaim the
         space.
       </MobileText>
       <Spacer size={20} />
@@ -161,9 +192,7 @@ function AuthShellPreview({ onClose }: ScreenPreviewContext) {
       onBack={onClose}
       error={error}
       onDismissError={() => setError(undefined)}
-      footer={
-        <MobileButton onPress={handleContinue}>Continue</MobileButton>
-      }
+      footer={<MobileButton onPress={handleContinue}>Continue</MobileButton>}
     >
       <Stack gap={16}>
         <MobileFormField label="Work email" required>
@@ -239,9 +268,15 @@ function SignInPreview({ onClose }: ScreenPreviewContext) {
       error={error}
       onDismissError={() => setError(undefined)}
       socialProviders={OAUTH_PROVIDERS}
-      onSocialProviderPress={() => setError("OAuth is not wired up in the showcase.")}
-      onForgotPassword={() => setError("This demo has no router — use the Forgot password preview.")}
-      onSignUp={() => setError("This demo has no router — use the Sign up preview.")}
+      onSocialProviderPress={() =>
+        setError("OAuth is not wired up in the showcase.")
+      }
+      onForgotPassword={() =>
+        setError("This demo has no router — use the Forgot password preview.")
+      }
+      onSignUp={() =>
+        setError("This demo has no router — use the Sign up preview.")
+      }
       onSubmit={(data) => {
         // A real host would call its auth client here. The screen deliberately
         // has no idea that a network exists.
@@ -267,8 +302,12 @@ function SignUpPreview({ onClose }: ScreenPreviewContext) {
       error={error}
       onDismissError={() => setError(undefined)}
       socialProviders={OAUTH_PROVIDERS}
-      onSocialProviderPress={() => setError("OAuth is not wired up in the showcase.")}
-      onSignIn={() => setError("This demo has no router — use the Sign in preview.")}
+      onSocialProviderPress={() =>
+        setError("OAuth is not wired up in the showcase.")
+      }
+      onSignIn={() =>
+        setError("This demo has no router — use the Sign in preview.")
+      }
       onTermsPress={() => setError("Terms document would open here.")}
       onPrivacyPress={() => setError("Privacy document would open here.")}
       onSubmit={(data) => {
@@ -331,7 +370,7 @@ function OtpVerifyPreview({ onClose }: ScreenPreviewContext) {
   return (
     <MobileOtpVerifyScreen
       heading="Enter the code"
-      destination="ada@example.com"
+      destination={ada.email}
       length={6}
       resendSeconds={30}
       onBack={onClose}
@@ -362,13 +401,13 @@ function SettingsPreview({ onClose }: ScreenPreviewContext) {
       profile={
         <Stack gap={8}>
           <Row wrap={false} gap={12}>
-            <MobileAvatar initials="AL" />
+            <MobileAvatar initials={ada.initials} />
             <MobileText variant="title" style={{ flex: 1 }}>
-              Ada Lovelace
+              {ada.name}
             </MobileText>
           </Row>
           <MobileText variant="callout" color="muted">
-            ada@example.com
+            {ada.email}
           </MobileText>
         </Stack>
       }
@@ -382,8 +421,8 @@ function SettingsPreview({ onClose }: ScreenPreviewContext) {
         title="Account"
         footer="Changing your email requires re-verification."
       >
-        <MobileSettingRow label="Name" value="Ada Lovelace" showChevron />
-        <MobileSettingRow label="Email" value="ada@example.com" showChevron />
+        <MobileSettingRow label="Name" value={ada.name} showChevron />
+        <MobileSettingRow label="Email" value={ada.email} showChevron />
         <MobileSettingRow label="Plan" value="Pro" showChevron />
       </MobileSettingsSection>
 
@@ -444,13 +483,13 @@ const STATUS_COPY: Record<
 > = {
   success: {
     title: "Payment received",
-    message: "Your receipt is on its way to ada@example.com.",
+    message: `Your receipt is on its way to ${ada.email}.`,
     icon: "check",
     accent: "success",
   },
   info: {
     title: "Export ready",
-    message: "The archive holds 1,284 records and expires in 24 hours.",
+    message: `The archive holds ${METRICS.signups} records and expires in 24 hours.`,
     icon: "info",
     accent: "info",
   },
@@ -486,7 +525,8 @@ function StatusPreview({ onClose }: ScreenPreviewContext) {
   const variant = STATUS_VARIANTS[index] ?? "success"
   const copy = STATUS_COPY[variant]
 
-  const next = () => setIndex((current) => (current + 1) % STATUS_VARIANTS.length)
+  const next = () =>
+    setIndex((current) => (current + 1) % STATUS_VARIANTS.length)
 
   return (
     <MobileStatusScreen
@@ -512,13 +552,427 @@ function StatusPreview({ onClose }: ScreenPreviewContext) {
 }
 
 /* -------------------------------------------------------------------------- */
+/* Second wave — the content screens                                          */
+/* -------------------------------------------------------------------------- */
+
+function ProfilePreview({ onClose }: ScreenPreviewContext) {
+  const [note, setNote] = React.useState(
+    "Tap Edit or a chevron row to see its callback fire."
+  )
+
+  return (
+    <MobileProfileScreen
+      title="Profile"
+      onBack={onClose}
+      name={ada.name}
+      handle={ada.handle}
+      imageSource={{ uri: "https://picsum.photos/seed/ada/160/160" }}
+      stats={[
+        { label: "Posts", value: "284" },
+        { label: "Followers", value: "12.4k" },
+        { label: "Following", value: "318" },
+      ]}
+      sections={[
+        {
+          title: "Contact",
+          rows: [
+            { label: "Email", value: ada.email },
+            { label: "Phone", value: "+44 20 7946 0102" },
+          ],
+        },
+        {
+          title: "Work",
+          rows: [
+            {
+              label: "Role",
+              value: ada.role,
+              onPress: () =>
+                setNote("Role row tapped — a real app opens the role editor."),
+            },
+            {
+              label: "Team",
+              value: ada.team,
+              onPress: () => setNote("Team row tapped."),
+            },
+          ],
+        },
+      ]}
+      onEdit={() => setNote("Edit pressed — a real app pushes the edit form.")}
+    >
+      <MobileText variant="callout" color="muted">
+        {note}
+      </MobileText>
+    </MobileProfileScreen>
+  )
+}
+
+// The full shared notification feed — the screen demos dismiss and
+// "Mark all read", so it wants a list long enough to lose items from.
+const NOTIFICATION_SEED: MobileNotificationsScreenItem[] = NOTIFICATIONS.map(
+  (notification) => ({ ...notification })
+)
+
+function NotificationsPreview({ onClose }: ScreenPreviewContext) {
+  const [items, setItems] =
+    React.useState<MobileNotificationsScreenItem[]>(NOTIFICATION_SEED)
+  const [opened, setOpened] = React.useState<string | null>(null)
+
+  return (
+    <MobileNotificationsScreen
+      title="Notifications"
+      subtitle={opened ? `Last opened: ${opened}` : undefined}
+      onBack={onClose}
+      notifications={items}
+      onPressNotification={(id) => {
+        setOpened(id)
+        setItems((current) =>
+          current.map((item) =>
+            item.id === id ? { ...item, unread: false } : item
+          )
+        )
+      }}
+      onDismissNotification={(id) =>
+        setItems((current) => current.filter((item) => item.id !== id))
+      }
+      onMarkAllRead={() =>
+        setItems((current) =>
+          current.map((item) => ({ ...item, unread: false }))
+        )
+      }
+    />
+  )
+}
+
+// Same shared thread the messaging specimen seeds from, mapped into the
+// screen's string-id shape with timestamps added.
+const CHAT_SEED: MobileChatScreenMessage[] = INITIAL_CHAT.map(
+  (message, index) => ({
+    id: String(message.id),
+    text: message.text,
+    mine: message.mine,
+    time: CHAT_TIMES[index],
+    status: message.mine ? "sent" : undefined,
+  })
+)
+
+function ChatPreview({ onClose }: ScreenPreviewContext) {
+  const [messages, setMessages] =
+    React.useState<MobileChatScreenMessage[]>(CHAT_SEED)
+  const [input, setInput] = React.useState("")
+
+  const send = () => {
+    const text = input.trim()
+    if (text === "") return
+    setMessages((current) => [
+      ...current,
+      {
+        id: String(current.length + 1),
+        text,
+        mine: true,
+        time: "now",
+        status: "sent",
+      },
+    ])
+    setInput("")
+  }
+
+  return (
+    <MobileChatScreen
+      title={grace.name}
+      subtitle="Online"
+      onBack={onClose}
+      messages={messages}
+      inputValue={input}
+      onChangeText={setInput}
+      onSend={send}
+      placeholder="Write a message"
+    />
+  )
+}
+
+interface DocumentItem {
+  id: string
+  name: string
+  meta: string
+}
+
+const DOCUMENTS: DocumentItem[] = [
+  { id: "d1", name: "Q3 launch plan", meta: "Edited 2h ago" },
+  { id: "d2", name: "Design tokens RFC", meta: "Edited yesterday" },
+  { id: "d3", name: "Onboarding copy", meta: "Edited Monday" },
+  { id: "d4", name: "Pin-lock spec", meta: "Edited last week" },
+  { id: "d5", name: "Release checklist", meta: "Edited last week" },
+]
+
+function ListPreview({ onClose }: ScreenPreviewContext) {
+  const [query, setQuery] = React.useState("")
+  const [refreshing, setRefreshing] = React.useState(false)
+
+  const items = DOCUMENTS.filter((doc) =>
+    doc.name.toLowerCase().includes(query.trim().toLowerCase())
+  )
+
+  const handleRefresh = () => {
+    setRefreshing(true)
+    setTimeout(() => setRefreshing(false), 900)
+  }
+
+  return (
+    <MobileListScreen<DocumentItem>
+      title="Documents"
+      onBack={onClose}
+      searchValue={query}
+      onSearchChange={setQuery}
+      searchPlaceholder="Search documents"
+      items={items}
+      keyExtractor={(doc) => doc.id}
+      renderItem={(doc) => (
+        <MobileSettingRow label={doc.name} value={doc.meta} showChevron />
+      )}
+      onRefresh={handleRefresh}
+      refreshing={refreshing}
+      emptyTitle="No matches"
+      emptyMessage={`Nothing named like “${query}”. Try a different search.`}
+    />
+  )
+}
+
+function DetailPreview({ onClose }: ScreenPreviewContext) {
+  return (
+    <MobileDetailScreen
+      title="Ridge Trail"
+      onBack={onClose}
+      hero={{ uri: "https://picsum.photos/seed/celestia-trail/800/450" }}
+      heroAccessibilityLabel="Photo of a ridge trail at sunset"
+      summary="A 14 km ridge walk above the reservoir. Dry underfoot in summer, muddy after rain — the last kilometre has loose gravel and no shade."
+      sections={[
+        {
+          title: "Logistics",
+          rows: [
+            { label: "Distance", value: "14.2 km" },
+            { label: "Ascent", value: "640 m" },
+            { label: "Difficulty", value: "Moderate" },
+          ],
+        },
+        {
+          title: "Conditions",
+          rows: [
+            { label: "Weather", value: "Clear, 18°C" },
+            { label: "Trail report", value: "Dry — updated 2h ago" },
+          ],
+        },
+      ]}
+      footer={
+        <Row gap={8} wrap={false}>
+          <MobileButton
+            variant="outline"
+            containerStyle={{ flex: 1 }}
+            onPress={onClose}
+          >
+            Share
+          </MobileButton>
+          <MobileButton containerStyle={{ flex: 1 }} onPress={onClose}>
+            Save route
+          </MobileButton>
+        </Row>
+      }
+    >
+      <Row gap={6}>
+        <MobileTag label="hiking" tone="success" />
+        <MobileTag label="half day" tone="muted" />
+        <MobileTag label="dogs ok" tone="info" />
+      </Row>
+    </MobileDetailScreen>
+  )
+}
+
+const WIZARD_FLOW_STEPS = ["Account", "Profile", "Review"]
+
+function WizardPreview({ onClose }: ScreenPreviewContext) {
+  const [current, setCurrent] = React.useState(0)
+  const isLast = current === WIZARD_FLOW_STEPS.length - 1
+
+  return (
+    <MobileWizardScreen
+      title="Setup wizard"
+      steps={WIZARD_FLOW_STEPS}
+      current={current}
+      isLastStep={isLast}
+      onBack={() => setCurrent((step) => Math.max(0, step - 1))}
+      onNext={() => {
+        if (isLast) onClose()
+        else setCurrent((step) => step + 1)
+      }}
+      headerRight={
+        <MobileButton size="sm" variant="ghost" onPress={onClose}>
+          Close
+        </MobileButton>
+      }
+    >
+      <MobileText variant="body">
+        {current === 0
+          ? "Choose the email you will sign in with and set a password. We will send a verification link before the workspace goes live."
+          : current === 1
+            ? "Add your name, role and a photo so teammates recognise you in mentions, reviews and handovers."
+            : "Check your workspace name, plan and notification preferences. Finish creates the workspace and takes you straight to the dashboard."}
+      </MobileText>
+    </MobileWizardScreen>
+  )
+}
+
+function TabsPreview({ onClose }: ScreenPreviewContext) {
+  const [active, setActive] = React.useState("feed")
+
+  const tabs: MobileTabsScreenTab[] = [
+    {
+      key: "feed",
+      label: "Feed",
+      icon: <ShowcaseIcon name="home" size="sm" />,
+    },
+    {
+      key: "mentions",
+      label: "Mentions",
+      icon: <ShowcaseIcon name="at" size="sm" />,
+    },
+    {
+      key: "saved",
+      label: "Saved",
+      icon: <ShowcaseIcon name="star" size="sm" />,
+    },
+  ]
+
+  return (
+    <MobileTabsScreen
+      title="Tabs screen"
+      onBack={onClose}
+      tabs={tabs}
+      active={active}
+      onChange={setActive}
+    >
+      <MobileText variant="body">
+        {active === "feed"
+          ? "Feed — the timeline a home tab usually carries. The tab bar sits under the header and survives the switch."
+          : active === "mentions"
+            ? "Mentions — three unread, apparently. The screen keeps one scroll view for whatever tab is active."
+            : "Saved — bookmarked items would render here."}
+      </MobileText>
+    </MobileTabsScreen>
+  )
+}
+
+function DashboardPreview({ onClose }: ScreenPreviewContext) {
+  const [selected, setSelected] = React.useState<string | null>(null)
+
+  return (
+    <MobileDashboardScreen
+      title="Dashboard"
+      subtitle={selected ? `Last tapped: ${selected}` : undefined}
+      onBack={onClose}
+      greeting="Good morning"
+      name={ada.name.split(" ")[0] ?? ada.name}
+      balance={{
+        label: "Total balance",
+        amount: METRICS.totalBalance,
+        delta: "+2.4% this month",
+      }}
+      stats={[
+        {
+          label: "Revenue",
+          value: METRICS.revenue,
+          delta: METRICS.revenueDelta,
+          deltaTone: "success",
+        },
+        {
+          label: "Refunds",
+          value: METRICS.refunds,
+          delta: METRICS.refundsDelta,
+          deltaTone: "destructive",
+        },
+        {
+          label: "Signups",
+          value: METRICS.signups,
+          delta: METRICS.signupsDelta,
+          deltaTone: "success",
+        },
+        {
+          label: "Active users",
+          value: METRICS.activeUsers,
+          deltaTone: "muted",
+        },
+      ]}
+      transactions={TRANSACTIONS.slice(0, 3).map((transaction) => ({
+        id: transaction.id,
+        title: transaction.title,
+        subtitle: transaction.subtitle,
+        amount: transaction.amount,
+        amountTone: amountTone(transaction.tone),
+      }))}
+      onTransactionPress={(id) => setSelected(id)}
+    >
+      <MobileSparkline data={WEEKLY_ACTIVE_USERS} height={56} showEndPoint />
+    </MobileDashboardScreen>
+  )
+}
+
+function PinLockPreview({ onClose }: ScreenPreviewContext) {
+  const [error, setError] = React.useState(false)
+  const [attempts, setAttempts] = React.useState(0)
+  const [lastLength, setLastLength] = React.useState<number | null>(null)
+
+  return (
+    <MobilePinLockScreen
+      title="Unlock the vault"
+      message="Demo PIN: 2468"
+      subtitle={`Attempts: ${attempts}${lastLength ? ` · last entry ${lastLength} digits` : ""}`}
+      onBack={onClose}
+      pinLength={4}
+      error={error}
+      errorMessage="Wrong PIN — try again."
+      onComplete={(pin) => {
+        setAttempts((count) => count + 1)
+        setLastLength(pin.length)
+        if (pin === "2468") {
+          setError(false)
+          onClose()
+        } else {
+          setError(true)
+        }
+      }}
+      onBiometric={onClose}
+      biometricLabel="Use Face ID"
+    />
+  )
+}
+
+const MEDIA_IMAGES = Array.from({ length: 9 }, (_, index) => ({
+  uri: `https://picsum.photos/seed/celestia-${index + 1}/300/300`,
+}))
+
+function MediaGridPreview({ onClose }: ScreenPreviewContext) {
+  const [selected, setSelected] = React.useState<number | null>(null)
+
+  return (
+    <MobileMediaGridScreen
+      title="Photos"
+      subtitle={selected == null ? undefined : `Selected: #${selected + 1}`}
+      onBack={onClose}
+      images={MEDIA_IMAGES}
+      columns={3}
+      gap={4}
+      onSelectImage={(index) => setSelected(index)}
+    />
+  )
+}
+
+/* -------------------------------------------------------------------------- */
 /* Registry                                                                   */
 /* -------------------------------------------------------------------------- */
 
 /**
  * Order matters — it is the order the gallery renders them in, and it follows
  * the dependency chain: the base frame first, then the shell built on it, then
- * the screens built on the shell, then the two standalone screens.
+ * the screens built on the shell, then the two standalone screens. The content
+ * screens close out the list: identity, feeds, flows and media.
  */
 export const SCREEN_PREVIEWS: ScreenPreview[] = [
   {
@@ -531,7 +985,8 @@ export const SCREEN_PREVIEWS: ScreenPreview[] = [
   {
     key: "auth-shell",
     label: "Auth shell",
-    summary: "Logo, heading, form, aside, footer — with a hand-rolled form inside.",
+    summary:
+      "Logo, heading, form, aside, footer — with a hand-rolled form inside.",
     modulePath: "layout/auth-shell",
     render: (ctx) => <AuthShellPreview {...ctx} />,
   },
@@ -580,16 +1035,97 @@ export const SCREEN_PREVIEWS: ScreenPreview[] = [
   {
     key: "settings-screen",
     label: "Settings",
-    summary: "Profile header, grouped sections with footers, and a danger zone.",
+    summary:
+      "Profile header, grouped sections with footers, and a danger zone.",
     modulePath: "layout/settings-screen",
     render: (ctx) => <SettingsPreview {...ctx} />,
   },
   {
     key: "status-screen",
     label: "Status screen",
-    summary: "Six variants — success, info, warning, error, 404 and maintenance.",
+    summary:
+      "Six variants — success, info, warning, error, 404 and maintenance.",
     modulePath: "layout/status-screen",
     render: (ctx) => <StatusPreview {...ctx} />,
+  },
+  {
+    key: "profile-screen",
+    label: "Profile",
+    summary:
+      "Identity header, stat pills and grouped key/value rows with an Edit action.",
+    modulePath: "layout/profile-screen",
+    render: (ctx) => <ProfilePreview {...ctx} />,
+  },
+  {
+    key: "notifications-screen",
+    label: "Notifications",
+    summary:
+      "Unread accents, per-item dismiss and Mark all read — try them, the list is live.",
+    modulePath: "layout/notifications-screen",
+    render: (ctx) => <NotificationsPreview {...ctx} />,
+  },
+  {
+    key: "chat-screen",
+    label: "Chat",
+    summary:
+      "Bubbles, delivery states and a controlled composer — sent messages append locally.",
+    modulePath: "layout/chat-screen",
+    render: (ctx) => <ChatPreview {...ctx} />,
+  },
+  {
+    key: "list-screen",
+    label: "List",
+    summary:
+      "Searchable, pull-to-refresh list with a caller-owned row renderer and empty state.",
+    modulePath: "layout/list-screen",
+    render: (ctx) => <ListPreview {...ctx} />,
+  },
+  {
+    key: "detail-screen",
+    label: "Detail",
+    summary: "Hero image, lede, key/value sections and a pinned action bar.",
+    modulePath: "layout/detail-screen",
+    render: (ctx) => <DetailPreview {...ctx} />,
+  },
+  {
+    key: "wizard-screen",
+    label: "Wizard",
+    summary:
+      "Stepper plus a Back/Next shelf — Finish on the last step closes the preview.",
+    modulePath: "layout/wizard-screen",
+    render: (ctx) => <WizardPreview {...ctx} />,
+  },
+  {
+    key: "tabs-screen",
+    label: "Tabs screen",
+    summary:
+      "Icon tab bar under the header with one scroll view for the active tab.",
+    modulePath: "layout/tabs-screen",
+    render: (ctx) => <TabsPreview {...ctx} />,
+  },
+  {
+    key: "dashboard-screen",
+    label: "Dashboard",
+    summary:
+      "Greeting, balance hero, stat tiles, a sparkline slot and recent activity.",
+    modulePath: "layout/dashboard-screen",
+    render: (ctx) => <DashboardPreview {...ctx} />,
+  },
+  {
+    key: "pin-lock-screen",
+    label: "PIN lock",
+    summary:
+      "Dot feedback, shake on a wrong PIN, biometric escape hatch. Try 2468.",
+    modulePath: "layout/pin-lock-screen",
+    render: (ctx) => <PinLockPreview {...ctx} />,
+  },
+  {
+    key: "media-grid-screen",
+    label: "Media grid",
+    summary:
+      "Nine remote placeholders in a three-column grid — taps report their index.",
+    modulePath: "layout/media-grid-screen",
+    render: (ctx) => <MediaGridPreview {...ctx} />,
   },
 ]
 

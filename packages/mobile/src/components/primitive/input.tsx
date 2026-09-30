@@ -5,10 +5,12 @@ import {
   Pressable,
   StyleSheet,
   View,
+  Animated,
   type ViewStyle,
   type TextStyle,
 } from "react-native"
 import { useMobileTheme } from "../../host"
+import { springTo } from "../../motion"
 import { metrics } from "../../tokens"
 import { MobileText } from "./text"
 
@@ -84,6 +86,11 @@ export interface MobileTextInputProps extends Omit<RNTextInputProps, "style"> {
  * This is the *bare* input — border, focus ring and slots. Label, helper and
  * error text are a specific job, so they live in the `MobileFormField`
  * composite rather than being duplicated here.
+ *
+ * Animation: the focus state crossfades — a second, absolutely-positioned
+ * border layer (primary) fades in over the base border via an `Animated.spring`
+ * on focus and back out on blur. Opacity only, so it runs on the native driver,
+ * and colour strings are never interpolated.
  */
 export function MobileTextInput({
   containerStyle,
@@ -107,16 +114,17 @@ export function MobileTextInput({
   ...props
 }: MobileTextInputProps) {
   const { colors } = useMobileTheme()
-  const [isFocused, setIsFocused] = React.useState(false)
   const [revealed, setRevealed] = React.useState(false)
+  // 0 = blurred, 1 = focused. Drives the focus-ring crossfade (opacity only).
+  const focusAnim = React.useRef(new Animated.Value(0)).current
 
   const handleFocus: NonNullable<RNTextInputProps["onFocus"]> = (event) => {
-    setIsFocused(true)
+    springTo(focusAnim, 1).start()
     onFocus?.(event)
   }
 
   const handleBlur: NonNullable<RNTextInputProps["onBlur"]> = (event) => {
-    setIsFocused(false)
+    springTo(focusAnim, 0).start()
     onBlur?.(event)
   }
 
@@ -125,11 +133,9 @@ export function MobileTextInput({
     onClear?.()
   }
 
-  const borderColor = error
-    ? colors.destructive
-    : isFocused
-      ? colors.primary
-      : colors.inputBorder
+  // The primary focus border is a stacked overlay layer, so the base border
+  // stays the resting colour and the crossfade never interpolates colours.
+  const borderColor = error ? colors.destructive : colors.inputBorder
 
   const showClear =
     clearable &&
@@ -153,6 +159,16 @@ export function MobileTextInput({
         containerStyle,
       ]}
     >
+      {!error ? (
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.focusRing,
+            { borderColor: colors.primary, opacity: focusAnim },
+          ]}
+        />
+      ) : null}
+
       {leading ? <View style={styles.leading}>{leading}</View> : null}
 
       <RNTextInput
@@ -235,6 +251,17 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 10,
     fontSize: 16,
+  },
+  // Sits exactly over the container's 1px border (children are laid out inside
+  // the border box, hence the -1 insets) and crossfades in on focus.
+  focusRing: {
+    position: "absolute",
+    top: -1,
+    left: -1,
+    right: -1,
+    bottom: -1,
+    borderWidth: 1,
+    borderRadius: metrics.radius.md + 1,
   },
   leading: {
     marginRight: 8,

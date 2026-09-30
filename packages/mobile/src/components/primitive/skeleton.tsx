@@ -1,6 +1,7 @@
 import * as React from "react"
-import { Animated, Platform, type ViewStyle } from "react-native"
+import { Animated, type ViewStyle } from "react-native"
 import { useMobileTheme } from "../../host"
+import { canUseNativeDriver } from "../../motion"
 import { metrics } from "../../tokens"
 
 export interface MobileSkeletonProps {
@@ -44,18 +45,17 @@ export function MobileSkeleton({
   const pulse = React.useRef(new Animated.Value(0.4)).current
 
   React.useEffect(() => {
-    const useNativeDriver = Platform.OS !== "web"
     const loop = Animated.loop(
       Animated.sequence([
         Animated.timing(pulse, {
           toValue: 1,
           duration: 700,
-          useNativeDriver,
+          useNativeDriver: canUseNativeDriver,
         }),
         Animated.timing(pulse, {
           toValue: 0.4,
           duration: 700,
-          useNativeDriver,
+          useNativeDriver: canUseNativeDriver,
         }),
       ])
     )

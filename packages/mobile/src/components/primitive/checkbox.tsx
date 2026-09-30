@@ -4,9 +4,11 @@ import {
   View,
   StyleSheet,
   type ViewStyle,
+  Animated,
 } from "react-native"
 import * as Haptics from "expo-haptics"
 import { useMobileTheme } from "../../host"
+import { SPRING_SNAPPY, springTo } from "../../motion"
 import { MobileText } from "./text"
 import { metrics } from "../../tokens"
 
@@ -57,6 +59,10 @@ export interface MobileCheckboxProps {
  * The whole row is the touch target (44pt floor), not just the 20pt box — which
  * is what makes it usable one-handed. The tick is a *structural* mark drawn with
  * two borders, so no icon dependency is introduced.
+ *
+ * Animation: checking pops the box (spring 1 → 1.12 → 1) while the fill layer
+ * crossfades in via opacity and the tick fades/scales in; unchecking springs
+ * back. Disabled state skips the animation and snaps.
  */
 export function MobileCheckbox({
   checked,
@@ -69,6 +75,34 @@ export function MobileCheckbox({
   testID,
 }: MobileCheckboxProps) {
   const { colors } = useMobileTheme()
+
+  // `popAnim` scales the whole box; `checkAnim` drives the fill crossfade and
+  // the tick's fade/scale-in. Both are opacity/transform only, so they run on
+  // the native driver.
+  const popAnim = React.useRef(new Animated.Value(1)).current
+  const checkAnim = React.useRef(new Animated.Value(checked ? 1 : 0)).current
+  const wasChecked = React.useRef(checked)
+
+  React.useEffect(() => {
+    if (wasChecked.current === checked) return
+    wasChecked.current = checked
+    if (disabled) {
+      popAnim.setValue(1)
+      checkAnim.setValue(checked ? 1 : 0)
+      return
+    }
+    if (checked) {
+      // Two legs on purpose: punch to 1.12, then settle — the overshoot is
+      // the confirmation feedback.
+      Animated.sequence([
+        springTo(popAnim, 1.12, SPRING_SNAPPY),
+        springTo(popAnim, 1),
+      ]).start()
+    } else {
+      springTo(popAnim, 1).start()
+    }
+    springTo(checkAnim, checked ? 1 : 0).start()
+  }, [checked, disabled, popAnim, checkAnim])
 
   const handlePress = () => {
     if (disabled) return
@@ -84,21 +118,34 @@ export function MobileCheckbox({
         : colors.inputBorder
 
   const box = (
-    <View
-      style={[
-        styles.box,
-        {
-          borderColor: boxBorderColor,
-          backgroundColor: checked ? colors.primary : "transparent",
-        },
-      ]}
-    >
-      {checked ? (
-        <View
-          style={[styles.tick, { borderColor: colors.primaryForeground }]}
+    <Animated.View style={{ transform: [{ scale: popAnim }] }}>
+      <View
+        style={[
+          styles.box,
+          {
+            borderColor: boxBorderColor,
+            backgroundColor: "transparent",
+          },
+        ]}
+      >
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.boxFill,
+            { backgroundColor: colors.primary, opacity: checkAnim },
+          ]}
         />
-      ) : null}
-    </View>
+        <Animated.View
+          pointerEvents="none"
+          style={{
+            opacity: checkAnim,
+            transform: [{ scale: checkAnim }],
+          }}
+        >
+          <View style={[styles.tick, { borderColor: colors.primaryForeground }]} />
+        </Animated.View>
+      </View>
+    </Animated.View>
   )
 
   if (!label) {
@@ -160,11 +207,20 @@ const styles = StyleSheet.create({
   box: {
     width: 20,
     height: 20,
-    borderRadius: metrics.radius.sm,
+    borderRadius: metrics.radius.full,
     borderWidth: 1.5,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 1,
+    overflow: "hidden",
+  },
+  boxFill: {
+    position: "absolute",
+    top: -1.5,
+    left: -1.5,
+    right: -1.5,
+    bottom: -1.5,
+    borderRadius: metrics.radius.full,
   },
   tick: {
     width: 5,

@@ -1,5 +1,6 @@
 import * as React from "react"
 import {
+  Animated,
   Pressable,
   StyleSheet,
   View,
@@ -7,6 +8,7 @@ import {
 } from "react-native"
 import * as Haptics from "expo-haptics"
 import { useMobileTheme } from "../../host"
+import { SPRING_ENTRANCE, springTo } from "../../motion"
 import { MobileText } from "../primitive/text"
 import { metrics } from "../../tokens"
 import { isTextChildren } from "../../utils"
@@ -75,6 +77,22 @@ export function MobileAlert({
 }: MobileAlertProps) {
   const { colors } = useMobileTheme()
 
+  // Entrance spring: the banner is inline (no modal backdrop), so the "pop in"
+  // is opacity + scale 0.9 → 1 with a slight overshoot, on mount.
+  const entrance = React.useRef(new Animated.Value(0)).current
+  React.useEffect(() => {
+    springTo(entrance, 1, SPRING_ENTRANCE).start()
+  }, [entrance])
+  const scale = entrance.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.9, 1],
+  })
+  const fade = entrance.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 1],
+    extrapolateRight: "clamp",
+  })
+
   const accent =
     variant === "success"
       ? colors.success
@@ -90,12 +108,13 @@ export function MobileAlert({
   }
 
   return (
-    <View
+    <Animated.View
       testID={testID}
       accessibilityRole="alert"
       style={[
         styles.container,
         { backgroundColor: colors.card, borderColor: colors.cardBorder },
+        { opacity: fade, transform: [{ scale }] },
         style,
       ]}
     >
@@ -148,7 +167,7 @@ export function MobileAlert({
           </Pressable>
         ) : null}
       </View>
-    </View>
+    </Animated.View>
   )
 }
 

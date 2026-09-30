@@ -1,4 +1,3 @@
-import * as React from "react"
 import { useMobileTheme } from "@celestia-project/mobile"
 
 /**

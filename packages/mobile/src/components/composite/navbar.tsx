@@ -3,12 +3,16 @@ import {
   Pressable,
   View,
   StyleSheet,
+  Animated,
   type ViewStyle,
 } from "react-native"
 import * as Haptics from "expo-haptics"
 import { useMobileTheme } from "../../host"
 import { MobileText } from "../primitive/text"
 import { metrics } from "../../tokens"
+import { pressInTiming, springTo } from "../../motion"
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
 export interface MobileNavBarProps {
   /**
@@ -80,6 +84,9 @@ export function MobileNavBar({
   testID,
 }: MobileNavBarProps) {
   const { colors } = useMobileTheme()
+  // Press feedback for the hand-rolled back button only — slot content
+  // (typically `MobileIconButton`) brings its own.
+  const backAnim = React.useRef(new Animated.Value(1)).current
 
   const handleBack = () => {
     if (!onBack) return
@@ -87,13 +94,23 @@ export function MobileNavBar({
     onBack()
   }
 
+  const handleBackPressIn = () => {
+    pressInTiming(backAnim, 0.9).start()
+  }
+
+  const handleBackPressOut = () => {
+    springTo(backAnim, 1).start()
+  }
+
   const backButton = onBack ? (
-    <Pressable
+    <AnimatedPressable
       onPress={handleBack}
+      onPressIn={handleBackPressIn}
+      onPressOut={handleBackPressOut}
       accessibilityRole="button"
       accessibilityLabel={backAccessibilityLabel}
       hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-      style={styles.back}
+      style={[styles.back, { transform: [{ scale: backAnim }] }]}
     >
       <MobileText
         variant="title"
@@ -101,7 +118,7 @@ export function MobileNavBar({
       >
         ‹
       </MobileText>
-    </Pressable>
+    </AnimatedPressable>
   ) : null
 
   const leading = left ?? backButton

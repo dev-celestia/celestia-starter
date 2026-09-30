@@ -8,6 +8,7 @@ import {
   type ViewStyle,
 } from "react-native"
 import { useMobileTheme } from "../../host"
+import { SPRING_ENTRANCE, SPRING_EXIT, springTo } from "../../motion"
 import { MobileText } from "../primitive/text"
 import { metrics } from "../../tokens"
 
@@ -71,9 +72,6 @@ interface MobileToastContextValue {
 const MobileToastContext = React.createContext<MobileToastContextValue | null>(
   null
 )
-
-const FADE_IN_MS = 180
-const FADE_OUT_MS = 160
 
 /**
  * MobileToast
@@ -187,7 +185,10 @@ export function MobileToastProvider({
 }: MobileToastProviderProps) {
   const [toast, setToast] = React.useState<MobileToastOptions | null>(null)
   const timer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
-  const opacity = React.useRef(new Animated.Value(0)).current
+  // Single spring-driven progress value: 0 = hidden, 1 = shown. Both opacity
+  // and the rise come off it, so entrance and exit share one physical feel
+  // instead of two fixed-duration fades.
+  const progress = React.useRef(new Animated.Value(0)).current
 
   const clearTimer = React.useCallback(() => {
     if (timer.current !== null) {
@@ -198,25 +199,21 @@ export function MobileToastProvider({
 
   const hide = React.useCallback(() => {
     clearTimer()
-    Animated.timing(opacity, {
-      toValue: 0,
-      duration: FADE_OUT_MS,
-      useNativeDriver: Platform.OS !== "web",
-    }).start(() => {
-      setToast(null)
+    // SPRING_EXIT: the exit should settle, not bounce back.
+    springTo(progress, 0, SPRING_EXIT).start(({ finished }) => {
+      // An interrupted exit means a newer toast took over — don't clear it.
+      if (finished) setToast(null)
     })
-  }, [clearTimer, opacity])
+  }, [clearTimer, progress])
 
   const show = React.useCallback(
     (options: MobileToastOptions) => {
       clearTimer()
       setToast(options)
-      opacity.setValue(0)
-      Animated.timing(opacity, {
-        toValue: 1,
-        duration: FADE_IN_MS,
-        useNativeDriver: Platform.OS !== "web",
-      }).start()
+      progress.setValue(0)
+      // SPRING_ENTRANCE: underdamped on purpose, so the toast pops up with a
+      // small overshoot.
+      springTo(progress, 1, SPRING_ENTRANCE).start()
 
       const duration = options.duration ?? defaultDuration
       if (duration > 0) {
@@ -225,16 +222,33 @@ export function MobileToastProvider({
         }, duration)
       }
     },
-    [clearTimer, defaultDuration, hide, opacity]
+    [clearTimer, defaultDuration, hide, progress]
   )
 
-  // A toast that outlives its screen is a leak; clear the timer on unmount.
-  React.useEffect(() => clearTimer, [clearTimer])
+  // A toast that outlives its screen is a leak; clear the timer and stop any
+  // running animation on unmount.
+  React.useEffect(
+    () => () => {
+      clearTimer()
+      progress.stopAnimation()
+    },
+    [clearTimer, progress]
+  )
 
   const value = React.useMemo<MobileToastContextValue>(
     () => ({ show, hide }),
     [show, hide]
   )
+
+  const opacity = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 1],
+    extrapolateRight: "clamp",
+  })
+  const rise = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [24, 0],
+  })
 
   return (
     <MobileToastContext.Provider value={value}>
@@ -245,12 +259,14 @@ export function MobileToastProvider({
           pointerEvents="box-none"
           style={[styles.overlay, { opacity }]}
         >
-          <MobileToast
-            message={toast.message}
-            variant={toast.variant}
-            action={toast.action}
-            onDismiss={hide}
-          />
+          <Animated.View style={{ transform: [{ translateY: rise }] }}>
+            <MobileToast
+              message={toast.message}
+              variant={toast.variant}
+              action={toast.action}
+              onDismiss={hide}
+            />
+          </Animated.View>
         </Animated.View>
       ) : null}
     </MobileToastContext.Provider>

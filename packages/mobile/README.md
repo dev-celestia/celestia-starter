@@ -59,7 +59,7 @@ infrastructure (design tokens + the theme context every component reads), not co
 | `MobileIconButton` | RN `Pressable` | 44pt square, **required** `accessibilityLabel` |
 | `MobileTextInput` / `MobileInput` | RN `TextInput` | 16px font floor, focus/error borders, `leading`/`trailing` slots, `clearable` |
 | `MobileOtpInput` | RN `TextInput` (single) | fixed-length code cells, SMS autofill, auto-advance |
-| `MobileSwitch` | `@expo/ui` `Switch` | real SwiftUI / Jetpack Compose toggle |
+| `MobileSwitch` | RN `Animated` | drawn toggle — spring thumb travel, crossfading track |
 | `MobileCheckbox` | RN `Pressable` | drawn tick; the whole row is the touch target |
 | `MobileRadioGroup` | RN `Pressable` | `radiogroup` semantics; silent when re-tapping the selection |
 | `MobileSlider` | RN `PanResponder` | continuous or stepped, adjustable a11y actions |

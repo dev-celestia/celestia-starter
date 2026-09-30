@@ -16,7 +16,9 @@
  * - `MobileAuthShell` adds the logo / heading / form / aside / footer frame that
  *   every authentication screen shares.
  * - The remaining exports are screens: onboarding, sign-in, sign-up,
- *   forgot-password, reset-password, OTP verify, settings and status.
+ *   forgot-password, reset-password, OTP verify, settings, status, profile,
+ *   notifications, chat, list, detail, wizard, tabs, dashboard, PIN lock and
+ *   media grid.
  *
  * `MobileScreen` needs a `SafeAreaProvider` above it (from
  * `react-native-safe-area-context`) for safe-area padding to resolve; without
@@ -24,12 +26,22 @@
  */
 
 export * from "./auth-shell"
+export * from "./chat-screen"
+export * from "./dashboard-screen"
+export * from "./detail-screen"
 export * from "./forgot-password-screen"
+export * from "./list-screen"
+export * from "./media-grid-screen"
+export * from "./notifications-screen"
 export * from "./onboarding-screen"
 export * from "./otp-verify-screen"
+export * from "./pin-lock-screen"
+export * from "./profile-screen"
 export * from "./reset-password-screen"
 export * from "./screen"
 export * from "./settings-screen"
 export * from "./sign-in-screen"
 export * from "./sign-up-screen"
 export * from "./status-screen"
+export * from "./tabs-screen"
+export * from "./wizard-screen"

@@ -2,10 +2,13 @@ import * as React from "react"
 import { Pressable, ScrollView, StyleSheet, View } from "react-native"
 import {
   MobileBottomSheet,
+  MobileEmptyState,
+  MobileSearchBar,
   MobileText,
   metrics,
   useMobileTheme,
 } from "@celestia-project/mobile"
+import { SPACE } from "./spacing"
 
 /**
  * The showcase's navigation seam.
@@ -112,8 +115,12 @@ export interface ShowcaseNavSheetProps {
  *
  * Grouped by section, with the components nested under their own heading, so the
  * shape of the menu is the shape of the page. `half` and `full` snap points are
- * both offered because seven sections plus thirty-one components do not fit on
- * one screen, but the section list alone very nearly does.
+ * both offered because the section list alone nearly fits a half sheet.
+ *
+ * A filter field sits on top: with 130 components in the library, scanning the
+ * grouped list is slower than typing three letters. Matching specimens keep
+ * their section heading so a hit still tells you where the component lives, and
+ * a section whose title matches shows with all its specimens.
  *
  * The active section is read from context rather than passed down, so the sheet
  * can sit inside the provider that the gallery also renders into.
@@ -126,20 +133,48 @@ export function ShowcaseNavSheet({
 }: ShowcaseNavSheetProps) {
   const { colors } = useMobileTheme()
   const activeSection = useActiveSection()
+  const [query, setQuery] = React.useState("")
+
+  // Reset the filter whenever the sheet closes, so reopening always shows the
+  // full list — a stale query hiding entries reads as a broken menu.
+  React.useEffect(() => {
+    if (!isPresented) setQuery("")
+  }, [isPresented])
+
+  const specimenCount = React.useMemo(
+    () => entries.filter((entry) => entry.kind === "specimen").length,
+    [entries]
+  )
 
   const groups = React.useMemo(() => {
+    const needle = query.trim().toLowerCase()
+    const matches = (entry: ShowcaseNavEntry) =>
+      needle === "" || entry.title.toLowerCase().includes(needle)
+
     const bySection = new Map<string, ShowcaseNavEntry[]>()
     for (const entry of entries) {
       const bucket = bySection.get(entry.sectionKey)
       if (bucket) bucket.push(entry)
       else bySection.set(entry.sectionKey, [entry])
     }
-    return [...bySection.entries()].map(([sectionKey, items]) => ({
-      sectionKey,
-      section: items.find((item) => item.kind === "section"),
-      specimens: items.filter((item) => item.kind === "specimen"),
-    }))
-  }, [entries])
+
+    return [...bySection.entries()]
+      .map(([sectionKey, items]) => {
+        const section = items.find((item) => item.kind === "section")
+        // A section-title match reveals the whole group; otherwise keep only
+        // the specimens that match.
+        const specimens =
+          section && matches(section)
+            ? items.filter((item) => item.kind === "specimen")
+            : items.filter((item) => item.kind === "specimen" && matches(item))
+        return { sectionKey, section, specimens }
+      })
+      .filter(
+        (group) =>
+          group.specimens.length > 0 ||
+          (group.section && matches(group.section))
+      )
+  }, [entries, query])
 
   return (
     <MobileBottomSheet
@@ -150,75 +185,94 @@ export function ShowcaseNavSheet({
     >
       <MobileText variant="title">Jump to</MobileText>
       <MobileText variant="caption" color="muted" style={styles.hint}>
-        Seven sections, and every component inside them.
+        {`${specimenCount} components in ${
+          entries.length - specimenCount
+        } sections`}
       </MobileText>
 
-      <ScrollView
-        style={styles.list}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {groups.map((group, index) => {
-          const isActive = group.sectionKey === activeSection
+      <MobileSearchBar
+        value={query}
+        onValueChange={setQuery}
+        placeholder="Filter components…"
+        style={styles.search}
+        testID="showcase-nav-filter"
+      />
 
-          return (
-            <View key={group.sectionKey} style={styles.group}>
-              <Pressable
-                onPress={() => onSelect(group.sectionKey)}
-                accessibilityRole="button"
-                accessibilityLabel={`Jump to ${group.section?.title ?? group.sectionKey}`}
-                style={[
-                  styles.row,
-                  styles.sectionRow,
-                  { borderColor: colors.border },
-                ]}
-              >
-                <MobileText
-                  variant="caption"
-                  color={isActive ? "primary" : "muted"}
-                  tabular
-                  style={styles.index}
-                >
-                  {String(index + 1).padStart(2, "0")}
-                </MobileText>
-                <MobileText
-                  variant="bodyMedium"
-                  color={isActive ? "primary" : "foreground"}
-                  style={styles.rowLabel}
-                >
-                  {group.section?.title ?? group.sectionKey}
-                </MobileText>
-                {isActive ? (
-                  <MobileText variant="caption" color="primary">
-                    ●
-                  </MobileText>
-                ) : null}
-              </Pressable>
+      {groups.length === 0 ? (
+        <MobileEmptyState
+          title="No matches"
+          description={`Nothing is named “${query.trim()}”. Try a shorter query.`}
+          style={styles.empty}
+        />
+      ) : (
+        <ScrollView
+          style={styles.list}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {groups.map((group, index) => {
+            const isActive = group.sectionKey === activeSection
 
-              {group.specimens.map((item) => (
+            return (
+              <View key={group.sectionKey} style={styles.group}>
                 <Pressable
-                  key={item.key}
-                  onPress={() => onSelect(item.key)}
+                  onPress={() => onSelect(group.sectionKey)}
                   accessibilityRole="button"
-                  accessibilityLabel={`Jump to ${item.title}`}
-                  style={styles.row}
+                  accessibilityLabel={`Jump to ${group.section?.title ?? group.sectionKey}`}
+                  style={[
+                    styles.row,
+                    styles.sectionRow,
+                    { borderColor: colors.border },
+                  ]}
                 >
-                  <View
-                    style={[styles.rule, { backgroundColor: colors.border }]}
-                  />
                   <MobileText
-                    variant="callout"
-                    color="muted"
+                    variant="caption"
+                    color={isActive ? "primary" : "muted"}
+                    tabular
+                    style={styles.index}
+                  >
+                    {String(index + 1).padStart(2, "0")}
+                  </MobileText>
+                  <MobileText
+                    variant="bodyMedium"
+                    color={isActive ? "primary" : "foreground"}
                     style={styles.rowLabel}
                   >
-                    {item.title}
+                    {group.section?.title ?? group.sectionKey}
                   </MobileText>
+                  {isActive ? (
+                    <MobileText variant="caption" color="primary">
+                      ●
+                    </MobileText>
+                  ) : null}
                 </Pressable>
-              ))}
-            </View>
-          )
-        })}
-      </ScrollView>
+
+                {group.specimens.map((item) => (
+                  <Pressable
+                    key={item.key}
+                    onPress={() => onSelect(item.key)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Jump to ${item.title}`}
+                    style={styles.row}
+                  >
+                    <View
+                      style={[styles.rule, { backgroundColor: colors.border }]}
+                    />
+                    <MobileText
+                      variant="callout"
+                      color="muted"
+                      style={styles.rowLabel}
+                    >
+                      {item.title}
+                    </MobileText>
+                  </Pressable>
+                ))}
+              </View>
+            )
+          })}
+        </ScrollView>
+      )}
     </MobileBottomSheet>
   )
 }
@@ -227,25 +281,31 @@ const styles = StyleSheet.create({
   hint: {
     marginTop: 2,
   },
+  search: {
+    marginTop: SPACE.row,
+  },
+  empty: {
+    marginTop: SPACE.section,
+  },
   list: {
     flex: 1,
-    marginTop: 12,
+    marginTop: SPACE.label,
   },
   listContent: {
-    paddingBottom: 24,
+    paddingBottom: SPACE.section,
   },
   group: {
-    marginBottom: 10,
+    marginBottom: SPACE.row,
   },
   row: {
     minHeight: metrics.minTouchTarget,
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: SPACE.label,
   },
   sectionRow: {
     borderBottomWidth: 1,
-    paddingBottom: 6,
+    paddingBottom: SPACE.inline,
   },
   index: {
     width: 24,
@@ -254,11 +314,16 @@ const styles = StyleSheet.create({
     flex: 1,
     fontWeight: "600",
   },
-  /** The indent guide that makes nesting legible without an icon set. */
+  /**
+   * The indent guide that makes nesting legible without an icon set.
+   *
+   * `marginLeft: 11` is derived, not chosen: the 1px rule has to sit under the
+   * centre of the 24px index column, so it starts at (24 - 1) / 2.
+   */
   rule: {
     width: 1,
     height: 16,
     marginLeft: 11,
-    marginRight: 12,
+    marginRight: SPACE.row,
   },
 })

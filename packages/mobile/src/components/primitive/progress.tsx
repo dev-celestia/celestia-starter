@@ -2,13 +2,13 @@ import * as React from "react"
 import {
   Animated,
   Easing,
-  Platform,
   View,
   StyleSheet,
   type LayoutChangeEvent,
   type ViewStyle,
 } from "react-native"
 import { useMobileTheme } from "../../host"
+import { SPRING_GAUGE, canUseNativeDriver, springLayoutTo } from "../../motion"
 import type { ColorRamp } from "../../tokens"
 import { MobileText } from "./text"
 
@@ -80,6 +80,16 @@ export function MobileProgress({
   const clamped = Math.min(1, Math.max(0, value))
   const barWidth = trackWidth * INDETERMINATE_BAR_RATIO
 
+  // Seeded at the initial value so the first render never springs from zero.
+  const fill = React.useRef(new Animated.Value(clamped)).current
+
+  React.useEffect(() => {
+    // Springs `width` (a layout prop) rather than a `scaleX` transform because
+    // scaling would squash the fill's rounded ends — hence the JS driver here.
+    // SPRING_GAUGE: overshoot would misreport the value the label displays.
+    springLayoutTo(fill, clamped, SPRING_GAUGE).start()
+  }, [clamped, fill])
+
   React.useEffect(() => {
     if (!indeterminate || trackWidth === 0) return
 
@@ -89,7 +99,7 @@ export function MobileProgress({
         toValue: trackWidth,
         duration: INDETERMINATE_DURATION,
         easing: Easing.inOut(Easing.ease),
-        useNativeDriver: Platform.OS !== "web",
+        useNativeDriver: canUseNativeDriver,
       })
     )
     loop.start()
@@ -139,9 +149,15 @@ export function MobileProgress({
             }}
           />
         ) : (
-          <View
+          <Animated.View
             style={{
-              width: `${clamped * 100}%`,
+              width: fill.interpolate({
+                inputRange: [0, 1],
+                outputRange: ["0%", "100%"],
+                // A spring can overshoot past `toValue`; clamping keeps the
+                // fill inside the track even when it does.
+                extrapolateRight: "clamp",
+              }),
               height: "100%",
               borderRadius: height / 2,
               backgroundColor: resolve(color),

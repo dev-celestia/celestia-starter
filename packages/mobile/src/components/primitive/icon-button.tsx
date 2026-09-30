@@ -1,7 +1,6 @@
 import * as React from "react"
 import {
   Animated,
-  Platform,
   Pressable,
   StyleSheet,
   type ViewStyle,
@@ -9,6 +8,7 @@ import {
 import * as Haptics from "expo-haptics"
 import { useMobileTheme } from "../../host"
 import { metrics } from "../../tokens"
+import { pressInTiming, springTo } from "../../motion"
 
 export type MobileIconButtonVariant =
   | "default"
@@ -96,22 +96,12 @@ export function MobileIconButton({
 
   const handlePressIn = () => {
     if (disabled) return
-    Animated.timing(scaleAnim, {
-      toValue: 0.97,
-      duration: 120,
-      useNativeDriver: Platform.OS !== "web",
-    }).start()
+    pressInTiming(scaleAnim, 0.97, 120).start()
   }
 
   const handlePressOut = () => {
     if (disabled) return
-    Animated.spring(scaleAnim, {
-      toValue: 1,
-      damping: 15,
-      mass: 1,
-      stiffness: 250,
-      useNativeDriver: Platform.OS !== "web",
-    }).start()
+    springTo(scaleAnim, 1).start()
   }
 
   const handlePress = () => {

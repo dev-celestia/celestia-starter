@@ -3,12 +3,16 @@ import {
   Pressable,
   View,
   StyleSheet,
+  Animated,
   type ViewStyle,
 } from "react-native"
 import * as Haptics from "expo-haptics"
 import { useMobileTheme } from "../../host"
+import { usePressSpring } from "../../motion"
 import { MobileText } from "../primitive/text"
 import { metrics } from "../../tokens"
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
 export interface MobileSettingRowProps {
   /**
@@ -81,6 +85,11 @@ export function MobileSettingRow({
   testID,
 }: MobileSettingRowProps) {
   const { colors } = useMobileTheme()
+  // Subtle shrink on press, springing back on release — the row is one large
+  // touch target, so a small scale reads better than a highlight flash. The
+  // old handlers' disabled guards were redundant: a disabled Pressable never
+  // fires press events, so the hook alone covers the disabled case.
+  const { value: pressAnim, onPressIn, onPressOut } = usePressSpring(1, 0.985)
 
   const handlePress = () => {
     if (disabled || !onPress) return
@@ -139,16 +148,25 @@ export function MobileSettingRow({
   }
 
   return (
-    <Pressable
+    <AnimatedPressable
       onPress={handlePress}
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
       disabled={disabled}
       testID={testID}
       accessibilityRole="button"
       accessibilityState={{ disabled }}
-      style={[styles.row, { opacity: disabled ? 0.45 : 1 }, style]}
+      style={[
+        styles.row,
+        {
+          opacity: disabled ? 0.45 : 1,
+          transform: [{ scale: pressAnim }],
+        },
+        style,
+      ]}
     >
       {content}
-    </Pressable>
+    </AnimatedPressable>
   )
 }
 
