@@ -22,7 +22,7 @@ export const LANDING_SURFACES = [
   { label: "Design System", href: "/design-system", external: false },
   { label: "Documentation", href: "/docs", external: false },
   { label: "Layout & Pages", href: "/layout", external: false },
-  { label: "Mobile", href: "/mobile", external: false },
+  { label: "Mobile (expo)", href: "/mobile", external: false },
   { label: "Feature Installer", href: "/feature-installer", external: false },
   { label: "Hexbuffer", href: "https://0xbuffer.com/", external: true },
 ] as const

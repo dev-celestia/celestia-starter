@@ -136,14 +136,16 @@ export function LayoutPageContent({
         <div className="flex flex-col gap-2 pb-8">
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Layout Templates</h1>
           <p className="text-muted-foreground max-w-2xl text-sm leading-relaxed">
-            {LAYOUT_DEMO_META.length} copy-ready page templates wired to the design system —
-            shells, auth screens, app pages, marketing frames and system states. Preview one,
-            hit <span className="text-foreground font-medium">Copy code</span>, paste the file
-            into your app and make it yours. They are plain source files under{" "}
+            {LAYOUT_DEMO_META.length} page templates wired to the design system — auth screens,
+            app pages, marketing frames and system states. Preview one, hit{" "}
+            <span className="text-foreground font-medium">Copy code</span>, paste the file into
+            your app and make it yours. The pages are plain source files under{" "}
             <code className="rounded-md border border-border/70 bg-muted/60 px-1.5 py-0.5 font-mono text-xs">
               apps/web/components/layout-templates
             </code>
-            , not package exports — so nothing blocks a prototype.
+            , not package exports — so nothing blocks a prototype. The four slot-only shells they
+            compose on (Auth Shell, Page Shell, Dashboard Shell, Marketing Shell) ship as package
+            composites, so a copied page never needs a second file for its frame.
           </p>
         </div>
 
@@ -165,7 +167,16 @@ export function LayoutPageContent({
                     </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-1.5">
-                    <CopyTemplateButton text={source} title={title} />
+                    {source ? (
+                      <CopyTemplateButton text={source} title={title} />
+                    ) : (
+                      <span
+                        title="Package composite — import from @celestia-project/ui"
+                        className="text-muted-foreground border-border/70 inline-flex h-8 items-center rounded-md border border-dashed px-3 text-xs font-medium"
+                      >
+                        Composite
+                      </span>
+                    )}
                     <Link
                       href={`/layout/${slug}`}
                       title={`Open ${title} at full viewport size`}
