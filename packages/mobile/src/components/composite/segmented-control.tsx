@@ -12,6 +12,13 @@ import { useMobileTheme } from "../../host"
 import { MobileText } from "../primitive/text"
 import { metrics } from "../../tokens"
 import { springTo } from "../../motion"
+import { hitSlopFor } from "../../utils"
+
+/**
+ * The drawn height of one segment. Shorter than the 44pt floor on purpose, to
+ * match the web design system's control heights — `hitSlopFor` closes the gap.
+ */
+const SEGMENT_HEIGHT = 36
 
 export interface MobileSegmentedControlOption {
   /**
@@ -150,6 +157,17 @@ export function MobileSegmentedControl({
                 selected: isActive,
                 disabled: isDisabled,
               }}
+              // Vertical only. A horizontal slop would reach into the adjacent
+              // segment, and React Native resolves the overlap in favour of the
+              // last-drawn sibling — which would make the left neighbour partly
+              // untappable. Nothing sits above or below a segment inside the
+              // track, so vertical slop is free.
+              hitSlop={{
+                top: hitSlopFor(SEGMENT_HEIGHT),
+                bottom: hitSlopFor(SEGMENT_HEIGHT),
+                left: 0,
+                right: 0,
+              }}
               style={styles.segment}
             >
               <MobileText
@@ -195,7 +213,7 @@ const styles = StyleSheet.create({
   },
   segment: {
     flex: 1,
-    minHeight: 36,
+    minHeight: SEGMENT_HEIGHT,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 4,

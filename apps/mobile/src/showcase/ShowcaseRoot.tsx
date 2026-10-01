@@ -1,71 +1,93 @@
 import * as React from "react"
-import {
-  ScrollView,
-  StyleSheet,
-  View,
-  type LayoutChangeEvent,
-  type NativeScrollEvent,
-  type NativeSyntheticEvent,
-} from "react-native"
+import { Animated, ScrollView, StyleSheet, View } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { SafeAreaView } from "react-native-safe-area-context"
 import {
   MobileButton,
+  MobileCard,
+  MobileCardDescription,
+  MobileCardHeader,
+  MobileCardTitle,
+  MobileNavBar,
+  MobilePressableScale,
   MobileText,
+  SPRING_ENTRANCE,
+  springTo,
   useMobileTheme,
 } from "@celestia-project/mobile"
-import {
-  ActiveSectionProvider,
-  SectionKeyProvider,
-  ShowcaseNavProvider,
-  ShowcaseNavSheet,
-  type ShowcaseNavEntry,
-  type ShowcaseNavValue,
-} from "./nav"
 import { findScreenPreview } from "./screens-preview"
 import { SHOWCASE_SECTIONS } from "./sections"
 import type { ShowcaseContext } from "./types"
-import { ShowcaseSectionHeader, SPACE, Spacer } from "./ui"
+import { SPACE, Spacer } from "./ui"
 
 /**
  * The showcase shell.
  *
- * It owns the three pieces of state the gallery needs — the active colour scheme
- * (lifted to `App.tsx` so it can be forced onto `MobileHost`), the currently open
- * screen preview, and the jump menu — and nothing else.
+ * Three kinds of page live in a small stack:
  *
- * The preview is rendered **instead of** the gallery, never on top of it. The
- * layout screens provide their own safe-area padding and their own scroll view,
- * so mounting one inside the gallery's `SafeAreaView` would inset it twice and
- * make every screen look subtly wrong in a way that is easy to blame on the
- * component.
+ * - **home** — the browse menu: one launcher card per section.
+ * - **section** — one section's specimens on their own page.
+ * - **preview** — a full-screen layout module, opened from the Screens section.
  *
- * Navigation is *measured*, not hardcoded — see `nav.tsx` for why.
+ * Navigation is a **single bottom bar owned by the shell, not by the pages**.
+ * The back affordance, the current title and the theme toggle therefore sit in
+ * the same place on every screen instead of moving around with the route, and
+ * the bar lives outside the stack so pushing a section does not slide it.
+ * Previews hide it: they own their whole frame.
+ *
+ * The stack is hand-rolled rather than a router for the same reason the
+ * showcase smuggles no other dependency: it is a demo host, and the three
+ * routes above are all it will ever need.
+ *
+ * The rule that gives the navigation its behaviour: **covered pages stay
+ * mounted.** Every page is an opaque absolute-fill box and later siblings draw
+ * on top, so a covered page keeps its scroll view — and its scroll offset —
+ * alive underneath. Going back therefore never re-mounts what was underneath
+ * and never resets it to the top. That is the fix for the old single-scroll
+ * gallery, whose full-screen previews *replaced* it and unmounted the scroll
+ * position with it.
+ *
+ * This is also where the old jump menu died. It was a `MobileBottomSheet`,
+ * which hosts a real SwiftUI / Compose presentation: React Native children
+ * render inside a hosted sheet but never receive touches, so its rows were
+ * dead on device. The browse menu is now an ordinary page of ordinary
+ * pressables, which is clickable on every platform by construction.
+ *
+ * Layout screens provide their own safe-area padding and their own scroll
+ * view, so a preview renders as its own layer — never inside a section page's
+ * `SafeAreaView`, which would inset it twice.
  */
-
-/** How far above a target the scroll settles, so a heading is never flush to the edge. */
-const JUMP_INSET = 8
-
-/** How far a section must reach the top before the menu calls it current. */
-const ACTIVE_THRESHOLD = 72
 
 /**
  * The gallery's maximum column width.
  *
  * These are *mobile* components, so an unconstrained column misrepresents them:
  * at a desktop viewport the cards ran the full width, which stretched every
- * description to a 120-character line and blew the bottom bar's two buttons up
- * to ~500px each. Capping the column keeps the specimens at the width they are
- * designed for and keeps the gallery reading as a workbench at every viewport,
- * which is the whole point of the product brief.
+ * description to a 120-character line. Capping the column keeps the specimens
+ * at the width they are designed for at every viewport.
  *
  * 640 is the largest width at which a specimen's inner rows — a label column
  * plus a control — still read as a pair rather than as two distant columns.
  */
 const COLUMN_MAX_WIDTH = 640
 
-/** The section the gallery opens on, and the fallback when nothing else matches. */
-const FIRST_SECTION_KEY = SHOWCASE_SECTIONS[0]?.key ?? ""
+/** One entry in the page stack. The bottom of the stack is always `home`. */
+type Route =
+  | { kind: "home" }
+  | { kind: "section"; key: string }
+  | { kind: "preview"; key: string }
+
+/** Stable React key for a stack entry, so covered pages never remount. */
+function routeKey(route: Route): string {
+  switch (route.kind) {
+    case "home":
+      return "home"
+    case "section":
+      return `section:${route.key}`
+    case "preview":
+      return `preview:${route.key}`
+  }
+}
 
 export interface ShowcaseRootProps {
   /** Flip the forced colour scheme. The scheme itself lives in `App.tsx`. */
@@ -73,21 +95,26 @@ export interface ShowcaseRootProps {
 }
 
 export function ShowcaseRoot({ onToggleTheme }: ShowcaseRootProps) {
-  const { colorScheme, colors } = useMobileTheme()
-  const [previewKey, setPreviewKey] = React.useState<string | null>(null)
+  const { colorScheme } = useMobileTheme()
+  const [stack, setStack] = React.useState<Route[]>([{ kind: "home" }])
 
-  // An unknown key resolves to `undefined` and falls through to the gallery,
-  // which is a better failure mode than a blank screen.
-  const preview =
-    previewKey === null ? undefined : findScreenPreview(previewKey)
-
-  const openPreview = React.useCallback((key: string) => {
-    setPreviewKey(key)
+  const push = React.useCallback((route: Route) => {
+    setStack((current) => [...current, route])
   }, [])
 
-  const closePreview = React.useCallback(() => {
-    setPreviewKey(null)
+  const pop = React.useCallback(() => {
+    setStack((current) => (current.length > 1 ? current.slice(0, -1) : current))
   }, [])
+
+  const openSection = React.useCallback(
+    (key: string) => push({ kind: "section", key }),
+    [push]
+  )
+
+  const openPreview = React.useCallback(
+    (key: string) => push({ kind: "preview", key }),
+    [push]
+  )
 
   const ctx = React.useMemo<ShowcaseContext>(
     () => ({ openPreview, scheme: colorScheme }),
@@ -98,255 +125,348 @@ export function ShowcaseRoot({ onToggleTheme }: ShowcaseRootProps) {
   // background in one of the two schemes.
   const statusBarStyle = colorScheme === "dark" ? "light" : "dark"
 
-  // ---------------------------------------------------------------------------
-  // Jump menu
-  // ---------------------------------------------------------------------------
+  const top = stack[stack.length - 1]
+  const canGoBack = stack.length > 1
 
-  const scrollRef = React.useRef<ScrollView>(null)
-  /** The single child of the `ScrollView`; anchors are measured against it. */
-  const contentRef = React.useRef<View>(null)
-  const anchors = React.useRef(new Map<string, View | null>())
-  const sectionOffsets = React.useRef(new Map<string, number>())
-  /** Declaration order, which is gallery order — the menu renders it as-is. */
-  const declared = React.useRef<ShowcaseNavEntry[]>([])
-
-  const [menuOpen, setMenuOpen] = React.useState(false)
-  const [menuEntries, setMenuEntries] = React.useState<ShowcaseNavEntry[]>([])
-  const [activeSection, setActiveSection] = React.useState(FIRST_SECTION_KEY)
-  /**
-   * Live specimen tally, so the footer can never go stale the way a
-   * hand-written "44 modules" did. `declareEntry` is idempotent, and this
-   * counts the same deduped list the menu renders from.
-   */
-  const [specimenCount, setSpecimenCount] = React.useState(0)
-
-  const attachAnchor = React.useCallback((key: string, node: View | null) => {
-    if (node) anchors.current.set(key, node)
-    else anchors.current.delete(key)
-  }, [])
-
-  const declareEntry = React.useCallback((entry: ShowcaseNavEntry) => {
-    const list = declared.current
-    if (list.some((existing) => existing.key === entry.key)) return
-    list.push(entry)
-    if (entry.kind === "specimen") {
-      setSpecimenCount(list.filter((item) => item.kind === "specimen").length)
-    }
-  }, [])
-
-  const reportSectionOffset = React.useCallback((key: string, y: number) => {
-    sectionOffsets.current.set(key, y)
-  }, [])
-
-  /**
-   * Scrolls so `key` sits `JUMP_INSET` below the top of the viewport.
-   *
-   * Both nodes are measured in **window** coordinates, so their difference is the
-   * anchor's offset within the scroll content regardless of how far the gallery is
-   * scrolled when the menu is used. Summing `onLayout` offsets would instead
-   * require knowing every level of nesting between the anchor and the content.
-   */
-  const jumpTo = React.useCallback((key: string) => {
-    const anchor = anchors.current.get(key)
-    const content = contentRef.current
-    const scroller = scrollRef.current
-    if (!anchor || !content || !scroller) return
-
-    anchor.measureInWindow((_ax, anchorY) => {
-      content.measureInWindow((_cx, contentY) => {
-        scroller.scrollTo({
-          y: Math.max(0, anchorY - contentY - JUMP_INSET),
-          animated: true,
-        })
-      })
-    })
-  }, [])
-
-  const handleScroll = React.useCallback(
-    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const y = event.nativeEvent.contentOffset.y
-      let current = FIRST_SECTION_KEY
-
-      for (const section of SHOWCASE_SECTIONS) {
-        const offset = sectionOffsets.current.get(section.key)
-        if (offset !== undefined && y >= offset - ACTIVE_THRESHOLD) {
-          current = section.key
-        }
-      }
-
-      setActiveSection((previous) =>
-        previous === current ? previous : current
-      )
-    },
-    []
-  )
-
-  const openMenu = React.useCallback(() => {
-    // Snapshot on open. The gallery is a plain `ScrollView`, so every section and
-    // specimen has already mounted and declared itself by the time this runs.
-    setMenuEntries([...declared.current])
-    setMenuOpen(true)
-  }, [])
-
-  const closeMenu = React.useCallback(() => setMenuOpen(false), [])
-
-  const handleSelect = React.useCallback(
-    (key: string) => {
-      setMenuOpen(false)
-      jumpTo(key)
-    },
-    [jumpTo]
-  )
-
-  const nav = React.useMemo<ShowcaseNavValue>(
-    () => ({ attachAnchor, declareEntry, reportSectionOffset, jumpTo }),
-    [attachAnchor, declareEntry, reportSectionOffset, jumpTo]
-  )
-
-  // Stable ref callbacks, so a re-render never detaches and reattaches an anchor.
-  const sectionRefs = React.useMemo(() => {
-    const make = (key: string) => (node: View | null) => {
-      if (node) anchors.current.set(key, node)
-      else anchors.current.delete(key)
-    }
-    return new Map(
-      SHOWCASE_SECTIONS.map((section) => [section.key, make(section.key)])
-    )
-  }, [])
-
-  const handleSectionLayout = React.useCallback(
-    (key: string) => (event: LayoutChangeEvent) => {
-      reportSectionOffset(key, event.nativeEvent.layout.y)
-    },
-    [reportSectionOffset]
-  )
-
-  // Sections come from the static table, so they can be declared in one pass
-  // instead of each one announcing itself. Declaring them before any specimen
-  // also fixes the group order in the menu, which is otherwise first-declared-first.
-  React.useEffect(() => {
-    for (const section of SHOWCASE_SECTIONS) {
-      declareEntry({
-        key: section.key,
-        title: section.title,
-        sectionKey: section.key,
-        kind: "section",
-      })
-    }
-  }, [declareEntry])
-
-  if (preview) {
-    return (
-      <>
-        <StatusBar style={statusBarStyle} />
-        {preview.render({ onClose: closePreview })}
-      </>
-    )
-  }
+  // A preview owns its whole frame *and* its own safe-area padding, so the
+  // shared bar would inset it a second time; the layout screens carry their own
+  // close affordance instead.
+  const showBar = top?.kind !== "preview"
+  // "Browse", not "Mobile UI": the bar names where you are, and the home page
+  // already carries the app name as its `display` heading directly above it.
+  // It also pairs with the back affordance's own label.
+  const title =
+    top?.kind === "section"
+      ? (SHOWCASE_SECTIONS.find((item) => item.key === top.key)?.title ??
+        "Browse")
+      : "Browse"
 
   return (
-    <ShowcaseNavProvider value={nav}>
-      <ActiveSectionProvider value={activeSection}>
-        <SafeAreaView
-          style={[styles.gallery, { backgroundColor: colors.background }]}
-          edges={["top", "bottom"]}
-        >
-          <StatusBar style={statusBarStyle} />
+    <View style={styles.root}>
+      <StatusBar style={statusBarStyle} />
 
-          <ScrollView
-            ref={scrollRef}
-            style={styles.scroll}
-            contentContainerStyle={styles.galleryContent}
-            showsVerticalScrollIndicator={false}
-            onScroll={handleScroll}
-            scrollEventThrottle={16}
-            // Without this, the first tap after focusing a field only dismisses the
-            // keyboard and the user has to tap a second time to hit the control.
-            keyboardShouldPersistTaps="handled"
-          >
-            <View ref={contentRef} style={styles.column}>
-              <View style={styles.header}>
-                <MobileText variant="label" color="muted">
-                  CELESTIA STARTER
-                </MobileText>
-                <MobileText variant="display">Mobile UI</MobileText>
-              </View>
+      {/* The stack takes the height the bar leaves, which is what bounds every
+          page's scroll view. */}
+      <View style={styles.stack}>
+        {stack.map((route, index) => (
+          <StackLayer key={routeKey(route)} covered={index < stack.length - 1}>
+            {route.kind === "home" ? (
+              <BrowseHome onOpenSection={openSection} />
+            ) : route.kind === "section" ? (
+              <SectionPage sectionKey={route.key} ctx={ctx} onBack={pop} />
+            ) : (
+              <PreviewPage previewKey={route.key} onClose={pop} />
+            )}
+          </StackLayer>
+        ))}
+      </View>
 
-              <MobileText variant="callout" color="muted">
-                Every module in @celestia-project/mobile, grouped by role. Use
-                the bar at the bottom of the screen to jump straight to a
-                section or a component; tap any screen in the last section to
-                open it full-screen.
-              </MobileText>
-
-              {SHOWCASE_SECTIONS.map((section, index) => (
-                <SectionKeyProvider key={section.key} value={section.key}>
-                  <View
-                    ref={sectionRefs.get(section.key)}
-                    onLayout={handleSectionLayout(section.key)}
-                  >
-                    <ShowcaseSectionHeader
-                      index={index + 1}
-                      title={section.title}
-                      summary={section.summary}
-                    />
-                    <section.Component ctx={ctx} />
-                  </View>
-                </SectionKeyProvider>
-              ))}
-
-              <Spacer size={SPACE.section} />
-
-              <MobileText variant="caption" color="muted" align="center">
-                {`${SHOWCASE_SECTIONS.length} sections · ${specimenCount} specimens · @celestia-project/mobile`}
-              </MobileText>
-              <Spacer size={SPACE.block} />
-            </View>
-          </ScrollView>
-
-          {/* Sticky by construction: the bar is a sibling of the `ScrollView` in
-              normal flow, so it never scrolls and the scroll view simply gets
-              whatever height is left. No `position: absolute`, no overlay, and
-              nothing to keep in sync when the content grows. */}
-          <View
-            style={[
-              styles.bottomBar,
-              { borderTopColor: colors.border, backgroundColor: colors.card },
-            ]}
-          >
-            <View style={styles.barRow}>
-              <MobileButton
-                variant="outline"
-                containerStyle={styles.barButton}
-                onPress={openMenu}
-                testID="showcase-nav-button"
-              >
-                Browse
-              </MobileButton>
-              <MobileButton
-                variant="outline"
-                containerStyle={styles.barButton}
-                onPress={onToggleTheme}
-              >
-                {colorScheme === "dark" ? "☀️ Light" : "🌙 Dark"}
-              </MobileButton>
-            </View>
-          </View>
-        </SafeAreaView>
-
-        <ShowcaseNavSheet
-          isPresented={menuOpen}
-          onDismiss={closeMenu}
-          entries={menuEntries}
-          onSelect={handleSelect}
+      {showBar ? (
+        <ShowcaseNavBar
+          title={title}
+          onBack={canGoBack ? pop : undefined}
+          colorScheme={colorScheme}
+          onToggleTheme={onToggleTheme}
         />
-      </ActiveSectionProvider>
-    </ShowcaseNavProvider>
+      ) : null}
+    </View>
   )
 }
 
+/**
+ * The showcase's navigation, at the bottom of every page.
+ *
+ * One bar for the whole app rather than chrome per page: the back affordance,
+ * the current section's title and the theme toggle sit in the same place on
+ * every screen, so the chrome never moves as you navigate. It lives *outside*
+ * the page stack, so pushing a section does not slide it — and so a covered
+ * page can never own it.
+ *
+ * It is a `MobileNavBar` with its rule flipped. The wrapper owns the surface,
+ * the top hairline and the bottom safe-area inset; the nav bar keeps owning the
+ * 1/2/1 slot layout that actually centres the title.
+ */
+function ShowcaseNavBar({
+  title,
+  onBack,
+  colorScheme,
+  onToggleTheme,
+}: {
+  title: string
+  onBack?: () => void
+  colorScheme: "light" | "dark"
+  onToggleTheme: () => void
+}) {
+  const { colors } = useMobileTheme()
+  const goingDark = colorScheme === "light"
+
+  return (
+    <SafeAreaView
+      edges={["bottom"]}
+      testID="showcase-navbar"
+      style={[
+        styles.navBar,
+        { backgroundColor: colors.card, borderTopColor: colors.border },
+      ]}
+    >
+      <MobileNavBar
+        bordered={false}
+        style={styles.navBarInner}
+        title={title}
+        onBack={onBack}
+        backAccessibilityLabel="Back to browse"
+        right={
+          <MobileButton
+            variant="outline"
+            size="sm"
+            onPress={onToggleTheme}
+            accessibilityLabel={
+              goingDark ? "Switch to dark theme" : "Switch to light theme"
+            }
+          >
+            {goingDark ? "🌙 Dark" : "☀️ Light"}
+          </MobileButton>
+        }
+      />
+    </SafeAreaView>
+  )
+}
+
+/**
+ * One mounted page in the stack.
+ *
+ * A covered layer keeps rendering — that is what preserves its scroll — but
+ * its touches are disabled and it is hidden from screen readers, so only the
+ * active page is interactive. New layers arrive on `SPRING_ENTRANCE`: a short
+ * slide with a small overshoot, which reads as a push without pretending to be
+ * a full navigation transition. Going back is deliberately instant — the page
+ * underneath never unmounted, so there is nothing to animate back into place.
+ */
+function StackLayer({
+  covered,
+  children,
+}: {
+  covered: boolean
+  children: React.ReactNode
+}) {
+  const enter = React.useRef(new Animated.Value(0)).current
+
+  React.useEffect(() => {
+    springTo(enter, 1, SPRING_ENTRANCE).start()
+  }, [enter])
+
+  return (
+    <Animated.View
+      // A stable hook for the screenshot harness: the active layer is the only
+      // one that is not covered, and reaching it by walking up from a control
+      // stops working once the bar lives outside the stack.
+      testID={covered ? undefined : "showcase-layer-active"}
+      pointerEvents={covered ? "none" : "auto"}
+      accessibilityElementsHidden={covered}
+      importantForAccessibility={covered ? "no-hide-descendants" : "yes"}
+      style={[
+        styles.layer,
+        {
+          opacity: enter,
+          transform: [
+            {
+              translateX: enter.interpolate({
+                inputRange: [0, 1],
+                outputRange: [24, 0],
+              }),
+            },
+          ],
+        },
+      ]}
+    >
+      {children}
+    </Animated.View>
+  )
+}
+
+/**
+ * The browse menu — the page the showcase opens on.
+ *
+ * One launcher card per section, in `SHOWCASE_SECTIONS` order, built from the
+ * same launcher composition the Screens section teaches: a header-only card
+ * wrapped in `MobilePressableScale`, one tap target, chevron on the right.
+ *
+ * It owns no chrome of its own — the theme toggle that used to sit in a bar
+ * here is in the shared bottom bar now, so it is reachable from every page.
+ */
+function BrowseHome({
+  onOpenSection,
+}: {
+  onOpenSection: (key: string) => void
+}) {
+  const { colors } = useMobileTheme()
+
+  return (
+    <SafeAreaView
+      style={[styles.page, { backgroundColor: colors.background }]}
+      edges={["top"]}
+    >
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.pageContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.column}>
+          <View style={styles.header}>
+            <MobileText variant="label" color="muted">
+              CELESTIA STARTER
+            </MobileText>
+            <MobileText variant="display">Mobile UI</MobileText>
+          </View>
+
+          <MobileText variant="callout" color="muted">
+            Every module in @celestia-project/mobile, grouped by role. Pick a
+            section to browse its specimens; the Screens section opens each
+            layout full-screen.
+          </MobileText>
+
+          {SHOWCASE_SECTIONS.map((section, index) => (
+            <MobilePressableScale
+              key={section.key}
+              onPress={() => onOpenSection(section.key)}
+              accessibilityLabel={`Open the ${section.title} section`}
+              containerStyle={styles.launcher}
+            >
+              <MobileCard style={styles.launcherCard}>
+                <MobileCardHeader>
+                  <View style={styles.launcherRow}>
+                    <MobileText
+                      variant="caption"
+                      color="muted"
+                      tabular
+                      style={styles.launcherIndex}
+                    >
+                      {String(index + 1).padStart(2, "0")}
+                    </MobileText>
+                    <View style={styles.launcherText}>
+                      <MobileCardTitle>{section.title}</MobileCardTitle>
+                      <MobileCardDescription>
+                        {section.summary}
+                      </MobileCardDescription>
+                    </View>
+                    <MobileText variant="title" color="muted">
+                      ›
+                    </MobileText>
+                  </View>
+                </MobileCardHeader>
+              </MobileCard>
+            </MobilePressableScale>
+          ))}
+
+          <Spacer size={SPACE.section} />
+
+          <MobileText variant="caption" color="muted" align="center">
+            {`${SHOWCASE_SECTIONS.length} sections · @celestia-project/mobile`}
+          </MobileText>
+          <Spacer size={SPACE.block} />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  )
+}
+
+/**
+ * One section's specimens on their own page.
+ *
+ * The page owns no navigation: the section's title and the back affordance are
+ * in the shared bottom bar, so a section opens straight onto its summary and
+ * its first specimen. The body is the same section component the old
+ * single-scroll gallery rendered, unchanged.
+ */
+function SectionPage({
+  sectionKey,
+  ctx,
+  onBack,
+}: {
+  sectionKey: string
+  ctx: ShowcaseContext
+  onBack: () => void
+}) {
+  const { colors } = useMobileTheme()
+  const section = SHOWCASE_SECTIONS.find((item) => item.key === sectionKey)
+
+  // An unknown key pops instead of rendering a dead page — the same failure
+  // philosophy as the preview registry's.
+  React.useEffect(() => {
+    if (!section) onBack()
+  }, [section, onBack])
+
+  if (!section) return null
+
+  return (
+    <SafeAreaView
+      style={[styles.page, { backgroundColor: colors.background }]}
+      edges={["top"]}
+    >
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.pageContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.column}>
+          <MobileText
+            variant="callout"
+            color="muted"
+            style={styles.sectionSummary}
+          >
+            {section.summary}
+          </MobileText>
+          <section.Component ctx={ctx} />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  )
+}
+
+/**
+ * A full-screen layout module, opened from the Screens section.
+ *
+ * The preview is its own stack layer — never inside a section page — because
+ * the layout screens own their whole frame. Underneath it, the section page
+ * stays mounted, so closing the preview returns to the exact place the tap
+ * left it.
+ */
+function PreviewPage({
+  previewKey,
+  onClose,
+}: {
+  previewKey: string
+  onClose: () => void
+}) {
+  const preview = findScreenPreview(previewKey)
+
+  React.useEffect(() => {
+    if (!preview) onClose()
+  }, [preview, onClose])
+
+  if (!preview) return null
+  return <>{preview.render({ onClose })}</>
+}
+
 const styles = StyleSheet.create({
-  gallery: {
+  root: {
+    flex: 1,
+  },
+  /** The region the bottom bar leaves. Every page fills exactly this. */
+  stack: {
+    flex: 1,
+  },
+  /** Every page is an opaque absolute-fill box; later siblings draw on top. */
+  layer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  page: {
     flex: 1,
   },
   /** Takes the height the bottom bar leaves, which is what bounds the scroll. */
@@ -358,15 +478,10 @@ const styles = StyleSheet.create({
    * card's padding back — line up with it by construction rather than by a
    * hand-matched `-16`.
    */
-  galleryContent: {
+  pageContent: {
     paddingHorizontal: SPACE.block,
     paddingTop: SPACE.row,
     paddingBottom: SPACE.label,
-  },
-  header: {
-    gap: 2,
-    marginTop: SPACE.label,
-    marginBottom: SPACE.row,
   },
   /** Centred and capped, so a wide viewport cannot stretch the specimens. */
   column: {
@@ -374,22 +489,47 @@ const styles = StyleSheet.create({
     maxWidth: COLUMN_MAX_WIDTH,
     alignSelf: "center",
   },
-  bottomBar: {
-    paddingHorizontal: SPACE.block,
-    paddingVertical: SPACE.row,
+  header: {
+    gap: 2,
+    marginTop: SPACE.label,
+    marginBottom: SPACE.row,
+  },
+  /** The launcher wrapper has to fill the column, not shrink-wrap the card. */
+  launcher: {
+    alignSelf: "stretch",
+  },
+  /**
+   * Launcher cards own the page's rhythm the way specimens do: flat top,
+   * block bottom, so the gap between cards never doubles.
+   */
+  launcherCard: {
+    marginTop: 0,
+    marginBottom: SPACE.block,
+  },
+  launcherRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: SPACE.row,
+  },
+  launcherIndex: {
+    width: 24,
+    marginTop: 2,
+  },
+  launcherText: {
+    flex: 1,
+  },
+  sectionSummary: {
+    marginBottom: SPACE.row,
+  },
+  /** The rule spans the window; the bar's contents stay on the column. */
+  navBar: {
     borderTopWidth: 1,
   },
-  /** The bar's rule spans the window; its contents stay on the column. */
-  barRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: SPACE.label,
+  navBarInner: {
     width: "100%",
     maxWidth: COLUMN_MAX_WIDTH,
     alignSelf: "center",
-  },
-  /** Both controls share the width evenly, so neither reads as the afterthought. */
-  barButton: {
-    flex: 1,
+    // The wrapper owns the surface; the nav bar must not paint its own.
+    backgroundColor: "transparent",
   },
 })

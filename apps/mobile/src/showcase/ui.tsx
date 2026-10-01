@@ -10,7 +10,6 @@ import {
   MobileText,
   useMobileTheme,
 } from "@celestia-project/mobile"
-import { useSectionKey, useShowcaseNav } from "./nav"
 import { SPACE } from "./spacing"
 
 /**
@@ -33,28 +32,6 @@ import { SPACE } from "./spacing"
  * Defined in `./spacing` — see that module for why it is not defined here.
  */
 export { SPACE }
-
-export function ShowcaseSectionHeader({
-  index,
-  title,
-  summary,
-}: {
-  index: number
-  title: string
-  summary: string
-}) {
-  return (
-    <View style={styles.sectionHeader}>
-      <MobileText variant="label" color="muted">
-        {String(index).padStart(2, "0")}
-      </MobileText>
-      <MobileText variant="heading">{title}</MobileText>
-      <MobileText variant="callout" color="muted" style={styles.sectionSummary}>
-        {summary}
-      </MobileText>
-    </View>
-  )
-}
 
 /**
  * The label above a sub-demo inside a specimen — "Sizes", "Disabled", "Bar —
@@ -90,12 +67,6 @@ export function DemoLabel({
 /**
  * A titled card wrapping one demonstration, with the module path printed
  * underneath so it is obvious which import produced the result.
- *
- * Each specimen files itself with the jump menu (`nav.tsx`) as it mounts — it
- * knows its own title, and the section key arrives by context — so the menu is
- * assembled from what actually rendered rather than from a second hand-kept list
- * that could drift. The wrapper `View` exists only to give `jumpTo` a node it can
- * measure: `MobileCard` takes no ref.
  *
  * `bleed` drops the card's content padding so a demo that needs the full width
  * of the card — the nav bars, which draw their own edge-to-edge chrome — does
@@ -133,25 +104,7 @@ export function Specimen({
   onPress?: () => void
   children?: React.ReactNode
 }) {
-  const nav = useShowcaseNav()
-  const sectionKey = useSectionKey()
-
-  const anchorKey = `specimen:${sectionKey}:${title}`
   const hasContent = React.Children.count(children) > 0
-
-  React.useEffect(() => {
-    nav?.declareEntry({
-      key: anchorKey,
-      title,
-      sectionKey,
-      kind: "specimen",
-    })
-  }, [nav, anchorKey, title, sectionKey])
-
-  const setAnchor = React.useCallback(
-    (node: View | null) => nav?.attachAnchor(anchorKey, node),
-    [nav, anchorKey]
-  )
 
   // A launcher has no content, so its module path belongs in the header block
   // rather than in a content area that does not exist.
@@ -205,23 +158,21 @@ export function Specimen({
     </MobileCard>
   )
 
-  return (
-    <View ref={setAnchor}>
-      {onPress ? (
-        <MobilePressableScale
-          onPress={onPress}
-          accessibilityLabel={title}
-          // The press wrapper's own default is `alignSelf: flex-start`, which
-          // would shrink-wrap the card; the launcher has to fill the column.
-          containerStyle={styles.launcher}
-        >
-          {card}
-        </MobilePressableScale>
-      ) : (
-        card
-      )}
-    </View>
-  )
+  if (onPress) {
+    return (
+      <MobilePressableScale
+        onPress={onPress}
+        accessibilityLabel={title}
+        // The press wrapper's own default is `alignSelf: flex-start`, which
+        // would shrink-wrap the card; the launcher has to fill the column.
+        containerStyle={styles.launcher}
+      >
+        {card}
+      </MobilePressableScale>
+    )
+  }
+
+  return card
 }
 
 /** Vertical stack with a consistent gap. */
@@ -317,19 +268,6 @@ export function Readout({ label, value }: { label: string; value: string }) {
 }
 
 const styles = StyleSheet.create({
-  /**
-   * `section` above, `row` below. The asymmetry is the hierarchy: a heading sits
-   * closer to its own first card than to the section before it, so the grouping
-   * is legible without a rule or a divider.
-   */
-  sectionHeader: {
-    marginTop: SPACE.section,
-    marginBottom: SPACE.row,
-    gap: 2,
-  },
-  sectionSummary: {
-    marginTop: 2,
-  },
   /**
    * The card's own `marginVertical` is neutralised so `Specimen` owns the
    * rhythm. `MobileCard` ships `marginVertical: 6`, which combined with the old

@@ -1,11 +1,11 @@
 ---
 title: Mobile (Expo)
-description: 130 native iOS and Android UI modules — primitives, composites and layout screens — drawn in React Native with spring animation, and hosted through @expo/ui where a real platform view wins
+description: 157 native iOS and Android UI modules — primitives, composites, AI surfaces and layout screens — drawn in React Native with spring animation, and hosted through @expo/ui where a real platform view wins
 icon: smartphone
 ---
 
 `@celestia-project/mobile` is the native counterpart to `@celestia-project/ui`: a component
-library for Expo apps with **130 modules**. A small set of components hosts **real platform
+library for Expo apps with **157 modules**. A small set of components hosts **real platform
 views** — SwiftUI on iOS, Jetpack Compose on Android — through `@expo/ui`; the rest are drawn
 in React Native and animated through a centralized `motion` module — named spring presets over
 core `Animated` (the house spring `SPRING` is damping 18 / mass 1 / stiffness 320) plus
@@ -14,13 +14,13 @@ procedural loops for spinners, pulses and indeterminate progress. `MobileSwitch`
 
 <Callout type="info" title="Looking for the visual tour?">
 This page is the technical reference — install, peer dependencies, platform support, API.
-For the token ramp, the component index and a gallery of the screens, see the dedicated
+For the token ramp and a gallery of the screens, see the dedicated
 **[Mobile showcase](/mobile)** surface.
 </Callout>
 
 It is not a port of the web library. The web components assume a DOM, hover states and a CSS
 box model; the mobile components assume a thumb, a safe area and a touch target floor. What the
-two packages share is the **taxonomy** (the same `primitive` / `composite` / `layout` split) and
+two packages share is the **taxonomy** (the same `primitive` / `composite` / `ai` / `layout` split) and
 the **design tokens**, so a component sits in the same mental bucket whichever library you are in.
 
 <Callout type="info" title="Routing- and data-agnostic by contract">
@@ -75,6 +75,7 @@ every component in this package imports.
 |---|-----|---------|-----|
 | Hosted `@expo/ui` components (`MobileHost`, `MobileList`, `MobileBottomSheet`) | ✅ SwiftUI | ✅ Compose | ✅ DOM equivalents |
 | Rest of the package (plain React Native) | ✅ | ✅ | ✅ via `react-native-web` |
+| Skia-drawn components (`MobileSparkline`, `MobileChartBar` / `-Line` / `-Pie` / `-Scatter`, `MobileProgressRing`) | ✅ native Skia | ✅ native Skia | ✅ CanvasKit WASM — needs the bootstrap under [Enabling web](#enabling-web) |
 | `apps/mobile` showcase | ✅ | ✅ | ✅ |
 
 `@expo/ui@57` exposes three entry points, and *which one you import* decides whether web works:
@@ -114,8 +115,83 @@ and `app.json` has to declare the web bundler:
 "web": { "bundler": "metro", "output": "single" }
 ```
 
-Both are already in place, so `pnpm --filter mobile web` serves the showcase in a browser. Two
-things to know:
+Both are already in place, so `pnpm --filter mobile web` serves the showcase in a browser.
+
+### The Skia runtime
+
+Everything else in the package is plain React Native, but six components are drawn with Skia:
+`MobileSparkline`, `MobileChartBar`, `MobileChartLine`, `MobileChartPie`, `MobileChartScatter` and
+`MobileProgressRing`. On iOS and Android Skia is a native module that ships with the app. In the
+browser it is **CanvasKit** — a WebAssembly build of Skia that has to be fetched and instantiated
+before anything drawn with Skia can render.
+
+#### Defer the import, not the render
+
+This is the part that is easy to get wrong. `Skia` is not a lazy getter, it is a module-level
+constant:
+
+```js
+// @shopify/react-native-skia/lib/module/skia/Skia.web.js
+export const Skia = JsiSkApi(global.CanvasKit)
+```
+
+Whatever `global.CanvasKit` holds the moment that module is first evaluated is what `Skia` stays
+forever. So importing the app before CanvasKit is ready does not give you a slow first chart — it
+gives you `Cannot read properties of undefined (reading 'PathBuilder')` the first time a Skia
+component mounts, which unmounts the entire tree and leaves a blank page. Waiting at render time
+cannot help, because by then the module has already been evaluated. **The `import` itself has to be
+deferred**, which is why `apps/mobile` splits its entry point in two:
+
+| File | Target | Job |
+|------|--------|-----|
+| `index.ts` | both | `registerRootComponent(Root)` — and nothing else |
+| `src/Root.tsx` | native | re-exports `./App`; Skia is already installed |
+| `src/Root.web.tsx` | web | loads CanvasKit, then `await import("./App")` |
+
+```tsx
+// apps/mobile/src/Root.web.tsx (abridged)
+export function Root() {
+  const [app, setApp] = React.useState<React.ComponentType | null>(null)
+
+  React.useEffect(() => {
+    void (async () => {
+      await LoadSkiaWeb({ locateFile: () => canvaskitWasm })
+      const { default: App } = await import("./App")
+      setApp(() => App)
+    })()
+  }, [])
+
+  return app === null ? <LoadingScreen /> : <App />
+}
+```
+
+Metro picks `Root.web.tsx` over `Root.tsx` by platform extension, so `App.tsx` itself stays
+Skia-agnostic — it is the same five-provider tree on every target.
+
+Two consequences worth knowing:
+
+- **The loading screen may only use Skia-free imports.** It renders with the real theme, so it uses
+  `@celestia-project/mobile/host` and `.../primitive/spinner` — the deep entry points — rather than
+  the root barrel, which also re-exports the chart components. Same reason `.../composite/alert` is
+  imported directly for the failure state.
+- **The dynamic import is what splits the bundle.** `expo export` emits an initial chunk
+  (`index-*.js`, ~860 KB: React Native Web, the theme layer and the CanvasKit glue) plus an async
+  chunk (`App-*.js`, ~2.5 MB: the gallery and Skia). Nothing Skia-shaped is in the initial chunk, so
+  the loading screen paints without it.
+
+The wasm is imported as a **Metro asset**, so `metro.config.js` has to register the extension:
+
+```js
+config.resolver.assetExts.push("wasm")
+```
+
+Metro then emits the binary into the bundle's asset folder and the import resolves to its URL, which
+is what `locateFile` hands back. This behaves identically under `expo start` and `expo export`. The
+alternative in Skia's own docs is `npx setup-skia-web`, which copies the binary into `public/` and
+lets emscripten's default `locateFile` find it next to `index.html` — that needs a build step and a
+7 MB file in the repository, so the asset import is preferred here.
+
+Two things to know:
 
 - **Props marked `@platform ios` / `@platform android` are inert on web.** `MobileList`'s
   `onRefresh` is the one in this package: the prop is accepted and ignored, because there is no
@@ -123,7 +199,7 @@ things to know:
 - **Web is a preview surface, not a port.** The DOM rendering comes from `@expo/ui` and
   `react-native-web`, so it is close to, but not pixel-identical with, the SwiftUI / Compose
   rendering. When a feature needs a first-class web implementation, use `@celestia-project/ui`;
-  the two libraries share design tokens and the primitive / composite / layout taxonomy precisely
+  the two libraries share design tokens and the primitive / composite / ai / layout taxonomy precisely
   so that the same screen can have a native and a browser implementation.
 
 <Callout type="info" title="Publishing">
@@ -169,6 +245,7 @@ so the two libraries read the same way.
 |----------|-----------|-------------------|---------------|
 | **primitive** | `src/components/primitive/` | Generic building blocks. Each wraps one native control or one plain surface. | *"Would I reach for this in any app?"* |
 | **composite** | `src/components/composite/` | Opinionated assemblies built from primitives. | *"Is this a `<Primitive>` with a specific job?"* |
+| **ai** | `src/components/ai/` | Assistant, agent and generative surfaces — transcript, composer, model and context controls, grounding and feedback. | *"Does it only make sense next to a model?"* |
 | **layout** | `src/components/layout/` | Full-screen shells and screens. Own the frame; take content through slots. | *"Does it own the whole screen?"* |
 
 <Callout type="note" title="“Primitive” means generic, not atomic">
@@ -222,6 +299,35 @@ Charts: `MobileChartScatter` · `MobileChartBar` · `MobileChartLine` · `Mobile
 
 Skeletons: `MobileSkeletonCard` · `MobileSkeletonList` · `MobileSkeletonProfile`
 
+### ai — 27 modules
+
+Conversation: `MobileAiMessage` (role-aware turn — user bubble, unboxed assistant row, centred
+system note, tool card) · `MobileStreamingText` (text with a blinking caret while tokens arrive) ·
+`MobileTypingIndicator` · `MobileAiSkeletonMessage` · `MobileAiAvatar` (idle / thinking / streaming /
+speaking / error ring) · `MobileThinkingBlock` (collapsible reasoning trace) · `MobileToolCallCard`
+(tool invocation with arguments, result and lifecycle status) · `MobileCodeBlock` (monospace output,
+horizontal scroll, `maxLines` truncation)
+
+Grounding & feedback: `MobileCitationChip` · `MobileSourceList` · `MobileAiFeedbackBar`
+(copy / regenerate / share / reversible thumbs) · `MobileAiCopyButton` · `MobileAiErrorCard`
+(per-kind copy, retry suppressed where it cannot help) · `MobileAiDisclaimer`
+
+Composer: `MobilePromptInput` (attachments, model chip, send ⇄ stop in place) · `MobileAttachmentTray` ·
+`MobileVoiceButton` (tap-to-start or push-to-talk) · `MobileAudioWaveform` · `MobileStopButton`
+
+Model & context: `MobileModelSelector` (pill row for the composer, described list for settings) ·
+`MobileTokenMeter` · `MobileSuggestionChips` · `MobilePromptGallery`
+
+Agents & account: `MobileAgentCard` · `MobileAgentTaskRow` (status rail) · `MobileAiUsageCard` ·
+`MobileImageResultCard`
+
+<Callout type="note" title="The AI category is optional by construction">
+Nothing in `primitive`, `composite` or `layout` imports from `ai`, and the directory pulls in no
+new dependency — the mono font the code and tool blocks use is the only platform-level addition.
+An app with no AI feature can ignore the whole folder, and the barrel export costs it nothing but
+a name.
+</Callout>
+
 ### layout — 20 modules
 
 `MobileScreen` · `MobileAuthShell` · `MobileOnboardingScreen` · `MobileSignInScreen` ·
@@ -239,6 +345,7 @@ import { MobileButton, MobileHost } from "@celestia-project/mobile"
 
 // One category
 import { MobileButton } from "@celestia-project/mobile/primitive"
+import { MobilePromptInput, MobileAiMessage } from "@celestia-project/mobile/ai"
 
 // One component
 import { MobileButton } from "@celestia-project/mobile/primitive/button"
@@ -406,7 +513,9 @@ content through slots.
 
 ### The shell + thin-screen split
 
-`MobileScreen` is the base frame. `MobileAuthShell` adds the logo / heading / form / aside /
+`MobileScreen` is the base frame; its body is inset by a default 16pt gutter (the same one the
+pinned footer uses), which `contentContainerStyle` merges over — pass `paddingHorizontal: 0`
+for edge-to-edge content. `MobileAuthShell` adds the logo / heading / form / aside /
 footer arrangement that all five auth screens share. Each auth screen then supplies **only** its
 own fields and defaults:
 
@@ -498,20 +607,26 @@ inserts the row separators for you — so a stray divider after the last row is 
 
 ## Design rules
 
-Every component in this package follows the same non-negotiables. They are enforced by
-convention and review, not by a linter, so they are worth knowing before adding a component:
+Every component in this package follows the same non-negotiables. Rules 1–6 are **measured** —
+`pnpm audit:ui` runs `scripts/ui-audit/mobile-contrast.mjs`, which reads the ramp out of `tokens.ts`
+and fails the build on a regression. The rest are held by convention and review. All of them are
+worth knowing before adding a component:
 
-1. **No hardcoded colours.** Everything reads `useMobileTheme()`; the light and dark ramps are both complete.
-2. **44×44pt minimum touch target** on every interactive element (`metrics.minTouchTarget`). A control drawn shorter to match the web design system — `MobileButton` is 32px — meets the floor with `hitSlop` (`hitSlopFor()` in `src/utils.ts` computes it) rather than by inflating the box.
-3. **Haptics fire on the causal commit frame** — `hapticLight()` for normal presses, `hapticMedium()` for destructive, `hapticSelect()` for toggles (all in `src/utils.ts`). Never on mount.
-4. **16px font floor** on text inputs, to prevent OS viewport zoom.
-5. **Tabular numerals** for counters, prices and timers.
-6. **Icons arrive as props.** The package takes no icon dependency; only structural marks (a tick, a chevron, a magnifier) may be drawn inline. The showcase app is the consumer side of that rule and supplies its own set — see [Icons in the showcase](#icons-in-the-showcase).
-7. **No hover-only affordances.**
-8. **Forms never disable the submit button for empty fields.** It stays pressable and names what is missing; it is disabled only while loading.
-9. **Screens are presentational.** Props in, callbacks out — no fetching, no auth client, no routing.
-10. **Text children are wrapped; composed children are not.** `MobileButton`, `MobileBadge`, `MobileLink`, `MobileCardTitle` and `MobileCardDescription` route their children through `isTextChildren()` (`src/utils.ts`) to decide whether to wrap them in `MobileText`. Never replace it with `typeof children === "string"` or `React.isValidElement(children)`: JSX turns any element with more than one child into an **array** (`+{count}%` becomes `["+", count, "%"]`), and both of those checks mis-classify that array — the first renders bare strings outside a `<Text>` and the second nests a `<View>` inside one. Either way the app crashes at render.
-11. **Animation goes through `src/motion.ts`.** Import the preset whose *intent* matches (`SPRING`, `SPRING_SNAPPY`, `SPRING_ENTRANCE`, …) or the `springTo` / `pressInTiming` / `usePressSpring` helpers — never a hand-typed `damping`/`stiffness` tuple. Raw `Animated.timing` is only for intentional durations (pulses, shakes, fades).
+1. **No hardcoded colours.** Everything reads `useMobileTheme()`; the light and dark ramps are both complete. `tokens.ts` is the only file in the package where a hex literal belongs — a `shadowColor` and a scrim both count, and both are tokens now.
+2. **Status hues have a luminance ceiling of `L_rel <= 0.18333`.** Each of the four status hues is both a *fill* carrying white ink (`MobileBadge`, `MobileTag`, `MobileButton`) and *ink* on a near-white backdrop (`MobileAlert` title, form errors, `MobileProgress` fill). Both roles reduce to the same inequality — `1.05 / (L + 0.05) >= 4.5` — so one value per hue serves both and no token family needs splitting. **Do not lighten a status hue past the ceiling.** The ramp that did failed 19 WCAG AA pairings in light mode while dark passed every one; `pnpm audit:ui` now asserts all 38.
+3. **Derived tokens must be re-derived.** `destructiveEdge` is the sRGB bake of the web token layer's `--shadow-destructive-3d` (`color-mix(in oklch, destructive, black 30%)`). Change `destructive` and the button's 2px bottom edge has to move with it, or the edge stops reading as a thickened border. The gate asserts the relationship numerically rather than trusting two literals that happen to agree.
+4. **An escalating gauge needs a perceptible step.** `MobileTokenMeter` walks `muted` → `warning` → `destructive` on a 4pt bar, so adjacent steps must differ in contrast *or* hue. The luminance ceiling in rule 2 pins both status hues to the same lightness, which is why `destructive` sits a full ramp step below `warning`.
+5. **Spacing comes from `spacing`.** Five steps — `inline` 4, `label` 8, `row` 12, `block` 16, `section` 32 — exported from `tokens.ts`, and re-exported by the showcase's `showcase/spacing.ts` so sections keep one import. The component layer predates the export and still carries off-scale literals; `pnpm audit:ui` prints the census each run so the remaining debt stays visible.
+6. **44×44pt minimum touch target** on every interactive element (`metrics.minTouchTarget`). A control drawn shorter to match the web design system — `MobileButton` is 32px, `MobileSegmentedControl`'s segments are 36px — meets the floor with `hitSlop` (`hitSlopFor()` in `src/utils.ts` computes it) rather than by inflating the box. Vertical only: horizontal slop bleeds into the adjacent sibling, and React Native resolves the overlap in favour of the last-drawn one.
+7. **Haptics fire on the causal commit frame** — `hapticLight()` for normal presses, `hapticMedium()` for destructive, `hapticSelect()` for toggles (all in `src/utils.ts`). Never on mount.
+8. **16px font floor** on text inputs, to prevent OS viewport zoom.
+9. **Tabular numerals** for counters, prices and timers.
+10. **Icons arrive as props.** The package takes no icon dependency; only structural marks (a tick, a chevron, a magnifier) may be drawn inline. The showcase app is the consumer side of that rule and supplies its own set — see [Icons in the showcase](#icons-in-the-showcase).
+11. **No hover-only affordances.**
+12. **Forms never disable the submit button for empty fields.** It stays pressable and names what is missing; it is disabled only while loading.
+13. **Screens are presentational.** Props in, callbacks out — no fetching, no auth client, no routing.
+14. **Text children are wrapped; composed children are not.** `MobileButton`, `MobileBadge`, `MobileLink`, `MobileCardTitle` and `MobileCardDescription` route their children through `isTextChildren()` (`src/utils.ts`) to decide whether to wrap them in `MobileText`. Never replace it with `typeof children === "string"` or `React.isValidElement(children)`: JSX turns any element with more than one child into an **array** (`+{count}%` becomes `["+", count, "%"]`), and both of those checks mis-classify that array — the first renders bare strings outside a `<Text>` and the second nests a `<View>` inside one. Either way the app crashes at render.
+15. **Animation goes through `src/motion.ts`.** Import the preset whose *intent* matches (`SPRING`, `SPRING_SNAPPY`, `SPRING_ENTRANCE`, …) or the `springTo` / `pressInTiming` / `usePressSpring` helpers — never a hand-typed `damping`/`stiffness` tuple. Raw `Animated.timing` is only for intentional durations (pulses, shakes, fades).
 
 ## Dependencies
 

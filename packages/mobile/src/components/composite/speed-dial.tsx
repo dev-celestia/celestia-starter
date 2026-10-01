@@ -60,7 +60,7 @@ const BACKDROP_REACH = 4000
  * every direction to guarantee a tap outside the fan always closes it.
  */
 export function MobileSpeedDial({ actions, style }: MobileSpeedDialProps) {
-  const { colors, colorScheme } = useMobileTheme()
+  const { colors } = useMobileTheme()
   const [open, setOpen] = React.useState(false)
 
   // One animated value per action drives its own opacity + translateY, so
@@ -179,8 +179,7 @@ export function MobileSpeedDial({ actions, style }: MobileSpeedDialProps) {
                   styles.circle,
                   {
                     backgroundColor: colors.primary,
-                    // Same theme-split shadow colour MobileCard uses.
-                    shadowColor: colorScheme === "dark" ? "#000000" : "#0f172a",
+                    shadowColor: colors.shadow,
                   },
                 ]}
               >

@@ -11,6 +11,7 @@
  * Components are grouped by role:
  * - `primitive/` — generic single-control building blocks
  * - `composite/` — opinionated assemblies built from primitives
+ * - `ai/`        — assistant, agent and generative surfaces
  * - `layout/`    — full-screen shells and screens (presentational only)
  *
  * Deep imports mirror the grouping:
@@ -34,4 +35,5 @@ export * from "./motion"
 
 export * from "./components/primitive"
 export * from "./components/composite"
+export * from "./components/ai"
 export * from "./components/layout"

@@ -166,7 +166,7 @@ rather than deleting a file it still needs.
 | `pnpm lint` | Verify lint coverage across the workspace, then run ESLint in the packages that declare it |
 | `pnpm typecheck` | Run `tsc --noEmit` across all workspace targets |
 | `pnpm test` | Run the feature-manager test suite (marker engine, manifests, install/remove lifecycle) |
-| `pnpm audit:ui` | Run the static UI audit: token contrast, theme parity, stylesheet compile, focus rings, feature templates |
+| `pnpm audit:ui` | Run the static UI audit (6 checks): web token contrast, **mobile `ColorRamp` contrast + the derived-edge and gauge-step contracts**, theme parity, stylesheet compile, focus rings, feature templates |
 | `pnpm list-features` | List available and installed features |
 | `pnpm add-feature <name>` | Install a feature (add `--dry-run` to preview, `--force` to upgrade) |
 | `pnpm remove-feature <name>` | Uninstall a feature, restoring files shared with other features |

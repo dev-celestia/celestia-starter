@@ -85,10 +85,13 @@ export function MobileModal({
             style={[
               StyleSheet.absoluteFill,
               {
-                backgroundColor: "#000000",
+                // The one scrim token. Web's house rule is "one overlay -- do
+                // not introduce a second scrim opacity"; the fade animates the
+                // layer, not the colour, so the resting value is the token's 70%.
+                backgroundColor: colors.overlay,
                 opacity: progress.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [0, 0.5],
+                  outputRange: [0, 1],
                   extrapolate: "clamp",
                 }),
               },

@@ -2,6 +2,7 @@
 // UI audit runner -- every static check in one pass.
 //
 //   contrast        token colour pairs, read out of globals.css
+//   mobile-contrast mobile ColorRamp pairs, read out of tokens.ts
 //   token-parity    :root vs .dark token names, font override hooks
 //   compile-tokens  the real stylesheet compiles: no cycles, namespaces live
 //   focus-rings     no diluted focus ring (the globals.css house rule)
@@ -22,6 +23,7 @@ const VERBOSE = process.argv.includes("--verbose")
 
 const CHECKS = [
   ["contrast.mjs", "token colour contrast, both themes"],
+  ["mobile-contrast.mjs", "mobile ColorRamp contrast, both themes"],
   ["token-parity.mjs", ":root vs .dark parity, font hooks"],
   ["compile-tokens.mjs", "stylesheet compiles, namespaces live"],
   ["focus-rings.mjs", "focus rings are 2px at full strength"],

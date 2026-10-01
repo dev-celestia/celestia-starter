@@ -10,11 +10,17 @@
 // lint step while 7 projects -- including apps/api, the backend -- were never
 // linted. Nothing anywhere reported the skip.
 //
-// This guard does not add linting to those packages; that needs dependencies
-// this repo cannot install here (see PLAN-ui-audit.md §8). What it does is make
-// the gap EXPLICIT: a workspace must either declare `lint`, or appear in
-// EXEMPT below with a reason. A new package that forgets `lint` now fails loudly
-// instead of passing green.
+// This guard does not add linting to those packages; none of them has eslint in
+// its tree, and adding a dependency here is a separate change (see
+// PLAN-ui-audit.md §8). What it does is make the gap EXPLICIT: a workspace must
+// either declare `lint`, or appear in EXEMPT below with a reason. A new package
+// that forgets `lint` now fails loudly instead of passing green.
+//
+// The reasons must stay TRUE. Two of them used to read "and no node_modules
+// (install blocked)"; measured, `apps/mobile/node_modules` and
+// `packages/mobile/node_modules` both exist and `tsc --noEmit` runs clean in the
+// latter, so only the dependency was ever missing. A stale exemption reason is
+// worse than none -- it reads as a hard blocker to the next person.
 //
 // Usage:  node scripts/ui-audit/lint-coverage.mjs
 
@@ -28,8 +34,8 @@ const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "../..")
 // Removing an entry is the signal that the package has been wired up.
 const EXEMPT = {
   "@workspace/api": "no eslint dependency; add eslint + @workspace/eslint-config and an eslint.config.js",
-  mobile: "no eslint dependency and no node_modules (install blocked); see PLAN-ui-audit.md §8",
-  "@celestia-project/mobile": "no eslint dependency and no node_modules (install blocked)",
+  mobile: "no eslint dependency; add eslint + @workspace/eslint-config and an eslint.config.js",
+  "@celestia-project/mobile": "no eslint dependency; add eslint + @workspace/eslint-config and an eslint.config.js",
   "@workspace/db": "no eslint dependency; add eslint + @workspace/eslint-config and an eslint.config.js",
   "@celestia-project/create": "CLI package; no eslint dependency",
   "@workspace/eslint-config": "config-only package -- nothing to lint",

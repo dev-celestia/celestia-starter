@@ -42,6 +42,16 @@
       "import": "./src/components/composite/*.tsx",
       "default": "./src/components/composite/*.tsx"
     },
+    "./ai": {
+      "types": "./src/components/ai/index.ts",
+      "import": "./src/components/ai/index.ts",
+      "default": "./src/components/ai/index.ts"
+    },
+    "./ai/*": {
+      "types": "./src/components/ai/*.tsx",
+      "import": "./src/components/ai/*.tsx",
+      "default": "./src/components/ai/*.tsx"
+    },
     "./layout": {
       "types": "./src/components/layout/index.ts",
       "import": "./src/components/layout/index.ts",

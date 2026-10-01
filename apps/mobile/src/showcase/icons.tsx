@@ -32,19 +32,30 @@ import { useMobileTheme } from "@celestia-project/mobile"
  */
 
 import ArchiveBoxIcon from "react-native-heroicons/outline/ArchiveBoxIcon"
+import ArrowDownTrayIcon from "react-native-heroicons/outline/ArrowDownTrayIcon"
+import ArrowPathIcon from "react-native-heroicons/outline/ArrowPathIcon"
 import AtSymbolIcon from "react-native-heroicons/outline/AtSymbolIcon"
 import Bars3Icon from "react-native-heroicons/outline/Bars3Icon"
+import BoltIcon from "react-native-heroicons/outline/BoltIcon"
 import BuildingOfficeIcon from "react-native-heroicons/outline/BuildingOfficeIcon"
+import ChatBubbleLeftRightIcon from "react-native-heroicons/outline/ChatBubbleLeftRightIcon"
 import CheckCircleIcon from "react-native-heroicons/outline/CheckCircleIcon"
 import ClockIcon from "react-native-heroicons/outline/ClockIcon"
+import CodeBracketIcon from "react-native-heroicons/outline/CodeBracketIcon"
 import Cog6ToothIcon from "react-native-heroicons/outline/Cog6ToothIcon"
+import CpuChipIcon from "react-native-heroicons/outline/CpuChipIcon"
 import DocumentTextIcon from "react-native-heroicons/outline/DocumentTextIcon"
 import EnvelopeIcon from "react-native-heroicons/outline/EnvelopeIcon"
 import ExclamationTriangleIcon from "react-native-heroicons/outline/ExclamationTriangleIcon"
+import GlobeAltIcon from "react-native-heroicons/outline/GlobeAltIcon"
 import HomeIcon from "react-native-heroicons/outline/HomeIcon"
 import InformationCircleIcon from "react-native-heroicons/outline/InformationCircleIcon"
+import LinkIcon from "react-native-heroicons/outline/LinkIcon"
 import MagnifyingGlassIcon from "react-native-heroicons/outline/MagnifyingGlassIcon"
+import MicrophoneIcon from "react-native-heroicons/outline/MicrophoneIcon"
+import PaperClipIcon from "react-native-heroicons/outline/PaperClipIcon"
 import PencilSquareIcon from "react-native-heroicons/outline/PencilSquareIcon"
+import PhotoIcon from "react-native-heroicons/outline/PhotoIcon"
 import PlusIcon from "react-native-heroicons/outline/PlusIcon"
 import QuestionMarkCircleIcon from "react-native-heroicons/outline/QuestionMarkCircleIcon"
 import RectangleGroupIcon from "react-native-heroicons/outline/RectangleGroupIcon"
@@ -95,6 +106,19 @@ export const SHOWCASE_ICONS = {
   error: XCircleIcon,
   help: QuestionMarkCircleIcon,
   time: ClockIcon,
+  // AI surfaces — the composer, the transcript and the account cards
+  assistant: SparklesIcon,
+  mic: MicrophoneIcon,
+  code: CodeBracketIcon,
+  model: CpuChipIcon,
+  chat: ChatBubbleLeftRightIcon,
+  web: GlobeAltIcon,
+  image: PhotoIcon,
+  attach: PaperClipIcon,
+  link: LinkIcon,
+  download: ArrowDownTrayIcon,
+  refresh: ArrowPathIcon,
+  fast: BoltIcon,
 } as const
 
 export type ShowcaseIconName = keyof typeof SHOWCASE_ICONS

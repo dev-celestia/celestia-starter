@@ -11,6 +11,38 @@
  * ramp, and the red is the brand's. `packages/ui` declares it in OKLCH
  * (`oklch(0.55 0.22 27)` light / `oklch(0.68 0.22 27)` dark); React Native
  * cannot parse `oklch()`, so the sRGB equivalents are written out here.
+ *
+ * House rules
+ * -----------
+ * - **No hardcoded colour in a component.** Everything reads
+ *   `useMobileTheme()`. This file is the only place a hex literal belongs.
+ * - **Status hues have a luminance ceiling.** The four status hues each do two
+ *   jobs — a *fill* carrying white ink (`badge`, `tag`, `button`) and *ink* on a
+ *   near-white backdrop (`alert` title, form error, `progress` fill). Both reduce
+ *   to the same inequality:
+ *
+ *       white ink on a fill:  1.05 / (L_rel + 0.05) >= 4.5  =>  L_rel <= 0.18333
+ *       hue as ink on white:  1.05 / (L_rel + 0.05) >= 4.5  =>  L_rel <= 0.18333
+ *
+ *   So one value per hue serves both roles and no token family needs splitting.
+ *   **Do not lighten a status hue past that ceiling** — the old ramp did, and 19
+ *   pairings failed WCAG AA in the light theme while dark passed every one.
+ *   `scripts/ui-audit/mobile-contrast.mjs` now asserts all 38, both themes.
+ * - **`destructiveEdge` is derived, not chosen.** It is the sRGB bake of web's
+ *   `--shadow-destructive-3d` = `color-mix(in oklch, var(--destructive), black
+ *   30%)`. Change `destructive` and you must re-derive it, or the button's 2px
+ *   bottom edge keeps the previous red. `scripts/ui-audit/mobile-contrast.mjs`
+ *   asserts the relationship numerically.
+ * - **An escalating gauge needs a perceptible step.** `MobileTokenMeter` runs
+ *   `muted` -> `warning` -> `destructive` on a 4pt bar, so adjacent steps must
+ *   differ on *some* axis. Pinning both status hues under the ceiling above puts
+ *   them at the same lightness, which is why `destructive` is a full ramp step
+ *   deeper than the hue alone would need. The gate asserts the separation.
+ * - **`warning` is an approximation, not a match.** Web declares
+ *   `oklch(0.5 0.17 75)`, which is **outside sRGB**; a browser gamut-maps it and
+ *   the hue shifts to ~56 degrees. `#994e00` is that rendered value, so it is the
+ *   honest sRGB counterpart — but it is not a hue-preserving conversion.
+ * - Dark passes every pairing. Do not touch it without re-measuring.
  */
 
 export interface ColorRamp {
@@ -37,6 +69,30 @@ export interface ColorRamp {
   infoForeground: string
   border: string
   inputBorder: string
+  /**
+   * The single modal scrim, mirroring web's `--overlay`. Web's house rule
+   * (`globals.css`: *"One overlay. Dialog, Sheet, Drawer and AlertDialog all use
+   * `bg-overlay`; do not introduce a second scrim opacity"*) applies here too:
+   * `MobileModal` is the only consumer, and it composites this token through an
+   * animated opacity rather than hardcoding a black.
+   */
+  overlay: string
+  /**
+   * The colour a platform drop shadow is cast in.
+   *
+   * Light mode draws a dark shadow over a white page, which works. **Dark mode
+   * cannot**: the page is `#09090b`, and a shadow can only darken, so a black
+   * shadow at 6% measures ~1.005:1 — invisible. That is the same reasoning
+   * `packages/ui` records for `--elevation-edge` (*"a darker band cannot separate
+   * from a near-black page"*), except that web's fix — flipping the band *light*
+   * — only works for a solid 2px edge, not for a soft shadow.
+   *
+   * So in dark mode elevation is carried by the card's own surface (`card` sits
+   * above `background`) and by `cardBorder`. This token is kept dark in both
+   * themes because a *light* shadow would read as a glow; it is deliberately not
+   * the elevation cue on dark.
+   */
+  shadow: string
   /**
    * The hard 2px bottom edge of a raised control — what `@celestia-project/ui`
    * spells `--shadow-3d`, `--shadow-3d-primary` and `--shadow-destructive-3d`.
@@ -90,7 +146,7 @@ export const lightColors: ColorRamp = {
   card: "#ffffff",
   cardBorder: "#e2e8f0",
   foreground: "#0f172a",
-  muted: "#64748b",
+  muted: "#475569",
   mutedBackground: "#f1f5f9",
   primary: "#d40c1a",
   primaryForeground: "#fafafa",
@@ -98,19 +154,21 @@ export const lightColors: ColorRamp = {
   secondaryForeground: "#0f172a",
   accent: "#f1f5f9",
   accentForeground: "#0f172a",
-  destructive: "#ef4444",
+  destructive: "#991b1b",
   destructiveForeground: "#ffffff",
-  success: "#10b981",
+  success: "#007b2a",
   successForeground: "#ffffff",
-  warning: "#f59e0b",
+  warning: "#994e00",
   warningForeground: "#ffffff",
-  info: "#3b82f6",
+  info: "#0062c9",
   infoForeground: "#ffffff",
   border: "#e2e8f0",
   inputBorder: "#cbd5e1",
+  overlay: "#000000b3",
+  shadow: "#0f172a",
   elevationEdge: "#00000026",
   primaryEdge: "#d40c1a",
-  destructiveEdge: "#942626",
+  destructiveEdge: "#5d0c0c",
   chart1: "#d40c1a",
   chart2: "#b45309",
   chart3: "#0f766e",
@@ -142,6 +200,8 @@ export const darkColors: ColorRamp = {
   infoForeground: "#09090b",
   border: "#27272a",
   inputBorder: "#3f3f46",
+  overlay: "#000000b3",
+  shadow: "#000000",
   elevationEdge: "#ffffff2e",
   primaryEdge: "#ff4d46",
   destructiveEdge: "#9e3b3d",
@@ -239,3 +299,39 @@ export const metrics = {
     full: 9999,
   },
 }
+
+/**
+ * The spacing scale — five steps, ascending, so the gap itself communicates the
+ * relationship.
+ *
+ * | Step      | Gap | Used for |
+ * |-----------|-----|----------|
+ * | `inline`  | 4   | Inside one control cluster — a dot and its label, adjacent swatches |
+ * | `label`   | 8   | A label and the control it labels |
+ * | `row`     | 12  | Sibling rows inside one group — a stack of fields, a type ramp |
+ * | `block`   | 16  | Two groups inside one card or section |
+ * | `section` | 32  | Two sections |
+ *
+ * This is exported from the *library* on purpose. The scale was first written in
+ * the consumer (`apps/mobile/src/showcase/spacing.ts`) to stop the gallery's
+ * sections drifting apart — the same two jobs were being served by eight
+ * hand-picked values (6, 8, 10, 12, 14, 16, 18, 20) — but a scale the library
+ * does not export is a scale its consumers do not get. The gallery now re-exports
+ * this one.
+ *
+ * **Migration is deliberately partial.** The component layer still contains
+ * hand-picked literals that predate this export, and several of them (6, 10, 14,
+ * 20, 24, 48) are not on the scale. Snapping them is a visible redesign across
+ * 157 modules, so it is being done incrementally rather than in one sweep;
+ * `scripts/ui-audit/mobile-contrast.mjs` prints the remaining census every run so
+ * the debt stays visible instead of being silently frozen.
+ */
+export const spacing = {
+  inline: 4,
+  label: 8,
+  row: 12,
+  block: 16,
+  section: 32,
+} as const
+
+export type SpacingStep = keyof typeof spacing

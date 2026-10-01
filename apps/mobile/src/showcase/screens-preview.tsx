@@ -65,9 +65,10 @@ const grace = GRACE!
  *
  * This registry is the reason the showcase can demonstrate the screens at all.
  * The screens own the entire frame — safe area, scrolling, keyboard avoidance,
- * headers, footers — so rendering one *inside* the gallery's own `SafeAreaView`
- * would double-pad it and make every screen look subtly wrong. Instead the
- * gallery swaps itself out for a preview.
+ * headers, footers — so rendering one *inside* a section page's own
+ * `SafeAreaView` would double-pad it and make every screen look subtly wrong.
+ * Instead each preview opens as its own stack layer on top of the section,
+ * which leaves the section — and its scroll position — mounted underneath.
  *
  * Every preview closes through the same `onClose` callback. That is the whole
  * contract: the screens emit `onBack`, `onSubmit`, `onSignIn` and so on, and

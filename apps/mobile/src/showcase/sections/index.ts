@@ -1,5 +1,6 @@
 import type { ShowcaseSectionDefinition } from "../types"
 import { ActionsSection } from "./actions"
+import { AiSection } from "./ai"
 import { DataSection } from "./data"
 import { FormsSection } from "./forms"
 import { FoundationsSection } from "./foundations"
@@ -15,12 +16,17 @@ import { ScreensSection } from "./screens"
  * section file, so the copy and the structure cannot drift apart — and adding a
  * section is a one-line change in one place.
  *
- * The seven sections cover all 130 modules of `@celestia-project/mobile`:
+ * The eight sections cover all 157 modules of `@celestia-project/mobile`:
  * foundations (surfaces, layout, media, tokens, loading, charts), actions
  * (buttons, toggles, pickers, haptic commits), forms (inputs, OTP, PIN),
  * data display (lists, cards, rows, tables, messaging), navigation (bars,
- * tabs, steppers, pagination), overlays (sheets, modals, alerts, toasts) and
- * screens (the twenty full-page layouts).
+ * tabs, steppers, pagination), overlays (sheets, modals, alerts, toasts),
+ * AI (transcript, composer, model and context controls, agents) and screens
+ * (the twenty full-page layouts).
+ *
+ * AI sits last but one on purpose: it is an assembly category like the screens,
+ * and every one of its modules composes primitives and composites the earlier
+ * sections have already introduced.
  */
 export const SHOWCASE_SECTIONS: ShowcaseSectionDefinition[] = [
   {
@@ -64,6 +70,13 @@ export const SHOWCASE_SECTIONS: ShowcaseSectionDefinition[] = [
     summary:
       "Inline alerts, transient toasts, and the three modal presentations, with the interruption level of each made explicit.",
     Component: OverlaysSection,
+  },
+  {
+    key: "ai",
+    title: "AI",
+    summary:
+      "The assistant surfaces: transcript, streaming states, reasoning and tool calls, citations, the composer, and the model, context and agent controls.",
+    Component: AiSection,
   },
   {
     key: "screens",

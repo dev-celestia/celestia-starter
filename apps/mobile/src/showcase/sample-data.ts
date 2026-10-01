@@ -14,6 +14,14 @@
  * inline. Add to this file when a specimen genuinely needs a new fixture shape.
  */
 
+import type {
+  MobileAgentTask,
+  MobileAiAttachment,
+  MobileAiModel,
+  MobileAiPrompt,
+  MobileAiSource,
+} from "@celestia-project/mobile"
+
 // ---------------------------------------------------------------------------
 // Taxonomy
 // ---------------------------------------------------------------------------
@@ -357,4 +365,216 @@ export const ORDER_TIMELINE: SampleTimelineStep[] = [
     time: "15:02",
     tone: "destructive",
   },
+]
+
+// ---------------------------------------------------------------------------
+// The assistant — the AI section's half of the same world
+// ---------------------------------------------------------------------------
+
+/**
+ * The AI fixtures stay inside Celestia Analytics rather than inventing a second
+ * product. The assistant answers questions about *this* workspace, cites the
+ * *same* dashboard the Charts specimens draw, and reports the *same* week of
+ * signups — so the AI section reads as one more surface of the app, not as a
+ * detached component dump with `Lorem ipsum` in it.
+ */
+
+/** The question the transcript specimen opens with. */
+export const AI_QUESTION = "Why did refunds move this week?"
+
+/**
+ * A real-shaped answer: a claim, a number that supports it, and a caveat. The
+ * caveat is the point — an answer with no uncertainty reads as a stub.
+ */
+export const AI_ANSWER =
+  "Refunds are down 3.1% net, but that flatters the week. Gross refunds were actually flat — the improvement comes from seven reversals that landed after the Sep 27 cut-off and will show up next week. Excluding them, the trend is unchanged."
+
+/** The follow-up the streaming specimen is still producing. */
+export const AI_STREAMING_ANSWER =
+  "The seven reversals all came from the Team plan, which points at the Sep 24"
+
+/** Reasoning trace for `MobileThinkingBlock`. */
+export const AI_THINKING =
+  "The headline figure is net of reversals, so I should check the gross count before reporting a trend. The dashboard's refunds card nets them automatically — the ledger table does not. If the two disagree, the discrepancy is the story, not the number. I will report both and flag the cut-off rather than picking one."
+
+export const AI_SOURCES: MobileAiSource[] = [
+  {
+    id: "refunds",
+    title: "Refunds — week 39",
+    domain: "celestia.dev/analytics/refunds",
+    snippet: "Gross $1,204 · Reversals $612 · Net $592",
+  },
+  {
+    id: "cutoff",
+    title: "Ledger cut-off times",
+    domain: "celestia.dev/docs/ledger#cut-off",
+    snippet: "Reversals settle on the next business day.",
+  },
+  {
+    id: "team",
+    title: "Team plan — Sep 24 change",
+    domain: "celestia.dev/changelog/sep-24",
+    snippet: "Paid acquisition spend reduced 30% for the rest of Q3.",
+  },
+]
+
+export const AI_MODELS: MobileAiModel[] = [
+  {
+    id: "celestia-pro",
+    name: "Celestia Pro",
+    description: "Best reasoning · 200k context",
+    badge: "Pro",
+  },
+  {
+    id: "celestia-fast",
+    name: "Celestia Fast",
+    description: "Lowest latency · 128k context",
+  },
+  {
+    id: "celestia-mini",
+    name: "Celestia Mini",
+    description: "Runs on device · 32k context",
+  },
+  {
+    id: "celestia-max",
+    name: "Celestia Max",
+    description: "Invite only — not on your plan",
+    badge: "Beta",
+    disabled: true,
+  },
+]
+
+export const AI_SUGGESTIONS = [
+  "Why did refunds drop?",
+  "Compare this week to last",
+  "Which plan churns most?",
+  "Draft the standup summary",
+]
+
+export const AI_PROMPTS: MobileAiPrompt[] = [
+  {
+    id: "summarise",
+    title: "Summarise this week",
+    description: "Reads the dashboard and writes a three-bullet recap.",
+  },
+  {
+    id: "anomaly",
+    title: "Find the anomaly",
+    description: "Compares this week against the trailing four.",
+  },
+  {
+    id: "sql",
+    title: "Write a query",
+    description: "Turns a plain-English question into SQL.",
+    badge: "Popular",
+  },
+  {
+    id: "brief",
+    title: "Draft a customer brief",
+    description: "Pulls account history into a one-pager.",
+  },
+]
+
+export interface SampleAgent {
+  id: string
+  name: string
+  description: string
+  capabilities: string[]
+  badge?: string
+}
+
+export const AI_AGENTS: SampleAgent[] = [
+  {
+    id: "analyst",
+    name: "Analytics analyst",
+    description: "Answers questions about this workspace's metrics.",
+    capabilities: ["SQL", "Charts", "Web search"],
+    badge: "Default",
+  },
+  {
+    id: "researcher",
+    name: "Research assistant",
+    description: "Reads papers and the web, then cites everything it used.",
+    capabilities: ["Web search", "Citations", "Summaries"],
+  },
+  {
+    id: "captain",
+    name: "Release captain",
+    description: "Runs the deploy checklist end to end and reports back.",
+    capabilities: ["Deploys", "Rollbacks"],
+    badge: "Beta",
+  },
+]
+
+export const AI_TASKS: MobileAgentTask[] = [
+  {
+    id: "plan",
+    title: "Break the question into steps",
+    status: "success",
+    detail: "3 steps",
+  },
+  {
+    id: "query",
+    title: "Query the refunds ledger",
+    status: "success",
+    detail: "1,204 rows · 120ms",
+  },
+  {
+    id: "compare",
+    title: "Compare against the trailing four weeks",
+    status: "running",
+  },
+  {
+    id: "write",
+    title: "Write the summary",
+    status: "pending",
+  },
+]
+
+export const AI_ATTACHMENTS: MobileAiAttachment[] = [
+  {
+    id: "review",
+    name: "q3-growth-review.pdf",
+    kind: "file",
+    size: "1.2 MB",
+  },
+  {
+    id: "chart",
+    name: "signups-by-channel.png",
+    kind: "image",
+    size: "284 KB",
+  },
+  {
+    id: "standup",
+    name: "standup-2026-09-29.m4a",
+    kind: "audio",
+    size: "3.8 MB",
+  },
+]
+
+/** Serialised tool call, shown by `MobileToolCallCard`. */
+export const AI_TOOL_ARGS = `{
+  "metric": "refunds",
+  "group_by": "plan",
+  "range": "2026-09-23..2026-09-30"
+}`
+
+export const AI_TOOL_RESULT = `[
+  { "plan": "Starter", "gross": 318, "reversals": 2 },
+  { "plan": "Pro",     "gross": 402, "reversals": 0 },
+  { "plan": "Team",    "gross": 484, "reversals": 7 }
+]`
+
+/** Query shown by `MobileCodeBlock`. */
+export const AI_CODE_SAMPLE = `SELECT plan, count(*) AS refunds
+FROM ledger.refund
+WHERE occurred_at >= now() - interval '7 days'
+  AND status <> 'reversed'
+GROUP BY plan
+ORDER BY refunds DESC;`
+
+/** Waveform levels for the voice specimen — a shape, not a recording. */
+export const AI_VOICE_LEVELS = [
+  0.22, 0.41, 0.68, 0.9, 0.55, 0.34, 0.72, 0.96, 0.61, 0.28, 0.45, 0.78, 0.52,
+  0.3, 0.63, 0.88, 0.47, 0.24, 0.58, 0.81, 0.39, 0.26, 0.5, 0.7,
 ]

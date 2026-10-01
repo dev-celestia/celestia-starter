@@ -17,7 +17,7 @@ export interface MobileCardProps {
  * and semantic light/dark token awareness.
  */
 export function MobileCard({ children, style }: MobileCardProps) {
-  const { colors, colorScheme } = useMobileTheme()
+  const { colors } = useMobileTheme()
 
   return (
     <View
@@ -26,7 +26,7 @@ export function MobileCard({ children, style }: MobileCardProps) {
         {
           backgroundColor: colors.card,
           borderColor: colors.cardBorder,
-          shadowColor: colorScheme === "dark" ? "#000000" : "#0f172a",
+          shadowColor: colors.shadow,
         },
         style,
       ]}
@@ -110,6 +110,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     overflow: "hidden",
     marginVertical: 6,
+    // A soft shadow can only *darken*, so on a near-black page it is invisible
+    // (~1.005:1). Dark mode therefore takes its elevation from the surface
+    // itself — `card` sits above `background` — and from `cardBorder`, not from
+    // this shadow. It is left enabled in both themes rather than branched per
+    // platform, because a *light* shadow would read as a glow.
     ...Platform.select({
       ios: {
         shadowOffset: { width: 0, height: 2 },
