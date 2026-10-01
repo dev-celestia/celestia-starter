@@ -254,9 +254,6 @@ function Hero() {
 
       <div className="flex flex-wrap items-center gap-2">
         <Button
-          size="lg"
-          leading="tight"
-          className="min-h-10 rounded-md px-4 font-semibold"
           render={<Link href={DOCS_HREF} />}
         >
           Read the docs
@@ -264,9 +261,6 @@ function Hero() {
         </Button>
         <Button
           variant="outline"
-          size="lg"
-          leading="tight"
-          className="min-h-10 rounded-md px-4 font-semibold"
           render={<Link href="#showcase" />}
         >
           <DeviceMobileIcon className="size-3.5" />
@@ -807,9 +801,6 @@ function Install() {
 
       <div className="flex flex-wrap items-center gap-2 pt-1">
         <Button
-          size="lg"
-          leading="tight"
-          className="min-h-10 rounded-md px-4 font-semibold"
           render={<Link href={DOCS_HREF} />}
         >
           Full reference — peer table, screens, icons
@@ -817,9 +808,6 @@ function Install() {
         </Button>
         <Button
           variant="outline"
-          size="lg"
-          leading="tight"
-          className="min-h-10 rounded-md px-4 font-semibold"
           render={<Link href={REPO_HREF} target="_blank" rel="noreferrer" />}
         >
           Source
