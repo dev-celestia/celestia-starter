@@ -1,33 +1,52 @@
+import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr"
+import {
+  Item,
+  ItemContent,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from "@celestia-project/ui"
+
+import { SectionHeading } from "@/components/agency/section-heading"
+
 import { Reveal } from "./reveal"
 import { InstallTerminal } from "./terminal"
 
+const GUARANTEES = [
+  "Features are optional — auth, dashboard, blog",
+  "Dependencies and env vars keyed per package",
+  "Git initialized on the last step",
+]
+
+/**
+ * Text beside the terminal, in the contact section's split: SectionHeading
+ * with the checklist beneath it, the scaffold session on the right.
+ */
 export function InstallSection() {
   return (
-    <section id="install" className="mx-auto w-full max-w-6xl px-5 py-28 sm:px-8 sm:py-36">
-      <div className="grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
+    <section id="install" className="py-16 sm:py-20">
+      <div className="grid gap-12 lg:grid-cols-[1fr_1.2fr] lg:gap-16">
         <Reveal>
-          <h2 className="text-3xl tracking-[-0.02em] text-balance text-foreground sm:text-4xl">
-            From npx to pnpm dev
-          </h2>
-          <p className="mt-5 text-muted-foreground leading-relaxed">
-            One command clones the template, then walks you through the rest:
-            pick features, write env files, install dependencies, push the
-            schema. You land in a repository you already understand.
-          </p>
-          <ul className="mt-8 space-y-4 font-mono text-sm text-muted-foreground">
-            <li className="flex items-baseline gap-3">
-              <span className="text-primary">✔</span>
-              <span>Features are optional — auth, dashboard, blog</span>
-            </li>
-            <li className="flex items-baseline gap-3">
-              <span className="text-primary">✔</span>
-              <span>Dependencies and env vars keyed per package</span>
-            </li>
-            <li className="flex items-baseline gap-3">
-              <span className="text-primary">✔</span>
-              <span>Git initialized on the last step</span>
-            </li>
-          </ul>
+          <SectionHeading
+            eyebrow="Get started"
+            title="From npx to pnpm dev"
+            description="One command clones the template, then walks you through the rest: pick features, write env files, install dependencies, push the schema. You land in a repository you already understand."
+          />
+
+          <ItemGroup className="mt-8 gap-2">
+            {GUARANTEES.map((guarantee) => (
+              <Item key={guarantee} size="xs" className="p-0">
+                <ItemMedia variant="icon" className="text-primary">
+                  <CheckCircleIcon className="size-4" weight="fill" />
+                </ItemMedia>
+                <ItemContent>
+                  <ItemTitle className="line-clamp-none text-sm font-normal text-muted-foreground">
+                    {guarantee}
+                  </ItemTitle>
+                </ItemContent>
+              </Item>
+            ))}
+          </ItemGroup>
         </Reveal>
 
         <Reveal>

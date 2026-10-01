@@ -1,29 +1,34 @@
 import Link from "next/link"
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr"
 import { Button } from "@celestia-project/ui"
+
+import { SectionHeading } from "@/components/agency/section-heading"
 
 import { Reveal } from "./reveal"
 
+/**
+ * The closing ask, in the landing's voice: hairline top edge, start-aligned
+ * heading and actions — no centered poster band, which no other page has.
+ */
 export function CtaSection() {
   return (
-    <section className="border-t border-border">
-      <div className="mx-auto w-full max-w-4xl px-5 py-28 text-center sm:px-8 sm:py-36">
-        <Reveal>
-          <h2 className="mt-8 text-3xl tracking-[-0.02em] text-balance text-foreground sm:text-5xl">
-            Start from architecture, not setup.
-          </h2>
-          <p className="mx-auto mt-5 max-w-xl text-muted-foreground leading-relaxed">
-            Create an account and take the dashboard for a spin, or run the
-            installer and make it yours.
-          </p>
-          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link href="/docs">
-              <Button variant="default" size="lg">
-                Documentation
-              </Button>
-            </Link>
-          </div>
-        </Reveal>
-      </div>
+    <section className="border-t border-border py-16 sm:py-20">
+      <Reveal>
+        <SectionHeading
+          eyebrow="Start building"
+          title="Start from architecture, not setup."
+          description="Create an account and take the dashboard for a spin, or run the installer and make it yours."
+        />
+        <div className="mt-8 flex flex-wrap items-center gap-3">
+          <Button size="lg" className="gap-2" render={<Link href="/sign-up" />}>
+            Demo Template
+            <ArrowRightIcon className="size-4" aria-hidden />
+          </Button>
+          <Button variant="secondary" size="lg" render={<Link href="/docs" />}>
+            Documentation
+          </Button>
+        </div>
+      </Reveal>
     </section>
   )
 }

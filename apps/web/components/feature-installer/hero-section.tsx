@@ -1,55 +1,54 @@
 import Link from "next/link"
-import { Button } from "@celestia-project/ui"
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr"
+import { Badge, Button } from "@celestia-project/ui"
 
 import { CopyCommand } from "./copy-command"
+import { Reveal } from "./reveal"
 
+/**
+ * Left-aligned hero in the shared rail layout — the same shape as the
+ * landing's hero: eyebrow badge, headline starting on the content column's
+ * left edge, lede, then actions. The install command rides below the
+ * buttons because it is the page's real entry point.
+ */
 export function HeroSection() {
   return (
-    <section className="relative flex min-h-svh items-center justify-center overflow-hidden bg-background">
-      {/* Subtle radial glow behind content */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 flex items-center justify-center"
-      >
-        <div className="size-[600px] rounded-full bg-primary/5 blur-3xl" />
-      </div>
+    <section id="hero" className="pt-12 pb-16 sm:pt-20 sm:pb-20">
+      <Reveal>
+        <Badge
+          variant="outline"
+          mono
+          className="gap-2 border-primary/25 bg-primary/5 text-xs uppercase tracking-wider text-primary"
+        >
+          <span className="size-1.5 animate-pulse rounded-full bg-primary" />
+          Open-source starter
+        </Badge>
 
-      <div className="hero-stagger relative z-10 mx-auto w-full max-w-4xl px-5 text-center sm:px-8">
-        <p className="font-mono text-[13px] text-muted-foreground">
-          <span className="me-2 inline-block size-1.5 rounded-full align-middle bg-primary" />
-          <span>celestia-starter · production-ready</span>
-        </p>
-
-        <h1 className="mt-6 text-[clamp(2.75rem,6.5vw,5.5rem)] leading-[1.04] tracking-[-0.03em] text-balance text-foreground">
+        <h1 className="mt-8 max-w-[700px] text-[clamp(2.625rem,6vw,3.75rem)] leading-[1.08] font-semibold tracking-[-0.03em] text-balance text-foreground">
           The production stack, installed in one command.
         </h1>
 
-        <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground text-pretty sm:text-lg">
+        <p className="mt-6 max-w-xl text-lg leading-relaxed text-pretty text-muted-foreground">
           Building user interfaces should not restart every project. Celestia is
           a full-stack monorepo starter with a real architecture: a Next.js 16
           frontend that stays pure UI, a Hono backend that owns auth and data,
           and a feature installer so you only carry what you use.
         </p>
 
-        <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <Link href="/sign-up">
-            <Button variant="default" size="lg">
-              Demo Template
-            </Button>
-          </Link>
+        <div className="mt-8 flex flex-wrap items-center gap-3">
+          <Button size="lg" className="gap-2" render={<Link href="/sign-up" />}>
+            Demo Template
+            <ArrowRightIcon className="size-4" aria-hidden />
+          </Button>
+          <Button variant="secondary" size="lg" render={<Link href="/docs" />}>
+            Documentation
+          </Button>
+        </div>
+
+        <div className="mt-6 max-w-md">
           <CopyCommand />
         </div>
-      </div>
-
-      {/* Scroll indicator */}
-      <div
-        aria-hidden
-        className="hero-scroll absolute bottom-7 inset-inline-1/2 z-10 -translate-x-1/2"
-      >
-        <div className="flex h-9 w-[22px] items-start justify-center overflow-hidden rounded-full border border-border bg-card/40 p-1 backdrop-blur-sm">
-          <span className="block h-2.5 w-[3px] rounded-full bg-primary animate-scroll-down" />
-        </div>
-      </div>
+      </Reveal>
     </section>
   )
 }

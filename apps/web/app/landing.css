@@ -28,28 +28,6 @@ html {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  /* Hero entrance — staggered role-fade-in over the container's
-     children, delays owned by CSS rather than inline styles. */
-  .hero-stagger > * {
-    animation: role-fade-in 0.4s ease-out both;
-  }
-
-  .hero-stagger > :nth-child(2) {
-    animation-delay: 90ms;
-  }
-
-  .hero-stagger > :nth-child(3) {
-    animation-delay: 180ms;
-  }
-
-  .hero-stagger > :nth-child(4) {
-    animation-delay: 270ms;
-  }
-
-  .hero-scroll {
-    animation: role-fade-in 0.4s ease-out 420ms both;
-  }
-
   /* Terminal session — each line waits for the one above it. */
   .terminal-session [data-line]:nth-child(2) {
     animation-delay: 140ms;
