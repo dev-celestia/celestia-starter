@@ -20,11 +20,11 @@ export function CtaSection() {
           description="Create an account and take the dashboard for a spin, or run the installer and make it yours."
         />
         <div className="mt-8 flex flex-wrap items-center gap-3">
-          <Button size="lg" className="gap-2" render={<Link href="/sign-up" />}>
+          <Button className="gap-2" render={<Link href="/sign-up" />}>
             Demo Template
             <ArrowRightIcon className="size-4" aria-hidden />
           </Button>
-          <Button variant="secondary" size="lg" render={<Link href="/docs" />}>
+          <Button variant="secondary" render={<Link href="/docs" />}>
             Documentation
           </Button>
         </div>

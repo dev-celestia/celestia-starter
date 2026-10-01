@@ -1,7 +1,6 @@
 import * as React from "react"
 import { Animated, StyleSheet, View, type ViewStyle } from "react-native"
 import { useMobileTheme } from "../../host"
-import { canUseNativeDriver } from "../../motion"
 import { metrics, type ColorRamp } from "../../tokens"
 import { clamp } from "../../utils"
 
@@ -127,12 +126,12 @@ export function MobileAudioWaveform({
           Animated.timing(value, {
             toValue: 1,
             duration,
-            useNativeDriver: canUseNativeDriver,
+            useNativeDriver: true,
           }),
           Animated.timing(value, {
             toValue: MIN_SCALE,
             duration,
-            useNativeDriver: canUseNativeDriver,
+            useNativeDriver: true,
           }),
           Animated.delay(((count - index) % 5) * 80),
         ])

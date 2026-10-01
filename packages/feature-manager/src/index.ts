@@ -1,10 +1,8 @@
 export type {
-  Feature,
   FeatureCopy,
   FeatureInsertion,
   FeatureJsonAppend,
   FeatureManifest,
-  FeatureNavItem,
   FeatureTracker,
   InstalledFeature,
   InsertionReport,
@@ -30,15 +28,6 @@ export {
   unwrapSentinel,
 } from "./markers.js"
 export type { InsertResult, RemoveResult } from "./markers.js"
-
-export {
-  getFeature,
-  getFeatures,
-  getNavItems,
-  hasFeature,
-  registerFeature,
-  unregisterFeature,
-} from "./registry.js"
 
 export {
   availableFeatureNames,

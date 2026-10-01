@@ -36,7 +36,8 @@ export const MOBILE_CATEGORIES: MobileCategory[] = [
     id: "primitive",
     name: "Primitive",
     directory: "src/components/primitive/",
-    belongs: "Generic building blocks. Each wraps one native control or one plain surface.",
+    belongs:
+      "Generic building blocks. Each wraps one native control or one plain surface.",
     rule: "Would I reach for this in any app?",
     count: 52,
   },
@@ -89,7 +90,8 @@ export interface MobileRule {
 export const MOBILE_RULES: MobileRule[] = [
   {
     title: "No hardcoded colours",
-    detail: "Everything reads useMobileTheme(); the light and dark ramps are both complete.",
+    detail:
+      "Everything reads useMobileTheme(); the light and dark ramps are both complete.",
   },
   {
     title: "44×44pt minimum touch target",
@@ -107,7 +109,8 @@ export const MOBILE_RULES: MobileRule[] = [
   },
   {
     title: "Tabular numerals for counters",
-    detail: "Prices, timers and counts, so a changing digit does not shift the row.",
+    detail:
+      "Prices, timers and counts, so a changing digit does not shift the row.",
   },
   {
     title: "Icons arrive as props",
@@ -116,7 +119,8 @@ export const MOBILE_RULES: MobileRule[] = [
   },
   {
     title: "No hover-only affordances",
-    detail: "There is no hover on a thumb. Anything hidden behind one does not exist.",
+    detail:
+      "There is no hover on a thumb. Anything hidden behind one does not exist.",
   },
   {
     title: "Forms never disable submit for empty fields",
@@ -125,7 +129,8 @@ export const MOBILE_RULES: MobileRule[] = [
   },
   {
     title: "Screens are presentational",
-    detail: "Props in, callbacks out — no fetching, no auth client, no routing.",
+    detail:
+      "Props in, callbacks out — no fetching, no auth client, no routing.",
   },
 ]
 
@@ -137,7 +142,6 @@ export interface MobilePlatformRow {
   capability: string
   ios: "yes" | "no"
   android: "yes" | "no"
-  web: "yes" | "no" | "partial"
   note: string
 }
 
@@ -146,22 +150,19 @@ export const MOBILE_PLATFORM: MobilePlatformRow[] = [
     capability: "Components built on @expo/ui",
     ios: "yes",
     android: "yes",
-    web: "yes",
-    note: "SwiftUI / Compose natively; DOM equivalents through the universal entry",
+    note: "SwiftUI on iOS, Jetpack Compose on Android, through the universal entry",
   },
   {
     capability: "Rest of the package (plain React Native)",
     ios: "yes",
     android: "yes",
-    web: "yes",
-    note: "via react-native-web",
+    note: "No @expo/ui at runtime",
   },
   {
     capability: "apps/mobile showcase",
     ios: "yes",
     android: "yes",
-    web: "yes",
-    note: "Metro web bundler, declared in app.json",
+    note: "Runs in Expo Go — no development build needed",
   },
 ]
 
@@ -172,16 +173,16 @@ export interface MobileEntryPoint {
 }
 
 /**
- * `@expo/ui@57` exposes three entry points, and *which one you import* decides
- * whether web works. This is the single most misread thing about the package:
- * every module here imports the bare specifier, which is the universal one.
+ * `@expo/ui@57` exposes three entry points. Every module here imports the bare
+ * specifier — the universal one — so the same code resolves to the right
+ * native implementation on each platform.
  */
 export const MOBILE_ENTRY_POINTS: MobileEntryPoint[] = [
   {
     specifier: "@expo/ui",
     implementation:
-      "Universal — resolves to .ios.tsx / .android.tsx / a generic DOM implementation",
-    platforms: "iOS · Android · Web",
+      "Universal — resolves to the .ios.tsx / .android.tsx implementation for the current platform",
+    platforms: "iOS · Android",
   },
   {
     specifier: "@expo/ui/swift-ui",
@@ -194,42 +195,6 @@ export const MOBILE_ENTRY_POINTS: MobileEntryPoint[] = [
     platforms: "Android",
   },
 ]
-
-/** What the universal implementations actually are — not stubs. */
-export const MOBILE_UNIVERSAL_IMPLEMENTATIONS = [
-  { module: "Host", behaviour: "renders a plain View" },
-  { module: "Switch", behaviour: "builds a DOM switch" },
-  { module: "List / ListItem", behaviour: "plain React Native primitives" },
-  { module: "BottomSheet", behaviour: "renders through vaul" },
-]
-
-export interface MobileWebCaveat {
-  title: string
-  detail: string
-}
-
-export const MOBILE_WEB_CAVEATS: MobileWebCaveat[] = [
-  {
-    title: "Props marked @platform ios / @platform android are inert on web",
-    detail:
-      "MobileList's onRefresh is the one in this package — the prop is accepted and ignored, because there is no native refresh affordance to show.",
-  },
-  {
-    title: "Web is a preview surface, not a port",
-    detail:
-      "The DOM rendering comes from @expo/ui and react-native-web, so it is close to, but not pixel-identical with, the SwiftUI / Compose rendering. When a feature needs a first-class web implementation, use @celestia-project/ui.",
-  },
-  {
-    title: "Haptics are a no-op in a browser",
-    detail:
-      "expo-haptics ships ExpoHaptics.web, so every component that calls it keeps working and simply does not buzz.",
-  },
-]
-
-/** The three packages `apps/mobile` needs for the browser target. */
-export const MOBILE_WEB_PACKAGES =
-  "npx expo install react-native-web react-dom @expo/metro-runtime"
-
 
 /* -------------------------------------------------------------------------- */
 /* Sidebar                                                                     */
@@ -245,7 +210,6 @@ export interface MobileSection {
 export const MOBILE_SECTIONS: MobileSection[] = [
   { id: "overview", title: "Overview", group: "Get started" },
   { id: "showcase", title: "Run in Expo Go", group: "Get started" },
-  { id: "rules", title: "Design rules", group: "Guidance" },
-  { id: "platform", title: "Platform support", group: "Guidance" },
-  { id: "install", title: "Install", group: "Guidance" },
+  { id: "rules", title: "Design rules", group: "Get started" },
+  { id: "platform", title: "Platform support", group: "Get started" },
 ]

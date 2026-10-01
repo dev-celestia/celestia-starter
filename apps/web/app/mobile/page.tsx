@@ -5,7 +5,7 @@ import { MobilePageContent } from "@/components/mobile-showcase/mobile-page-cont
 export const metadata: Metadata = {
   title: "Mobile — Celestia Design System",
   description:
-    "Native iOS, Android and web components built on @expo/ui — 157 modules across primitives, composites, AI surfaces and full-screen layout shells, with component specimens and the Expo Go instructions.",
+    "Native iOS, Android and web components built on @expo/ui — 157 modules across primitives, composites, AI surfaces and full-screen layout shells, with the Expo Go showcase instructions.",
 }
 
 export default function MobileIndexPage() {

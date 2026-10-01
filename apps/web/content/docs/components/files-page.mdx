@@ -1,0 +1,59 @@
+---
+title: "Files Page"
+description: "Folder rail beside a table of entries, with a breadcrumb that carries the location once the rail collapses on narrow screens."
+---
+
+> **Copy template.** This layout ships as a source file, not a package export. Copy it from [`/layout/files-page`](/layout/files-page) or `apps/web/components/layout-templates/files-page.tsx`, then paste it into your app and adjust freely.
+
+The file browser: a folder rail beside a table of entries.
+
+The rail is navigation, not content, so it collapses entirely below `lg` and the breadcrumb carries the location instead — a two-column split at tablet width would leave the table too narrow to read a filename and a date at once.
+
+<FilesPagePreview />
+
+```tsx
+import { FilesPage, Input, Button } from "@/components/layout-templates/files-page"
+import type { FileEntry } from "@/components/layout-templates/files-page"
+
+const files: FileEntry[] = [
+  { id: "f1", name: "token-ramp.fig", kind: "Figma", size: "4.2 MB", modified: "2 hours ago", owner: "Ada Lin" },
+  { id: "f2", name: "contrast-report.csv", kind: "CSV", size: "88 KB", modified: "Yesterday", owner: "Sam Iversen" },
+]
+
+export function FilesScreen() {
+  const [folder, setFolder] = useState("designs")
+
+  return (
+    <FilesPage
+      title="Files"
+      description="Shared assets for the workspace."
+      breadcrumb={["Workspace", "Northwind", "Designs"]}
+      folders={[
+        { id: "designs", name: "Designs", count: 48 },
+        { id: "exports", name: "Exports", count: 112 },
+      ]}
+      activeFolderId={folder}
+      onFolderChange={setFolder}
+      files={files}
+      toolbar={
+        <>
+          <Input type="search" placeholder="Search files…" className="h-8 w-56" />
+          <Button variant="outline" size="sm" className="ms-auto">Type</Button>
+        </>
+      }
+      onOpenFile={(id) => router.push(`/files/${id}`)}
+    />
+  )
+}
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `breadcrumb` | `string[]` | — (required) | Path segments, most-significant first |
+| `folders` | `{ id, name, count? }[]` | — (required) | Rail entries; the rail hides below `lg` |
+| `files` | `FileEntry[]` | — (required) | `{ id, name, kind, size, modified, owner? }` |
+| `activeFolderId` / `onFolderChange` | `string` / `(id) => void` | — | Controlled folder selection |
+| `toolbar` | `React.ReactNode` | — | Controls above the table |
+| `onOpenFile` | `(id: string) => void` | — | Fired when a row is activated |
+
+Plus every [PageShell](/docs/components/page-shell) prop. `Type`, `Owner` and `Modified` columns drop out progressively below `sm` and `md` so the filename and size always survive.

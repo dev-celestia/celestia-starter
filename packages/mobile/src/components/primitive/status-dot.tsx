@@ -7,7 +7,6 @@ import {
   type ViewStyle,
 } from "react-native"
 import { useMobileTheme } from "../../host"
-import { canUseNativeDriver } from "../../motion"
 import type { ColorRamp } from "../../tokens"
 
 export type MobileStatusDotTone =
@@ -82,13 +81,13 @@ export function MobileStatusDot({
           toValue: 0,
           duration: PULSE_DURATION,
           easing: Easing.out(Easing.ease),
-          useNativeDriver: canUseNativeDriver,
+          useNativeDriver: true,
         }),
         Animated.timing(pulseScale, {
           toValue: 2.2,
           duration: PULSE_DURATION,
           easing: Easing.out(Easing.ease),
-          useNativeDriver: canUseNativeDriver,
+          useNativeDriver: true,
         }),
       ])
     )

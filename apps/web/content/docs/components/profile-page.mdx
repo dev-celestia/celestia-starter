@@ -3,6 +3,8 @@ title: "Profile Page"
 description: "Banner, overlapping avatar, identity block, metadata and headline numbers, with a sliding line-variant tab bar over the content."
 ---
 
+> **Copy template.** This layout ships as a source file, not a package export. Copy it from [`/layout/profile-page`](/layout/profile-page) or `apps/web/components/layout-templates/profile-page.tsx`, then paste it into your app and adjust freely.
+
 A profile screen: banner with an overlapping avatar, identity block (name, handle, headline, bio), metadata and headline-number rows, trailing actions, and an optional tab bar over the content.
 
 The tab bar is a real [Tabs](/docs/components/tabs) list rather than a row of styled buttons, so arrow-key navigation and the sliding indicator come for free. Content is a sibling of the tab list rather than a `TabsContent` panel — you own routing between sections, and a panel wrapper would only add a layer that fights your own layout.
@@ -10,7 +12,7 @@ The tab bar is a real [Tabs](/docs/components/tabs) list rather than a row of st
 <ProfilePagePreview />
 
 ```tsx
-import { ProfilePage, Badge, Button } from "@celestia-project/ui/layout/profile-page"
+import { ProfilePage, Badge, Button } from "@/components/layout-templates/profile-page"
 
 export function ProfileScreen() {
   return (

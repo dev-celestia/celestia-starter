@@ -23,11 +23,14 @@ import { timeAgo } from "@/lib/ui";
 interface ApiKeyRow {
   id: string;
   name: string;
-  key: string;
+  keyHint: string | null;
   active: boolean;
   lastUsedAt: string | null;
   createdAt: string;
 }
+
+/** The create response is the only place the raw key is ever returned. */
+type CreatedKey = ApiKeyRow & { key: string };
 
 const USAGE_EXAMPLE = `const res = await fetch(
   "${siteUrl()}/api/public/v1/posts?limit=10",
@@ -43,7 +46,7 @@ export default function CmsSettingsPage() {
 
   const [keys, setKeys] = useState<ApiKeyRow[] | null>(null);
   const [name, setName] = useState("");
-  const [created, setCreated] = useState<ApiKeyRow | null>(null);
+  const [created, setCreated] = useState<CreatedKey | null>(null);
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(() => {
@@ -117,8 +120,8 @@ export default function CmsSettingsPage() {
         <Card className="border-primary/50">
           <CardContent className="space-y-2 p-4">
             <p className="flex items-center gap-2 text-sm font-medium">
-              <Key className="size-4" /> “{created.name}” — copy this key now, it is stored
-              recoverable but treat it as a secret:
+              <Key className="size-4" /> “{created.name}” — copy this key now, it is shown only
+              once (only a hash is stored):
             </p>
             <div className="flex items-center gap-2">
               <code className="flex-1 overflow-x-auto rounded-md bg-muted px-3 py-2 font-mono text-xs">
@@ -180,7 +183,7 @@ export default function CmsSettingsPage() {
                     <TableCell className="font-medium">{k.name}</TableCell>
                     <TableCell>
                       <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
-                        {k.key.slice(0, 12)}…
+                        {k.keyHint ?? "cms_…"}…
                       </code>
                     </TableCell>
                     <TableCell className="text-muted-foreground">

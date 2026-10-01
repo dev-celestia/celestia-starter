@@ -6,7 +6,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@celestia-project/ui/primitive/card"
+} from "@celestia-project/ui"
 
 import { useSession } from "@/lib/auth-client"
 import { UsersManager } from "@/components/access/users-manager"

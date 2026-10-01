@@ -1,0 +1,49 @@
+---
+title: "Onboarding Page"
+description: "Wizard with a progress rail that doubles as navigation when a change handler is supplied, and reads as plain progress when it is not."
+---
+
+> **Copy template.** This layout ships as a source file, not a package export. Copy it from [`/layout/onboarding-page`](/layout/onboarding-page) or `apps/web/components/layout-templates/onboarding-page.tsx`, then paste it into your app and adjust freely.
+
+The onboarding wizard: a step rail beside the active step's panel.
+
+The rail doubles as progress and as navigation, so `onStepChange` is optional rather than required — a linear flow that must not be skipped simply does not pass it, and the rail falls back to a non-interactive list instead of a set of buttons that would need disabling one by one.
+
+<OnboardingPagePreview />
+
+```tsx
+import { OnboardingPage, Button, Input } from "@/components/layout-templates/onboarding-page"
+import type { OnboardingStep } from "@/components/layout-templates/onboarding-page"
+
+const steps: OnboardingStep[] = [
+  { id: "profile", label: "Your profile", description: "Name and avatar" },
+  { id: "workspace", label: "Workspace", description: "Name and data region" },
+  { id: "invite", label: "Invite teammates", description: "Optional — you can skip" },
+]
+
+export function Setup() {
+  const [step, setStep] = useState("workspace")
+
+  return (
+    <OnboardingPage
+      title="Set up your workspace"
+      description="Four short steps — every one of them can be changed later."
+      steps={steps}
+      activeStep={step}
+      onStepChange={setStep}
+    >
+      <Input defaultValue="Northwind" className="max-w-sm" />
+      <Button>Continue</Button>
+    </OnboardingPage>
+  )
+}
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `steps` | `OnboardingStep[]` | — (required) | `{ id, label, description? }` |
+| `activeStep` | `string` | — (required) | Id of the step in progress |
+| `onStepChange` | `(id: string) => void` | — | Makes the rail clickable; omit for read-only progress |
+| `children` | `React.ReactNode` | — | The step's form, rendered in the panel |
+
+Plus every [PageShell](/docs/components/page-shell) prop. Steps before the active one render as complete, and the progress bar reads `activeStep / steps.length` — so "Step 2 of 4" fills to 50%.

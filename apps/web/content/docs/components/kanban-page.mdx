@@ -1,0 +1,48 @@
+---
+title: "Kanban Page"
+description: "Board of fixed-width columns on a single horizontal track, each with its own vertical scroll and a tone-coded status dot."
+---
+
+> **Copy template.** This layout ships as a source file, not a package export. Copy it from [`/layout/kanban-page`](/layout/kanban-page) or `apps/web/components/layout-templates/kanban-page.tsx`, then paste it into your app and adjust freely.
+
+The kanban board: one horizontal track of fixed-width columns.
+
+Columns scroll as a single track rather than wrapping, because a board whose columns reflow into rows stops reading as a board — the eye loses the left-to-right progression that makes the stages legible. Each column owns its own vertical scroll so a long "In progress" list cannot stretch the page.
+
+<KanbanPagePreview />
+
+```tsx
+import { KanbanPage, Button } from "@/components/layout-templates/kanban-page"
+import type { KanbanColumn } from "@/components/layout-templates/kanban-page"
+
+const columns: KanbanColumn[] = [
+  {
+    id: "progress",
+    title: "In progress",
+    tone: "info",
+    cards: [
+      { id: "p1", title: "Twenty new layout frames", meta: "DS-460", tags: ["layouts"], assignee: "Nadia", tone: "info" },
+    ],
+  },
+  { id: "done", title: "Done", tone: "success", cards: [] },
+]
+
+<KanbanPage
+  title="Design system board"
+  description="Everything in flight this sprint."
+  columns={columns}
+  actions={<Button size="sm">New task</Button>}
+  onOpenCard={(id) => router.push(`/tasks/${id}`)}
+  onAddCard={(columnId) => openComposer(columnId)}
+/>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `columns` | `KanbanColumn[]` | — (required) | `{ id, title, tone?, cards }` |
+| `onOpenCard` | `(id: string) => void` | — | Fired when a card is activated |
+| `onAddCard` | `(columnId: string) => void` | — | Fired when a column's add button is pressed |
+
+Plus every [PageShell](/docs/components/page-shell) prop (`title`, `description`, `actions`, `width`, …).
+
+`KanbanCard` is `{ id, title, meta?, tags?: string[], assignee?, tone? }`, where `tone` is `"default" | "info" | "success" | "warning" | "destructive"`. The same union drives the column's status dot and the card's leading rail, so a column and its urgent card can share a hue without a second prop.

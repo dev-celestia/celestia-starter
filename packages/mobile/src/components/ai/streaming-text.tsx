@@ -1,7 +1,6 @@
 import * as React from "react"
 import { Animated, type StyleProp, type TextStyle } from "react-native"
 import { useMobileTheme } from "../../host"
-import { canUseNativeDriver } from "../../motion"
 import type { ColorRamp } from "../../tokens"
 import { MobileText, type MobileTextVariant } from "../primitive/text"
 
@@ -93,12 +92,12 @@ export function MobileStreamingText({
         Animated.timing(blink, {
           toValue: DIM,
           duration: BLINK_MS,
-          useNativeDriver: canUseNativeDriver,
+          useNativeDriver: true,
         }),
         Animated.timing(blink, {
           toValue: 1,
           duration: BLINK_MS,
-          useNativeDriver: canUseNativeDriver,
+          useNativeDriver: true,
         }),
       ])
     )

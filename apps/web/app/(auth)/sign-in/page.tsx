@@ -83,10 +83,10 @@ function SignInForm() {
 
         <AuthError message={error} />
 
-        {/* Sizing comes from the design system's `lg` step — the previous
-            `h-8 w-full text-xs` re-declared the *default* size and clobbered
-            its `text-xs/relaxed` line-height. */}
-        <Button type="submit" size="lg" disabled={loading} className="w-full">
+        {/* Default component size. Never hand-declare `h-8 text-xs` here —
+            re-stating the default's height clobbers its text-xs/relaxed
+            line-height. */}
+        <Button type="submit" disabled={loading} className="w-full">
           {loading ? "Signing in..." : "Sign in"}
         </Button>
       </form>
@@ -95,7 +95,6 @@ function SignInForm() {
 
       <Button
         variant="outline"
-        size="lg"
         className="w-full"
         onClick={handleGoogleSignIn}
       >

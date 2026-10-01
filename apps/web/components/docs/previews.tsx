@@ -290,27 +290,41 @@ import {
   TooltipTrigger,
 } from "@celestia-project/ui/primitive/tooltip"
 import {
+  ArrowRightIcon,
   BellIcon,
   CalendarBlankIcon,
   ChartLineUpIcon,
   CreditCardIcon,
+  CurrencyDollarIcon,
   DownloadSimpleIcon,
   EnvelopeSimpleIcon,
+  FigmaLogoIcon,
+  FolderIcon,
   FunnelSimpleIcon,
   GearSixIcon,
   GithubLogoIcon,
+  GlobeIcon,
   GoogleLogoIcon,
+  HashIcon,
   HouseIcon,
   LinkSimpleIcon,
   MagnifyingGlassIcon,
   MapPinIcon,
+  MegaphoneIcon,
   MoonStarsIcon,
   NoteBlankIcon,
+  NotionLogoIcon,
+  PaperPlaneTiltIcon,
   PencilSimpleIcon,
   PlusIcon,
+  RocketLaunchIcon,
   ShieldCheckIcon,
   SignOutIcon,
+  SlackLogoIcon,
+  SparkleIcon,
   SquaresFourIcon,
+  StripeLogoIcon,
+  TrayIcon,
   TrendDownIcon,
   TrashIcon,
   UserIcon,
@@ -319,22 +333,42 @@ import {
 import { useMemo, useState } from "react"
 import type { ReactNode } from "react"
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
-import { AuthShell } from "@celestia-project/ui/layout/auth-shell"
-import { PageShell } from "@celestia-project/ui/layout/page-shell"
-import { DashboardShell } from "@celestia-project/ui/layout/dashboard-shell"
-import { SignInPage } from "@celestia-project/ui/layout/sign-in-page"
-import { SignUpPage } from "@celestia-project/ui/layout/sign-up-page"
-import { ForgotPasswordPage } from "@celestia-project/ui/layout/forgot-password-page"
-import { ResetPasswordPage } from "@celestia-project/ui/layout/reset-password-page"
-import { TwoFactorPage } from "@celestia-project/ui/layout/two-factor-page"
-import { DashboardPage } from "@celestia-project/ui/layout/dashboard-page"
-import { ProfilePage } from "@celestia-project/ui/layout/profile-page"
-import { SettingsPage } from "@celestia-project/ui/layout/settings-page"
-import { ListPage } from "@celestia-project/ui/layout/list-page"
-import { BillingPage } from "@celestia-project/ui/layout/billing-page"
-import { StatusPage } from "@celestia-project/ui/layout/status-page"
-import { NotFoundPage } from "@celestia-project/ui/layout/not-found-page"
-import { ErrorPage } from "@celestia-project/ui/layout/error-page"
+import { AuthShell } from "@celestia-project/ui/composite/auth-shell"
+import { PageShell } from "@celestia-project/ui/composite/page-shell"
+import { DashboardShell } from "@celestia-project/ui/composite/dashboard-shell"
+import { SignInPage } from "@/components/layout-templates/sign-in-page"
+import { SignUpPage } from "@/components/layout-templates/sign-up-page"
+import { ForgotPasswordPage } from "@/components/layout-templates/forgot-password-page"
+import { ResetPasswordPage } from "@/components/layout-templates/reset-password-page"
+import { TwoFactorPage } from "@/components/layout-templates/two-factor-page"
+import { DashboardPage } from "@/components/layout-templates/dashboard-page"
+import { ProfilePage } from "@/components/layout-templates/profile-page"
+import { SettingsPage } from "@/components/layout-templates/settings-page"
+import { ListPage } from "@/components/layout-templates/list-page"
+import { BillingPage } from "@/components/layout-templates/billing-page"
+import { StatusPage } from "@/components/layout-templates/status-page"
+import { NotFoundPage } from "@/components/layout-templates/not-found-page"
+import { ErrorPage } from "@/components/layout-templates/error-page"
+import { MarketingShell } from "@celestia-project/ui/composite/marketing-shell"
+import { LandingPage } from "@/components/layout-templates/landing-page"
+import { PricingPage } from "@/components/layout-templates/pricing-page"
+import { BlogIndexPage } from "@/components/layout-templates/blog-index-page"
+import { ArticlePage } from "@/components/layout-templates/article-page"
+import { InboxPage } from "@/components/layout-templates/inbox-page"
+import { ChatPage } from "@/components/layout-templates/chat-page"
+import { KanbanPage } from "@/components/layout-templates/kanban-page"
+import { CalendarPage } from "@/components/layout-templates/calendar-page"
+import { FilesPage } from "@/components/layout-templates/files-page"
+import { AnalyticsPage } from "@/components/layout-templates/analytics-page"
+import { ReportsPage } from "@/components/layout-templates/reports-page"
+import { RecordDetailPage } from "@/components/layout-templates/record-detail-page"
+import { SearchPage } from "@/components/layout-templates/search-page"
+import { AuditLogPage } from "@/components/layout-templates/audit-log-page"
+import { CheckoutPage } from "@/components/layout-templates/checkout-page"
+import { InvoicePage } from "@/components/layout-templates/invoice-page"
+import { OnboardingPage } from "@/components/layout-templates/onboarding-page"
+import { TeamPage } from "@/components/layout-templates/team-page"
+import { IntegrationsPage } from "@/components/layout-templates/integrations-page"
 import type {
   BillingInvoice,
   BillingPlan,
@@ -345,7 +379,7 @@ import type {
   ProfileStat,
   ProfileTab,
   SettingsSection,
-} from "@celestia-project/ui"
+} from "@/components/layout-templates"
 import { cn } from "@celestia-project/ui/lib/utils"
 
 function PreviewShell({ children }: { children: React.ReactNode }) {
@@ -640,7 +674,12 @@ export function ChartKitPreview() {
   return (
     <PreviewShell>
       <div className="grid w-full gap-8 md:grid-cols-2">
-        <ChartArea data={chartKitData} xKey="month" showLegend className="h-56" />
+        <ChartArea
+          data={chartKitData}
+          xKey="month"
+          showLegend
+          className="h-56"
+        />
         <ChartPie data={chartKitPie} donut className="max-w-56">
           <span className="text-2xl font-bold tabular-nums">750</span>
           <span className="text-xs text-muted-foreground">Visitors</span>
@@ -1219,7 +1258,7 @@ Draft content as draggable markdown blocks. Double-click a section to edit it in
 
   return (
     <PreviewShell>
-      <div className="w-full max-w-xl overflow-hidden rounded-lg border border-fd-border bg-background">
+      <div className="border-fd-border w-full max-w-xl overflow-hidden rounded-lg border bg-background">
         <BlockTextEditor
           content={content}
           onUpdateContent={setContent}
@@ -1739,7 +1778,7 @@ function LayoutPreviewShell({
   return (
     <div
       className={cn(
-        "not-prose bg-background w-full overflow-hidden rounded-lg border border-fd-border",
+        "not-prose border-fd-border w-full overflow-hidden rounded-lg border bg-background",
         className
       )}
     >
@@ -1752,29 +1791,52 @@ const noop = () => undefined
 
 function LayoutBrandMark() {
   return (
-    <div className="bg-primary text-primary-foreground flex size-9 items-center justify-center rounded-lg">
+    <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
       <MoonStarsIcon className="size-5" weight="fill" />
     </div>
   )
 }
 
 const LAYOUT_PROJECT_ROWS = [
-  { id: "prj_01", name: "Atlas API", meta: "Deployed 12 minutes ago", status: "Live" },
-  { id: "prj_02", name: "Nebula Web", meta: "Build queued", status: "Building" },
-  { id: "prj_03", name: "Comet CLI", meta: "Last release v2.4.1", status: "Stable" },
-  { id: "prj_04", name: "Orbit Mobile", meta: "Review pending", status: "Draft" },
+  {
+    id: "prj_01",
+    name: "Atlas API",
+    meta: "Deployed 12 minutes ago",
+    status: "Live",
+  },
+  {
+    id: "prj_02",
+    name: "Nebula Web",
+    meta: "Build queued",
+    status: "Building",
+  },
+  {
+    id: "prj_03",
+    name: "Comet CLI",
+    meta: "Last release v2.4.1",
+    status: "Stable",
+  },
+  {
+    id: "prj_04",
+    name: "Orbit Mobile",
+    meta: "Review pending",
+    status: "Draft",
+  },
 ]
 
 function LayoutProjectCards() {
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       {LAYOUT_PROJECT_ROWS.map((row) => (
-        <div key={row.id} className="rounded-lg border border-border/70 bg-card p-3">
+        <div
+          key={row.id}
+          className="rounded-lg border border-border/70 bg-card p-3"
+        >
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-medium">{row.name}</span>
             <Badge variant="secondary">{row.status}</Badge>
           </div>
-          <p className="text-muted-foreground mt-1 text-xs">{row.meta}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{row.meta}</p>
         </div>
       ))}
     </div>
@@ -1782,8 +1844,16 @@ function LayoutProjectCards() {
 }
 
 const LAYOUT_SOCIAL_PROVIDERS = [
-  { id: "google", label: "Google", icon: <GoogleLogoIcon className="size-4" /> },
-  { id: "github", label: "GitHub", icon: <GithubLogoIcon className="size-4" /> },
+  {
+    id: "google",
+    label: "Google",
+    icon: <GoogleLogoIcon className="size-4" />,
+  },
+  {
+    id: "github",
+    label: "GitHub",
+    icon: <GithubLogoIcon className="size-4" />,
+  },
 ]
 
 const LAYOUT_NAV_ITEMS = [
@@ -1830,14 +1900,14 @@ function LayoutActivityList() {
     <div className="flex flex-col gap-3">
       {LAYOUT_ACTIVITY.map((entry) => (
         <div key={entry.id} className="flex items-start gap-2">
-          <span className="bg-muted text-muted-foreground mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-3xs font-medium">
+          <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-muted text-3xs font-medium text-muted-foreground">
             {entry.who.slice(0, 1)}
           </span>
           <span className="min-w-0 flex-1 text-xs">
             <span className="font-medium">{entry.who}</span>{" "}
             <span className="text-muted-foreground">{entry.what}</span>
           </span>
-          <span className="text-muted-foreground shrink-0 text-3xs tabular-nums">
+          <span className="shrink-0 text-3xs text-muted-foreground tabular-nums">
             {entry.when}
           </span>
         </div>
@@ -1871,7 +1941,9 @@ export function AuthShellPreview() {
           footer={
             <>
               By continuing you agree to our{" "}
-              <span className="text-foreground font-medium">Terms of Service</span>
+              <span className="font-medium text-foreground">
+                Terms of Service
+              </span>
             </>
           }
         >
@@ -1888,10 +1960,10 @@ export function AuthShellPreview() {
           subheading="Sign in to your account to continue"
           sidePanel={
             <div className="flex h-full flex-col justify-end gap-3 p-10">
-              <blockquote className="text-foreground text-lg font-medium leading-snug tracking-tight">
+              <blockquote className="text-lg leading-snug font-medium tracking-tight text-foreground">
                 “Celestia cut our design-to-ship time in half.”
               </blockquote>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-sm text-muted-foreground">
                 Ada Lin — Head of Product, Northwind
               </p>
             </div>
@@ -1999,7 +2071,7 @@ export function DashboardShellPreview() {
         contentWidth="xl"
         brand={
           <span className="flex items-center gap-2 font-semibold">
-            <span className="bg-primary text-primary-foreground flex size-7 items-center justify-center rounded-md">
+            <span className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
               <MoonStarsIcon className="size-4" weight="fill" />
             </span>
             <span className="hidden text-sm md:inline">Celestia</span>
@@ -2013,7 +2085,7 @@ export function DashboardShellPreview() {
             </Avatar>
             <span className="hidden min-w-0 flex-col md:flex">
               <span className="truncate text-xs font-medium">Ada Lin</span>
-              <span className="text-muted-foreground truncate text-3xs">
+              <span className="truncate text-3xs text-muted-foreground">
                 ada@northwind.dev
               </span>
             </span>
@@ -2195,11 +2267,11 @@ function LayoutSettingRow({
   children: ReactNode
 }) {
   return (
-    <div className="border-border/70 bg-card flex items-start justify-between gap-6 rounded-lg border p-4">
+    <div className="flex items-start justify-between gap-6 rounded-lg border border-border/70 bg-card p-4">
       <div className="flex min-w-0 flex-col gap-0.5">
         <span className="text-xs font-medium">{label}</span>
         {description && (
-          <span className="text-muted-foreground text-xs">{description}</span>
+          <span className="text-xs text-muted-foreground">{description}</span>
         )}
       </div>
       <div className="shrink-0">{children}</div>
@@ -2215,7 +2287,10 @@ const LAYOUT_SETTING_SECTIONS: SettingsSection[] = [
     icon: <GearSixIcon />,
     content: (
       <div className="flex flex-col gap-3">
-        <LayoutSettingRow label="Workspace name" description="Shown to every member.">
+        <LayoutSettingRow
+          label="Workspace name"
+          description="Shown to every member."
+        >
           <Input defaultValue="Northwind" className="w-44" />
         </LayoutSettingRow>
         <LayoutSettingRow
@@ -2240,7 +2315,10 @@ const LAYOUT_SETTING_SECTIONS: SettingsSection[] = [
         >
           <Switch defaultChecked />
         </LayoutSettingRow>
-        <LayoutSettingRow label="Active sessions" description="3 devices signed in.">
+        <LayoutSettingRow
+          label="Active sessions"
+          description="3 devices signed in."
+        >
           <Button variant="outline" size="sm">
             <SignOutIcon />
             Sign out all
@@ -2256,13 +2334,14 @@ const LAYOUT_SETTING_SECTIONS: SettingsSection[] = [
     icon: <TrashIcon />,
     danger: true,
     content: (
-      <div className="border-destructive/30 bg-destructive/5 flex flex-col gap-3 rounded-lg border p-4">
+      <div className="flex flex-col gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-4">
         <div className="flex flex-col gap-0.5">
-          <span className="text-destructive text-xs font-medium">
+          <span className="text-xs font-medium text-destructive">
             Delete this workspace
           </span>
-          <span className="text-muted-foreground text-xs">
-            Every project, post and member will be removed. This cannot be undone.
+          <span className="text-xs text-muted-foreground">
+            Every project, post and member will be removed. This cannot be
+            undone.
           </span>
         </div>
         <Button variant="destructive" size="sm" className="self-start">
@@ -2288,12 +2367,48 @@ export function SettingsPagePreview() {
 }
 
 const LAYOUT_LIST_ROWS = [
-  { id: "prj_01", name: "Atlas API", owner: "Nadia Okonkwo", status: "Live", updated: "12 minutes ago" },
-  { id: "prj_02", name: "Nebula Web", owner: "Sam Iversen", status: "Building", updated: "48 minutes ago" },
-  { id: "prj_03", name: "Comet CLI", owner: "Ravi Shah", status: "Stable", updated: "2 hours ago" },
-  { id: "prj_04", name: "Orbit Mobile", owner: "Ada Lin", status: "Draft", updated: "5 hours ago" },
-  { id: "prj_05", name: "Pulsar Worker", owner: "Mira Chen", status: "Live", updated: "Yesterday" },
-  { id: "prj_06", name: "Vega Docs", owner: "Tom Ríos", status: "Stable", updated: "3 days ago" },
+  {
+    id: "prj_01",
+    name: "Atlas API",
+    owner: "Nadia Okonkwo",
+    status: "Live",
+    updated: "12 minutes ago",
+  },
+  {
+    id: "prj_02",
+    name: "Nebula Web",
+    owner: "Sam Iversen",
+    status: "Building",
+    updated: "48 minutes ago",
+  },
+  {
+    id: "prj_03",
+    name: "Comet CLI",
+    owner: "Ravi Shah",
+    status: "Stable",
+    updated: "2 hours ago",
+  },
+  {
+    id: "prj_04",
+    name: "Orbit Mobile",
+    owner: "Ada Lin",
+    status: "Draft",
+    updated: "5 hours ago",
+  },
+  {
+    id: "prj_05",
+    name: "Pulsar Worker",
+    owner: "Mira Chen",
+    status: "Live",
+    updated: "Yesterday",
+  },
+  {
+    id: "prj_06",
+    name: "Vega Docs",
+    owner: "Tom Ríos",
+    status: "Stable",
+    updated: "3 days ago",
+  },
 ]
 
 type LayoutListRow = (typeof LAYOUT_LIST_ROWS)[number]
@@ -2305,7 +2420,9 @@ const LAYOUT_LIST_COLUMNS: ListColumn<LayoutListRow>[] = [
     cell: (row) => (
       <div className="flex flex-col gap-0.5">
         <span className="font-medium">{row.name}</span>
-        <span className="text-muted-foreground font-mono text-3xs">{row.id}</span>
+        <span className="font-mono text-3xs text-muted-foreground">
+          {row.id}
+        </span>
       </div>
     ),
   },
@@ -2418,9 +2535,24 @@ const LAYOUT_BILLING_USAGE: BillingUsage[] = [
 ]
 
 const LAYOUT_BILLING_INVOICES: BillingInvoice[] = [
-  { id: "INV-0091", date: "1 Sep 2026", amount: "$96.00", status: <Badge variant="success">Paid</Badge> },
-  { id: "INV-0084", date: "1 Aug 2026", amount: "$96.00", status: <Badge variant="success">Paid</Badge> },
-  { id: "INV-0077", date: "1 Jul 2026", amount: "$72.00", status: <Badge variant="secondary">Refunded</Badge> },
+  {
+    id: "INV-0091",
+    date: "1 Sep 2026",
+    amount: "$96.00",
+    status: <Badge variant="success">Paid</Badge>,
+  },
+  {
+    id: "INV-0084",
+    date: "1 Aug 2026",
+    amount: "$96.00",
+    status: <Badge variant="success">Paid</Badge>,
+  },
+  {
+    id: "INV-0077",
+    date: "1 Jul 2026",
+    amount: "$72.00",
+    status: <Badge variant="secondary">Refunded</Badge>,
+  },
 ]
 
 export function BillingPagePreview() {
@@ -2443,12 +2575,14 @@ export function BillingPagePreview() {
         }
         paymentMethod={
           <div className="flex items-center gap-3">
-            <span className="bg-muted text-muted-foreground flex size-8 shrink-0 items-center justify-center rounded-md">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
               <CreditCardIcon className="size-4" />
             </span>
             <span className="flex min-w-0 flex-col">
               <span className="text-xs font-medium">Visa ending 4242</span>
-              <span className="text-muted-foreground text-xs">Expires 04 / 2029</span>
+              <span className="text-xs text-muted-foreground">
+                Expires 04 / 2029
+              </span>
             </span>
           </div>
         }
@@ -2494,6 +2628,1603 @@ export function ErrorPagePreview() {
         onAction={noop}
         secondaryLabel="Contact support"
         onSecondaryAction={noop}
+      />
+    </LayoutPreviewShell>
+  )
+}
+
+// ─── Marketing & content previews ───────────────────────────────────────────
+
+function MarketingLogo() {
+  return (
+    <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
+      <span className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
+        <MoonStarsIcon className="size-3.5" weight="fill" />
+      </span>
+      Celestia
+    </span>
+  )
+}
+
+const MARKETING_NAV = ["Product", "Pricing", "Docs", "Blog"]
+
+function MarketingNavLinks() {
+  return (
+    <>
+      {MARKETING_NAV.map((item) => (
+        <span
+          key={item}
+          className="cursor-pointer rounded-md px-2.5 py-1.5 transition-colors hover:text-foreground"
+        >
+          {item}
+        </span>
+      ))}
+    </>
+  )
+}
+
+const LANDING_FEATURES = [
+  {
+    id: "layouts",
+    icon: <SquaresFourIcon />,
+    title: "36 page layouts",
+    description:
+      "Shells, auth, screens, marketing and system states — every frame pre-wired to the same tokens.",
+  },
+  {
+    id: "tokens",
+    icon: <SparkleIcon />,
+    title: "Measured tokens",
+    description:
+      "Colour ramps scored against WCAG pairings, not eyeballed. Contrast is asserted in CI.",
+  },
+  {
+    id: "ship",
+    icon: <RocketLaunchIcon />,
+    title: "Install, don't copy",
+    description:
+      "Features land as packages. Upgrade the system without diffing a hundred files.",
+  },
+]
+
+const LANDING_METRICS = [
+  { id: "layouts", value: "36", label: "Page layouts" },
+  { id: "components", value: "180+", label: "Components" },
+  { id: "a11y", value: "AA", label: "Contrast floor" },
+  { id: "packages", value: "6", label: "Installable features" },
+]
+
+export function MarketingShellPreview() {
+  return (
+    <LayoutPreviewShell className="h-[26rem]">
+      <MarketingShell
+        className="h-full min-h-0"
+        stickyNav
+        announcement="Celestia 0.4 is out — 36 layouts, one design system."
+        logo={<MarketingLogo />}
+        nav={<MarketingNavLinks />}
+        actions={
+          <>
+            <Button variant="ghost" size="sm">
+              Sign in
+            </Button>
+            <Button size="sm">Start free</Button>
+          </>
+        }
+        footer={
+          <div className="flex flex-col gap-1.5">
+            <span className="text-xs font-semibold text-foreground">
+              Celestia
+            </span>
+            <span className="text-3xs text-muted-foreground">
+              The design system that ships itself.
+            </span>
+          </div>
+        }
+      >
+        <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-3 px-6 py-14 text-center">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-border/70 px-3 py-1 text-3xs font-medium text-muted-foreground">
+            <MegaphoneIcon className="size-3" />
+            v0.4.0
+          </span>
+          <h1 className="font-heading text-3xl font-semibold tracking-tight text-balance text-foreground">
+            Ship the interface, not the scaffolding
+          </h1>
+          <p className="max-w-lg text-sm leading-relaxed text-muted-foreground">
+            Every page frame your product needs, wired to one set of tokens.
+          </p>
+          <div className="flex items-center gap-3 pt-2">
+            <Button size="sm">
+              Get started
+              <ArrowRightIcon />
+            </Button>
+            <Button variant="outline" size="sm">
+              Read the docs
+            </Button>
+          </div>
+        </div>
+      </MarketingShell>
+    </LayoutPreviewShell>
+  )
+}
+
+export function LandingPagePreview() {
+  return (
+    <LayoutPreviewShell className="h-[34rem] overflow-y-auto">
+      <MarketingShell
+        className="h-full min-h-0"
+        logo={<MarketingLogo />}
+        nav={<MarketingNavLinks />}
+        actions={<Button size="sm">Start free</Button>}
+      >
+        <LandingPage
+          eyebrow={
+            <>
+              <SparkleIcon className="size-3" />
+              New in 0.4
+            </>
+          }
+          heading="The design system that ships itself"
+          subheading="Layouts, pages and primitives for teams that would rather build the product than the scaffolding around it."
+          primaryAction={
+            <Button size="sm">
+              Get started
+              <ArrowRightIcon />
+            </Button>
+          }
+          secondaryAction={
+            <Button variant="outline" size="sm">
+              Book a demo
+            </Button>
+          }
+          features={LANDING_FEATURES}
+          metrics={LANDING_METRICS}
+          cta={{
+            title: "Start building today",
+            description:
+              "Clone the starter, install a feature, and have a real screen in an afternoon.",
+            action: <Button size="sm">Create an account</Button>,
+          }}
+        />
+      </MarketingShell>
+    </LayoutPreviewShell>
+  )
+}
+
+const PRICING_PLANS = [
+  {
+    id: "starter",
+    name: "Starter",
+    price: "$0",
+    annualPrice: "$0",
+    interval: "Free forever",
+    description: "For side projects and evaluation.",
+    features: ["3 projects", "Community support", "1 GB storage"],
+    action: (
+      <Button variant="outline" className="w-full">
+        Start free
+      </Button>
+    ),
+  },
+  {
+    id: "team",
+    name: "Team",
+    price: "$12",
+    annualPrice: "$9",
+    interval: "per seat, per month",
+    description: "For product teams shipping weekly.",
+    features: [
+      "Unlimited projects",
+      "SSO and SCIM",
+      "90-day history",
+      "Priority support",
+    ],
+    highlighted: true,
+    badge: "Most popular",
+    action: <Button className="w-full">Start 14-day trial</Button>,
+  },
+  {
+    id: "enterprise",
+    name: "Enterprise",
+    price: "Custom",
+    annualPrice: "Custom",
+    interval: "Billed annually",
+    description: "For regulated and multi-region teams.",
+    features: ["Audit log export", "Dedicated region", "99.99% SLA"],
+    action: (
+      <Button variant="outline" className="w-full">
+        Contact sales
+      </Button>
+    ),
+  },
+]
+
+export function PricingPagePreview() {
+  return (
+    <LayoutPreviewShell className="h-[32rem] overflow-y-auto">
+      <PricingPage
+        eyebrow="Pricing"
+        heading="Simple, per-seat pricing"
+        description="Every plan includes the full component library. Upgrade for seats, history and support."
+        plans={PRICING_PLANS}
+        note="Prices in USD. Cancel any time."
+      />
+    </LayoutPreviewShell>
+  )
+}
+
+const BLOG_CATEGORIES = ["All", "Engineering", "Design", "Product"]
+
+const BLOG_POSTS = [
+  {
+    id: "tokens",
+    title: "Scoring a colour ramp instead of eyeballing it",
+    excerpt:
+      "A status hue is a fill under white ink and ink on near-white. Both reduce to one inequality.",
+    category: "Design",
+    author: "Ada Lin",
+    date: "12 Sep",
+    readingTime: "8 min",
+  },
+  {
+    id: "layouts",
+    title: "Thirty-six page frames, one set of tokens",
+    excerpt:
+      "How the layout family grew from three shells to a full catalogue without forking the palette.",
+    category: "Engineering",
+    author: "Ravi Shah",
+    date: "4 Sep",
+    readingTime: "6 min",
+  },
+  {
+    id: "a11y",
+    title: "The contrast gate that fails when it should",
+    excerpt:
+      "A check that can emit a uniform verdict is not decisive. Here is how we proved ours is not.",
+    category: "Engineering",
+    author: "Sam Iversen",
+    date: "28 Aug",
+    readingTime: "11 min",
+  },
+]
+
+export function BlogIndexPagePreview() {
+  const [category, setCategory] = useState("All")
+
+  return (
+    <LayoutPreviewShell className="h-[30rem] overflow-y-auto">
+      <BlogIndexPage
+        eyebrow="Journal"
+        heading="Notes from the design system"
+        description="Deep dives on tokens, layout and the machinery that keeps them honest."
+        categories={BLOG_CATEGORIES}
+        activeCategory={category}
+        onCategoryChange={setCategory}
+        featured={{
+          id: "featured",
+          title: "Why the destructive token is darker than you think",
+          excerpt:
+            "Measured in OKLCH, primary and destructive sat a tenth of a degree apart in hue — same hue, different lightness. The fix was in the relationship, not the values.",
+          category: "Design",
+          author: "Ada Lin",
+          date: "18 Sep",
+          readingTime: "9 min",
+        }}
+        posts={BLOG_POSTS}
+      />
+    </LayoutPreviewShell>
+  )
+}
+
+export function ArticlePagePreview() {
+  return (
+    <LayoutPreviewShell className="h-[32rem] overflow-y-auto">
+      <ArticlePage
+        category="Engineering"
+        title="Thirty-six page frames, one set of tokens"
+        description="How the layout family grew from three shells to a full catalogue without forking the palette."
+        author={{
+          name: "Ravi Shah",
+          role: "Design Systems",
+          avatarFallback: "RS",
+        }}
+        publishedAt="4 Sep 2026"
+        readingTime="6 min read"
+        toc={[
+          { id: "start", label: "Where we started" },
+          { id: "slots", label: "Slot-based frames" },
+          { id: "collapse", label: "Collapse order", level: 2 },
+          { id: "tokens", label: "One set of tokens" },
+        ]}
+        related={[
+          {
+            id: "r1",
+            title: "Scoring a colour ramp",
+            category: "Design",
+            readingTime: "8 min",
+          },
+          {
+            id: "r2",
+            title: "The contrast gate",
+            category: "Engineering",
+            readingTime: "11 min",
+          },
+          {
+            id: "r3",
+            title: "Installing a feature",
+            category: "Product",
+            readingTime: "4 min",
+          },
+        ]}
+      >
+        <p className="text-sm leading-relaxed text-foreground">
+          The layout family started as three shells: an authentication frame, a
+          page frame, and a dashboard frame. Each was written for one screen and
+          copied for the next, which worked right up until the fourth screen
+          needed a variant the copy did not have.
+        </p>
+        <h2
+          id="slots"
+          className="pt-2 font-heading text-lg font-semibold tracking-tight text-foreground"
+        >
+          Slot-based frames
+        </h2>
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          The fix was to stop describing screens and start describing slots. A
+          shell takes the navigation the consumer already has, rather than
+          inventing a navigation model and asking the consumer to adopt it.
+        </p>
+        <blockquote className="border-s-2 border-primary/40 ps-4 text-sm leading-relaxed text-foreground italic">
+          “A layout you can adopt beats a layout you can only copy.”
+        </blockquote>
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          That distinction is what let the catalogue grow without the palette
+          growing with it. Every frame still draws from the same ramp.
+        </p>
+      </ArticlePage>
+    </LayoutPreviewShell>
+  )
+}
+
+// ─── Collaboration previews ─────────────────────────────────────────────────
+
+const INBOX_FOLDERS = [
+  { id: "inbox", label: "Inbox", icon: <TrayIcon />, count: 4 },
+  { id: "starred", label: "Starred", icon: <SparkleIcon /> },
+  { id: "sent", label: "Sent", icon: <PaperPlaneTiltIcon /> },
+  { id: "archive", label: "Archive", icon: <FolderIcon /> },
+]
+
+const INBOX_MESSAGES = [
+  {
+    id: "m1",
+    from: "Nadia Okonkwo",
+    subject: "Atlas API rollout plan",
+    preview: "Staging is green. Can we cut the release candidate on Thursday?",
+    time: "09:12",
+    unread: true,
+  },
+  {
+    id: "m2",
+    from: "Sam Iversen",
+    subject: "Contrast gate is failing on the new ramp",
+    preview: "Two pairings dropped below 3:1 once the warning hue moved.",
+    time: "08:40",
+    unread: true,
+  },
+  {
+    id: "m3",
+    from: "Ravi Shah",
+    subject: "Layout catalogue — first pass",
+    preview:
+      "Twenty frames, all drawing from the same tokens. Screenshots attached.",
+    time: "Yesterday",
+  },
+  {
+    id: "m4",
+    from: "Ada Lin",
+    subject: "Billing plan change",
+    preview: "Moved the workspace to Team ahead of the seat increase.",
+    time: "Yesterday",
+  },
+]
+
+export function InboxPagePreview() {
+  const [folder, setFolder] = useState("inbox")
+  const [message, setMessage] = useState("m2")
+
+  return (
+    <LayoutPreviewShell className="h-[26rem] overflow-y-auto">
+      <InboxPage
+        className="h-full"
+        folders={INBOX_FOLDERS}
+        activeFolderId={folder}
+        onFolderChange={setFolder}
+        messages={INBOX_MESSAGES}
+        activeMessageId={message}
+        onSelectMessage={setMessage}
+        toolbar={
+          <Input
+            type="search"
+            placeholder="Search mail…"
+            className="h-7 w-full"
+            aria-label="Search mail"
+          />
+        }
+        readingHeader={
+          <>
+            <span className="text-xs font-medium text-foreground">
+              Contrast gate is failing on the new ramp
+            </span>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="ms-auto"
+              title="Archive"
+            >
+              <TrayIcon />
+            </Button>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-3 text-xs leading-relaxed">
+          <p className="text-muted-foreground">
+            Two pairings dropped below 3:1 once the warning hue moved. Both are
+            on the destructive ramp, and both pass on their own — it is the
+            relationship against the neighbouring step that broke.
+          </p>
+          <p className="text-muted-foreground">
+            I re-ran the census and the only failing rows are the two you would
+            expect. Everything else is unchanged.
+          </p>
+        </div>
+      </InboxPage>
+    </LayoutPreviewShell>
+  )
+}
+
+const CHAT_CHANNELS = [
+  { id: "general", label: "general" },
+  { id: "design", label: "design", unread: 3 },
+  { id: "eng", label: "engineering" },
+  { id: "releases", label: "releases" },
+]
+
+const CHAT_MESSAGES = [
+  {
+    id: "c1",
+    author: "Nadia",
+    time: "09:04",
+    avatarFallback: "NO",
+    body: "Pushed the twenty new frames to the layout page. All green.",
+  },
+  {
+    id: "c2",
+    author: "Sam",
+    time: "09:06",
+    avatarFallback: "SI",
+    body: "Nice. Did the collapse order survive the tablet breakpoint?",
+  },
+  {
+    id: "c3",
+    author: "Ada",
+    time: "09:08",
+    avatarFallback: "AL",
+    body: "It does — rail goes first, then the reading pane. Screenshots in the PR.",
+    own: true,
+  },
+]
+
+const CHAT_MEMBERS = [
+  {
+    id: "1",
+    name: "Ada Lin",
+    role: "Product",
+    avatarFallback: "AL",
+    online: true,
+  },
+  {
+    id: "2",
+    name: "Nadia Okonkwo",
+    role: "Platform",
+    avatarFallback: "NO",
+    online: true,
+  },
+  {
+    id: "3",
+    name: "Sam Iversen",
+    role: "Design systems",
+    avatarFallback: "SI",
+  },
+  {
+    id: "4",
+    name: "Ravi Shah",
+    role: "Engineering",
+    avatarFallback: "RS",
+    online: true,
+  },
+]
+
+export function ChatPagePreview() {
+  const [channel, setChannel] = useState("design")
+
+  return (
+    <LayoutPreviewShell className="h-[26rem] overflow-y-auto">
+      <ChatPage
+        className="h-full"
+        channels={CHAT_CHANNELS}
+        activeChannelId={channel}
+        onChannelChange={setChannel}
+        messages={CHAT_MESSAGES}
+        members={CHAT_MEMBERS}
+        header={
+          <>
+            <HashIcon className="size-3.5 text-muted-foreground" />
+            <span className="text-xs font-medium text-foreground">design</span>
+            <span className="text-3xs text-muted-foreground">4 members</span>
+          </>
+        }
+        composer={
+          <div className="flex items-center gap-2">
+            <Input
+              placeholder="Message #design"
+              className="h-8 flex-1"
+              aria-label="Message"
+            />
+            <Button size="icon-sm" title="Send">
+              <PaperPlaneTiltIcon />
+            </Button>
+          </div>
+        }
+      />
+    </LayoutPreviewShell>
+  )
+}
+
+const BOARD_COLUMNS = [
+  {
+    id: "backlog",
+    title: "Backlog",
+    tone: "default" as const,
+    cards: [
+      {
+        id: "b1",
+        title: "Audit the mobile token ramp",
+        meta: "DS-441",
+        tags: ["tokens"],
+      },
+      {
+        id: "b2",
+        title: "Document the Skia runtime",
+        meta: "DS-455",
+        tags: ["docs"],
+      },
+    ],
+  },
+  {
+    id: "progress",
+    title: "In progress",
+    tone: "info" as const,
+    cards: [
+      {
+        id: "p1",
+        title: "Twenty new layout frames",
+        meta: "DS-460",
+        tags: ["layouts"],
+        assignee: "Nadia",
+        tone: "info" as const,
+      },
+      {
+        id: "p2",
+        title: "Contrast gate: warning pairing",
+        meta: "DS-458",
+        tags: ["a11y"],
+        assignee: "Sam",
+        tone: "warning" as const,
+      },
+    ],
+  },
+  {
+    id: "review",
+    title: "In review",
+    tone: "warning" as const,
+    cards: [
+      {
+        id: "r1",
+        title: "Pricing page billing toggle",
+        meta: "DS-449",
+        tags: ["marketing"],
+        assignee: "Ravi",
+      },
+    ],
+  },
+  {
+    id: "done",
+    title: "Done",
+    tone: "success" as const,
+    cards: [
+      {
+        id: "d1",
+        title: "Derive the destructive edge",
+        meta: "DS-431",
+        tags: ["tokens"],
+        assignee: "Ada",
+        tone: "success" as const,
+      },
+      {
+        id: "d2",
+        title: "Ship the docs sidebar",
+        meta: "DS-427",
+        tags: ["docs"],
+      },
+    ],
+  },
+]
+
+export function KanbanPagePreview() {
+  return (
+    <LayoutPreviewShell className="h-[26rem] overflow-y-auto">
+      <KanbanPage
+        className="h-full"
+        title="Design system board"
+        description="Everything in flight this sprint."
+        columns={BOARD_COLUMNS}
+        actions={<Button size="sm">New task</Button>}
+      />
+    </LayoutPreviewShell>
+  )
+}
+
+const CALENDAR_WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+const CALENDAR_DAYS = [
+  { id: "d1", date: 28, outside: true },
+  { id: "d2", date: 29, outside: true },
+  { id: "d3", date: 30, outside: true },
+  {
+    id: "d4",
+    date: 1,
+    events: [{ id: "e1", title: "Design review", tone: "info" as const }],
+  },
+  { id: "d5", date: 2 },
+  { id: "d6", date: 3 },
+  { id: "d7", date: 4 },
+  {
+    id: "d8",
+    date: 5,
+    events: [{ id: "e2", title: "Sprint planning", tone: "success" as const }],
+  },
+  {
+    id: "d9",
+    date: 6,
+    today: true,
+    events: [
+      { id: "e3", title: "Contrast gate", tone: "warning" as const },
+      { id: "e4", title: "Standup", tone: "info" as const },
+      { id: "e5", title: "Release cut", tone: "destructive" as const },
+    ],
+  },
+  { id: "d10", date: 7 },
+  {
+    id: "d11",
+    date: 8,
+    events: [{ id: "e6", title: "Office hours", tone: "info" as const }],
+  },
+  { id: "d12", date: 9 },
+  { id: "d13", date: 10 },
+  {
+    id: "d14",
+    date: 11,
+    events: [{ id: "e7", title: "Retro", tone: "success" as const }],
+  },
+  { id: "d15", date: 12 },
+  { id: "d16", date: 13 },
+  {
+    id: "d17",
+    date: 14,
+    events: [{ id: "e8", title: "Docs freeze", tone: "warning" as const }],
+  },
+  { id: "d18", date: 15 },
+  { id: "d19", date: 16 },
+  { id: "d20", date: 17 },
+  { id: "d21", date: 18 },
+  { id: "d22", date: 19 },
+  { id: "d23", date: 20 },
+  { id: "d24", date: 21 },
+  { id: "d25", date: 22 },
+  { id: "d26", date: 23 },
+  { id: "d27", date: 24 },
+  { id: "d28", date: 25 },
+  { id: "d29", date: 26 },
+  { id: "d30", date: 27 },
+  { id: "d31", date: 28 },
+  { id: "d32", date: 29 },
+  { id: "d33", date: 30 },
+  { id: "d34", date: 31 },
+  { id: "d35", date: 1, outside: true },
+]
+
+const CALENDAR_AGENDA = [
+  {
+    id: "a1",
+    time: "09:00",
+    title: "Standup",
+    meta: "Design system",
+    tone: "info" as const,
+  },
+  {
+    id: "a2",
+    time: "11:30",
+    title: "Contrast gate review",
+    meta: "Sam · 30 min",
+    tone: "warning" as const,
+  },
+  {
+    id: "a3",
+    time: "15:00",
+    title: "Release cut 0.4.0",
+    meta: "Nadia · 45 min",
+    tone: "destructive" as const,
+  },
+  {
+    id: "a4",
+    time: "16:30",
+    title: "Office hours",
+    meta: "Open to the team",
+    tone: "info" as const,
+  },
+]
+
+export function CalendarPagePreview() {
+  const [day, setDay] = useState("d9")
+
+  return (
+    <LayoutPreviewShell className="h-[30rem] overflow-y-auto">
+      <CalendarPage
+        // No `h-full`: the day grid's rows are `minmax(5rem,1fr)`, so a pinned
+        // height squeezes the last week row past the card's `overflow-hidden`
+        // and the month loses its tail.
+        title="Schedule"
+        description="Sprint 24 — design system"
+        actions={<Button size="sm">New event</Button>}
+        monthLabel="October 2026"
+        weekdays={CALENDAR_WEEKDAYS}
+        days={CALENDAR_DAYS}
+        agenda={CALENDAR_AGENDA}
+        selectedDayId={day}
+        onSelectDay={setDay}
+      />
+    </LayoutPreviewShell>
+  )
+}
+
+const FILE_FOLDERS = [
+  { id: "designs", name: "Designs", count: 48 },
+  { id: "exports", name: "Exports", count: 112 },
+  { id: "docs", name: "Docs", count: 26 },
+  { id: "archive", name: "Archive", count: 340 },
+]
+
+const FILE_ENTRIES = [
+  {
+    id: "f1",
+    name: "token-ramp.fig",
+    kind: "Figma",
+    size: "4.2 MB",
+    modified: "2 hours ago",
+    owner: "Ada Lin",
+  },
+  {
+    id: "f2",
+    name: "contrast-report.csv",
+    kind: "CSV",
+    size: "88 KB",
+    modified: "Yesterday",
+    owner: "Sam Iversen",
+  },
+  {
+    id: "f3",
+    name: "layout-catalogue.pdf",
+    kind: "PDF",
+    size: "12.4 MB",
+    modified: "3 days ago",
+    owner: "Ravi Shah",
+  },
+  {
+    id: "f4",
+    name: "brand-marks",
+    kind: "Folder",
+    size: "—",
+    modified: "Last week",
+    owner: "Nadia Okonkwo",
+  },
+  {
+    id: "f5",
+    name: "release-0.4.0.zip",
+    kind: "Archive",
+    size: "64.1 MB",
+    modified: "Last week",
+    owner: "Nadia Okonkwo",
+  },
+]
+
+export function FilesPagePreview() {
+  const [folder, setFolder] = useState("designs")
+
+  return (
+    <LayoutPreviewShell className="h-[26rem] overflow-y-auto">
+      <FilesPage
+        className="h-full"
+        title="Files"
+        description="Shared assets for the design system workspace."
+        breadcrumb={["Workspace", "Northwind", "Designs"]}
+        folders={FILE_FOLDERS}
+        activeFolderId={folder}
+        onFolderChange={setFolder}
+        files={FILE_ENTRIES}
+        actions={<Button size="sm">Upload</Button>}
+        toolbar={
+          <>
+            <Input
+              type="search"
+              placeholder="Search files…"
+              className="h-7 w-48"
+              aria-label="Search files"
+            />
+            <Button variant="outline" size="sm" className="ms-auto">
+              <FunnelSimpleIcon />
+              Type
+            </Button>
+          </>
+        }
+      />
+    </LayoutPreviewShell>
+  )
+}
+
+// ─── Data & insights previews ───────────────────────────────────────────────
+
+const ANALYTICS_METRICS = [
+  {
+    id: "visitors",
+    label: "Visitors",
+    value: "128,470",
+    delta: "+12.4%",
+    trend: "up" as const,
+    hint: "vs. last month",
+    icon: <UsersThreeIcon />,
+  },
+  {
+    id: "conversion",
+    label: "Conversion",
+    value: "4.18%",
+    delta: "+0.6%",
+    trend: "up" as const,
+    hint: "vs. last month",
+    icon: <ChartLineUpIcon />,
+  },
+  {
+    id: "revenue",
+    label: "Revenue",
+    value: "$48,290",
+    delta: "+9.1%",
+    trend: "up" as const,
+    hint: "vs. last month",
+    icon: <CurrencyDollarIcon />,
+  },
+  {
+    id: "bounce",
+    label: "Bounce rate",
+    value: "31.2%",
+    delta: "-2.4%",
+    trend: "down" as const,
+    hint: "vs. last month",
+    icon: <TrendDownIcon />,
+  },
+]
+
+const ANALYTICS_BREAKDOWN = [
+  { id: "organic", label: "Organic search", value: "52,110", share: 41 },
+  { id: "direct", label: "Direct", value: "38,940", share: 30 },
+  { id: "referral", label: "Referral", value: "21,320", share: 17 },
+  { id: "social", label: "Social", value: "16,100", share: 12 },
+]
+
+export function AnalyticsPagePreview() {
+  return (
+    <LayoutPreviewShell className="h-[34rem] overflow-y-auto">
+      <AnalyticsPage
+        className="h-full"
+        title="Analytics"
+        description="Traffic, conversion and revenue for the last 30 days."
+        actions={
+          <Button variant="outline" size="sm">
+            <DownloadSimpleIcon />
+            Export
+          </Button>
+        }
+        metrics={ANALYTICS_METRICS}
+        chart={
+          <ChartArea
+            data={chartKitData}
+            xKey="month"
+            showLegend
+            className="h-56"
+          />
+        }
+        chartTitle="Revenue against expenses"
+        chartDescription="Monthly totals, last six months."
+        breakdown={ANALYTICS_BREAKDOWN}
+        breakdownTitle="Top sources"
+        breakdownDescription="Share of sessions in the period."
+      />
+    </LayoutPreviewShell>
+  )
+}
+
+const REPORT_ENTRIES = [
+  {
+    id: "r1",
+    name: "Weekly revenue",
+    description: "MRR, expansion and churn",
+    schedule: "Every Monday, 09:00",
+    status: "ready" as const,
+    lastRun: "3 days ago",
+    owner: "Finance",
+  },
+  {
+    id: "r2",
+    name: "Contrast census",
+    description: "All WCAG pairings per theme",
+    schedule: "On every commit",
+    status: "running" as const,
+    owner: "Design systems",
+  },
+  {
+    id: "r3",
+    name: "Seat utilisation",
+    description: "Active seats against plan",
+    schedule: "Every Friday, 17:00",
+    status: "ready" as const,
+    lastRun: "6 days ago",
+    owner: "Operations",
+  },
+  {
+    id: "r4",
+    name: "Audit export",
+    description: "Signed activity log",
+    schedule: "Monthly",
+    status: "failed" as const,
+    lastRun: "12 days ago",
+    owner: "Security",
+  },
+  {
+    id: "r5",
+    name: "Cohort retention",
+    description: "Week-over-week by signup cohort",
+    status: "draft" as const,
+    owner: "Growth",
+  },
+]
+
+export function ReportsPagePreview() {
+  return (
+    <LayoutPreviewShell className="h-[26rem] overflow-y-auto">
+      <ReportsPage
+        className="h-full"
+        title="Reports"
+        description="Saved reports, their cadence and their last result."
+        reports={REPORT_ENTRIES}
+        actions={<Button size="sm">New report</Button>}
+      />
+    </LayoutPreviewShell>
+  )
+}
+
+export function RecordDetailPagePreview() {
+  return (
+    <LayoutPreviewShell className="h-[28rem] overflow-y-auto">
+      <RecordDetailPage
+        className="h-full"
+        name="Ada Lin"
+        subtitle="ada@northwind.dev · Lisbon, Portugal"
+        status={<Badge variant="success">Active</Badge>}
+        avatarFallback="AL"
+        actions={
+          <>
+            <Button variant="outline" size="sm">
+              Copy link
+            </Button>
+            <Button size="sm">Edit</Button>
+          </>
+        }
+        tabs={[
+          { id: "overview", label: "Overview" },
+          { id: "activity", label: "Activity", count: 24 },
+          { id: "billing", label: "Billing" },
+        ]}
+        defaultTab="overview"
+        metadata={[
+          { id: "role", label: "Role", value: "Head of Product" },
+          { id: "team", label: "Team", value: "Design systems" },
+          { id: "joined", label: "Joined", value: "March 2023" },
+          { id: "seats", label: "Seats", value: "9 of 12" },
+          {
+            id: "plan",
+            label: "Plan",
+            value: <Badge variant="secondary">Team</Badge>,
+          },
+        ]}
+      >
+        <div className="flex flex-col gap-2 rounded-xl border border-border/70 bg-card p-4">
+          <span className="text-xs font-medium text-foreground">
+            Building the design system that ships itself
+          </span>
+          <p className="text-xs leading-relaxed text-muted-foreground">
+            Previously platform at Northwind — now making sure the next team
+            does not have to rewrite the button.
+          </p>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {[
+            { id: "posts", value: "128", label: "Posts" },
+            { id: "reviews", value: "412", label: "Reviews" },
+            { id: "projects", value: "17", label: "Projects" },
+          ].map((stat) => (
+            <div
+              key={stat.id}
+              className="flex flex-col gap-0.5 rounded-xl border border-border/70 bg-card p-4"
+            >
+              <span className="font-heading text-xl font-semibold text-foreground tabular-nums">
+                {stat.value}
+              </span>
+              <span className="text-3xs text-muted-foreground">
+                {stat.label}
+              </span>
+            </div>
+          ))}
+        </div>
+      </RecordDetailPage>
+    </LayoutPreviewShell>
+  )
+}
+
+const SEARCH_FACETS = [
+  {
+    id: "type",
+    label: "Type",
+    options: [
+      { id: "layout", label: "Layout", count: 36, checked: true },
+      { id: "primitive", label: "Primitive", count: 48 },
+      { id: "composite", label: "Composite", count: 33 },
+    ],
+  },
+  {
+    id: "status",
+    label: "Status",
+    options: [
+      { id: "stable", label: "Stable", count: 102, checked: true },
+      { id: "beta", label: "Beta", count: 12 },
+      { id: "deprecated", label: "Deprecated", count: 3 },
+    ],
+  },
+]
+
+const SEARCH_RESULTS = [
+  {
+    id: "s1",
+    title: "Dashboard Shell",
+    excerpt:
+      "Signed-in app frame: navigation rail with brand and footer slots, sticky header, scrolling content column and an optional right rail.",
+    meta: "apps/web/components/layout-templates/dashboard-shell.tsx",
+    badge: <Badge variant="success">Stable</Badge>,
+  },
+  {
+    id: "s2",
+    title: "Page Shell",
+    excerpt:
+      "App page frame with blurred sticky header, title, description, trailing actions and width presets.",
+    meta: "apps/web/components/layout-templates/page-shell.tsx",
+    badge: <Badge variant="success">Stable</Badge>,
+  },
+  {
+    id: "s3",
+    title: "Auth Shell",
+    excerpt:
+      "Authentication page frame with logo, heading, provider aside, footer, and centered or split-screen variants.",
+    meta: "apps/web/components/layout-templates/auth-shell.tsx",
+    badge: <Badge variant="success">Stable</Badge>,
+  },
+]
+
+export function SearchPagePreview() {
+  const [query, setQuery] = useState("shell")
+
+  return (
+    <LayoutPreviewShell className="h-[28rem] overflow-y-auto">
+      <SearchPage
+        className="h-full"
+        title="Search"
+        description="Across components, layouts and documentation."
+        query={query}
+        onQueryChange={setQuery}
+        placeholder="Search the design system…"
+        facets={SEARCH_FACETS}
+        results={SEARCH_RESULTS}
+        totalLabel={`${SEARCH_RESULTS.length} results in 0.04s`}
+      />
+    </LayoutPreviewShell>
+  )
+}
+
+const AUDIT_EVENTS = [
+  {
+    id: "a1",
+    actor: "Ada Lin",
+    action: "changed the billing plan to",
+    target: "Team",
+    time: "Today, 09:41",
+    ip: "203.0.113.24",
+    tone: "info" as const,
+  },
+  {
+    id: "a2",
+    actor: "Nadia Okonkwo",
+    action: "deployed",
+    target: "atlas-api@2.4.1",
+    time: "Today, 08:12",
+    ip: "198.51.100.7",
+    tone: "success" as const,
+  },
+  {
+    id: "a3",
+    actor: "Sam Iversen",
+    action: "rotated the signing key for",
+    target: "web",
+    time: "Yesterday, 17:03",
+    ip: "198.51.100.19",
+    tone: "warning" as const,
+  },
+  {
+    id: "a4",
+    actor: "System",
+    action: "blocked a sign-in attempt from",
+    target: "unknown device",
+    time: "Yesterday, 03:27",
+    ip: "192.0.2.88",
+    tone: "destructive" as const,
+  },
+  {
+    id: "a5",
+    actor: "Ravi Shah",
+    action: "invited 3 teammates to",
+    target: "Northwind",
+    time: "2 days ago",
+    ip: "203.0.113.51",
+  },
+]
+
+export function AuditLogPagePreview() {
+  return (
+    <LayoutPreviewShell className="h-[28rem] overflow-y-auto">
+      <AuditLogPage
+        className="h-full"
+        title="Audit log"
+        description="Every privileged action in the workspace, newest first."
+        events={AUDIT_EVENTS}
+        actions={
+          <Button variant="outline" size="sm">
+            <DownloadSimpleIcon />
+            Export
+          </Button>
+        }
+        filters={
+          <>
+            <Input
+              type="search"
+              placeholder="Filter by actor…"
+              className="h-7 w-48"
+              aria-label="Filter by actor"
+            />
+            <Button variant="outline" size="sm">
+              <FunnelSimpleIcon />
+              Action
+            </Button>
+          </>
+        }
+      />
+    </LayoutPreviewShell>
+  )
+}
+
+// ─── Commerce & flows previews ──────────────────────────────────────────────
+
+export function CheckoutPagePreview() {
+  return (
+    <LayoutPreviewShell className="h-[30rem] overflow-y-auto">
+      <CheckoutPage
+        className="h-full"
+        title="Checkout"
+        description="Twelve seats on the Team plan, billed annually."
+        steps={[
+          { id: "account", label: "Account" },
+          { id: "payment", label: "Payment" },
+          { id: "confirm", label: "Confirm" },
+        ]}
+        activeStep="payment"
+        summary={[
+          { id: "seats", label: "Team plan × 12", value: "$1,080.00" },
+          { id: "annual", label: "Annual discount", value: "−$216.00" },
+          { id: "tax", label: "Estimated tax", value: "$69.12" },
+          {
+            id: "trial",
+            label: "14-day trial credit",
+            value: "Applied",
+            muted: true,
+          },
+        ]}
+        total={{ label: "Due today", value: "$933.12" }}
+        summaryNote="Charged on the first day after your trial. Cancel any time before then."
+        submitLabel="Pay and start trial"
+        backLabel="Back to account"
+        onSubmit={noop}
+        onBack={noop}
+      >
+        <div className="flex flex-col gap-4 rounded-xl border border-border/70 bg-card p-5">
+          <span className="text-xs font-medium text-foreground">
+            Payment method
+          </span>
+          <div className="flex items-center gap-3">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
+              <CreditCardIcon className="size-4" />
+            </span>
+            <span className="flex min-w-0 flex-col">
+              <span className="text-xs font-medium text-foreground">
+                Visa ending 4242
+              </span>
+              <span className="text-3xs text-muted-foreground">
+                Expires 04 / 2029
+              </span>
+            </span>
+            <Button variant="ghost" size="sm" className="ms-auto">
+              Change
+            </Button>
+          </div>
+          <Separator />
+          <div className="flex flex-col gap-2">
+            <span className="text-3xs font-medium tracking-wide text-muted-foreground uppercase">
+              Billing address
+            </span>
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              Northwind Labs
+              <br />
+              Rua da Prata 80, 1100-052
+              <br />
+              Lisbon, Portugal
+            </p>
+          </div>
+        </div>
+      </CheckoutPage>
+    </LayoutPreviewShell>
+  )
+}
+
+export function InvoicePagePreview() {
+  return (
+    // Taller than its siblings on purpose: an invoice is a document, so the
+    // preview has to reach the totals block or it shows only a table.
+    <LayoutPreviewShell className="h-[42rem] overflow-y-auto">
+      <InvoicePage
+        // No `h-full`: the document is natural-height, and pinning it to the
+        // frame re-clamps it so the totals block is cut off mid-table. Let the
+        // shell scroll instead.
+        title="Invoice"
+        description="Northwind Labs — September 2026."
+        number="INV-0091"
+        status={<Badge variant="success">Paid</Badge>}
+        issuedAt="1 Sep 2026"
+        dueAt="15 Sep 2026"
+        from={{
+          name: "Celestia Labs",
+          lines: [
+            "Rua da Prata 80",
+            "1100-052 Lisbon",
+            "Portugal",
+            "VAT PT123456789",
+          ],
+        }}
+        to={{
+          name: "Northwind Labs",
+          lines: [
+            "12 Harbour Street",
+            "Dublin D02 XY45",
+            "Ireland",
+            "VAT IE9876543A",
+          ],
+        }}
+        lineItems={[
+          {
+            id: "l1",
+            description: "Team plan",
+            detail: "12 seats, September",
+            quantity: "12",
+            rate: "$9.00",
+            amount: "$108.00",
+          },
+          {
+            id: "l2",
+            description: "Build minutes overage",
+            detail: "1,840 of 2,000 used",
+            quantity: "1",
+            rate: "$18.00",
+            amount: "$18.00",
+          },
+          {
+            id: "l3",
+            description: "Artifact storage",
+            detail: "78 GB of 100 GB",
+            quantity: "1",
+            rate: "$0.00",
+            amount: "$0.00",
+          },
+          {
+            id: "l4",
+            description: "Priority support",
+            detail: "4-hour response",
+            quantity: "1",
+            rate: "$45.00",
+            amount: "$45.00",
+          },
+        ]}
+        totals={[
+          { label: "Subtotal", value: "$171.00" },
+          { label: "VAT 23%", value: "$39.33", muted: true },
+          { label: "Trial credit", value: "−$18.00", muted: true },
+          { label: "Total due", value: "$192.33", strong: true },
+        ]}
+        notes="Payable within 14 days. Questions? Billing@celestia.dev."
+        actions={<Button size="sm">Download PDF</Button>}
+      />
+    </LayoutPreviewShell>
+  )
+}
+
+export function OnboardingPagePreview() {
+  const [step, setStep] = useState("workspace")
+
+  return (
+    <LayoutPreviewShell className="h-[26rem] overflow-y-auto">
+      <OnboardingPage
+        className="h-full"
+        title="Set up your workspace"
+        description="Four short steps — you can change any of this later."
+        steps={[
+          {
+            id: "profile",
+            label: "Your profile",
+            description: "Name and avatar",
+          },
+          {
+            id: "workspace",
+            label: "Workspace",
+            description: "Name and region",
+          },
+          { id: "invite", label: "Invite teammates", description: "Optional" },
+          {
+            id: "finish",
+            label: "Finish",
+            description: "Pick a starting point",
+          },
+        ]}
+        activeStep={step}
+        onStepChange={setStep}
+      >
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <span className="text-sm font-semibold text-foreground">
+              Name your workspace
+            </span>
+            <span className="text-xs leading-relaxed text-muted-foreground">
+              This is what your team sees in the sidebar and on invitations.
+            </span>
+          </div>
+          <div className="flex flex-col gap-2">
+            <span className="text-xs font-medium text-foreground">
+              Workspace name
+            </span>
+            <Input defaultValue="Northwind" className="max-w-sm" />
+          </div>
+          <div className="flex flex-col gap-2">
+            <span className="text-xs font-medium text-foreground">
+              Data region
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {["EU West", "US East", "Asia Pacific"].map((region) => (
+                <span
+                  key={region}
+                  className={
+                    region === "EU West"
+                      ? "inline-flex h-8 items-center rounded-lg border border-primary/60 bg-primary/5 px-3 text-xs font-medium text-foreground"
+                      : "inline-flex h-8 items-center rounded-lg border border-border/70 px-3 text-xs text-muted-foreground"
+                  }
+                >
+                  {region}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="flex items-center gap-2 pt-2">
+            <Button variant="outline">Back</Button>
+            <Button>
+              Continue
+              <ArrowRightIcon />
+            </Button>
+          </div>
+        </div>
+      </OnboardingPage>
+    </LayoutPreviewShell>
+  )
+}
+
+const TEAM_MEMBERS = [
+  {
+    id: "t1",
+    name: "Ada Lin",
+    email: "ada@northwind.dev",
+    role: "Owner",
+    status: "active" as const,
+    avatarFallback: "AL",
+  },
+  {
+    id: "t2",
+    name: "Nadia Okonkwo",
+    email: "nadia@northwind.dev",
+    role: "Admin",
+    status: "active" as const,
+    avatarFallback: "NO",
+  },
+  {
+    id: "t3",
+    name: "Sam Iversen",
+    email: "sam@northwind.dev",
+    role: "Member",
+    status: "active" as const,
+    avatarFallback: "SI",
+  },
+  {
+    id: "t4",
+    name: "Ravi Shah",
+    email: "ravi@northwind.dev",
+    role: "Member",
+    status: "invited" as const,
+    avatarFallback: "RS",
+  },
+  {
+    id: "t5",
+    name: "Mira Chen",
+    email: "mira@northwind.dev",
+    role: "Viewer",
+    status: "suspended" as const,
+    avatarFallback: "MC",
+  },
+]
+
+export function TeamPagePreview() {
+  return (
+    <LayoutPreviewShell className="h-[26rem] overflow-y-auto">
+      <TeamPage
+        className="h-full"
+        title="Team"
+        description="9 of 12 seats used on the Team plan."
+        members={TEAM_MEMBERS}
+        actions={<Button size="sm">Invite</Button>}
+        invite={
+          <>
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-semibold text-foreground">
+                Invite teammates
+              </span>
+              <span className="text-xs leading-relaxed text-muted-foreground">
+                They join as members. You can change a role afterwards.
+              </span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-medium text-foreground">
+                Email address
+              </span>
+              <Input type="email" placeholder="name@company.com" />
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-medium text-foreground">Role</span>
+              <Input defaultValue="Member" />
+            </div>
+            <Button className="w-full">
+              <PaperPlaneTiltIcon />
+              Send invitation
+            </Button>
+            <p className="text-3xs leading-relaxed text-muted-foreground">
+              Invitations expire after 7 days.
+            </p>
+          </>
+        }
+      />
+    </LayoutPreviewShell>
+  )
+}
+
+const INTEGRATION_CATEGORIES = [
+  "All",
+  "Communication",
+  "Code",
+  "Design",
+  "Finance",
+]
+
+const INTEGRATIONS = [
+  {
+    id: "slack",
+    name: "Slack",
+    description: "Post build and release events to a channel.",
+    category: "Communication",
+    connected: true,
+    icon: <SlackLogoIcon />,
+  },
+  {
+    id: "github",
+    name: "GitHub",
+    description: "Link pull requests to issues and previews.",
+    category: "Code",
+    connected: true,
+    icon: <GithubLogoIcon />,
+  },
+  {
+    id: "figma",
+    name: "Figma",
+    description: "Pull tokens and frames into the catalogue.",
+    category: "Design",
+    connected: false,
+    icon: <FigmaLogoIcon />,
+  },
+  {
+    id: "stripe",
+    name: "Stripe",
+    description: "Sync plans, seats and invoice history.",
+    category: "Finance",
+    connected: true,
+    icon: <StripeLogoIcon />,
+  },
+  {
+    id: "notion",
+    name: "Notion",
+    description: "Publish component docs to a shared wiki.",
+    category: "Design",
+    connected: false,
+    icon: <NotionLogoIcon />,
+  },
+  {
+    id: "webhooks",
+    name: "Webhooks",
+    description: "Send signed events to any HTTPS endpoint.",
+    category: "Code",
+    connected: false,
+    icon: <GlobeIcon />,
+  },
+]
+
+export function IntegrationsPagePreview() {
+  const [category, setCategory] = useState("All")
+
+  return (
+    <LayoutPreviewShell className="h-[28rem] overflow-y-auto">
+      <IntegrationsPage
+        className="h-full"
+        title="Integrations"
+        description="Connect the tools your team already uses."
+        actions={<Button size="sm">Request an app</Button>}
+        categories={INTEGRATION_CATEGORIES}
+        activeCategory={category}
+        onCategoryChange={setCategory}
+        integrations={INTEGRATIONS}
       />
     </LayoutPreviewShell>
   )

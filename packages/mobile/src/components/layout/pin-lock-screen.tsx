@@ -2,17 +2,15 @@ import * as React from "react"
 import { Animated, StyleSheet, View } from "react-native"
 import { useMobileTheme } from "../../host"
 import { hapticMedium } from "../../utils"
-import { canUseNativeDriver } from "../../motion"
 import { MobileButton } from "../primitive/button"
 import { MobileText } from "../primitive/text"
 import { MobilePinPad } from "../composite/pin-pad"
 import { MobileScreen, type MobileScreenProps } from "./screen"
 
-export interface MobilePinLockScreenProps
-  extends Omit<
-    MobileScreenProps,
-    "children" | "footer" | "scroll" | "contentContainerStyle"
-  > {
+export interface MobilePinLockScreenProps extends Omit<
+  MobileScreenProps,
+  "children" | "footer" | "scroll" | "contentContainerStyle"
+> {
   /** Headline above the dots. @default 'Enter your PIN' */
   title?: string
   /** Supporting copy, e.g. whose PIN this is. */
@@ -84,7 +82,7 @@ export function MobilePinLockScreen({
         Animated.timing(shake, {
           toValue,
           duration: 45,
-          useNativeDriver: canUseNativeDriver,
+          useNativeDriver: true,
         })
       )
     ).start()
@@ -112,15 +110,16 @@ export function MobilePinLockScreen({
   return (
     <MobileScreen {...screenProps} scroll={false}>
       <View style={styles.prompt}>
-        <MobileText
-          variant="heading"
-          align="center"
-          accessibilityRole="header"
-        >
+        <MobileText variant="heading" align="center" accessibilityRole="header">
           {title}
         </MobileText>
         {message ? (
-          <MobileText variant="body" color="muted" align="center" style={styles.message}>
+          <MobileText
+            variant="body"
+            color="muted"
+            align="center"
+            style={styles.message}
+          >
             {message}
           </MobileText>
         ) : null}

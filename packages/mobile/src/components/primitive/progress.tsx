@@ -8,7 +8,7 @@ import {
   type ViewStyle,
 } from "react-native"
 import { useMobileTheme } from "../../host"
-import { SPRING_GAUGE, canUseNativeDriver, springLayoutTo } from "../../motion"
+import { SPRING_GAUGE, springLayoutTo } from "../../motion"
 import type { ColorRamp } from "../../tokens"
 import { MobileText } from "./text"
 
@@ -99,7 +99,7 @@ export function MobileProgress({
         toValue: trackWidth,
         duration: INDETERMINATE_DURATION,
         easing: Easing.inOut(Easing.ease),
-        useNativeDriver: canUseNativeDriver,
+        useNativeDriver: true,
       })
     )
     loop.start()
@@ -135,7 +135,11 @@ export function MobileProgress({
         }
         style={[
           styles.track,
-          { height, borderRadius: height / 2, backgroundColor: resolve(trackColor) },
+          {
+            height,
+            borderRadius: height / 2,
+            backgroundColor: resolve(trackColor),
+          },
         ]}
       >
         {indeterminate ? (

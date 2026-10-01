@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Animated, StyleSheet, View, type ViewStyle } from "react-native"
 import { useMobileTheme } from "../../host"
-import { canUseNativeDriver, SPRING_SNAPPY } from "../../motion"
+import { SPRING_SNAPPY } from "../../motion"
 import { metrics } from "../../tokens"
 import { MobileText } from "../primitive/text"
 
@@ -81,12 +81,12 @@ export function MobileAiAvatar({
         Animated.timing(pulse, {
           toValue: 1,
           duration: 900,
-          useNativeDriver: canUseNativeDriver,
+          useNativeDriver: true,
         }),
         Animated.timing(pulse, {
           toValue: 0,
           duration: 900,
-          useNativeDriver: canUseNativeDriver,
+          useNativeDriver: true,
         }),
       ])
     )

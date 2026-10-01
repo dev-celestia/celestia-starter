@@ -41,9 +41,9 @@ interface SiteNavProps {
  * Below `lg` it is a static top bar: the brand row, the anchor links
  * wrapping beneath it, and the action row behind a dashed divider. It
  * scrolls away with the page, so no scroll-offset bookkeeping is needed.
- * From `lg` up it becomes a fixed left rail (`w-80`) with the links in a
+ * From `lg` up it becomes a fixed left rail (`w-64`) with the links in a
  * column and the actions pinned to the bottom; page content offsets
- * itself with `lg:ml-80`.
+ * itself with `lg:ml-64`.
  *
  * The rail hides its scrollbar (it owns the page's left edge), so when
  * the menu is taller than the viewport it would otherwise overflow
@@ -97,7 +97,7 @@ function SiteNav({
     <nav
       ref={navRef}
       aria-label="Main navigation"
-      className="border-b border-border bg-background [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:w-80 lg:overflow-y-auto lg:border-r lg:border-b-0"
+      className="border-b border-border bg-background [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:w-64 lg:overflow-y-auto lg:border-r lg:border-b-0"
     >
       {/* Scroll hints — zero-height sticky strips pinned to the rail's edges. */}
       <div
@@ -110,7 +110,7 @@ function SiteNav({
         <div className="absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-background via-background/80 to-transparent" />
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-5 px-5 py-5 sm:px-8 lg:min-h-full lg:flex-col lg:items-stretch lg:justify-start lg:gap-8 lg:px-8 lg:py-12">
+      <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-5 px-5 py-5 sm:px-8 lg:min-h-full lg:flex-col lg:items-stretch lg:justify-start lg:gap-8 lg:px-6 lg:py-12">
         <Link
           href="/"
           className="flex items-center gap-2.5 rounded-sm text-lg font-semibold tracking-[-0.01em] text-foreground transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"

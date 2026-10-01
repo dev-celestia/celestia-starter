@@ -18,7 +18,6 @@ import {
   Button,
   Card,
   CardContent,
-  Separator,
   Table,
   TableBody,
   TableCell,
@@ -29,7 +28,6 @@ import {
 import { cn } from "@celestia-project/ui/lib/utils"
 import { MobileNavSidebar } from "@/components/shared/nav-sidebar"
 import { MobileSidebar, MOBILE_SIDEBAR_GROUPS } from "./mobile-sidebar"
-import { MOBILE_SPECIMENS } from "./specimens"
 import {
   MOBILE_CATEGORIES,
   MOBILE_ENTRY_POINTS,
@@ -37,9 +35,6 @@ import {
   MOBILE_PLATFORM,
   MOBILE_RULES,
   MOBILE_SECTIONS,
-  MOBILE_UNIVERSAL_IMPLEMENTATIONS,
-  MOBILE_WEB_CAVEATS,
-  MOBILE_WEB_PACKAGES,
 } from "@/lib/mobile-showcase"
 
 const DOCS_HREF = "/docs/mobile"
@@ -204,7 +199,7 @@ function Hero() {
           Expo SDK 57
         </Badge>
         <Badge variant="outline" className="font-mono">
-          iOS · Android · Web
+          iOS · Android
         </Badge>
       </div>
 
@@ -218,12 +213,8 @@ function Hero() {
             @expo/ui
           </code>{" "}
           — real SwiftUI and Jetpack Compose views, organised into primitives,
-          composites, AI surfaces and layout screens. Web is served by the same
-          components through{" "}
-          <code className="rounded-md border border-border/70 bg-muted/60 px-1.5 py-0.5 font-mono text-xs">
-            @expo/ui
-          </code>
-          &apos;s universal entry. This surface shows the shapes; the{" "}
+          composites, AI surfaces and layout screens. This surface shows the
+          shapes; the{" "}
           <Link
             href={DOCS_HREF}
             className="font-medium text-foreground underline underline-offset-4"
@@ -253,16 +244,11 @@ function Hero() {
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <Button
-          render={<Link href={DOCS_HREF} />}
-        >
+        <Button render={<Link href={DOCS_HREF} />}>
           Read the docs
           <ArrowRightIcon className="size-3.5" />
         </Button>
-        <Button
-          variant="outline"
-          render={<Link href="#showcase" />}
-        >
+        <Button variant="outline" render={<Link href="#showcase" />}>
           <DeviceMobileIcon className="size-3.5" />
           Run it in Expo Go
         </Button>
@@ -290,8 +276,7 @@ function Overview() {
         <span className="font-medium text-foreground">design tokens</span>, so a
         component sits in the same mental bucket whichever library you are in.
         That shared taxonomy is also the escape hatch: when a screen needs a
-        first-class web implementation rather than the universal entry&apos;s
-        DOM rendering, it can be rebuilt on{" "}
+        first-class web implementation, it can be rebuilt on{" "}
         <code className="font-mono text-2xs">@celestia-project/ui</code> with
         the same names and the same tokens.
       </p>
@@ -432,10 +417,53 @@ function Showcase() {
           <Command
             label="terminal"
             code={
-              "pnpm --filter mobile web   # browser\npnpm --filter mobile ios   # simulator"
+              "pnpm --filter mobile ios     # simulator\npnpm --filter mobile android # emulator"
             }
           />
         </div>
+      </div>
+
+      <div className="flex flex-col gap-3">
+        <h3 className="text-sm font-semibold">
+          Using the package in your own app
+        </h3>
+        <div className="grid gap-3 lg:grid-cols-2">
+          <div className="flex flex-col gap-2">
+            <h3 className="text-xs font-semibold">The package</h3>
+            <Command
+              label="workspace"
+              code="pnpm --filter mobile add @celestia-project/mobile@workspace:*"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <h3 className="text-xs font-semibold">
+              Native peers — autolinked by Expo
+            </h3>
+            <Command
+              label="expo install"
+              code="npx expo install @expo/ui expo-haptics react-native-safe-area-context"
+            />
+          </div>
+        </div>
+
+        <Card className={PANEL_XL}>
+          <CardContent className="flex flex-col gap-2">
+            <h3 className="text-xs font-semibold">
+              Pin React Native to the SDK 57 pairing
+            </h3>
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              Use{" "}
+              <code className="font-mono text-2xs">
+                npx expo install react-native
+              </code>{" "}
+              so it resolves <code className="font-mono text-2xs">0.86.3</code>.
+              Do not bump to <code className="font-mono text-2xs">^0.87</code>{" "}
+              by hand — Expo 57&apos;s Metro tooling requires{" "}
+              <code className="font-mono text-2xs">rn-get-polyfills</code>,
+              which React Native 0.87 removed.
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       <Alert className={cn(CALLOUT, CALLOUT_SURFACE.tip)}>
@@ -454,38 +482,19 @@ function Showcase() {
           is only needed once you add native code of your own.
         </AlertDescription>
       </Alert>
-    </section>
-  )
-}
 
-function Specimens() {
-  return (
-    <section
-      id="specimens"
-      className="@container flex scroll-mt-24 flex-col gap-4 pt-8"
-    >
-      <div className="flex flex-col gap-2">
-        <h3 className="text-sm font-semibold">In the hand</h3>
-        <p className="max-w-2xl text-xs leading-relaxed text-muted-foreground">
-          The primitives and composites, drawn at the package&apos;s real
-          metrics — the 44pt touch floor, the 10pt control radius, the 11 / 12 /
-          14 / 16px type steps. These are transcriptions rather than the running
-          components — this page is a Next.js app and does not depend on the
-          React Native library — so to interact with the real ones,{" "}
-          <Link
-            href="#showcase"
-            className="font-medium text-foreground underline underline-offset-4"
-          >
-            run them in Expo Go
-          </Link>
-          .
-        </p>
-      </div>
-
-      <div className="grid gap-3 @xl:grid-cols-2 @4xl:grid-cols-3">
-        {MOBILE_SPECIMENS.map((Specimen) => (
-          <Specimen key={Specimen.name} />
-        ))}
+      <div className="flex flex-wrap items-center gap-2 pt-1">
+        <Button render={<Link href={DOCS_HREF} />}>
+          Full reference — peer table, screens, icons
+          <ArrowRightIcon className="size-3.5" />
+        </Button>
+        <Button
+          variant="outline"
+          render={<Link href={REPO_HREF} target="_blank" rel="noreferrer" />}
+        >
+          Source
+          <ArrowSquareOutIcon className="size-3.5" />
+        </Button>
       </div>
     </section>
   )
@@ -496,7 +505,7 @@ function Rules() {
     <section className="flex flex-col gap-4">
       <SectionHeader
         id="rules"
-        eyebrow="Guidance"
+        eyebrow="Get started"
         title="Design rules"
         description="Enforced by convention and review, not by a linter — which is exactly why they are worth knowing before adding a component."
       />
@@ -523,14 +532,10 @@ function Rules() {
 }
 
 function Platform() {
-  const mark = (state: "yes" | "no" | "partial") =>
+  const mark = (state: "yes" | "no") =>
     state === "yes" ? (
       <span className="text-xs text-success" aria-label="supported">
         ✓
-      </span>
-    ) : state === "partial" ? (
-      <span className="text-xs text-warning" aria-label="partial">
-        ~
       </span>
     ) : (
       <span
@@ -545,9 +550,9 @@ function Platform() {
     <section className="flex flex-col gap-4">
       <SectionHeader
         id="platform"
-        eyebrow="Guidance"
+        eyebrow="Get started"
         title="Platform support"
-        description="The library targets iOS, Android and web. The native platforms get real SwiftUI and Jetpack Compose views; web is served by @expo/ui's universal entry — which is what every component in this package imports."
+        description="The library targets iOS and Android. Both get real SwiftUI and Jetpack Compose views through @expo/ui — the universal entry every component in this package imports. There is no web target; browser UI belongs to @celestia-project/ui."
       />
 
       <Card className={PANEL_FLUSH}>
@@ -562,9 +567,6 @@ function Platform() {
               </TableHead>
               <TableHead className="h-auto w-20 px-4 py-2.5 text-center font-medium text-muted-foreground">
                 Android
-              </TableHead>
-              <TableHead className="h-auto w-16 px-4 py-2.5 text-center font-medium text-muted-foreground">
-                Web
               </TableHead>
               <TableHead className="h-auto px-4 py-2.5 font-medium text-muted-foreground">
                 Note
@@ -584,9 +586,6 @@ function Platform() {
                 <TableCell className="px-4 py-2.5 text-center">
                   {mark(row.android)}
                 </TableCell>
-                <TableCell className="px-4 py-2.5 text-center">
-                  {mark(row.web)}
-                </TableCell>
                 <TableCell className="px-4 py-2.5 text-2xs text-muted-foreground">
                   {row.note}
                 </TableCell>
@@ -596,10 +595,10 @@ function Platform() {
         </Table>
       </Card>
 
-      {/* The entry point is the whole story, and the most misread thing here. */}
+      {/* One entry point story: the universal specifier resolves per platform. */}
       <div className="flex flex-col gap-3">
         <h3 className="text-sm font-semibold">
-          Which entry point you import decides whether web works
+          One universal entry, resolved per platform
         </h3>
         <Card className={PANEL_FLUSH}>
           <Table className="min-w-[560px] text-left">
@@ -641,89 +640,13 @@ function Platform() {
           Every module in{" "}
           <code className="font-mono text-2xs">packages/mobile</code> imports
           from <code className="font-mono text-2xs">&quot;@expo/ui&quot;</code>{" "}
-          — the universal entry — and never from{" "}
+          — the universal entry — never from{" "}
           <code className="font-mono text-2xs">/swift-ui</code> or{" "}
-          <code className="font-mono text-2xs">/jetpack-compose</code>. The
-          universal implementations are real rather than stubs:
+          <code className="font-mono text-2xs">/jetpack-compose</code>, so the
+          same code gets the right native views on both platforms. Everything
+          else in the package is plain React Native and needs no{" "}
+          <code className="font-mono text-2xs">@expo/ui</code> at runtime.
         </p>
-
-        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-          {MOBILE_UNIVERSAL_IMPLEMENTATIONS.map((item) => (
-            <Card
-              key={item.module}
-              className={cn(PANEL_LG, "[--card-spacing:--spacing(3)]")}
-            >
-              <CardContent className="flex flex-col gap-1">
-                <code className="font-mono text-2xs font-medium">
-                  {item.module}
-                </code>
-                <span className="text-2xs leading-relaxed text-muted-foreground">
-                  {item.behaviour}
-                </span>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-
-      <p className="max-w-3xl text-xs leading-relaxed text-muted-foreground">
-        The rest of the chain is web-clean as well.{" "}
-        <code className="font-mono text-2xs">
-          react-native-safe-area-context
-        </code>{" "}
-        resolves through{" "}
-        <code className="font-mono text-2xs">react-native-web</code>;{" "}
-        <code className="font-mono text-2xs">expo-status-bar</code> ships{" "}
-        <code className="font-mono text-2xs">StatusBar.web.js</code>; and{" "}
-        <code className="font-mono text-2xs">react-native-svg</code>, which the
-        showcase icons are drawn with, ships a web build. Each animation guards
-        its driver with{" "}
-        <code className="font-mono text-2xs">
-          Platform.OS !== &quot;web&quot;
-        </code>
-        , and <code className="font-mono text-2xs">screen.tsx</code> puts the
-        iOS-only keyboard padding behind a{" "}
-        <code className="font-mono text-2xs">
-          Platform.OS === &quot;ios&quot;
-        </code>{" "}
-        check.
-      </p>
-
-      <div className="grid gap-3 lg:grid-cols-2">
-        <div className="flex flex-col gap-2">
-          <h3 className="text-xs font-semibold">Enabling web in an app</h3>
-          <Command label="expo install" code={MOBILE_WEB_PACKAGES} />
-          <p className="text-2xs leading-relaxed text-muted-foreground">
-            <code className="font-mono text-2xs">apps/mobile</code> also
-            declares the web bundler in{" "}
-            <code className="font-mono text-2xs">app.json</code>:{" "}
-            <code className="font-mono text-2xs">
-              {`"web": { "bundler": "metro", "output": "single" }`}
-            </code>
-            . Both are already in place, so{" "}
-            <code className="font-mono text-2xs">pnpm --filter mobile web</code>{" "}
-            serves the showcase in a browser.
-          </p>
-        </div>
-        <div className="flex flex-col gap-3">
-          {MOBILE_WEB_CAVEATS.map((caveat) => (
-            <Alert
-              key={caveat.title}
-              className={cn(CALLOUT, CALLOUT_SURFACE.info)}
-            >
-              <InfoIcon
-                className={cn("mt-0.5 size-4 shrink-0", CALLOUT_ICON.info)}
-                weight="duotone"
-              />
-              <AlertTitle className="text-xs font-semibold text-foreground">
-                {caveat.title}
-              </AlertTitle>
-              <AlertDescription className="text-xs leading-relaxed text-muted-foreground">
-                {caveat.detail}
-              </AlertDescription>
-            </Alert>
-          ))}
-        </div>
       </div>
 
       <Alert className={cn(CALLOUT, CALLOUT_SURFACE.warn)}>
@@ -747,73 +670,6 @@ function Platform() {
           see.
         </AlertDescription>
       </Alert>
-    </section>
-  )
-}
-
-function Install() {
-  return (
-    <section className="flex flex-col gap-4">
-      <SectionHeader
-        id="install"
-        eyebrow="Guidance"
-        title="Install"
-        description="Inside a workspace app the package resolves from the workspace protocol; the native dependencies are peers and must be installed by the app."
-      />
-
-      <div className="grid gap-3 lg:grid-cols-2">
-        <div className="flex flex-col gap-2">
-          <h3 className="text-xs font-semibold">The package</h3>
-          <Command
-            label="workspace"
-            code="pnpm --filter mobile add @celestia-project/mobile@workspace:*"
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <h3 className="text-xs font-semibold">
-            Native peers — autolinked by Expo
-          </h3>
-          <Command
-            label="expo install"
-            code="npx expo install @expo/ui expo-haptics react-native-safe-area-context"
-          />
-        </div>
-      </div>
-
-      <Card className={PANEL_XL}>
-        <CardContent className="flex flex-col gap-2">
-          <h3 className="text-xs font-semibold">
-            Pin React Native to the SDK 57 pairing
-          </h3>
-          <p className="text-xs leading-relaxed text-muted-foreground">
-            Use{" "}
-            <code className="font-mono text-2xs">
-              npx expo install react-native
-            </code>{" "}
-            so it resolves <code className="font-mono text-2xs">0.86.3</code>.
-            Do not bump to <code className="font-mono text-2xs">^0.87</code> by
-            hand — Expo 57&apos;s Metro tooling requires{" "}
-            <code className="font-mono text-2xs">rn-get-polyfills</code>, which
-            React Native 0.87 removed.
-          </p>
-        </CardContent>
-      </Card>
-
-      <div className="flex flex-wrap items-center gap-2 pt-1">
-        <Button
-          render={<Link href={DOCS_HREF} />}
-        >
-          Full reference — peer table, screens, icons
-          <ArrowRightIcon className="size-3.5" />
-        </Button>
-        <Button
-          variant="outline"
-          render={<Link href={REPO_HREF} target="_blank" rel="noreferrer" />}
-        >
-          Source
-          <ArrowSquareOutIcon className="size-3.5" />
-        </Button>
-      </div>
     </section>
   )
 }
@@ -874,25 +730,12 @@ export function MobilePageContent() {
             <MobileSidebar activeId={activeId} onSelect={scrollToSection} />
           </aside>
 
-          <main className="flex max-w-full min-w-0 flex-1 flex-col gap-2">
+          <main className="flex max-w-full min-w-0 flex-1 flex-col gap-8">
             <Hero />
             <Overview />
             <Showcase />
-            <Specimens />
             <Rules />
             <Platform />
-            <Install />
-
-            <Separator className="mt-10" />
-
-            <div className="flex flex-wrap items-center gap-2 pb-8 text-2xs text-muted-foreground">
-              <DeviceMobileIcon className="size-3.5" aria-hidden />
-              <span>
-                Specimens transcribed from{" "}
-                <code className="font-mono">packages/mobile/src</code> and{" "}
-                <code className="font-mono">apps/mobile/src/showcase</code>.
-              </span>
-            </div>
           </main>
         </div>
       </div>

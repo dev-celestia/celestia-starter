@@ -1,7 +1,7 @@
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs"
+import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs"
 import { dirname, join } from "node:path"
 
-import { ensureDir, removeEmptyParents } from "./fsx.js"
+import { ensureDir, listFiles, removeEmptyParents } from "./fsx.js"
 
 /**
  * Best-effort file transaction.
@@ -111,26 +111,4 @@ export class FileTransaction {
 
     return restored
   }
-}
-
-function listFiles(dir: string): string[] {
-  const out: string[] = []
-  let entries: string[]
-  try {
-    entries = readdirSync(dir)
-  } catch {
-    return out
-  }
-  for (const entry of entries) {
-    const full = join(dir, entry)
-    let isDir = false
-    try {
-      isDir = statSync(full).isDirectory()
-    } catch {
-      continue
-    }
-    if (isDir) out.push(...listFiles(full))
-    else out.push(full)
-  }
-  return out
 }

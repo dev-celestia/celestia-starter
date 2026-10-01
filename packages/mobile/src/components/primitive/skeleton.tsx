@@ -1,7 +1,6 @@
 import * as React from "react"
 import { Animated, type ViewStyle } from "react-native"
 import { useMobileTheme } from "../../host"
-import { canUseNativeDriver } from "../../motion"
 import { metrics } from "../../tokens"
 
 export interface MobileSkeletonProps {
@@ -50,12 +49,12 @@ export function MobileSkeleton({
         Animated.timing(pulse, {
           toValue: 1,
           duration: 700,
-          useNativeDriver: canUseNativeDriver,
+          useNativeDriver: true,
         }),
         Animated.timing(pulse, {
           toValue: 0.4,
           duration: 700,
-          useNativeDriver: canUseNativeDriver,
+          useNativeDriver: true,
         }),
       ])
     )

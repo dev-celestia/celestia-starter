@@ -19,10 +19,6 @@
       },
       "package": "com.celestia.mobile"
     },
-    "web": {
-      "bundler": "metro",
-      "output": "single"
-    },
     "plugins": []
   }
 }

@@ -1,0 +1,48 @@
+---
+title: "Analytics Page"
+description: "KPI tiles over a chart card and a ranked breakdown with share bars. Composed on DashboardPage so the tiles stay the same object the dashboard ships."
+---
+
+> **Copy template.** This layout ships as a source file, not a package export. Copy it from [`/layout/analytics-page`](/layout/analytics-page) or `apps/web/components/layout-templates/analytics-page.tsx`, then paste it into your app and adjust freely. It composes on the `dashboard-page` template — copy that file alongside it.
+
+The analytics screen: KPI tiles over a chart and a ranked breakdown.
+
+Composes [DashboardPage](/docs/components/dashboard-page) rather than re-implementing the shell and the tile grid. The only thing this page adds is the content column — a chart card and a breakdown card — so the tiles, the header and the aside slot stay the same objects the dashboard already ships.
+
+<AnalyticsPagePreview />
+
+```tsx
+import { AnalyticsPage, ChartArea } from "@/components/layout-templates/analytics-page"
+import type { DashboardStat } from "@/components/layout-templates/dashboard-page"
+
+const metrics: DashboardStat[] = [
+  { id: "visitors", label: "Visitors", value: "128,470", delta: "+12.4%", trend: "up", icon: <UsersThreeIcon /> },
+  { id: "revenue", label: "Revenue", value: "$48,290", delta: "+9.1%", trend: "up", icon: <CurrencyDollarIcon /> },
+]
+
+<AnalyticsPage
+  title="Analytics"
+  description="Traffic, conversion and revenue for the last 30 days."
+  metrics={metrics}
+  chart={<ChartArea data={series} xKey="month" showLegend className="h-64" />}
+  chartTitle="Revenue against expenses"
+  breakdown={[
+    { id: "organic", label: "Organic search", value: "52,110", share: 41 },
+    { id: "direct", label: "Direct", value: "38,940", share: 30 },
+  ]}
+  breakdownTitle="Top sources"
+/>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `metrics` | `DashboardStat[]` | — | KPI tiles, rendered by `DashboardPage` |
+| `chart` | `React.ReactNode` | — | Chart slot; pair with `ChartArea`, `ChartLine`, … |
+| `chartTitle` | `string` | `"Traffic"` | Chart card heading |
+| `chartDescription` | `string` | — | Chart card subheading |
+| `breakdown` | `AnalyticsBreakdownRow[]` | — | `{ id, label, value, share }`; `share` is `0`–`100` and drives the bar only |
+| `breakdownTitle` | `string` | `"Top sources"` | Breakdown card heading |
+| `breakdownDescription` | `string` | — | Breakdown card subheading |
+| `aside` | `React.ReactNode` | — | Secondary column beside the content, from `xl` up |
+
+Plus every [DashboardPage](/docs/components/dashboard-page) and [PageShell](/docs/components/page-shell) prop. The tile grid is fixed at four columns.

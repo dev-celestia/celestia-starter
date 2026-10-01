@@ -14,8 +14,8 @@ procedural loops for spinners, pulses and indeterminate progress. `MobileSwitch`
 
 <Callout type="info" title="Looking for the visual tour?">
 This page is the technical reference — install, peer dependencies, platform support, API.
-For the component specimens and instructions for running the showcase in Expo Go, see the
-dedicated **[Mobile showcase](/mobile)** surface.
+For instructions for running the showcase in Expo Go, see the dedicated
+**[Mobile showcase](/mobile)** surface.
 </Callout>
 
 It is not a port of the web library. The web components assume a DOM, hover states and a CSS
@@ -41,19 +41,16 @@ why this package has no dependency on `apps/api` and can be dropped into any Exp
 `pnpm mobile` starts the Metro dev server for `apps/mobile`. The root script is
 `turbo dev --filter=mobile`, which resolves to the package's `dev` script (`expo start`); Turbo
 auto-detects the `expo` framework and `turbo.json` marks `dev` persistent and uncached, so it stays
-attached like any other dev server. Metro itself is platform-agnostic — you pick a target after it
-boots, or ask for one up front:
+attached like any other dev server. You pick a target after Metro boots, or ask for one up front:
 
 | Command | Target | Status |
 |---------|--------|--------|
-| `pnpm mobile` | Metro only — press `i`, `a` or `w` in the terminal | — |
+| `pnpm mobile` | Metro only — press `i` or `a` in the terminal | — |
 | `pnpm --filter mobile ios` | iOS simulator or device (`expo start --ios`) | Supported |
 | `pnpm --filter mobile android` | Android emulator or device (`expo start --android`) | Supported |
-| `pnpm --filter mobile web` | Browser (`expo start --web`) | Supported — see [Platform support](#platform-support) |
 
 Each target needs its own toolchain: Xcode and a booted simulator for iOS, the Android SDK and a
-running emulator for Android. Web needs nothing beyond the three packages listed under
-[Enabling web](#enabling-web).
+running emulator for Android.
 
 `@expo/ui` is **included in Expo Go**, so the real SwiftUI and Compose views run in the sandbox
 client with no native build at all — scan the QR code from `pnpm mobile` and the showcase opens on
@@ -67,140 +64,33 @@ pnpm --filter @celestia-project/mobile typecheck
 
 ## Platform support
 
-The library targets **iOS, Android and web**. The native platforms get real SwiftUI and Jetpack
-Compose views through `@expo/ui`; web is served by `@expo/ui`'s **universal** entry, which is what
-every component in this package imports.
+The library targets **iOS and Android**. Both platforms get real SwiftUI and Jetpack Compose
+views through `@expo/ui`, which is what every component in this package imports. There is no web
+target — when a screen needs a first-class browser implementation, build it on
+`@celestia-project/ui`, which shares this package's taxonomy and design tokens precisely so the
+same screen can have a native and a browser implementation.
 
-| | iOS | Android | Web |
-|---|-----|---------|-----|
-| Hosted `@expo/ui` components (`MobileHost`, `MobileList`, `MobileBottomSheet`) | ✅ SwiftUI | ✅ Compose | ✅ DOM equivalents |
-| Rest of the package (plain React Native) | ✅ | ✅ | ✅ via `react-native-web` |
-| Skia-drawn components (`MobileSparkline`, `MobileChartBar` / `-Line` / `-Pie` / `-Scatter`, `MobileProgressRing`) | ✅ native Skia | ✅ native Skia | ✅ CanvasKit WASM — needs the bootstrap under [Enabling web](#enabling-web) |
-| `apps/mobile` showcase | ✅ | ✅ | ✅ |
+| | iOS | Android |
+|---|-----|---------|
+| Hosted `@expo/ui` components (`MobileHost`, `MobileList`, `MobileBottomSheet`) | ✅ SwiftUI | ✅ Compose |
+| Rest of the package (plain React Native) | ✅ | ✅ |
+| Skia-drawn components (`MobileSparkline`, `MobileChartBar` / `-Line` / `-Pie` / `-Scatter`, `MobileProgressRing`) | ✅ native Skia | ✅ native Skia |
+| `apps/mobile` showcase | ✅ | ✅ |
 
-`@expo/ui@57` exposes three entry points, and *which one you import* decides whether web works:
+`@expo/ui@57` exposes three entry points:
 
 | Import | Implementation |
 |--------|----------------|
-| `@expo/ui` | **Universal** — resolves to `.ios.tsx` / `.android.tsx` / a generic DOM implementation |
+| `@expo/ui` | **Universal** — resolves to the platform implementation (`.ios.tsx` on iOS, `.android.tsx` on Android) |
 | `@expo/ui/swift-ui` | iOS only |
 | `@expo/ui/jetpack-compose` | Android only |
 
 The modules that host native views — `MobileHost`, `MobileList` and `MobileBottomSheet` —
-import from `"@expo/ui"` (the universal entry), never from `/swift-ui` or `/jetpack-compose`.
-The universal implementations are real rather than stubs: `Host` renders a plain `View`, `List`
-and `ListItem` use plain React Native primitives, and `BottomSheet` renders through
-[`vaul`](https://vaul.emilkowal.ski/). Everything else in the package is plain React Native and
-needs no `@expo/ui` at runtime.
-
-The rest of the chain is web-clean as well. `react-native-safe-area-context` resolves through
-`react-native-web`; `expo-haptics` — which every interactive component calls — ships a no-op
-`ExpoHaptics.web.ts`, so haptics simply do nothing in a browser; `expo-status-bar` ships
-`StatusBar.web.js`; and `react-native-svg`, which the showcase icons are drawn with, ships a web
-build. Every animation takes its driver guard from `canUseNativeDriver` in `src/motion.ts`, and `screen.tsx` puts the
-iOS-only `padding` keyboard behind a `Platform.OS === "ios"` check.
-
-### Enabling web
-
-`apps/mobile` needs three packages for the browser target; `expo install` picks the SDK-compatible
-versions:
-
-```bash
-npx expo install react-native-web react-dom @expo/metro-runtime
-```
-
-and `app.json` has to declare the web bundler:
-
-```json
-"web": { "bundler": "metro", "output": "single" }
-```
-
-Both are already in place, so `pnpm --filter mobile web` serves the showcase in a browser.
-
-### The Skia runtime
-
-Everything else in the package is plain React Native, but six components are drawn with Skia:
-`MobileSparkline`, `MobileChartBar`, `MobileChartLine`, `MobileChartPie`, `MobileChartScatter` and
-`MobileProgressRing`. On iOS and Android Skia is a native module that ships with the app. In the
-browser it is **CanvasKit** — a WebAssembly build of Skia that has to be fetched and instantiated
-before anything drawn with Skia can render.
-
-#### Defer the import, not the render
-
-This is the part that is easy to get wrong. `Skia` is not a lazy getter, it is a module-level
-constant:
-
-```js
-// @shopify/react-native-skia/lib/module/skia/Skia.web.js
-export const Skia = JsiSkApi(global.CanvasKit)
-```
-
-Whatever `global.CanvasKit` holds the moment that module is first evaluated is what `Skia` stays
-forever. So importing the app before CanvasKit is ready does not give you a slow first chart — it
-gives you `Cannot read properties of undefined (reading 'PathBuilder')` the first time a Skia
-component mounts, which unmounts the entire tree and leaves a blank page. Waiting at render time
-cannot help, because by then the module has already been evaluated. **The `import` itself has to be
-deferred**, which is why `apps/mobile` splits its entry point in two:
-
-| File | Target | Job |
-|------|--------|-----|
-| `index.ts` | both | `registerRootComponent(Root)` — and nothing else |
-| `src/Root.tsx` | native | re-exports `./App`; Skia is already installed |
-| `src/Root.web.tsx` | web | loads CanvasKit, then `await import("./App")` |
-
-```tsx
-// apps/mobile/src/Root.web.tsx (abridged)
-export function Root() {
-  const [app, setApp] = React.useState<React.ComponentType | null>(null)
-
-  React.useEffect(() => {
-    void (async () => {
-      await LoadSkiaWeb({ locateFile: () => canvaskitWasm })
-      const { default: App } = await import("./App")
-      setApp(() => App)
-    })()
-  }, [])
-
-  return app === null ? <LoadingScreen /> : <App />
-}
-```
-
-Metro picks `Root.web.tsx` over `Root.tsx` by platform extension, so `App.tsx` itself stays
-Skia-agnostic — it is the same five-provider tree on every target.
-
-Two consequences worth knowing:
-
-- **The loading screen may only use Skia-free imports.** It renders with the real theme, so it uses
-  `@celestia-project/mobile/host` and `.../primitive/spinner` — the deep entry points — rather than
-  the root barrel, which also re-exports the chart components. Same reason `.../composite/alert` is
-  imported directly for the failure state.
-- **The dynamic import is what splits the bundle.** `expo export` emits an initial chunk
-  (`index-*.js`, ~860 KB: React Native Web, the theme layer and the CanvasKit glue) plus an async
-  chunk (`App-*.js`, ~2.5 MB: the gallery and Skia). Nothing Skia-shaped is in the initial chunk, so
-  the loading screen paints without it.
-
-The wasm is imported as a **Metro asset**, so `metro.config.js` has to register the extension:
-
-```js
-config.resolver.assetExts.push("wasm")
-```
-
-Metro then emits the binary into the bundle's asset folder and the import resolves to its URL, which
-is what `locateFile` hands back. This behaves identically under `expo start` and `expo export`. The
-alternative in Skia's own docs is `npx setup-skia-web`, which copies the binary into `public/` and
-lets emscripten's default `locateFile` find it next to `index.html` — that needs a build step and a
-7 MB file in the repository, so the asset import is preferred here.
-
-Two things to know:
-
-- **Props marked `@platform ios` / `@platform android` are inert on web.** `MobileList`'s
-  `onRefresh` is the one in this package: the prop is accepted and ignored, because there is no
-  native refresh affordance to show.
-- **Web is a preview surface, not a port.** The DOM rendering comes from `@expo/ui` and
-  `react-native-web`, so it is close to, but not pixel-identical with, the SwiftUI / Compose
-  rendering. When a feature needs a first-class web implementation, use `@celestia-project/ui`;
-  the two libraries share design tokens and the primitive / composite / ai / layout taxonomy precisely
-  so that the same screen can have a native and a browser implementation.
+import from `"@expo/ui"` (the universal entry), never from `/swift-ui` or `/jetpack-compose`, so
+the same code gets the right native implementation on both platforms. Everything else in the
+package is plain React Native and needs no `@expo/ui` at runtime. One platform branch exists in
+the package: `screen.tsx` puts the iOS-only `padding` keyboard behind a
+`Platform.OS === "ios"` check.
 
 <Callout type="info" title="Publishing">
 `@celestia-project/mobile` is part of the npm publish set: `scripts/publish.sh` publishes
@@ -357,8 +247,7 @@ import { darkColors, metrics } from "@celestia-project/mobile/tokens"
 // Motion presets and helpers (barrel only, like utils/hooks)
 import {
   SPRING, SPRING_SNAPPY, springTo, springLayoutTo,
-  pressInTiming, canUseNativeDriver,
-  useSpringValue, usePressSpring,
+  pressInTiming, useSpringValue, usePressSpring,
 } from "@celestia-project/mobile"
 
 // Shared helpers and hooks (barrel only)
@@ -458,9 +347,10 @@ the whole system is tunable in one place:
 | `SPRING_EXIT` | 22 / 1 / 320 | Dismissals: overdamped and decisive — nothing re-enters the frame to apologize |
 | `SPRING_GAUGE` | 20 / 1 / 120 | Gauges and progress fills, where overshoot would misreport the value |
 
-Three helpers attach the native-driver guard every call site used to repeat
-(`canUseNativeDriver` is `false` on web, so a browser build degrades to the JS driver instead
-of throwing):
+Three helpers wrap the three animation shapes, with the driver choice made once
+in `motion.ts` instead of repeated at every call site (`springTo` and
+`pressInTiming` ride the native driver; `springLayoutTo` forces the JS driver
+because layout props cannot ride the native one):
 
 - `springTo(value, toValue, config?)` — one-line `Animated.spring` with a preset.
 - `springLayoutTo(value, toValue, config?)` — the same for layout props (width, height), which
@@ -707,10 +597,9 @@ optional. Real brand marks need a different source — they are not in any gener
 
 <Callout type="warn" title="Not yet verified on a device">
 The library is typechecked end to end (package and showcase app) and the showcase Metro-bundles
-into a working Hermes bundle (`npx expo export --platform ios`) and a working web bundle
-(`npx expo export --platform web`). It has **not been run on a simulator or device**
-in this workspace — the machine has no Xcode, so `@expo/ui`'s real native views and gesture
-behaviour cannot be exercised headlessly.
+into a working Hermes bundle (`npx expo export --platform ios`). It has **not been run on a
+simulator or device** in this workspace — the machine has no Xcode, so `@expo/ui`'s real native
+views and gesture behaviour cannot be exercised headlessly.
 
 Three things need a device before this is trusted: the whole package end to end; `MobileSlider`'s
 gesture geometry in particular — a `PanResponder` cannot be validated by a typecheck; and the showcase

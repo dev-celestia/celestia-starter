@@ -257,7 +257,7 @@ export interface SiteLayoutProps {
 /**
  * The reusable site layout, extracted from the landing page: the two-shape
  * site nav (top bar below `lg`, fixed left rail from `lg`), a content area
- * that cedes the rail's 20rem via `lg:ml-80`, and the site footer.
+ * that cedes the rail's 16rem via `lg:ml-64`, and the site footer.
  */
 export function SiteLayout({
   children,
@@ -275,8 +275,8 @@ export function SiteLayout({
     <main className={cn("min-h-screen bg-background text-foreground scroll-smooth", className)}>
       <SiteNav anchors={anchors} showSurfaces={showSurfaces} cta={cta} />
       {/* Below lg the nav is a static top bar, so nothing offsets; from lg the
-          rail is fixed and the page content cedes its 20rem. */}
-      <div className="lg:ml-80">
+          rail is fixed and the page content cedes its 16rem. */}
+      <div className="lg:ml-64">
         {constrainContent ? (
           <div
             className={cn(

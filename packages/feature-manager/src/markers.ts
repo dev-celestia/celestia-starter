@@ -348,7 +348,7 @@ export function removeFromRegionDetailed(
   content: string,
   marker: string,
   feature: string,
-  file: string,
+  _file: string,
 ): RemoveResult {
   assertValidMarker(marker)
   const lines = content.split("\n")

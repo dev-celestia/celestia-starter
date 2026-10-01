@@ -1,0 +1,48 @@
+---
+title: "Record Detail Page"
+description: "Identity header over a tabbed body with a metadata rail. The header carries an avatar, a status badge and markup subtitle a page title cannot."
+---
+
+> **Copy template.** This layout ships as a source file, not a package export. Copy it from [`/layout/record-detail-page`](/layout/record-detail-page) or `apps/web/components/layout-templates/record-detail-page.tsx`, then paste it into your app and adjust freely.
+
+The record detail screen: an identity header over a tabbed body with a metadata rail.
+
+The header is hand-rolled instead of delegated to [PageShell](/docs/components/page-shell)'s `title` slot because a record header carries three things a page title does not — an avatar, a status badge and a subtitle that is itself markup. Forcing that through `title`/`description` would mean either stringifying the badge or teaching `PageShell` about records.
+
+<RecordDetailPagePreview />
+
+```tsx
+import { RecordDetailPage, Badge, Button } from "@/components/layout-templates/record-detail-page"
+
+<RecordDetailPage
+  name="Ada Lin"
+  subtitle="ada@northwind.dev · Lisbon, Portugal"
+  status={<Badge variant="success">Active</Badge>}
+  avatarFallback="AL"
+  actions={<Button size="sm">Edit</Button>}
+  tabs={[
+    { id: "overview", label: "Overview" },
+    { id: "activity", label: "Activity", count: 24 },
+  ]}
+  defaultTab="overview"
+  metadata={[
+    { id: "role", label: "Role", value: "Head of Product" },
+    { id: "plan", label: "Plan", value: <Badge variant="secondary">Team</Badge> },
+  ]}
+>
+  {/* body of the first tab */}
+</RecordDetailPage>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `name` | `string` | — (required) | Primary identifier — a person, an order, an issue |
+| `subtitle` | `React.ReactNode` | — | Supporting line under the name |
+| `status` | `React.ReactNode` | — | Badge rendered beside the name |
+| `avatar` / `avatarFallback` | `React.ReactNode` / `string` | — | Custom mark, or the initials for the default avatar |
+| `actions` | `React.ReactNode` | — | Trailing header actions |
+| `tabs` | `RecordDetailTab[]` | — | `{ id, label, count? }`; omit for an un-tabbed body |
+| `defaultTab` | `string` | first tab | Tab selected on mount |
+| `metadata` | `RecordDetailMeta[]` | — | `{ id, label, value }`; rail shows from `lg` up |
+
+Plus every [PageShell](/docs/components/page-shell) prop except `title` and `description`, which the header replaces. Only the active tab's body renders, so a record's tabs must be cheap to mount — use [SettingsPage](/docs/components/settings-page) when half-typed input has to survive a section switch.

@@ -1,32 +1,38 @@
 "use client"
 
 import type { ComponentType } from "react"
-import { BookOpenIcon, RocketLaunchIcon, SquaresFourIcon } from "@phosphor-icons/react"
-import { NavSidebar, type NavSidebarGroup } from "@/components/shared/nav-sidebar"
+import { BookOpenIcon, SquaresFourIcon } from "@phosphor-icons/react"
+import {
+  NavSidebar,
+  type NavSidebarGroup,
+} from "@/components/shared/nav-sidebar"
 import { MOBILE_SECTIONS } from "@/lib/mobile-showcase"
 
 const GROUP_ICONS: Record<string, ComponentType<{ className?: string }>> = {
   "Get started": BookOpenIcon,
-  Guidance: RocketLaunchIcon,
 }
 
 /** Group order in the rail. Mirrors the reading order of the page. */
-const GROUP_ORDER = ["Get started", "Guidance"]
+const GROUP_ORDER = ["Get started"]
 
 /**
  * Static, so it needs no hook — which matters: the page renders this in two
  * places (the mobile switcher and the desktop rail) and both must agree on
  * identity for the active item to highlight in both.
  */
-export const MOBILE_SIDEBAR_GROUPS: NavSidebarGroup[] = GROUP_ORDER.map((name) => ({
-  id: name,
-  name,
-  icon: GROUP_ICONS[name] ?? SquaresFourIcon,
-  items: MOBILE_SECTIONS.filter((section) => section.group === name).map((section) => ({
-    id: section.id,
-    title: section.title,
-  })),
-}))
+export const MOBILE_SIDEBAR_GROUPS: NavSidebarGroup[] = GROUP_ORDER.map(
+  (name) => ({
+    id: name,
+    name,
+    icon: GROUP_ICONS[name] ?? SquaresFourIcon,
+    items: MOBILE_SECTIONS.filter((section) => section.group === name).map(
+      (section) => ({
+        id: section.id,
+        title: section.title,
+      })
+    ),
+  })
+)
 
 export interface MobileSidebarProps {
   activeId?: string

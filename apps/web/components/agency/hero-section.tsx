@@ -36,14 +36,13 @@ export function AgencyHero() {
 
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <Button
-            size="lg"
             className="gap-2"
             render={<Link href="#contact" />}
           >
             Book a Free Strategy Call
             <ArrowRightIcon className="size-4" aria-hidden />
           </Button>
-          <Button variant="secondary" size="lg" render={<Link href="#services" />}>
+          <Button variant="secondary" render={<Link href="#services" />}>
             Explore Services
           </Button>
         </div>

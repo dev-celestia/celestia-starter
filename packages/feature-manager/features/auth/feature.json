@@ -29,6 +29,7 @@
     "apps/api": [
       "BETTER_AUTH_URL=http://localhost:3000",
       "BETTER_AUTH_SECRET=<generate with: openssl rand -base64 32>",
+      "BETTER_AUTH_TRUSTED_ORIGINS=http://localhost:3000,http://localhost:1212",
       "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/celestia",
       "GOOGLE_CLIENT_ID=your-google-client-id",
       "GOOGLE_CLIENT_SECRET=your-google-client-secret"

@@ -3,12 +3,14 @@ title: "Sign Up Page"
 description: "Registration screen with name, email, password confirmation, terms gate and mismatch validation."
 ---
 
+> **Copy template.** This layout ships as a source file, not a package export. Copy it from [`/layout/sign-up-page`](/layout/sign-up-page) or `apps/web/components/layout-templates/sign-up-page.tsx`, then paste it into your app and adjust freely.
+
 A complete registration screen on the [AuthShell](/docs/components/auth-shell) frame: name, email, password and confirmation fields, with a live mismatch check on the password pair and an optional terms checkbox that gates submission.
 
 <SignUpPagePreview />
 
 ```tsx
-import { SignUpPage } from "@celestia-project/ui/layout/sign-up-page"
+import { SignUpPage } from "@/components/layout-templates/sign-up-page"
 
 <SignUpPage
   termsLabel="I agree to the terms and privacy policy"

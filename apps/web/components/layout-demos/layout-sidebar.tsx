@@ -3,7 +3,11 @@
 import * as React from "react"
 import {
   BrowsersIcon,
+  ChartBarIcon,
+  ChatsCircleIcon,
   LockKeyIcon,
+  MegaphoneIcon,
+  ShoppingCartIcon,
   SquaresFourIcon,
   WarningCircleIcon,
 } from "@phosphor-icons/react"
@@ -15,6 +19,10 @@ const CATEGORY_ICONS: Record<LayoutCategoryId, React.ComponentType<{ className?:
   auth: LockKeyIcon,
   screens: SquaresFourIcon,
   system: WarningCircleIcon,
+  marketing: MegaphoneIcon,
+  collab: ChatsCircleIcon,
+  data: ChartBarIcon,
+  flows: ShoppingCartIcon,
 }
 
 export interface LayoutSidebarProps {

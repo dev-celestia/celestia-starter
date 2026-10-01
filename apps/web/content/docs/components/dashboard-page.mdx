@@ -3,6 +3,8 @@ title: "Dashboard Page"
 description: "Overview page with a metric tile grid, loading skeletons, empty slot and a secondary column — composed on top of PageShell."
 ---
 
+> **Copy template.** This layout ships as a source file, not a package export. Copy it from [`/layout/dashboard-page`](/layout/dashboard-page) or `apps/web/components/layout-templates/dashboard-page.tsx`, then paste it into your app and adjust freely.
+
 The overview page for a dashboard: a header, a headline-metric tile grid, main content and an optional secondary column rendered beside it from `xl` up.
 
 It composes [PageShell](/docs/components/page-shell) rather than re-implementing the header, so a dashboard page gets the same sticky header, width presets and `actions` slot as any other page. The tile grid swaps to skeletons while `loading` is set — sized from the data when it is already known, and from `statColumns` when it is not, so the grid shape holds across the load.
@@ -10,7 +12,7 @@ It composes [PageShell](/docs/components/page-shell) rather than re-implementing
 <DashboardPagePreview />
 
 ```tsx
-import { DashboardPage, Card, CardHeader, CardTitle } from "@celestia-project/ui/layout/dashboard-page"
+import { DashboardPage, Card, CardHeader, CardTitle } from "@/components/layout-templates/dashboard-page"
 
 export function OverviewPage() {
   return (

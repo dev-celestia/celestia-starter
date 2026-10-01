@@ -1,7 +1,7 @@
 #!/usr/bin/env tsx
 
 import { addCommand } from "./add.js"
-import { FLAGS, flagList, parseArgs } from "./args.js"
+import { flagList, parseArgs } from "./args.js"
 import { createContext, flag, type CliContext } from "./context.js"
 import { listCommand } from "./list.js"
 import { promptCommand } from "./prompt.js"
@@ -50,9 +50,10 @@ overwritten; removing this feature later restores the previous version.
 Options:
   -n, --dry-run   Show every planned action without writing anything
   -f, --force     Reinstall or upgrade an already-installed feature
+  -y, --yes       Run the manifest's post-install commands after installing
       --strict    Treat warnings (missing markers, version conflicts) as errors
   -q, --quiet     Only print warnings, errors and the final result
-  -j, --json      Emit a machine-readable JSON report
+  -j, --json      Emit a machine-readable report
 `,
   remove: `feature-manager remove <name>
 

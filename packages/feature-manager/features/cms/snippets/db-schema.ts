@@ -203,7 +203,9 @@ export const apiKey = pgTable(
   {
     id: text("id").primaryKey(),
     name: text("name").notNull(), // e.g. "marketing-site"
-    key: text("key").notNull().unique(), // cms_… bearer token for the Delivery API
+    // SHA-256 of the bearer token — the raw key is shown exactly once at creation.
+    keyHash: text("key_hash").notNull().unique(),
+    keyHint: text("key_hint"), // first characters of the raw key, for identification
     active: boolean("active").default(true).notNull(),
     lastUsedAt: timestamp("last_used_at"),
     createdBy: text("created_by").references(() => user.id, {

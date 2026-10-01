@@ -1,18 +1,3 @@
-export interface FeatureNavItem {
-  label: string
-  href: string
-  icon?: string
-}
-
-export interface Feature {
-  id: string
-  name: string
-  version: string
-  description?: string
-  navItems?: FeatureNavItem[]
-  settingsRoutes?: string[]
-}
-
 /** A file copied from the feature directory into the repository. */
 export interface FeatureCopy {
   /** Path relative to the feature directory. */

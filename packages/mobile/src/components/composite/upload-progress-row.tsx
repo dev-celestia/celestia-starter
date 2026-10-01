@@ -1,7 +1,6 @@
 import * as React from "react"
 import { View, StyleSheet, Animated, type ViewStyle } from "react-native"
 import { useMobileTheme } from "../../host"
-import { canUseNativeDriver } from "../../motion"
 import { MobileText } from "../primitive/text"
 import { MobileProgress } from "../primitive/progress"
 import { clamp } from "../../utils"
@@ -65,12 +64,12 @@ export function MobileUploadProgressRow({
         Animated.timing(pulseAnim, {
           toValue: 0.3,
           duration: 600,
-          useNativeDriver: canUseNativeDriver,
+          useNativeDriver: true,
         }),
         Animated.timing(pulseAnim, {
           toValue: 1,
           duration: 600,
-          useNativeDriver: canUseNativeDriver,
+          useNativeDriver: true,
         }),
       ])
     )
@@ -78,7 +77,8 @@ export function MobileUploadProgressRow({
     return () => loop.stop()
   }, [state, pulseAnim])
 
-  const barColor = state === "error" ? "destructive" : state === "done" ? "success" : "primary"
+  const barColor =
+    state === "error" ? "destructive" : state === "done" ? "success" : "primary"
 
   return (
     <View

@@ -15,7 +15,12 @@ const app = new Hono()
   .use(
     "*",
     cors({
-      origin: "http://localhost:3000",
+      // Override per environment with CORS_ORIGIN (comma-separated list).
+      // The localhost default must never be shipped to production.
+      origin: (process.env.CORS_ORIGIN ?? "http://localhost:3000")
+        .split(",")
+        .map((origin) => origin.trim())
+        .filter(Boolean),
       credentials: true,
     })
   )

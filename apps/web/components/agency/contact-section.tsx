@@ -246,7 +246,6 @@ export function ContactSection() {
 
               <Button
                 type="submit"
-                size="lg"
                 disabled={state === "submitting"}
                 aria-busy={state === "submitting"}
                 className="mt-2 w-full gap-2"

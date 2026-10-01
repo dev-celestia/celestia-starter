@@ -82,7 +82,7 @@ Paths in `copies[].from` and `insertions[].snippet` are relative to the feature 
 ```
 
 - `dependencies` / `devDependencies` / `env` are **keyed by target package dir** (`apps/api`, `apps/web`, `packages/ui`, ...).
-- Include `postInstall: ["pnpm --filter @workspace/db db:push"]` whenever the feature adds DB tables.
+- Include `postInstall: ["pnpm --filter @workspace/db db:push"]` whenever the feature adds DB tables. `postInstall` commands are **not run automatically**: the CLI prints them as next steps, and runs them for you only when you pass `--yes` (e.g. `pnpm add-feature <name> --yes`).
 - `requires` must list features already present in `features.json`.
 
 ## Available marker regions
@@ -106,15 +106,21 @@ Current regions:
 | `apps/web/components/dashboard/sidebar.tsx` | `nav` | `{ label: "...", href: "/dashboard/...", icon: Icon },` |
 | `apps/web/content/docs/index.mdx` | `cards` | `<Card title="..." href="/docs/<name>" description="..." />` |
 | `README.md` | `features` | `- **<name>** — One-line description` |
-| `apps/celestia/lib/db/schema.ts` | `tables` | Drizzle `pgTable(...)` definitions for the Celestia app |
-| `apps/celestia/components/dashboard/sidebar-nav.tsx` | `imports` | Icon imports for CMS nav links (Phosphor icons) |
-| `apps/celestia/components/dashboard/sidebar-nav.tsx` | `nav` | `{ href: "/dashboard/cms/...", label: "...", icon: Icon },` — entries are shown to writer/editor/admin roles |
+
+> **External-app features.** The `cms`, `media-r2`, and `unsplash` packages target the
+> Celestia app (`apps/celestia/...`), which is developed outside this monorepo. They are
+> kept here as installable templates but are **not installed** in this starter: their
+> `apps/celestia` targets only exist once that app lives at `apps/celestia`. Do not point
+> new features at `apps/celestia` — follow the `apps/api` / `apps/web` split above.
 
 ## Writing documentation for a feature
 
 1. Author `docs/<name>.mdx` inside `packages/feature-manager/features/<name>/`.
 2. Copy it via `copies` to `apps/web/content/docs/<name>.mdx`.
-3. `jsonAppends` entry for `apps/web/content/docs/meta.json` → `pages`.
+3. `jsonAppends` entry for `apps/web/content/docs/meta.json` → `pages`. The append
+   lands at the **end** of the array, which is the end of the last sidebar section
+   (`---Features---`) — exactly where installed feature docs belong. The sidebar's
+   groups are the `---Section---` separator strings in that file.
 4. `insertions` entry for the `cards` marker in `apps/web/content/docs/index.mdx`.
 5. `insertions` entry for the `features` marker in `README.md`.
 

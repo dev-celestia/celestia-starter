@@ -1,32 +1,69 @@
 {
   "features": {
     "auth": {
-      "version": "1.0.0",
-      "installedAt": "2026-08-01T00:00:00.000Z"
+      "version": "2.0.0",
+      "installedAt": "2026-10-01T08:18:40.714Z",
+      "seq": 9,
+      "files": {
+        "apps/api/src/auth.ts": "9494c093c480e05e9602d66b52a9abb75230ef6802f87c403b1aed96613372c9",
+        "apps/web/lib/auth-client.ts": "a7feb5edf9fa7ccaa438399011e1c2b514b44968a305f123281ae29a9cd317bb",
+        "apps/web/app/(auth)/layout.tsx": "4a2c8a5feac299e4139f3fae4ac5e9b9006b3e6d307ae4e30feb035bd8b220ca",
+        "apps/web/app/(auth)/sign-in/page.tsx": "0241cdd33cb21ecad6e547f41be55b3933d6530e7062a67d49b12e75020af38c",
+        "apps/web/app/(auth)/sign-up/page.tsx": "2c63ba1424ac92c046b417c9188184fe05ab1a320271ce522408abb191770ebf"
+      },
+      "backups": {
+        "apps/api/src/auth.ts": ".feature-manager/backups/auth/apps/api/src/auth.ts",
+        "apps/web/lib/auth-client.ts": ".feature-manager/backups/auth/apps/web/lib/auth-client.ts"
+      }
     },
     "dashboard": {
-      "version": "1.0.0",
-      "installedAt": "2026-08-02T07:25:47.879Z"
+      "version": "2.1.0",
+      "installedAt": "2026-10-01T08:17:09.339Z",
+      "seq": 6,
+      "files": {
+        "apps/web/proxy.ts": "5f73ebfb0bf2b6a67fe7c996f17d0f6a8ffb93dd8e09f92a50769fd2cdc3ec92",
+        "apps/web/app/(dashboard)/layout.tsx": "160a58a21c5e0753de564bbdd2ef13b9eb3e6d01279924d6907628869c9f4b54",
+        "apps/web/app/(dashboard)/dashboard/page.tsx": "6383cd4d16061d86db6fea7ed01e9f78dbdd90b8485d5d9fee3d69a478d75b1c",
+        "apps/web/app/(dashboard)/dashboard/settings/page.tsx": "299b250e4303f20ebe7e033d745594573b3be45d2d7e177f75dbce9e4d11fc69",
+        "apps/web/components/dashboard/sidebar.tsx": "1f293ba8b92dfd706390a310b8697914e02eb3729779f1e439bbe0bb8ad83836",
+        "apps/web/components/dashboard/user-nav.tsx": "23d8970f04dcee35f70d5860958ab1b9ac1085dbaaecf4e88a3cb21cb29941dc",
+        "apps/web/components/dashboard/profile-form.tsx": "858a4a4e5136bb8f3d9d1303a134cee7aad54e3b2e34d027e1ab3ca0553ced4b"
+      },
+      "backups": {
+        "apps/web/components/dashboard/sidebar.tsx": ".feature-manager/backups/dashboard/apps/web/components/dashboard/sidebar.tsx"
+      }
     },
     "blog": {
       "version": "1.0.0",
-      "installedAt": "2026-08-02T13:38:56.968Z"
+      "installedAt": "2026-10-01T08:22:26.605Z",
+      "seq": 11,
+      "files": {
+        "apps/api/src/features/blog/routes.ts": "7d34af46eb74dc16b590c21a9daeef68e56fed9a71394970ee9f4c17f4fb30f3",
+        "apps/web/components/blog/post-form.tsx": "dc1f92f13ec55b2829f4677a04d2b156ae922c61b44a42251865d32b9223f40d",
+        "apps/web/app/(dashboard)/dashboard/posts/page.tsx": "10e79b698c2b9435f172a33cc8b3d1f124762a32fcb68ae4d3afbd6444261410",
+        "apps/web/app/(dashboard)/dashboard/posts/new/page.tsx": "029a1108f265f547cbf2486aad2250cb9397f55cd95db811bcbace34b9ff4215",
+        "apps/web/app/(dashboard)/dashboard/posts/[id]/edit/page.tsx": "74c033ffd8878c03b1abfdbb9f5c553529849071fbf6a0da90547a743b1b5974",
+        "apps/web/content/docs/blog.mdx": "a3f9fc59b22c7e0e4d4d56a9759127a62111a689951971f9df9bccb2c7ce9221"
+      },
+      "backups": {
+        "apps/web/content/docs/blog.mdx": ".feature-manager/backups/blog/apps/web/content/docs/blog.mdx"
+      }
     },
     "access": {
       "version": "1.0.0",
-      "installedAt": "2026-08-03T15:55:38.379Z"
-    },
-    "cms": {
-      "version": "1.0.0",
-      "installedAt": "2026-09-06"
-    },
-    "media-r2": {
-      "version": "1.0.0",
-      "installedAt": "2026-09-06"
-    },
-    "unsplash": {
-      "version": "1.0.0",
-      "installedAt": "2026-09-06T04:16:32.365Z"
+      "installedAt": "2026-10-01T08:18:41.463Z",
+      "seq": 10,
+      "files": {
+        "apps/api/src/features/access/access.ts": "3869296bbb7f5841ac380dd74d20a89ddae304475f0509c5efee3ed918dbda84",
+        "apps/api/src/features/access/routes.ts": "818686ccf0c6d03978b9d8776af153c7fa7e2a027291bc5e22509b366cc1008e",
+        "apps/web/app/(dashboard)/dashboard/users/page.tsx": "262be48add35781d495a7060e2078de0232e269c55f039502152490af2a8be7c",
+        "apps/web/components/access/users-manager.tsx": "67e65c945c79a61be871e4d52d38cdee22e27123cc65d4e331758335ebe27c6c",
+        "apps/web/content/docs/access.mdx": "c856d8a308ab16bae7b822da3e946ddae45a56143a1818977df4458e53485dd0"
+      },
+      "backups": {
+        "apps/web/content/docs/access.mdx": ".feature-manager/backups/access/apps/web/content/docs/access.mdx"
+      }
     }
-  }
+  },
+  "seq": 11
 }

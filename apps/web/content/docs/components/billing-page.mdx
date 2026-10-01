@@ -3,6 +3,8 @@ title: "Billing Page"
 description: "Current plan, usage meters against their limits, payment method and invoice history. Every figure is a prop — it never computes a prorated amount or a renewal date."
 ---
 
+> **Copy template.** This layout ships as a source file, not a package export. Copy it from [`/layout/billing-page`](/layout/billing-page) or `apps/web/components/layout-templates/billing-page.tsx`, then paste it into your app and adjust freely.
+
 The billing screen: current plan card with a feature list, usage meters against their limits, payment method and invoice history — composed on [PageShell](/docs/components/page-shell) like every other page.
 
 Every figure is a prop. The component does not know your pricing, and it deliberately does not compute a "renews on" date or a prorated amount, because getting those subtly wrong is worse than not showing them.
@@ -10,8 +12,8 @@ Every figure is a prop. The component does not know your pricing, and it deliber
 <BillingPagePreview />
 
 ```tsx
-import { BillingPage, Badge } from "@celestia-project/ui/layout/billing-page"
-import type { BillingPlan, BillingUsage } from "@celestia-project/ui/layout/billing-page"
+import { BillingPage, Badge } from "@/components/layout-templates/billing-page"
+import type { BillingPlan, BillingUsage } from "@/components/layout-templates/billing-page"
 
 const plan: BillingPlan = {
   name: "Team",

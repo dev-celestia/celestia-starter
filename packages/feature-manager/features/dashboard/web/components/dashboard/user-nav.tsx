@@ -32,11 +32,11 @@ export function UserNav({ user }: { user: Session["user"] }) {
 
   return (
     <Menu>
-      <MenuTrigger className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs outline-none transition-colors hover:bg-background">
+      <MenuTrigger className="flex w-full items-center justify-center gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors outline-none hover:bg-background focus-visible:ring-2 focus-visible:ring-ring md:justify-start">
         <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary text-[0.625rem] font-semibold text-primary-foreground">
           {user.name?.charAt(0).toUpperCase() ?? "?"}
         </span>
-        <span className="flex min-w-0 flex-col">
+        <span className="hidden min-w-0 flex-col md:flex">
           <span className="truncate font-medium">{user.name}</span>
           <span className="truncate text-muted-foreground">{user.email}</span>
         </span>

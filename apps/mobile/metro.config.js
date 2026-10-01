@@ -15,11 +15,4 @@ config.resolver.nodeModulesPaths = [
   path.resolve(monorepoRoot, "node_modules"),
 ]
 
-// 3. CanvasKit ships as a `.wasm` binary, and Metro's default `assetExts` has
-//    no entry for it. Without this the asset import in `src/skia-web.web.ts`
-//    cannot resolve, Skia never initialises in the browser, and the gallery
-//    renders a blank page. Adding the extension makes Metro emit the binary
-//    into the bundle's asset folder and hand back its URL.
-config.resolver.assetExts.push("wasm")
-
 module.exports = config

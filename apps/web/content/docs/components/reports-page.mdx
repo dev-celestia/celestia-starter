@@ -1,0 +1,49 @@
+---
+title: "Reports Page"
+description: "Saved-report library with cadence, last run and a status badge. Status is a closed union, so the badge tone is decided once."
+---
+
+> **Copy template.** This layout ships as a source file, not a package export. Copy it from [`/layout/reports-page`](/layout/reports-page) or `apps/web/components/layout-templates/reports-page.tsx`, then paste it into your app and adjust freely.
+
+The report library: a list of saved reports with their schedule and state.
+
+Status is a closed union rather than a free string so the badge tone can be decided here once, instead of every call site re-deciding what "failed" looks like. A new state is a deliberate addition to the union.
+
+<ReportsPagePreview />
+
+```tsx
+import { ReportsPage, Button } from "@/components/layout-templates/reports-page"
+import type { ReportEntry } from "@/components/layout-templates/reports-page"
+
+const reports: ReportEntry[] = [
+  {
+    id: "r1",
+    name: "Weekly revenue",
+    description: "MRR, expansion and churn",
+    schedule: "Every Monday, 09:00",
+    status: "ready",
+    lastRun: "3 days ago",
+    owner: "Finance",
+  },
+  { id: "r2", name: "Contrast census", schedule: "On every commit", status: "running" },
+]
+
+<ReportsPage
+  title="Reports"
+  description="Saved reports, their cadence and their last result."
+  reports={reports}
+  actions={<Button size="sm">New report</Button>}
+  onRun={(id) => runReport(id)}
+  onOpen={(id) => router.push(`/reports/${id}`)}
+/>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `reports` | `ReportEntry[]` | — (required) | `{ id, name, description?, schedule?, status, lastRun?, owner? }` |
+| `onRun` | `(id: string) => void` | — | Fired by a row's Run button |
+| `onOpen` | `(id: string) => void` | — | Fired when the report name is activated |
+
+Plus every [PageShell](/docs/components/page-shell) prop.
+
+`status` is `"ready" | "running" | "failed" | "draft"`, mapped to `success`, `info`, `destructive` and `secondary` respectively. A `running` report's Run button is disabled — the row is already mid-flight, and a second press has nothing to do. `schedule` is a human cadence string ("Every Monday, 09:00"), never a cron expression.

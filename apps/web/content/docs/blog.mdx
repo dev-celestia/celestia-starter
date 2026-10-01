@@ -1,7 +1,6 @@
 ---
 title: Blog (CRUD)
 description: A full create-read-update-delete blog built on the Hono backend and the typed RPC client
-icon: blog
 ---
 
 The blog feature is a complete CRUD example built on the decoupled architecture: the backend (`apps/api`) owns the `posts` table and exposes REST endpoints, and the frontend (`apps/web`) manages posts through the typed Hono RPC client. There is no database access in the frontend.
@@ -78,4 +77,4 @@ pnpm --filter @workspace/db db:push   # create the posts table
 pnpm remove-feature blog    # reverses all of the above
 ```
 
-Then open `http://localhost:1212/dashboard/posts`.
+Then open `http://localhost:3000/dashboard/posts`.

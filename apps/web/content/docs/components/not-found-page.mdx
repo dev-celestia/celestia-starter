@@ -3,12 +3,14 @@ title: "Not Found Page"
 description: "404 state with oversized status code, optional icon slot, and primary and secondary calls to action."
 ---
 
+> **Copy template.** This layout ships as a source file, not a package export. Copy it from [`/layout/not-found-page`](/layout/not-found-page) or `apps/web/components/layout-templates/not-found-page.tsx`, then paste it into your app and adjust freely. It composes on the `status-page` template — copy that file alongside it.
+
 The 404 screen — a thin wrapper over [StatusPage](/docs/components/status-page) that supplies the copy. The frame itself lives in one place so it and [ErrorPage](/docs/components/error-page) cannot drift apart.
 
 <NotFoundPagePreview />
 
 ```tsx
-import { NotFoundPage } from "@celestia-project/ui/layout/not-found-page"
+import { NotFoundPage } from "@/components/layout-templates/not-found-page"
 
 <NotFoundPage
   onAction={() => router.push("/")}

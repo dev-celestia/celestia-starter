@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Animated, Platform } from "react-native"
+import { Animated } from "react-native"
 
 /**
  * Motion
@@ -18,18 +18,12 @@ import { Animated, Platform } from "react-native"
  * Two families of helper ship alongside the presets:
  *
  * - `springTo` / `springLayoutTo` / `pressInTiming` — one-line wrappers
- *   that attach the native-driver guard every call site used to repeat.
+ *   for the three animation shapes, with the driver choice made here
+ *   rather than repeated at every call site.
  * - `useSpringValue` / `usePressSpring` — hooks for the two patterns that
  *   appeared in nearly every interactive component: a value that chases a
  *   prop, and press feedback that dips on a short timing and springs back.
  */
-
-/**
- * True when animations can run on the native driver. The library targets
- * iOS/Android, but the guard is kept so a web build degrades to the JS
- * driver instead of throwing.
- */
-export const canUseNativeDriver = Platform.OS !== "web"
 
 /** The numeric half of an `Animated.spring` config. */
 export interface SpringConfig {
@@ -49,31 +43,51 @@ export const SPRING: SpringConfig = { damping: 18, mass: 1, stiffness: 320 }
  * Softer and slower than the house spring. For motion that reveals layout
  * (height, collapse) where a tight spring would read as a jump-cut.
  */
-export const SPRING_SOFT: SpringConfig = { damping: 22, mass: 1, stiffness: 260 }
+export const SPRING_SOFT: SpringConfig = {
+  damping: 22,
+  mass: 1,
+  stiffness: 260,
+}
 
 /**
  * Snappy with a visible pop. For marks of confirmation — the check tick,
  * the radio dot — where the overshoot IS the feedback.
  */
-export const SPRING_SNAPPY: SpringConfig = { damping: 14, mass: 1, stiffness: 380 }
+export const SPRING_SNAPPY: SpringConfig = {
+  damping: 14,
+  mass: 1,
+  stiffness: 380,
+}
 
 /**
  * Underdamped: enters with a small overshoot, so new content arrives with
  * a little energy. Pair with SPRING_EXIT for the other half of the trip.
  */
-export const SPRING_ENTRANCE: SpringConfig = { damping: 16, mass: 1, stiffness: 240 }
+export const SPRING_ENTRANCE: SpringConfig = {
+  damping: 16,
+  mass: 1,
+  stiffness: 240,
+}
 
 /**
  * Overdamped: settles without bouncing back. Dismissals should feel
  * decisive, not elastic — nothing re-enters the frame to apologize.
  */
-export const SPRING_EXIT: SpringConfig = { damping: 22, mass: 1, stiffness: 320 }
+export const SPRING_EXIT: SpringConfig = {
+  damping: 22,
+  mass: 1,
+  stiffness: 320,
+}
 
 /**
  * Heavily damped and slow. For gauges (progress fills) where overshoot
  * would misrepresent the value being reported.
  */
-export const SPRING_GAUGE: SpringConfig = { damping: 20, mass: 1, stiffness: 120 }
+export const SPRING_GAUGE: SpringConfig = {
+  damping: 20,
+  mass: 1,
+  stiffness: 120,
+}
 
 /**
  * Press-in is deliberately NOT a spring: the finger is already down, and
@@ -86,16 +100,16 @@ export const PRESS_IN_DURATION = 90
 /** Builds the full `Animated.spring` options object from a preset. */
 export function springOptions(
   config: SpringConfig,
-  toValue: number,
+  toValue: number
 ): Animated.SpringAnimationConfig {
-  return { toValue, ...config, useNativeDriver: canUseNativeDriver }
+  return { toValue, ...config, useNativeDriver: true }
 }
 
 /** Springs `value` to `toValue` with `config` (default: the house spring). */
 export function springTo(
   value: Animated.Value,
   toValue: number,
-  config: SpringConfig = SPRING,
+  config: SpringConfig = SPRING
 ): Animated.CompositeAnimation {
   return Animated.spring(value, springOptions(config, toValue))
 }
@@ -107,7 +121,7 @@ export function springTo(
 export function springLayoutTo(
   value: Animated.Value,
   toValue: number,
-  config: SpringConfig = SPRING_SOFT,
+  config: SpringConfig = SPRING_SOFT
 ): Animated.CompositeAnimation {
   return Animated.spring(value, { toValue, ...config, useNativeDriver: false })
 }
@@ -116,12 +130,12 @@ export function springLayoutTo(
 export function pressInTiming(
   value: Animated.Value,
   toValue: number,
-  duration: number = PRESS_IN_DURATION,
+  duration: number = PRESS_IN_DURATION
 ): Animated.CompositeAnimation {
   return Animated.timing(value, {
     toValue,
     duration,
-    useNativeDriver: canUseNativeDriver,
+    useNativeDriver: true,
   })
 }
 
@@ -135,7 +149,7 @@ export function pressInTiming(
  */
 export function useSpringValue(
   target: number,
-  config: SpringConfig = SPRING,
+  config: SpringConfig = SPRING
 ): Animated.Value {
   const value = React.useRef(new Animated.Value(target)).current
   React.useEffect(() => {
@@ -159,7 +173,7 @@ export function useSpringValue(
 export function usePressSpring(
   rest: number,
   pressed: number,
-  config: SpringConfig = SPRING,
+  config: SpringConfig = SPRING
 ) {
   const value = React.useRef(new Animated.Value(rest)).current
   const onPressIn = React.useCallback(() => {

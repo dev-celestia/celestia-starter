@@ -1,29 +1,10 @@
 /**
- * Ambient types for binary assets that Metro resolves through
- * `resolver.assetExts` (see `metro.config.js`).
+ * Ambient type for raster assets. Metro resolves a `require`/import of a PNG
+ * to a numeric asset id, which is exactly the `ImageSourcePropType` union —
+ * so `Image`'s `source` accepts it unchanged.
  *
- * On web an asset import evaluates to the URL Metro emitted for it, which is
- * what `Root.web.tsx` hands to CanvasKit's `locateFile`.
- */
-
-declare module "*.wasm" {
-  const url: string
-  export default url
-}
-
-declare module "canvaskit-wasm/bin/full/canvaskit.wasm" {
-  const url: string
-  export default url
-}
-
-/**
- * Raster assets. Metro resolves a `require`/import of a PNG to a numeric asset
- * id on native and to an emitted URL string on web, which is exactly the
- * `ImageSourcePropType` union — so `Image`'s `source` accepts it unchanged on
- * both platforms.
- *
- * `png` is already in Metro's default `assetExts`; only `wasm` had to be added
- * (see `metro.config.js`).
+ * `png` is part of Metro's default `assetExts`, so no resolver config is
+ * involved.
  */
 declare module "*.png" {
   import type { ImageSourcePropType } from "react-native"

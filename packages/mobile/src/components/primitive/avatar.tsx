@@ -8,7 +8,6 @@ import {
   type ViewStyle,
 } from "react-native"
 import { useMobileTheme } from "../../host"
-import { canUseNativeDriver } from "../../motion"
 import { MobileText } from "./text"
 import type { MobileTextVariant } from "./text"
 
@@ -99,14 +98,18 @@ export function MobileAvatar({
           Animated.timing(imageOpacity, {
             toValue: 1,
             duration: 200,
-            useNativeDriver: canUseNativeDriver,
+            useNativeDriver: true,
           }).start()
         }}
         accessibilityRole="image"
         accessibilityLabel={accessibilityLabel ?? trimmed}
         style={[
           boxStyle,
-          { borderColor: colors.cardBorder, borderWidth: 1, opacity: imageOpacity },
+          {
+            borderColor: colors.cardBorder,
+            borderWidth: 1,
+            opacity: imageOpacity,
+          },
           style,
         ]}
       />
@@ -118,7 +121,12 @@ export function MobileAvatar({
       accessible
       accessibilityRole="image"
       accessibilityLabel={accessibilityLabel ?? trimmed}
-      style={[styles.container, boxStyle, { backgroundColor: colors.mutedBackground }, style]}
+      style={[
+        styles.container,
+        boxStyle,
+        { backgroundColor: colors.mutedBackground },
+        style,
+      ]}
     >
       {fallback ?? (
         <MobileText

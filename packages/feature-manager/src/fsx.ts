@@ -1,9 +1,41 @@
 import { createHash } from "node:crypto"
-import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs"
-import { dirname, join, relative } from "node:path"
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  renameSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from "node:fs"
+import { dirname, join } from "node:path"
 
 import { MANAGER_DIR } from "./types.js"
 import { isInside } from "./paths.js"
+
+/** Recursively list every file under `dir` (best effort on unreadable entries). */
+export function listFiles(dir: string): string[] {
+  const out: string[] = []
+  let entries: string[]
+  try {
+    entries = readdirSync(dir)
+  } catch {
+    return out
+  }
+  for (const entry of entries) {
+    const full = join(dir, entry)
+    let isDir = false
+    try {
+      isDir = statSync(full).isDirectory()
+    } catch {
+      continue
+    }
+    if (isDir) out.push(...listFiles(full))
+    else out.push(full)
+  }
+  return out
+}
 
 export function ensureDir(dir: string): void {
   mkdirSync(dir, { recursive: true })

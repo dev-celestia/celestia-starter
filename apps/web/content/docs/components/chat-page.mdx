@@ -1,0 +1,57 @@
+---
+title: "Chat Page"
+description: "Channel rail, scrolling thread with own / other bubbles, a pinned composer and an optional member rail."
+---
+
+> **Copy template.** This layout ships as a source file, not a package export. Copy it from [`/layout/chat-page`](/layout/chat-page) or `apps/web/components/layout-templates/chat-page.tsx`, then paste it into your app and adjust freely.
+
+The messaging layout: channel rail, scrolling thread, optional member rail.
+
+Messages are passed in already ordered; the component never sorts or groups them. `own` is a flag on the message rather than a comparison against a "current user" prop, because the consumer already knows whose message it is and a second source of truth here would only drift.
+
+<ChatPagePreview />
+
+```tsx
+import { ChatPage, Input, Button } from "@/components/layout-templates/chat-page"
+import type { ChatThreadMessage } from "@/components/layout-templates/chat-page"
+
+const messages: ChatThreadMessage[] = [
+  { id: "c1", author: "Nadia", time: "09:04", avatarFallback: "NO", body: "All green." },
+  { id: "c2", author: "Ada", time: "09:08", avatarFallback: "AL", body: "Screenshots in the PR.", own: true },
+]
+
+export function ChannelPage() {
+  const [channel, setChannel] = useState("design")
+
+  return (
+    <ChatPage
+      channels={[
+        { id: "general", label: "general" },
+        { id: "design", label: "design", unread: 3 },
+      ]}
+      activeChannelId={channel}
+      onChannelChange={setChannel}
+      messages={messages}
+      members={[{ id: "1", name: "Ada Lin", role: "Product", online: true }]}
+      header={<span className="text-sm font-medium">#design</span>}
+      composer={
+        <div className="flex items-center gap-2">
+          <Input placeholder="Message #design" className="flex-1" />
+          <Button>Send</Button>
+        </div>
+      }
+    />
+  )
+}
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `channels` | `ChatChannel[]` | — (required) | `{ id, label, icon?, unread? }`; the rail hides below `md` |
+| `messages` | `ChatThreadMessage[]` | — (required) | Already ordered; never sorted here |
+| `activeChannelId` / `onChannelChange` | `string` / `(id) => void` | — | Controlled channel selection |
+| `header` | `React.ReactNode` | — | Channel header — name, topic, member count |
+| `composer` | `React.ReactNode` | — | Pinned to the bottom of the thread |
+| `members` | `ChatMember[]` | — | `{ id, name, role?, avatarFallback?, online? }`; the rail hides below `xl` |
+
+The type is `ChatThreadMessage`, not `ChatMessage` — the barrel already exports a `ChatMessage` from the `chat-message` composite, and two unrelated types under one name would be ambiguous to import.

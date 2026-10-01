@@ -5,18 +5,16 @@
     "cli",
     "packages",
     "mobile",
-    "features",
     "design-system",
     "theming",
     "components",
+    "---Feature Installer---",
+    "features",
     "---Features---",
     "authentication",
     "backend",
     "dashboard",
     "blog",
-    "access",
-    "cms",
-    "media-r2",
-    "unsplash"
+    "access"
   ]
 }

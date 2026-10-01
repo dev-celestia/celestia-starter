@@ -3,12 +3,14 @@ title: "Status Page"
 description: "One full-viewport frame behind every not-the-page-you-asked-for state — 404, 403, 500, 503, maintenance."
 ---
 
+> **Copy template.** This layout ships as a source file, not a package export. Copy it from [`/layout/status-page`](/layout/status-page) or `apps/web/components/layout-templates/status-page.tsx`, then paste it into your app and adjust freely.
+
 The full-viewport status screen — the frame shared by every "this page is not the page you asked for" state. It exists so [NotFoundPage](/docs/components/not-found-page) and [ErrorPage](/docs/components/error-page) are thin wrappers that differ only in defaults and in whether they surface a technical detail, rather than two copies of the same centering, spacing and action-row markup. Reach for `StatusPage` directly when the two defaults don't cover your state (403, 503, maintenance).
 
 <StatusPagePreview />
 
 ```tsx
-import { StatusPage } from "@celestia-project/ui/layout/status-page"
+import { StatusPage } from "@/components/layout-templates/status-page"
 
 <StatusPage
   code="403"

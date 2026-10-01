@@ -1,12 +1,6 @@
 import * as React from "react"
-import {
-  View,
-  StyleSheet,
-  Animated,
-  type ViewStyle,
-} from "react-native"
+import { View, StyleSheet, Animated, type ViewStyle } from "react-native"
 import { useMobileTheme } from "../../host"
-import { canUseNativeDriver } from "../../motion"
 import { MobileLabel } from "../primitive/label"
 import { MobileText } from "../primitive/text"
 
@@ -87,7 +81,7 @@ export function MobileFormField({
         Animated.timing(shakeAnim, {
           toValue,
           duration,
-          useNativeDriver: canUseNativeDriver,
+          useNativeDriver: true,
         })
       Animated.sequence([
         step(-5, 50),

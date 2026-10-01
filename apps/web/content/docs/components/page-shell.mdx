@@ -3,6 +3,8 @@ title: "Page Shell"
 description: "App page frame with blurred sticky header, title, description, trailing actions and width presets."
 ---
 
+> **Package composite.** This shell ships inside `@celestia-project/ui` — import it from `@celestia-project/ui/composite/page-shell`. The ready-made pages that compose on it are copy templates under `apps/web/components/layout-templates/`.
+
 The frame for any in-app page that is not a dashboard or profile: a blurred header with title, description and trailing actions above a width-capped content column. [DashboardPage](/docs/components/dashboard-page), [ListPage](/docs/components/list-page) and [BillingPage](/docs/components/billing-page) all compose on `PageShell`, so dropping down to it keeps you in the same visual system.
 
 The header only renders when at least one of `title`, `description` or `actions` is set.
@@ -10,7 +12,7 @@ The header only renders when at least one of `title`, `description` or `actions`
 <PageShellPreview />
 
 ```tsx
-import { PageShell, Button } from "@celestia-project/ui/layout/page-shell"
+import { PageShell, Button } from "@celestia-project/ui/composite/page-shell"
 
 <PageShell
   title="Projects"

@@ -1,0 +1,48 @@
+---
+title: "Article Page"
+description: "Long-form reading frame with a sticky contents rail beside the prose, an author block and a related-posts row."
+---
+
+> **Copy template.** This layout ships as a source file, not a package export. Copy it from [`/layout/article-page`](/layout/article-page) or `apps/web/components/layout-templates/article-page.tsx`, then paste it into your app and adjust freely.
+
+The long-form reading layout: a centered measure with a sticky contents rail.
+
+The body is `children` rather than a markdown string — the consumer already owns its renderer, and this component's job is the *frame*: measure, rhythm, and where the rail sits relative to the prose.
+
+<ArticlePagePreview />
+
+```tsx
+import { ArticlePage } from "@/components/layout-templates/article-page"
+
+<ArticlePage
+  category="Engineering"
+  title="Thirty-six page frames, one set of tokens"
+  description="How the layout family grew without forking the palette."
+  author={{ name: "Ravi Shah", role: "Design systems", avatarFallback: "RS" }}
+  publishedAt="4 Sep 2026"
+  readingTime="6 min read"
+  toc={[
+    { id: "start", label: "Where we started" },
+    { id: "slots", label: "Slot-based frames" },
+    { id: "collapse", label: "Collapse order", level: 2 },
+  ]}
+  related={[{ id: "r1", title: "Scoring a colour ramp", category: "Design", readingTime: "8 min" }]}
+>
+  <p>Your rendered prose goes here.</p>
+  <h2 id="slots">Slot-based frames</h2>
+</ArticlePage>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `title` | `string` | — (required) | Article headline |
+| `author` | `{ name, role?, avatarFallback? }` | — (required) | Byline block |
+| `publishedAt` | `string` | — (required) | Pre-formatted date |
+| `description` | `string` | — | Standfirst under the headline |
+| `category` | `string` | — | Badge above the headline |
+| `readingTime` | `string` | — | Appended to the byline meta |
+| `cover` | `React.ReactNode` | — | Hero image; a gradient placeholder renders when omitted |
+| `toc` | `ArticleTocItem[]` | — | `{ id, label, level? }`; renders a sticky rail from `lg` up |
+| `related` | `RelatedArticle[]` | — | `{ id, title, category, readingTime? }` |
+
+Accepts all `<div>` props. The contents rail anchors to `#<id>`, so the ids in your prose must match the `toc` entries.

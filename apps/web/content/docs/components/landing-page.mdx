@@ -1,0 +1,48 @@
+---
+title: "Landing Page"
+description: "Home page with a hero, a three-up feature grid, a numbers band and a closing call to action. Each band is array-driven, so one can be dropped without touching markup."
+---
+
+> **Copy template.** This layout ships as a source file, not a package export. Copy it from [`/layout/landing-page`](/layout/landing-page) or `apps/web/components/layout-templates/landing-page.tsx`, then paste it into your app and adjust freely.
+
+The marketing home page: hero, feature grid, numbers band, closing call to action.
+
+Renders into [MarketingShell](/docs/components/marketing-shell) rather than owning its own chrome, so the navigation and footer stay identical across every public page. The bands are driven by arrays rather than children, so a consumer can reorder or drop a section without re-writing markup.
+
+<LandingPagePreview />
+
+```tsx
+import { LandingPage, Button } from "@/components/layout-templates/landing-page"
+
+<LandingPage
+  eyebrow={<>New in 0.4</>}
+  heading="The design system that ships itself"
+  subheading="Layouts, pages and primitives for teams that would rather build the product."
+  primaryAction={<Button>Get started</Button>}
+  secondaryAction={<Button variant="outline">Book a demo</Button>}
+  features={[
+    { id: "layouts", icon: <SquaresFourIcon />, title: "36 layouts", description: "Every frame pre-wired to the same tokens." },
+    { id: "tokens", icon: <SparkleIcon />, title: "Measured tokens", description: "Contrast asserted in CI, not eyeballed." },
+    { id: "ship", icon: <RocketLaunchIcon />, title: "Install, don't copy", description: "Features land as packages." },
+  ]}
+  metrics={[
+    { id: "layouts", value: "36", label: "Page layouts" },
+    { id: "a11y", value: "AA", label: "Contrast floor" },
+  ]}
+  cta={{ title: "Start building today", action: <Button>Create an account</Button> }}
+/>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `heading` | `string` | — (required) | Hero headline |
+| `subheading` | `string` | — | Supporting line under the headline |
+| `eyebrow` | `React.ReactNode` | — | Pill above the headline |
+| `primaryAction` / `secondaryAction` | `React.ReactNode` | — | Hero action row |
+| `features` | `LandingFeature[]` | — | `{ id, icon?, title, description }`; renders a responsive three-up grid |
+| `featuresHeading` | `string` | `"Everything you need"` | Heading above the feature grid |
+| `metrics` | `LandingMetric[]` | — | `{ id, value, label }`; omit to skip the band |
+| `cta` | `{ title, description?, action? }` | — | Closing call-to-action band |
+| `footerSlot` | `React.ReactNode` | — | Extra sections appended after the CTA |
+
+Accepts all `<div>` props. Every band is optional — pass only `heading` for a bare hero.

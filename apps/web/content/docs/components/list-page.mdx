@@ -3,6 +3,8 @@ title: "List Page"
 description: "The table-driven index screen: toolbar with search and filters, optional row selection with a select-all, loading skeletons, an empty state and pagination."
 ---
 
+> **Copy template.** This layout ships as a source file, not a package export. Copy it from [`/layout/list-page`](/layout/list-page) or `apps/web/components/layout-templates/list-page.tsx`, then paste it into your app and adjust freely.
+
 The table-driven index page — the CRUD "list" screen. A [PageShell](/docs/components/page-shell) header over a toolbar (search, `filters`, `toolbar` actions), a [Table](/docs/components/table) with optional row selection and a select-all, loading skeletons, an empty state, and a pagination bar.
 
 `ListPage` owns layout and selection state only: it never filters, sorts or paginates `rows`. The consumer already has that logic (or a server), and re-implementing it here would mean two sources of truth for what page 2 contains. Search and pagination are controlled props for the same reason.
@@ -10,8 +12,8 @@ The table-driven index page — the CRUD "list" screen. A [PageShell](/docs/comp
 <ListPagePreview />
 
 ```tsx
-import { ListPage, Button, Badge } from "@celestia-project/ui/layout/list-page"
-import type { ListColumn } from "@celestia-project/ui/layout/list-page"
+import { ListPage, Button, Badge } from "@/components/layout-templates/list-page"
+import type { ListColumn } from "@/components/layout-templates/list-page"
 
 type Project = { id: string; name: string; owner: string; status: string }
 

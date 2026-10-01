@@ -7,7 +7,6 @@ import {
   type ViewStyle,
 } from "react-native"
 import { useMobileTheme } from "../../host"
-import { canUseNativeDriver } from "../../motion"
 import { metrics } from "../../tokens"
 
 export interface MobileImageProps {
@@ -83,7 +82,7 @@ export function MobileImage({
             Animated.timing(imageOpacity, {
               toValue: 1,
               duration: 200,
-              useNativeDriver: canUseNativeDriver,
+              useNativeDriver: true,
             }).start()
           }}
           style={[styles.image, { opacity: imageOpacity }]}

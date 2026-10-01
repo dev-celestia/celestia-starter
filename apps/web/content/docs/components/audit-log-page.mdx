@@ -1,0 +1,43 @@
+---
+title: "Audit Log Page"
+description: "Vertical timeline of who did what, to what, and when, with a per-row connector that survives wrapping rows."
+---
+
+> **Copy template.** This layout ships as a source file, not a package export. Copy it from [`/layout/audit-log-page`](/layout/audit-log-page) or `apps/web/components/layout-templates/audit-log-page.tsx`, then paste it into your app and adjust freely.
+
+The audit log: a vertical timeline of who did what, to what, and when.
+
+The rail is drawn per row with `before:` rather than as one absolutely positioned line, so the connector survives rows of different heights — which is the normal case once a target or an address wraps onto a second line.
+
+<AuditLogPagePreview />
+
+```tsx
+import { AuditLogPage, Input, Button } from "@/components/layout-templates/audit-log-page"
+import type { AuditEvent } from "@/components/layout-templates/audit-log-page"
+
+const events: AuditEvent[] = [
+  { id: "a1", actor: "Ada Lin", action: "changed the billing plan to", target: "Team", time: "Today, 09:41", ip: "203.0.113.24", tone: "info" },
+  { id: "a2", actor: "System", action: "blocked a sign-in attempt from", target: "unknown device", time: "Yesterday, 03:27", ip: "192.0.2.88", tone: "destructive" },
+]
+
+<AuditLogPage
+  title="Audit log"
+  description="Every privileged action in the workspace, newest first."
+  events={events}
+  filters={
+    <>
+      <Input type="search" placeholder="Filter by actor…" className="h-8 w-56" />
+      <Button variant="outline" size="sm">Action</Button>
+    </>
+  }
+/>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `events` | `AuditEvent[]` | — (required) | Already ordered, newest first |
+| `filters` | `React.ReactNode` | — | Filter controls above the timeline |
+
+Plus every [PageShell](/docs/components/page-shell) prop.
+
+`AuditEvent` is `{ id, actor, action, target?, time, ip?, tone? }`. The sentence is assembled from `actor` + `action` + `target`, so pass `action` in the past tense ("rotated the signing key for") and let `target` be the object — that keeps the two weighted differently in the rendered line. `tone` is `"default" | "info" | "success" | "warning" | "destructive"` and colours the row's dot; the last row never draws a connector, so the timeline cannot trail off into nothing.

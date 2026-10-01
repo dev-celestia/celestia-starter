@@ -3,12 +3,14 @@ title: "Sign In Page"
 description: "Ready-made credential sign-in with social providers, remember-me, error and loading states."
 ---
 
+> **Copy template.** This layout ships as a source file, not a package export. Copy it from [`/layout/sign-in-page`](/layout/sign-in-page) or `apps/web/components/layout-templates/sign-in-page.tsx`, then paste it into your app and adjust freely.
+
 A complete credential sign-in screen on the [AuthShell](/docs/components/auth-shell) frame: email + password fields, remember-me checkbox, optional social provider buttons, inline error banner and a loading state on the submit button. Field state is owned by the component; your `onSubmit` receives the values and hands them to your auth client.
 
 <SignInPagePreview />
 
 ```tsx
-import { SignInPage } from "@celestia-project/ui/layout/sign-in-page"
+import { SignInPage } from "@/components/layout-templates/sign-in-page"
 
 <SignInPage
   socialProviders={[

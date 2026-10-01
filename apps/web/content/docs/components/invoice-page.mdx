@@ -1,0 +1,50 @@
+---
+title: "Invoice Page"
+description: "Invoice document with parties, line items and totals. Every figure is a string — a layout that recomputes a total can disagree with the PDF."
+---
+
+> **Copy template.** This layout ships as a source file, not a package export. Copy it from [`/layout/invoice-page`](/layout/invoice-page) or `apps/web/components/layout-templates/invoice-page.tsx`, then paste it into your app and adjust freely.
+
+The invoice document: parties, line items, and totals.
+
+Every figure is a pre-formatted string. The component deliberately cannot add up a column — currency, rounding and tax rules belong to the system that issued the invoice, and a layout that recomputes a total is a layout that can disagree with the PDF.
+
+<InvoicePagePreview />
+
+```tsx
+import { InvoicePage, Badge } from "@/components/layout-templates/invoice-page"
+
+<InvoicePage
+  title="Invoice"
+  description="Northwind Labs — September 2026."
+  number="INV-0091"
+  status={<Badge variant="success">Paid</Badge>}
+  issuedAt="1 Sep 2026"
+  dueAt="15 Sep 2026"
+  from={{ name: "Celestia Labs", lines: ["Rua da Prata 80", "1100-052 Lisbon", "VAT PT123456789"] }}
+  to={{ name: "Northwind Labs", lines: ["12 Harbour Street", "Dublin D02 XY45", "VAT IE9876543A"] }}
+  lineItems={[
+    { id: "l1", description: "Team plan", detail: "12 seats, September 2026", quantity: "12", rate: "$9.00", amount: "$108.00" },
+  ]}
+  totals={[
+    { label: "Subtotal", value: "$171.00" },
+    { label: "VAT 23%", value: "$39.33", muted: true },
+    { label: "Total due", value: "$192.33", strong: true },
+  ]}
+  notes="Payable within 14 days."
+/>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `number` | `string` | — (required) | Invoice number, printed in the document header |
+| `issuedAt` / `dueAt` | `string` | — (required) | Pre-formatted dates |
+| `from` / `to` | `InvoiceParty` | — (required) | `{ name, lines: string[] }` |
+| `lineItems` | `InvoiceLineItem[]` | — (required) | `{ id, description, detail?, quantity, rate, amount }` |
+| `totals` | `InvoiceTotal[]` | — (required) | `{ label, value, muted?, strong? }` |
+| `status` | `React.ReactNode` | — | Badge beside the invoice number |
+| `notes` | `React.ReactNode` | — | Footer block under the totals |
+
+Plus every [PageShell](/docs/components/page-shell) prop.
+
+`totals` is keyed on `label` — an invoice has no meaningful id for "VAT 23%" and inventing one would be a second name for the same row. The `Qty` and `Rate` columns drop out below `sm`, leaving description and amount. The document is natural height rather than viewport-filled, so its totals can never be pushed under an overflowing table.

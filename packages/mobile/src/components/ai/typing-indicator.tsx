@@ -1,7 +1,6 @@
 import * as React from "react"
 import { Animated, StyleSheet, View, type ViewStyle } from "react-native"
 import { useMobileTheme } from "../../host"
-import { canUseNativeDriver } from "../../motion"
 import { metrics } from "../../tokens"
 import { MobileText } from "../primitive/text"
 
@@ -74,12 +73,12 @@ export function MobileTypingIndicator({
           Animated.timing(value, {
             toValue: 1,
             duration: DOT_MS,
-            useNativeDriver: canUseNativeDriver,
+            useNativeDriver: true,
           }),
           Animated.timing(value, {
             toValue: 0,
             duration: DOT_MS,
-            useNativeDriver: canUseNativeDriver,
+            useNativeDriver: true,
           }),
           Animated.delay((dots.length - 1 - index) * STAGGER_MS),
         ])

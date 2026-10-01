@@ -55,12 +55,12 @@ export function promptCommand(ctx: CliContext, name: string | undefined): number
   const promptPath = saveVerificationPrompt(ctx.root, name, promptContent)
 
   if (json) {
-    ui.emitJson({ ok: true, feature: name, path: `.prompts/verify-${name}.md`, warnings: plan.warnings })
+    ui.emitJson({ ok: true, feature: name, path: promptPath, warnings: plan.warnings })
     return 0
   }
 
   ui.out(`\n✨ Generated AI verification prompt for "${name}":`)
-  ui.out(`   📄 .prompts/verify-${name}.md`)
+  ui.out(`   📄 ${promptPath}`)
   ui.out("\n💡 Copy that file into your AI coding tool (Cursor, Claude Code, Copilot, …)")
   ui.out("   to verify or adapt this feature to any custom changes in your repo.\n")
   return 0

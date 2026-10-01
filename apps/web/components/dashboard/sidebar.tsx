@@ -5,10 +5,10 @@ import { usePathname } from "next/navigation"
 import { GearSixIcon, HouseIcon } from "@phosphor-icons/react"
 // feature-manager:imports:begin
 // feature-manager:imports:blog:begin
-import { NoteBlankIcon } from "@phosphor-icons/react"
+import { NoteBlank } from "@phosphor-icons/react"
 // feature-manager:imports:blog:end
 // feature-manager:imports:access:begin
-import { UsersThreeIcon } from "@phosphor-icons/react"
+import { UsersThree } from "@phosphor-icons/react"
 // feature-manager:imports:access:end
 // feature-manager:imports:end
 
@@ -21,10 +21,10 @@ const navItems = [
   { label: "Overview", href: "/dashboard", icon: HouseIcon },
   // feature-manager:nav:begin
   // feature-manager:nav:blog:begin
-  { label: "Posts", href: "/dashboard/posts", icon: NoteBlankIcon },
+  { label: "Posts", href: "/dashboard/posts", icon: NoteBlank },
   // feature-manager:nav:blog:end
   // feature-manager:nav:access:begin
-  { label: "Users", href: "/dashboard/users", icon: UsersThreeIcon, adminOnly: true },
+  { label: "Users", href: "/dashboard/users", icon: UsersThree, adminOnly: true },
   // feature-manager:nav:access:end
   // feature-manager:nav:end
   { label: "Settings", href: "/dashboard/settings", icon: GearSixIcon },

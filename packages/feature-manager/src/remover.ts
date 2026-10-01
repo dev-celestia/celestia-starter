@@ -479,7 +479,8 @@ export function executeRemove(plan: RemovePlan, options: { dryRun?: boolean } = 
   try {
     for (const file of plan.files) {
       if (file.action === "delete") {
-        rmSync(file.absPath, { force: true })
+        // recursive: a legacy record may still reference a directory copy.
+        rmSync(file.absPath, { force: true, recursive: true })
         removeEmptyParents(file.absPath, root)
       } else if (file.action === "restore-owner" && file.restoreFrom) {
         const template = templateFor(ctx.featuresDir, file.restoreFrom, file.to)

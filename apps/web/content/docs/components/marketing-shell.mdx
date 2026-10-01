@@ -1,0 +1,44 @@
+---
+title: "Marketing Shell"
+description: "Public-page frame: announcement strip, navigation bar, body and footer band. Slotted so every marketing page shares one set of chrome."
+---
+
+> **Package composite.** This shell ships inside `@celestia-project/ui` — import it from `@celestia-project/ui/composite/marketing-shell`. The ready-made pages that compose on it are copy templates under `apps/web/components/layout-templates/`.
+
+The frame every public page lives in: an optional announcement strip, a navigation bar, the page body, and a footer band.
+
+Kept separate from [PageShell](/docs/components/page-shell) on purpose. `PageShell` is the signed-in frame — it owns a title block and assumes the app chrome sits outside it. A marketing page has no title block (the hero *is* the title) and owns its own chrome, so folding the two together would leave both with a prop the other never passes.
+
+<MarketingShellPreview />
+
+```tsx
+import { MarketingShell, Button } from "@celestia-project/ui/composite/marketing-shell"
+
+<MarketingShell
+  stickyNav
+  announcement="Celestia 0.4 is out — 36 layouts, one design system."
+  logo={<BrandMark />}
+  nav={<SiteLinks />}
+  actions={
+    <>
+      <Button variant="ghost" size="sm">Sign in</Button>
+      <Button size="sm">Start free</Button>
+    </>
+  }
+  footer={<FooterColumns />}
+>
+  {/* hero, features, pricing — anything */}
+</MarketingShell>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `announcement` | `React.ReactNode` | — | Slim primary-tone strip above the navigation |
+| `logo` | `React.ReactNode` | — | Wordmark at the start of the navigation bar |
+| `nav` | `React.ReactNode` | — | Navigation links; hidden below `md` |
+| `actions` | `React.ReactNode` | — | Trailing actions, pushed to the end of the bar |
+| `footer` | `React.ReactNode` | — | Rendered inside the footer band |
+| `stickyNav` | `boolean` | `false` | Pins the navigation to the top of the viewport |
+| `width` | `"md" \| "lg" \| "xl"` | `"lg"` | Max width of the navigation and footer bands |
+
+Accepts all `<div>` props. The navigation and footer bands are width-constrained; the `children` are not, so a hero can go edge-to-edge.

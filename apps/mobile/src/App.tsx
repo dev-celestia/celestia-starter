@@ -25,9 +25,6 @@ import { ShowcaseRoot } from "./showcase"
  * Everything the showcase demonstrates lives in `./showcase`. This file exists
  * only to wire the providers up, which is also the answer to "how do I use this
  * package?" — the five layers above are the entire setup.
- *
- * This file is deliberately Skia-agnostic: on web `Root.web.tsx` imports it
- * only once CanvasKit is ready, so nothing here has to know about the browser.
  */
 export default function App() {
   const [theme, setTheme] = React.useState<"light" | "dark">("dark")

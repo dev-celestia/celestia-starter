@@ -18,11 +18,10 @@ export const FLAGS: Record<string, FlagSpec> = {
   help: { alias: ["h"], description: "Show help" },
   "dry-run": { alias: ["n"], description: "Show what would change without writing anything" },
   force: { alias: ["f"], description: "Reinstall/upgrade, or override safety checks" },
-  yes: { alias: ["y"], description: "Skip confirmation prompts" },
+  yes: { alias: ["y"], description: "Run post-install commands without asking" },
   json: { alias: ["j"], description: "Emit machine-readable JSON" },
   quiet: { alias: ["q"], description: "Only print warnings, errors and the final result" },
   strict: { description: "Treat warnings as errors" },
-  verbose: { alias: ["v"], description: "Print every planned action" },
 }
 
 export interface ParsedArgs {

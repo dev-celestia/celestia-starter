@@ -255,43 +255,77 @@ import { cn } from "@celestia-project/ui/lib/utils"
 
 ## Component Mapping Reference
 
-Below is the complete mapping of all 142 component modules in `packages/ui/src/components/`, listing their deep import specifiers, exported sub-components, and underlying base primitives.
+Below is the complete mapping of all 162 component modules in `packages/ui/src/components/`, listing their deep import specifiers, exported sub-components, and underlying base primitives.
 
 ### Layout & Structure
 
-The `layout/` family is the page-level layer: a few **shells** own the frame (centred/split for auth, rail + header + content for the signed-in app, and a full-viewport frame for status screens), and thin **page** components supply their own fields and defaults on top of a shell. Every member is also re-exported from the `@celestia-project/ui` barrel.
+The `layout/` family is the page-level layer — 36 members in five groups. A few **shells** own the frame (centred/split for auth, rail + header + content for the signed-in app, a full-viewport frame for status screens, and a nav + footer frame for public pages), and thin **page** components supply their own fields and defaults on top of a shell.
 
-Each member has a dedicated page with a live preview and a full prop reference — see the sidebar under **Layout & Pages**, starting at [Auth Shell](/docs/components/auth-shell) and [Page Shell](/docs/components/page-shell).
+| Group | Members | Sits in |
+|-------|---------|---------|
+| Shells & auth | `AuthShell`, `MarketingShell`, `PageShell`, `DashboardShell`, the auth screens | Its own chrome |
+| Screens | `DashboardPage`, `ProfilePage`, `SettingsPage`, `ListPage`, `BillingPage`, `StatusPage` + not-found/error | `PageShell` / `DashboardShell` |
+| Marketing & content | `LandingPage`, `PricingPage`, `BlogIndexPage`, `ArticlePage` | `MarketingShell` |
+| Collaboration | `InboxPage`, `ChatPage`, `KanbanPage`, `CalendarPage`, `FilesPage` | `PageShell` |
+| Data & insights | `AnalyticsPage`, `ReportsPage`, `RecordDetailPage`, `SearchPage`, `AuditLogPage` | `PageShell` / `DashboardPage` |
+| Commerce & flows | `CheckoutPage`, `InvoicePage`, `OnboardingPage`, `TeamPage`, `IntegrationsPage` | `PageShell` |
+
+Two rules hold across the whole family. A page that sits inside a shell never draws its own chrome — `LandingPage` renders the hero and the content bands and expects `MarketingShell` around it, and every `*Page` on `PageShell` inherits the blurred sticky header rather than repeating it. A page that owns a document shape instead sets its own height: `InvoicePage` and `ReportsPage` are natural-height, because a document that flexes to fill the viewport pushes its totals block up under an overflowing table and the two paint on top of each other.
+
+State is split deliberately. Anything that belongs in the URL — `SearchPage`'s query and facets, `BlogIndexPage`'s category, `InboxPage`'s selected message — is **controlled** and passed in. Anything purely internal — `PricingPage`'s billing toggle, `OnboardingPage`'s step, `IntegrationsPage`'s connection state — is **uncontrolled** and owned by the component. That way a consumer never has to mirror state they do not route on.
+
+Every member has a dedicated page with a live preview and a full prop reference — see the sidebar under **Layout & Pages**, starting at [Auth Shell](/docs/components/auth-shell) and [Page Shell](/docs/components/page-shell). Unlike the primitives, the page templates ship as **copy templates** — plain source files under `apps/web/components/layout-templates/` rather than package exports; the four slot-only shells they compose on (`AuthShell`, `PageShell`, `DashboardShell`, `MarketingShell`) are package composites. Preview any of them at [`/layout`](/layout) and copy the source straight into an app.
 
 | Module | Deep Import | Exported Sub-Components | Base Primitive |
 |--------|-------------|-------------------------|----------------|
+| `analytics-page` | `apps/web/components/layout-templates/analytics-page.tsx` | `AnalyticsPage`, `AnalyticsBreakdownRow` | `DashboardPage` + `Card` + `Progress` |
+| `article-page` | `apps/web/components/layout-templates/article-page.tsx` | `ArticlePage`, `ArticleTocItem`, `ArticleAuthor`, `RelatedArticle` | Custom HTML + `Avatar` + `Badge` + `Separator` |
 | `aspect-ratio` | `@celestia-project/ui/primitive/aspect-ratio` | `AspectRatio` | Radix AspectRatio |
-| `auth-shell` | `@celestia-project/ui/layout/auth-shell` | `AuthShell` | Custom HTML |
-| `billing-page` | `@celestia-project/ui/layout/billing-page` | `BillingPage`, `BillingPlan`, `BillingUsage`, `BillingInvoice` | `PageShell` + `Card` + `Progress` + `Table` |
+| `audit-log-page` | `apps/web/components/layout-templates/audit-log-page.tsx` | `AuditLogPage`, `AuditEvent`, `AuditTone` | `PageShell` + Custom HTML |
+| `auth-shell` | `@celestia-project/ui/composite/auth-shell` | `AuthShell` | Custom HTML |
+| `billing-page` | `apps/web/components/layout-templates/billing-page.tsx` | `BillingPage`, `BillingPlan`, `BillingUsage`, `BillingInvoice` | `PageShell` + `Card` + `Progress` + `Table` |
+| `blog-index-page` | `apps/web/components/layout-templates/blog-index-page.tsx` | `BlogIndexPage`, `BlogPost` | Custom HTML + `Badge` |
+| `calendar-page` | `apps/web/components/layout-templates/calendar-page.tsx` | `CalendarPage`, `CalendarDay`, `CalendarEvent`, `CalendarAgendaItem`, `CalendarTone` | `PageShell` + Custom HTML |
 | `card` | `@celestia-project/ui/primitive/card` | `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardAction`, `CardContent`, `CardFooter` | Custom HTML |
-| `dashboard-page` | `@celestia-project/ui/layout/dashboard-page` | `DashboardPage` | `PageShell` + `Card` |
-| `dashboard-shell` | `@celestia-project/ui/layout/dashboard-shell` | `DashboardShell` | Custom HTML |
-| `error-page` | `@celestia-project/ui/layout/error-page` | `ErrorPage` | `StatusPage` |
-| `forgot-password-page` | `@celestia-project/ui/layout/forgot-password-page` | `ForgotPasswordPage` | `AuthShell` |
-| `list-page` | `@celestia-project/ui/layout/list-page` | `ListPage`, `ListColumn` | `PageShell` + `Table` |
-| `not-found-page` | `@celestia-project/ui/layout/not-found-page` | `NotFoundPage` | `StatusPage` |
-| `page-shell` | `@celestia-project/ui/layout/page-shell` | `PageShell` | Custom HTML |
-| `profile-page` | `@celestia-project/ui/layout/profile-page` | `ProfilePage` | Base UI `Tabs` + `Avatar` |
-| `reset-password-page` | `@celestia-project/ui/layout/reset-password-page` | `ResetPasswordPage` | `AuthShell` |
+| `chat-page` | `apps/web/components/layout-templates/chat-page.tsx` | `ChatPage`, `ChatChannel`, `ChatThreadMessage`, `ChatMember` | Custom HTML + `Avatar` |
+| `checkout-page` | `apps/web/components/layout-templates/checkout-page.tsx` | `CheckoutPage`, `CheckoutStep`, `CheckoutSummaryRow` | `PageShell` + `Button` |
+| `dashboard-page` | `apps/web/components/layout-templates/dashboard-page.tsx` | `DashboardPage` | `PageShell` + `Card` |
+| `dashboard-shell` | `@celestia-project/ui/composite/dashboard-shell` | `DashboardShell` | Custom HTML |
+| `error-page` | `apps/web/components/layout-templates/error-page.tsx` | `ErrorPage` | `StatusPage` |
+| `files-page` | `apps/web/components/layout-templates/files-page.tsx` | `FilesPage`, `FileEntry` | `PageShell` + `Table` + `Badge` |
+| `forgot-password-page` | `apps/web/components/layout-templates/forgot-password-page.tsx` | `ForgotPasswordPage` | `AuthShell` |
+| `inbox-page` | `apps/web/components/layout-templates/inbox-page.tsx` | `InboxPage`, `InboxFolder`, `InboxMessage` | Custom HTML |
+| `integrations-page` | `apps/web/components/layout-templates/integrations-page.tsx` | `IntegrationsPage`, `Integration` | `PageShell` + `Switch` |
+| `invoice-page` | `apps/web/components/layout-templates/invoice-page.tsx` | `InvoicePage`, `InvoiceParty`, `InvoiceLineItem`, `InvoiceTotal` | `PageShell` + `Table` |
+| `kanban-page` | `apps/web/components/layout-templates/kanban-page.tsx` | `KanbanPage`, `KanbanColumn`, `KanbanCard`, `BoardTone` | `PageShell` + `Badge` |
+| `landing-page` | `apps/web/components/layout-templates/landing-page.tsx` | `LandingPage`, `LandingFeature`, `LandingMetric` | Custom HTML |
+| `list-page` | `apps/web/components/layout-templates/list-page.tsx` | `ListPage`, `ListColumn` | `PageShell` + `Table` |
+| `marketing-shell` | `@celestia-project/ui/composite/marketing-shell` | `MarketingShell` | Custom HTML |
+| `not-found-page` | `apps/web/components/layout-templates/not-found-page.tsx` | `NotFoundPage` | `StatusPage` |
+| `onboarding-page` | `apps/web/components/layout-templates/onboarding-page.tsx` | `OnboardingPage`, `OnboardingStep` | `PageShell` + Custom HTML |
+| `page-shell` | `@celestia-project/ui/composite/page-shell` | `PageShell` | Custom HTML |
+| `pricing-page` | `apps/web/components/layout-templates/pricing-page.tsx` | `PricingPage`, `PricingPlan` | Custom HTML + `Badge` |
+| `profile-page` | `apps/web/components/layout-templates/profile-page.tsx` | `ProfilePage` | Base UI `Tabs` + `Avatar` |
+| `record-detail-page` | `apps/web/components/layout-templates/record-detail-page.tsx` | `RecordDetailPage`, `RecordDetailTab`, `RecordDetailMeta` | `PageShell` + `Tabs` + `Avatar` |
+| `reports-page` | `apps/web/components/layout-templates/reports-page.tsx` | `ReportsPage`, `ReportEntry`, `ReportStatus` | `PageShell` + `Badge` + `Button` |
+| `reset-password-page` | `apps/web/components/layout-templates/reset-password-page.tsx` | `ResetPasswordPage` | `AuthShell` |
 | `resizable` | `@celestia-project/ui/primitive/resizable` | `Resizable`, `ResizablePanel`, `ResizablePanelGroup`, `ResizableHandle` | `react-resizable-panels` |
+| `search-page` | `apps/web/components/layout-templates/search-page.tsx` | `SearchPage`, `SearchFacet`, `SearchFacetOption`, `SearchResult` | `PageShell` + `Checkbox` + `Input` |
 | `separator` | `@celestia-project/ui/primitive/separator` | `Separator` | Base UI `Separator` |
-| `settings-page` | `@celestia-project/ui/layout/settings-page` | `SettingsPage` | Custom HTML |
+| `settings-page` | `apps/web/components/layout-templates/settings-page.tsx` | `SettingsPage` | Custom HTML |
 | `sidebar` | `@celestia-project/ui/composite/sidebar` | `SidebarProvider`, `Sidebar`, `SidebarHeader`, `SidebarContent`, `SidebarGroup`, `SidebarGroupLabel`, `SidebarGroupAction`, `SidebarGroupContent`, `SidebarFooter`, `SidebarMenu`, `SidebarMenuItem`, `SidebarMenuButton`, `SidebarMenuAction`, `SidebarMenuSub`, `SidebarMenuSubItem`, `SidebarMenuSubButton`, `SidebarMenuBadge`, `SidebarMenuSkeleton`, `SidebarRail`, `SidebarTrigger`, `SidebarInset`, `SidebarInput`, `useSidebar` | Custom + Base UI Tooltip & Sheet |
-| `sign-in-page` | `@celestia-project/ui/layout/sign-in-page` | `SignInPage`, `SocialProvider` | `AuthShell` |
-| `sign-up-page` | `@celestia-project/ui/layout/sign-up-page` | `SignUpPage` | `AuthShell` |
-| `status-page` | `@celestia-project/ui/layout/status-page` | `StatusPage` | Custom HTML |
-| `two-factor-page` | `@celestia-project/ui/layout/two-factor-page` | `TwoFactorPage` | `AuthShell` + `input-otp` |
+| `sign-in-page` | `apps/web/components/layout-templates/sign-in-page.tsx` | `SignInPage`, `SocialProvider` | `AuthShell` |
+| `sign-up-page` | `apps/web/components/layout-templates/sign-up-page.tsx` | `SignUpPage` | `AuthShell` |
+| `status-page` | `apps/web/components/layout-templates/status-page.tsx` | `StatusPage` | Custom HTML |
+| `team-page` | `apps/web/components/layout-templates/team-page.tsx` | `TeamPage`, `TeamMember`, `TeamMemberStatus` | `PageShell` + `Avatar` + `Badge` |
+| `two-factor-page` | `apps/web/components/layout-templates/two-factor-page.tsx` | `TwoFactorPage` | `AuthShell` + `input-otp` |
 
 #### Shells vs. pages
 
 | Component | Frame it owns | Use it when |
 |-----------|---------------|-------------|
 | `AuthShell` | Centred card or split screen, logo, heading, provider `aside`, `footer` | Building a bespoke signed-out screen |
+| `MarketingShell` | Announcement strip, nav bar (`logo` / `nav` / `actions`, optionally `stickyNav`), page body, footer band | Any public page — the hero *is* the title, so there is no title block to inherit |
 | `PageShell` | Blurred sticky header, `title` / `description` / `actions`, width presets | Any in-app page that is not a dashboard or profile |
 | `DashboardShell` | Navigation rail (`brand`, `nav`, `navFooter`), sticky `header`, content column, optional `aside` | The route-group layout of a signed-in app |
 | `DashboardPage` | `PageShell` + metric tile grid, loading skeletons, `empty` slot, secondary column | A dashboard overview |

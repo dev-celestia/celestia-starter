@@ -7,7 +7,6 @@ import {
   type ViewStyle,
 } from "react-native"
 import { useMobileTheme } from "../../host"
-import { canUseNativeDriver } from "../../motion"
 import { metrics } from "../../tokens"
 import { hapticLight, hitSlopFor } from "../../utils"
 import { MobileText } from "../primitive/text"
@@ -121,7 +120,7 @@ export function MobileToolCallCard({
     Animated.timing(chevron, {
       toValue: expanded ? 1 : 0,
       duration: 180,
-      useNativeDriver: canUseNativeDriver,
+      useNativeDriver: true,
     }).start()
   }, [expanded, chevron])
 

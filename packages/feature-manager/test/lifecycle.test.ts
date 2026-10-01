@@ -1,4 +1,5 @@
 import assert from "node:assert/strict"
+import { createHash } from "node:crypto"
 import {
   existsSync,
   mkdirSync,
@@ -171,6 +172,44 @@ function createFixture(): string {
   write(root, "packages/feature-manager/features/gamma/web/gamma-new.tsx", "export const gamma = 1\n")
   write(root, "packages/feature-manager/features/gamma/web/broken.tsx", "export const broken = 1\n")
   write(root, "packages/feature-manager/features/gamma/snippets/readme.md", "- **gamma** — Gamma")
+
+  // ── zeta (owns a marker-bearing file via a copy) ──
+  write(
+    root,
+    "packages/feature-manager/features/zeta/feature.json",
+    `${JSON.stringify(
+      {
+        name: "zeta",
+        version: "1.0.0",
+        description: "Zeta owns a composed file",
+        copies: [{ from: "web/widget.tsx", to: "apps/web/components/widget.tsx" }],
+      },
+      null,
+      2,
+    )}\n`,
+  )
+  write(
+    root,
+    "packages/feature-manager/features/zeta/web/widget.tsx",
+    ["// feature-manager:imports:begin", "// feature-manager:imports:end", "", "export const widget = 1", ""].join("\n"),
+  )
+
+  // ── eta (inserts into zeta's copied file) ──
+  write(
+    root,
+    "packages/feature-manager/features/eta/feature.json",
+    `${JSON.stringify(
+      {
+        name: "eta",
+        version: "1.0.0",
+        description: "Eta inserts into a file zeta owns",
+        insertions: [{ file: "apps/web/components/widget.tsx", marker: "imports", snippet: "snippets/imports.ts" }],
+      },
+      null,
+      2,
+    )}\n`,
+  )
+  write(root, "packages/feature-manager/features/eta/snippets/imports.ts", "import { helper } from './helper'")
 
   return root
 }
@@ -601,4 +640,36 @@ test("the backup scratch directory is never left behind when unused", () => {
   const root = createFixture()
   install(root, "alpha")
   assert.ok(!existsSync(join(root, ".feature-manager")))
+})
+
+test("inserting into a composed file refreshes the owning feature's recorded hash", () => {
+  const root = createFixture()
+  install(root, "zeta")
+  install(root, "eta")
+
+  const record = tracker(root).features.zeta
+  const expected = createHash("sha256")
+    .update(read(root, "apps/web/components/widget.tsx"))
+    .digest("hex")
+  assert.equal(record.files?.["apps/web/components/widget.tsx"], expected)
+
+  const report = verify(root)
+  const zeta = report.features.find((feature) => feature.name === "zeta")
+  assert.ok(zeta)
+  assert.equal(
+    zeta.issues.filter((issue) => issue.code === "modified_file").length,
+    0,
+    "composed file must not read as user-modified",
+  )
+
+  // The user-edit guard must keep working after the refresh: a real edit is
+  // still flagged.
+  write(root, "apps/web/components/widget.tsx", "edited\n")
+  const afterEdit = verify(root)
+  const zetaAfterEdit = afterEdit.features.find((feature) => feature.name === "zeta")
+  assert.ok(zetaAfterEdit)
+  assert.equal(
+    zetaAfterEdit.issues.filter((issue) => issue.code === "modified_file").length,
+    1,
+  )
 })

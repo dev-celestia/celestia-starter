@@ -1,0 +1,51 @@
+---
+title: "Inbox Page"
+description: "Three-pane mail layout: folder rail, message list, reading pane. Panes collapse in order of least need as the viewport narrows."
+---
+
+> **Copy template.** This layout ships as a source file, not a package export. Copy it from [`/layout/inbox-page`](/layout/inbox-page) or `apps/web/components/layout-templates/inbox-page.tsx`, then paste it into your app and adjust freely.
+
+The three-pane inbox: folder rail, message list, reading pane.
+
+The panes collapse in order of how little they are needed — the rail goes first (below `md`), the reading pane second (below `lg`, where the list is already the full width and the pane would starve both). Selection is controlled so the consumer can drive it from a URL.
+
+<InboxPagePreview />
+
+```tsx
+import { InboxPage, Input } from "@/components/layout-templates/inbox-page"
+
+export function MailPage() {
+  const [folder, setFolder] = useState("inbox")
+  const [message, setMessage] = useState<string>()
+
+  return (
+    <InboxPage
+      folders={[
+        { id: "inbox", label: "Inbox", icon: <TrayIcon />, count: 4 },
+        { id: "starred", label: "Starred", icon: <StarIcon /> },
+      ]}
+      activeFolderId={folder}
+      onFolderChange={setFolder}
+      messages={messages}
+      activeMessageId={message}
+      onSelectMessage={setMessage}
+      toolbar={<Input type="search" placeholder="Search mail…" className="h-7 w-full" />}
+      readingHeader={<span className="text-xs font-medium">{active?.subject}</span>}
+    >
+      {/* reading pane body */}
+    </InboxPage>
+  )
+}
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `folders` | `InboxFolder[]` | — (required) | `{ id, label, icon?, count? }`; the rail hides below `md` |
+| `messages` | `InboxMessage[]` | — (required) | `{ id, from, subject, preview, time, unread?, starred?, avatarFallback? }` |
+| `activeFolderId` / `onFolderChange` | `string` / `(id) => void` | — | Controlled folder selection |
+| `activeMessageId` / `onSelectMessage` | `string` / `(id) => void` | — | Controlled message selection |
+| `toolbar` | `React.ReactNode` | — | Controls above the message list |
+| `readingHeader` | `React.ReactNode` | — | Header of the reading pane |
+| `children` | `React.ReactNode` | — | Reading pane body; a subject/preview fallback renders when omitted |
+
+Give the page a definite height (`className="h-full"` or a `flex-1` parent) — the three panes divide the available height and each scrolls independently.

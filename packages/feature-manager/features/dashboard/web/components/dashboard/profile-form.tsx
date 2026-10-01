@@ -16,14 +16,14 @@ import {
 import { authClient } from "@/lib/auth-client"
 import type { Session } from "@/lib/auth-client"
 
-export function ProfileForm({ user }: { user: Session["user"] }) {
+export function ProfileForm({ user }: Readonly<{ user: Session["user"] }>) {
   const router = useRouter()
   const [name, setName] = useState(user.name ?? "")
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setSaving(true)
     setMessage(null)
@@ -66,7 +66,7 @@ export function ProfileForm({ user }: { user: Session["user"] }) {
             </p>
           </div>
 
-          {message && <p className="text-xs text-green-600">{message}</p>}
+          {message && <p className="text-xs text-success">{message}</p>}
           {error && <p className="text-xs text-destructive">{error}</p>}
 
           <Button type="submit" disabled={saving} className="h-8 w-fit text-xs">

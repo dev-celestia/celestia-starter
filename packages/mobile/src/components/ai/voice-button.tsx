@@ -7,7 +7,6 @@ import {
   type ViewStyle,
 } from "react-native"
 import { useMobileTheme } from "../../host"
-import { canUseNativeDriver } from "../../motion"
 import { metrics } from "../../tokens"
 import { hapticLight, hapticMedium, hitSlopFor } from "../../utils"
 import { MobileSpinner } from "../primitive/spinner"
@@ -142,12 +141,12 @@ export function MobileVoiceButton({
         Animated.timing(pulse, {
           toValue: 1,
           duration: 850,
-          useNativeDriver: canUseNativeDriver,
+          useNativeDriver: true,
         }),
         Animated.timing(pulse, {
           toValue: 0,
           duration: 850,
-          useNativeDriver: canUseNativeDriver,
+          useNativeDriver: true,
         }),
       ])
     )

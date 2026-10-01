@@ -1,0 +1,59 @@
+---
+title: "Checkout Page"
+description: "Stepped form beside a sticky order summary. Step progress is derived from the active id, so it cannot contradict itself."
+---
+
+> **Copy template.** This layout ships as a source file, not a package export. Copy it from [`/layout/checkout-page`](/layout/checkout-page) or `apps/web/components/layout-templates/checkout-page.tsx`, then paste it into your app and adjust freely.
+
+The checkout screen: a stepped form beside a sticky order summary.
+
+Step progress is derived from the position of `activeStep` in `steps` rather than tracked as a separate `completedSteps` array. Two props describing the same fact would let a consumer mark step 3 active while claiming step 2 is incomplete, and there is no correct rendering for that state.
+
+<CheckoutPagePreview />
+
+```tsx
+import { CheckoutPage, Button } from "@/components/layout-templates/checkout-page"
+
+export function Checkout() {
+  const steps = [
+    { id: "account", label: "Account" },
+    { id: "payment", label: "Payment" },
+    { id: "confirm", label: "Confirm" },
+  ]
+  const [step, setStep] = useState("payment")
+  const index = steps.findIndex((s) => s.id === step)
+
+  return (
+    <CheckoutPage
+      title="Checkout"
+      description="Twelve seats on the Team plan, billed annually."
+      steps={steps}
+      activeStep={step}
+      summary={[
+        { id: "seats", label: "Team plan × 12", value: "$1,080.00" },
+        { id: "trial", label: "14-day trial credit", value: "Applied", muted: true },
+      ]}
+      total={{ label: "Due today", value: "$933.12" }}
+      summaryNote="Charged on the first day after your trial."
+      submitLabel="Pay and start trial"
+      onBack={() => setStep(steps[Math.max(index - 1, 0)].id)}
+      onSubmit={() => setStep(steps[Math.min(index + 1, steps.length - 1)].id)}
+    >
+      {/* the form for the current step */}
+    </CheckoutPage>
+  )
+}
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `steps` | `CheckoutStep[]` | — (required) | `{ id, label }`, in order |
+| `activeStep` | `string` | — (required) | Id of the step in progress; earlier steps render complete |
+| `summary` | `CheckoutSummaryRow[]` | — (required) | `{ id, label, value, muted? }` |
+| `total` | `{ label, value }` | — (required) | Payable total, emphasised |
+| `summaryTitle` | `string` | `"Order summary"` | Summary card heading |
+| `summaryNote` | `React.ReactNode` | — | Small print under the totals |
+| `submitLabel` / `onSubmit` | `string` / `() => void` | `"Continue"` / — | Primary action |
+| `backLabel` / `onBack` | `string` / `() => void` | `"Back"` / — | Secondary action |
+
+Plus every [PageShell](/docs/components/page-shell) prop. The action row renders only when `onBack` or `onSubmit` is supplied, so a read-only review step needs no extra prop. The summary is `sticky top-4` from `lg` up.

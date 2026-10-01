@@ -69,7 +69,7 @@ Scheduled posts are published lazily: `publishDuePosts()` flips `scheduled` post
 
 The CMS centralizes content; external websites consume it over the Delivery API:
 
-- **Auth**: `Authorization: Bearer <key>` (or `?key=`), keys issued per website from **Dashboard → Content API**.
+- **Auth**: `Authorization: Bearer <key>` — keys are issued per website from **Dashboard → Content API** and shown exactly once at creation (only a SHA-256 hash is stored; keys are never accepted as a `?key=` query parameter, since URLs end up in logs and browser history).
 - **CORS**: `GET`/`OPTIONS` are cross-origin friendly, so browser-based consumers work directly.
 - **Endpoints**:
   - `GET /api/public/v1/posts?page=1&limit=20&category=<slug>&tag=<slug>&q=<query>&content=0` — published posts (newest first). `content=0` omits markdown bodies for light listings.

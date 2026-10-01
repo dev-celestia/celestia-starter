@@ -1,0 +1,52 @@
+---
+title: "Pricing Page"
+description: "Plan cards under a monthly / annual toggle. Both figures are props — the toggle only swaps which string a card shows."
+---
+
+> **Copy template.** This layout ships as a source file, not a package export. Copy it from [`/layout/pricing-page`](/layout/pricing-page) or `apps/web/components/layout-templates/pricing-page.tsx`, then paste it into your app and adjust freely.
+
+The pricing screen: a billing-period toggle above a row of plan cards.
+
+The toggle is local state rather than a controlled prop because it only changes which *string* a card shows — the consumer hands over both figures and never needs to know which one is on screen. Anything that would need the value (analytics, a checkout URL) belongs in the plan's `action`.
+
+<PricingPagePreview />
+
+```tsx
+import { PricingPage, Button } from "@/components/layout-templates/pricing-page"
+import type { PricingPlan } from "@/components/layout-templates/pricing-page"
+
+const plans: PricingPlan[] = [
+  {
+    id: "team",
+    name: "Team",
+    price: "$12",
+    annualPrice: "$9",
+    interval: "per seat, per month",
+    description: "For product teams shipping weekly.",
+    features: ["Unlimited projects", "SSO and SCIM", "Priority support"],
+    highlighted: true,
+    badge: "Most popular",
+    action: <Button className="w-full">Start 14-day trial</Button>,
+  },
+]
+
+<PricingPage
+  eyebrow="Pricing"
+  heading="Simple, per-seat pricing"
+  description="Every plan includes the full component library."
+  plans={plans}
+  note="Prices in USD. Cancel any time."
+/>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `heading` | `string` | — (required) | Page headline |
+| `plans` | `PricingPlan[]` | — (required) | Plan cards |
+| `description` | `string` | — | Supporting line under the headline |
+| `eyebrow` | `React.ReactNode` | — | Pill above the headline |
+| `billingToggle` | `boolean` | `true` | Shows the monthly / annual segmented control |
+| `defaultBilling` | `"monthly" \| "annual"` | `"annual"` | Which period starts selected |
+| `note` | `React.ReactNode` | — | Small print under the grid |
+
+`PricingPlan` is `{ id, name, price, annualPrice?, interval?, description?, features: string[], action?, highlighted?, badge? }`. `annualPrice` falls back to `price` when omitted, so a "Custom" plan needs only one figure.
