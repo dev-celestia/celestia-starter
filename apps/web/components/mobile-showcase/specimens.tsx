@@ -3,25 +3,54 @@ import {
   BellIcon,
   CaretRightIcon,
   CheckIcon,
+  HouseIcon,
   InfoIcon,
   MagnifyingGlassIcon,
   PlusIcon,
+  SquaresFourIcon,
   TrashIcon,
+  UserIcon,
   WarningIcon,
   XIcon,
 } from "@phosphor-icons/react/dist/ssr"
 import { cn } from "@celestia-project/ui/lib/utils"
-import { TabBarMark } from "./screens"
 
 /**
  * A visual index of the mobile primitives and composites.
  *
- * Same contract as `screens.tsx`: HTML/CSS transcriptions of the native
- * components, drawn at the package's real metrics (44pt touch floor, the 32pt
- * control height and 6pt control radius, the 11/12/14/16px type steps) so
- * proportions are honest even though the native views are not running. See the
- * note above the gallery.
+ * HTML/CSS transcriptions of the native components, drawn at the package's
+ * real metrics (44pt touch floor, the 32pt control height and 6pt control
+ * radius, the 11/12/14/16px type steps) so proportions are honest even though
+ * the native views are not running.
  */
+
+/** Tab bar, drawn once so the tab-bar specimen can hint at the app frame. */
+function TabBarMark() {
+  const items = [
+    { id: "home", label: "Home", Icon: HouseIcon, active: true },
+    { id: "search", label: "Search", Icon: MagnifyingGlassIcon, active: false },
+    { id: "library", label: "Library", Icon: SquaresFourIcon, active: false },
+    { id: "profile", label: "Profile", Icon: UserIcon, active: false },
+  ]
+
+  return (
+    <div className="border-border/70 flex shrink-0 items-center border-t px-2 pt-2 pb-1">
+      {items.map((item) => (
+        <span
+          key={item.id}
+          className={cn(
+            "flex min-h-11 flex-1 flex-col items-center justify-center gap-0.5",
+            item.active ? "text-foreground" : "text-muted-foreground"
+          )}
+        >
+          <item.Icon className="size-[18px]" weight={item.active ? "fill" : "regular"} />
+          <span className="text-4xs font-medium">{item.label}</span>
+        </span>
+      ))}
+    </div>
+  )
+}
+
 
 /* -------------------------------------------------------------------------- */
 /* Specimen shell                                                              */

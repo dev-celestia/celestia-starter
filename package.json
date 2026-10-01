@@ -12,6 +12,7 @@
     "test": "turbo test",
     "docs": "turbo dev --filter=web",
     "mobile": "turbo dev --filter=mobile",
+    "ai": "turbo dev --filter=ai",
     "scaffold": "node packages/cli/src/index.js",
     "add-feature": "tsx packages/feature-manager/src/cli/index.ts add",
     "remove-feature": "tsx packages/feature-manager/src/cli/index.ts remove",

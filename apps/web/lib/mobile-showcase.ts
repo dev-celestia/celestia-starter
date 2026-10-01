@@ -6,7 +6,6 @@
  *
  * - the category counts mirror `packages/mobile/src/components/` and
  *   `content/docs/mobile.mdx`;
- * - the token values mirror `packages/mobile/src/tokens.ts`;
  * - the design rules and the platform matrix mirror `content/docs/mobile.mdx`.
  *
  * Keeping it in one file means the page copy and the structure cannot drift
@@ -73,98 +72,6 @@ export const MOBILE_MODULE_TOTAL = MOBILE_CATEGORIES.reduce(
   (total, category) => total + category.count,
   0
 )
-
-/* -------------------------------------------------------------------------- */
-/* Foundations                                                                 */
-/* -------------------------------------------------------------------------- */
-
-export interface MobileColorToken {
-  token: string
-  /** The role this token plays, so the swatch is not just a colour. */
-  role: string
-  light: string
-  dark: string
-}
-
-/**
- * The complete `ColorRamp` from `packages/mobile/src/tokens.ts`. Both ramps are
- * closed sets — there is no "add a colour" escape hatch, which is what keeps
- * light and dark from drifting apart.
- */
-export const MOBILE_COLOR_TOKENS: MobileColorToken[] = [
-  { token: "background", role: "Page surface", light: "#ffffff", dark: "#09090b" },
-  { token: "surface", role: "Recessed region", light: "#f8fafc", dark: "#18181b" },
-  { token: "card", role: "Raised container", light: "#ffffff", dark: "#121215" },
-  { token: "cardBorder", role: "Card hairline", light: "#e2e8f0", dark: "#27272a" },
-  { token: "foreground", role: "Primary type", light: "#0f172a", dark: "#f8fafc" },
-  { token: "muted", role: "Secondary type", light: "#64748b", dark: "#94a3b8" },
-  { token: "mutedBackground", role: "Muted fill", light: "#f1f5f9", dark: "#27272a" },
-  { token: "primary", role: "Primary action", light: "#d40c1a", dark: "#ff4d46" },
-  { token: "primaryForeground", role: "On primary", light: "#fafafa", dark: "#0a0a0a" },
-  { token: "secondary", role: "Secondary action", light: "#f1f5f9", dark: "#27272a" },
-  { token: "secondaryForeground", role: "On secondary", light: "#0f172a", dark: "#f8fafc" },
-  { token: "accent", role: "Accent fill", light: "#f1f5f9", dark: "#27272a" },
-  { token: "accentForeground", role: "On accent", light: "#0f172a", dark: "#f8fafc" },
-  { token: "destructive", role: "Destructive action", light: "#ef4444", dark: "#ff6467" },
-  { token: "destructiveForeground", role: "On destructive", light: "#ffffff", dark: "#09090b" },
-  { token: "success", role: "Success status", light: "#10b981", dark: "#34d399" },
-  { token: "successForeground", role: "On success", light: "#ffffff", dark: "#09090b" },
-  { token: "warning", role: "Warning status", light: "#f59e0b", dark: "#fbbf24" },
-  { token: "warningForeground", role: "On warning", light: "#ffffff", dark: "#09090b" },
-  { token: "info", role: "Info status", light: "#3b82f6", dark: "#60a5fa" },
-  { token: "infoForeground", role: "On info", light: "#ffffff", dark: "#09090b" },
-  { token: "border", role: "Divider", light: "#e2e8f0", dark: "#27272a" },
-  { token: "inputBorder", role: "Field outline", light: "#cbd5e1", dark: "#3f3f46" },
-  {
-    token: "elevationEdge",
-    role: "3D edge — neutral",
-    light: "#00000026",
-    dark: "#ffffff2e",
-  },
-  { token: "primaryEdge", role: "3D edge — primary", light: "#d40c1a", dark: "#ff4d46" },
-  {
-    token: "destructiveEdge",
-    role: "3D edge — destructive",
-    light: "#942626",
-    dark: "#9e3b3d",
-  },
-  { token: "chart1", role: "Series 1 · red", light: "#d40c1a", dark: "#ff4d46" },
-  { token: "chart2", role: "Series 2 · amber", light: "#b45309", dark: "#fbbf24" },
-  { token: "chart3", role: "Series 3 · teal", light: "#0f766e", dark: "#2dd4bf" },
-  { token: "chart4", role: "Series 4 · blue", light: "#1d4ed8", dark: "#60a5fa" },
-  { token: "chart5", role: "Series 5 · violet", light: "#7e22ce", dark: "#c084fc" },
-]
-
-export interface MobileTypeStep {
-  variant: string
-  size: number
-  lineHeight: number
-  weight: number
-  tracking?: number
-  sample: string
-}
-
-/** The eight-step ramp from `typography` in `tokens.ts`. */
-export const MOBILE_TYPE_SCALE: MobileTypeStep[] = [
-  { variant: "display", size: 32, lineHeight: 38, weight: 700, tracking: -0.5, sample: "Display" },
-  { variant: "heading", size: 24, lineHeight: 30, weight: 600, tracking: -0.3, sample: "Heading" },
-  { variant: "title", size: 19, lineHeight: 24, weight: 600, tracking: -0.2, sample: "Title" },
-  { variant: "body", size: 16, lineHeight: 23, weight: 400, sample: "Body — the reading size" },
-  { variant: "bodyMedium", size: 16, lineHeight: 23, weight: 500, sample: "Body medium — emphasis" },
-  { variant: "callout", size: 14, lineHeight: 18, weight: 500, sample: "Callout — supporting copy" },
-  { variant: "caption", size: 12, lineHeight: 16, weight: 400, sample: "Caption — metadata" },
-  { variant: "label", size: 11, lineHeight: 14, weight: 600, tracking: 0.3, sample: "LABEL" },
-]
-
-export const MOBILE_METRICS = {
-  minTouchTarget: 44,
-  radii: [
-    { token: "sm", value: 6, use: "Buttons, badges, chips" },
-    { token: "md", value: 10, use: "Inputs, segmented controls" },
-    { token: "lg", value: 14, use: "Cards, grouped lists" },
-    { token: "xl", value: 18, use: "Sheets, modals" },
-  ],
-}
 
 /* -------------------------------------------------------------------------- */
 /* Design rules                                                                */
@@ -325,71 +232,6 @@ export const MOBILE_WEB_PACKAGES =
 
 
 /* -------------------------------------------------------------------------- */
-/* Screen gallery                                                              */
-/* -------------------------------------------------------------------------- */
-
-export type MobileScreenId =
-  | "sign-in"
-  | "onboarding"
-  | "settings"
-  | "otp-verify"
-  | "status"
-  | "reset-password"
-
-export interface MobileScreenEntry {
-  id: MobileScreenId
-  title: string
-  modulePath: string
-  /** What the screen owns, and what it deliberately does not. */
-  summary: string
-}
-
-export const MOBILE_SCREENS: MobileScreenEntry[] = [
-  {
-    id: "sign-in",
-    title: "Sign in",
-    modulePath: "layout/sign-in-screen",
-    summary:
-      "Credentials, remember-me, OAuth rows and both cross-links. The screen owns its field state and reports the result — it never authenticates, stores a session or navigates.",
-  },
-  {
-    id: "onboarding",
-    title: "Onboarding",
-    modulePath: "layout/onboarding-screen",
-    summary:
-      "A pager with a dot indicator and skip / next / get-started. Paging uses ScrollView + pagingEnabled, not a gesture library.",
-  },
-  {
-    id: "settings",
-    title: "Settings",
-    modulePath: "layout/settings-screen",
-    summary:
-      "Profile header, grouped sections with footers, and a danger zone. MobileSettingsSection inserts the row separators, so a stray divider after the last row is impossible.",
-  },
-  {
-    id: "otp-verify",
-    title: "OTP verify",
-    modulePath: "layout/otp-verify-screen",
-    summary:
-      "Six-digit entry with a resend cooldown. Digits are clamped to the length and onComplete fires once, so the caller never polls.",
-  },
-  {
-    id: "status",
-    title: "Status",
-    modulePath: "layout/status-screen",
-    summary:
-      "One frame behind six outcomes. The accent is mapped from the variant internally, so a supplied icon is the only thing the caller has to tint.",
-  },
-  {
-    id: "reset-password",
-    title: "Reset password",
-    modulePath: "layout/reset-password-screen",
-    summary:
-      "A strength meter scored by the same function that gates submit, and a confirmation field that must match before the button commits.",
-  },
-]
-
-/* -------------------------------------------------------------------------- */
 /* Sidebar                                                                     */
 /* -------------------------------------------------------------------------- */
 
@@ -403,8 +245,6 @@ export interface MobileSection {
 export const MOBILE_SECTIONS: MobileSection[] = [
   { id: "overview", title: "Overview", group: "Get started" },
   { id: "showcase", title: "Run in Expo Go", group: "Get started" },
-  { id: "foundations", title: "Foundations", group: "Design system" },
-  { id: "screens", title: "Screens", group: "Design system" },
   { id: "rules", title: "Design rules", group: "Guidance" },
   { id: "platform", title: "Platform support", group: "Guidance" },
   { id: "install", title: "Install", group: "Guidance" },

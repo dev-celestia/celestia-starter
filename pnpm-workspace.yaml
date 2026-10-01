@@ -5,7 +5,15 @@ packages:
 overrides:
   "@types/react": "19.2.18"
 
+minimumReleaseAgeExclude:
+  - mastra
+  - "@mastra/*"
+
 allowBuilds:
   sharp: true
   unrs-resolver: true
   msw: false
+  bufferutil: true
+  esbuild: true
+  protobufjs: true
+  utf-8-validate: true

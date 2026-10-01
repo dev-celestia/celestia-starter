@@ -1,23 +1,17 @@
 "use client"
 
 import type { ComponentType } from "react"
-import {
-  BookOpenIcon,
-  PaletteIcon,
-  RocketLaunchIcon,
-  SquaresFourIcon,
-} from "@phosphor-icons/react"
+import { BookOpenIcon, RocketLaunchIcon, SquaresFourIcon } from "@phosphor-icons/react"
 import { NavSidebar, type NavSidebarGroup } from "@/components/shared/nav-sidebar"
 import { MOBILE_SECTIONS } from "@/lib/mobile-showcase"
 
 const GROUP_ICONS: Record<string, ComponentType<{ className?: string }>> = {
   "Get started": BookOpenIcon,
-  "Design system": PaletteIcon,
   Guidance: RocketLaunchIcon,
 }
 
 /** Group order in the rail. Mirrors the reading order of the page. */
-const GROUP_ORDER = ["Get started", "Design system", "Guidance"]
+const GROUP_ORDER = ["Get started", "Guidance"]
 
 /**
  * Static, so it needs no hook — which matters: the page renders this in two

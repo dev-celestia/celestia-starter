@@ -29,20 +29,14 @@ import {
 import { cn } from "@celestia-project/ui/lib/utils"
 import { MobileNavSidebar } from "@/components/shared/nav-sidebar"
 import { MobileSidebar, MOBILE_SIDEBAR_GROUPS } from "./mobile-sidebar"
-import { DeviceFrame } from "./device-frame"
-import { MOBILE_SCREEN_RENDERERS } from "./screens"
 import { MOBILE_SPECIMENS } from "./specimens"
 import {
   MOBILE_CATEGORIES,
-  MOBILE_COLOR_TOKENS,
   MOBILE_ENTRY_POINTS,
-  MOBILE_METRICS,
   MOBILE_MODULE_TOTAL,
   MOBILE_PLATFORM,
   MOBILE_RULES,
-  MOBILE_SCREENS,
   MOBILE_SECTIONS,
-  MOBILE_TYPE_SCALE,
   MOBILE_UNIVERSAL_IMPLEMENTATIONS,
   MOBILE_WEB_CAVEATS,
   MOBILE_WEB_PACKAGES,
@@ -278,15 +272,6 @@ function Hero() {
           <DeviceMobileIcon className="size-3.5" />
           Run it in Expo Go
         </Button>
-        <Button
-          variant="outline"
-          size="lg"
-          leading="tight"
-          className="min-h-10 rounded-md px-4 font-semibold"
-          render={<Link href="#screens" />}
-        >
-          See the screens
-        </Button>
       </div>
     </div>
   )
@@ -396,208 +381,6 @@ function Overview() {
   )
 }
 
-function Foundations() {
-  return (
-    <section className="@container flex flex-col gap-4">
-      <SectionHeader
-        id="foundations"
-        eyebrow="Design system"
-        title="Taxonomy and tokens"
-        description="Components are grouped by role, not by atomicity — the same rule @celestia-project/ui uses, so the two libraries read the same way."
-      />
-
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {MOBILE_CATEGORIES.map((category) => (
-          <Card key={category.id} className={PANEL_XL}>
-            <CardContent className="flex flex-col gap-2">
-              <div className="flex items-center justify-between gap-2">
-                <h3 className="text-sm font-semibold">{category.name}</h3>
-                <span className="text-xs text-muted-foreground tabular-nums">
-                  {category.count}
-                </span>
-              </div>
-              <code className="font-mono text-4xs text-muted-foreground">
-                {category.directory}
-              </code>
-              <p className="text-xs leading-relaxed text-muted-foreground">
-                {category.belongs}
-              </p>
-              <p className="mt-auto pt-1 text-2xs text-foreground italic">
-                “{category.rule}”
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <Alert className={cn(CALLOUT, CALLOUT_SURFACE.info)}>
-        <InfoIcon
-          className={cn("mt-0.5 size-4 shrink-0", CALLOUT_ICON.info)}
-          weight="duotone"
-        />
-        <AlertTitle className="text-xs font-semibold text-foreground">
-          “Primitive” means generic, not atomic
-        </AlertTitle>
-        <AlertDescription className="text-xs leading-relaxed text-muted-foreground">
-          <code className="font-mono text-2xs">MobileCard</code> ships{" "}
-          <code className="font-mono text-2xs">MobileCardHeader</code>,{" "}
-          <code className="font-mono text-2xs">MobileCardTitle</code> and three
-          more slots — and is still a primitive, exactly as{" "}
-          <code className="font-mono text-2xs">Card</code> is in the web
-          library. A compound component is not automatically a composite; only
-          an <em>opinionated</em> one is.
-        </AlertDescription>
-      </Alert>
-
-      {/* Colour */}
-      <div className="flex flex-col gap-3 pt-2">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h3 className="text-sm font-semibold">Semantic colour</h3>
-          <p className="text-2xs text-muted-foreground">
-            The complete <code className="font-mono">ColorRamp</code> — a closed
-            set, which is what keeps the two themes from drifting apart.
-            Translucent values are written as 8-digit hex,{" "}
-            <code className="font-mono">#RRGGBBAA</code>, so every entry stays
-            one notation.
-          </p>
-        </div>
-
-        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-          {MOBILE_COLOR_TOKENS.map((token) => (
-            <Card
-              key={token.token}
-              className={cn(PANEL_LG, "[--card-spacing:--spacing(2.5)]")}
-            >
-              <CardContent className="flex items-center gap-3">
-                <span aria-hidden className="flex shrink-0 flex-col gap-0.5">
-                  <span
-                    className="block size-6 rounded-[5px] border border-border"
-                    style={{ backgroundColor: token.light }}
-                  />
-                  <span
-                    className="block size-6 rounded-[5px] border border-border"
-                    style={{ backgroundColor: token.dark }}
-                  />
-                </span>
-                <span className="flex min-w-0 flex-1 flex-col">
-                  <code className="truncate font-mono text-2xs font-medium">
-                    {token.token}
-                  </code>
-                  <span className="truncate text-3xs text-muted-foreground">
-                    {token.role}
-                  </span>
-                </span>
-                <span className="shrink-0 text-end font-mono text-4xs text-muted-foreground tabular-nums">
-                  <span className="block">{token.light}</span>
-                  <span className="block">{token.dark}</span>
-                </span>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-
-      {/* Type */}
-      <div className="flex flex-col gap-3 pt-2">
-        <h3 className="text-sm font-semibold">Type scale</h3>
-        <Card className={PANEL_FLUSH}>
-          {MOBILE_TYPE_SCALE.map((step, index) => (
-            <div
-              key={step.variant}
-              className={cn(
-                "flex flex-wrap items-baseline gap-x-4 gap-y-1 px-4 py-3",
-                index < MOBILE_TYPE_SCALE.length - 1 &&
-                  "border-b border-border/40"
-              )}
-            >
-              <code className="w-24 shrink-0 font-mono text-2xs text-muted-foreground">
-                {step.variant}
-              </code>
-              <span
-                className="min-w-0 flex-1 truncate"
-                style={{
-                  fontSize: step.size,
-                  lineHeight: `${step.lineHeight}px`,
-                  fontWeight: step.weight,
-                  letterSpacing: step.tracking
-                    ? `${step.tracking}px`
-                    : undefined,
-                }}
-              >
-                {step.sample}
-              </span>
-              <span className="shrink-0 font-mono text-3xs text-muted-foreground tabular-nums">
-                {step.size}/{step.lineHeight} · {step.weight}
-                {step.tracking ? ` · ${step.tracking}px` : ""}
-              </span>
-            </div>
-          ))}
-        </Card>
-      </div>
-
-      {/* Metrics */}
-      <div className="flex flex-col gap-3 pt-2">
-        <h3 className="text-sm font-semibold">Metrics</h3>
-        {/* Container-query step: this card is a 44px badge plus a text column
-            holding an unbreakable `metrics.minTouchTarget`, so it needs ~250px
-            before the code starts overflowing. Two viewport columns of a 352px
-            column (at a 1024px viewport) is 170px each — narrow enough to push
-            the code 43px past the card, where the shell's `overflow-hidden`
-            silently cuts it. Keyed to the column, it drops to one card first. */}
-        <div className="grid gap-3 @xl:grid-cols-2">
-          <Card className={PANEL_XL}>
-            <CardContent className="flex items-center gap-4">
-              <span
-                aria-hidden
-                className="flex size-11 shrink-0 items-center justify-center rounded-lg border border-primary/40 bg-primary/5 text-2xs font-semibold text-primary tabular-nums"
-              >
-                44
-              </span>
-              <span className="flex min-w-0 flex-col gap-0.5">
-                <span className="text-xs font-semibold">
-                  Minimum touch target
-                </span>
-                <span className="text-2xs leading-relaxed text-muted-foreground">
-                  44×44pt on every interactive element, exposed as{" "}
-                  <code className="font-mono text-3xs">
-                    metrics.minTouchTarget
-                  </code>
-                  .
-                </span>
-              </span>
-            </CardContent>
-          </Card>
-          <Card className={PANEL_XL}>
-            <CardContent className="flex flex-col gap-2">
-              <span className="text-xs font-semibold">Corner radius</span>
-              <div className="flex flex-col gap-1.5">
-                {MOBILE_METRICS.radii.map((radius) => (
-                  <div key={radius.token} className="flex items-center gap-3">
-                    <span
-                      aria-hidden
-                      className="size-7 shrink-0 border border-primary/30 bg-primary/15"
-                      style={{ borderRadius: radius.value }}
-                    />
-                    <code className="w-8 shrink-0 font-mono text-2xs">
-                      {radius.token}
-                    </code>
-                    <span className="shrink-0 text-2xs text-muted-foreground tabular-nums">
-                      {radius.value}pt
-                    </span>
-                    <span className="truncate text-2xs text-muted-foreground">
-                      {radius.use}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </section>
-  )
-}
-
 function Showcase() {
   return (
     <section className="flex flex-col gap-4">
@@ -693,15 +476,15 @@ function Specimens() {
           The primitives and composites, drawn at the package&apos;s real
           metrics — the 44pt touch floor, the 10pt control radius, the 11 / 12 /
           14 / 16px type steps. These are transcriptions rather than the running
-          components — the real ones run in Expo Go (see{" "}
+          components — this page is a Next.js app and does not depend on the
+          React Native library — so to interact with the real ones,{" "}
           <Link
             href="#showcase"
             className="font-medium text-foreground underline underline-offset-4"
           >
-            Run in Expo Go
+            run them in Expo Go
           </Link>
-          ), and the note under Screens explains why this page cannot mount
-          them.
+          .
         </p>
       </div>
 
@@ -709,90 +492,6 @@ function Specimens() {
         {MOBILE_SPECIMENS.map((Specimen) => (
           <Specimen key={Specimen.name} />
         ))}
-      </div>
-    </section>
-  )
-}
-
-function Screens() {
-  return (
-    // `@container` (not a viewport breakpoint) because the frames below are a
-    // fixed width and this column is not: the desktop rail and the site nav
-    // both eat into it, so the viewport width says nothing about how many
-    // 268px frames fit. Keyed to the column, the count is always right.
-    <section className="@container flex flex-col gap-4">
-      <SectionHeader
-        id="screens"
-        eyebrow="Design system"
-        title="Screens"
-        description="The full-screen layout modules own the whole frame — safe area, scrolling, keyboard avoidance, header, pinned footer — and take their content through slots."
-      />
-
-      <Alert className={cn(CALLOUT, CALLOUT_SURFACE.warn)}>
-        <WarningIcon
-          className={cn("mt-0.5 size-4 shrink-0", CALLOUT_ICON.warn)}
-          weight="duotone"
-        />
-        <AlertTitle className="text-xs font-semibold text-foreground">
-          Transcriptions, not the running components
-        </AlertTitle>
-        <AlertDescription className="text-xs leading-relaxed text-muted-foreground">
-          The components <em>do</em> render on web — every module imports{" "}
-          <code className="font-mono text-2xs">@expo/ui</code>&apos;s universal
-          entry, which resolves to a DOM implementation in a browser. But this
-          page is a Next.js app, not an Expo web build: it does not depend on{" "}
-          <code className="font-mono text-2xs">@celestia-project/mobile</code>,
-          and mounting the real components here would mean adding{" "}
-          <code className="font-mono text-2xs">react-native-web</code>,{" "}
-          <code className="font-mono text-2xs">react-dom</code> and{" "}
-          <code className="font-mono text-2xs">@expo/metro-runtime</code> to{" "}
-          <code className="font-mono text-2xs">apps/web</code>. So what is drawn
-          below is an HTML/CSS transcription of the same arrangement at the same
-          metrics. To interact with the real thing, open the showcase in Expo Go
-          —{" "}
-          <Link
-            href="#showcase"
-            className="font-medium text-foreground underline underline-offset-4"
-          >
-            Run in Expo Go
-          </Link>{" "}
-          above — or{" "}
-          <code className="font-mono text-2xs">pnpm --filter mobile web</code>{" "}
-          for a browser preview.
-        </AlertDescription>
-      </Alert>
-
-      {/* Container-query steps, not `sm:`/`xl:`. A frame is a hard 268px, so the
-          grid can hold N of them only once the column is 268N + 24(N-1) wide:
-          560px for two, 852px for three. The scale steps that clear those are
-          `@xl` (576px → 276px per column) and `@4xl` (896px → 283px), both with
-          slack. A viewport breakpoint cannot express this — at 1280px the
-          viewport looks wide but this column is only ~608px, so `xl:grid-cols-3`
-          used to squeeze three 268px frames into three 186px tracks and push the
-          last one past the page edge. */}
-      <div className="grid justify-items-center gap-x-6 gap-y-8 @xl:grid-cols-2 @4xl:grid-cols-3">
-        {MOBILE_SCREENS.map((screen) => {
-          const Render = MOBILE_SCREEN_RENDERERS[screen.id]
-          return (
-            <div
-              key={screen.id}
-              className="flex w-full flex-col items-center gap-3"
-            >
-              <DeviceFrame
-                label={`Recreation of the ${screen.title} screen from @celestia-project/mobile`}
-                caption={screen.modulePath}
-              >
-                <Render />
-              </DeviceFrame>
-              <div className="flex max-w-[300px] flex-col gap-1">
-                <h3 className="text-xs font-semibold">{screen.title}</h3>
-                <p className="text-2xs leading-relaxed text-muted-foreground">
-                  {screen.summary}
-                </p>
-              </div>
-            </div>
-          )
-        })}
       </div>
     </section>
   )
@@ -1191,9 +890,7 @@ export function MobilePageContent() {
             <Hero />
             <Overview />
             <Showcase />
-            <Foundations />
             <Specimens />
-            <Screens />
             <Rules />
             <Platform />
             <Install />
@@ -1203,10 +900,9 @@ export function MobilePageContent() {
             <div className="flex flex-wrap items-center gap-2 pb-8 text-2xs text-muted-foreground">
               <DeviceMobileIcon className="size-3.5" aria-hidden />
               <span>
-                Recreations transcribed from{" "}
-                <code className="font-mono">packages/mobile/src</code>. Values
-                shown verbatim from <code className="font-mono">tokens.ts</code>{" "}
-                and <code className="font-mono">apps/mobile/src/showcase</code>.
+                Specimens transcribed from{" "}
+                <code className="font-mono">packages/mobile/src</code> and{" "}
+                <code className="font-mono">apps/mobile/src/showcase</code>.
               </span>
             </div>
           </main>
