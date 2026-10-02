@@ -2,8 +2,8 @@
 
 import * as React from "react"
 import { CheckIcon, CopyIcon } from "@phosphor-icons/react"
+import { Button } from "@celestia-project/ui"
 import { toast } from "@celestia-project/ui/primitive/sonner"
-import { cn } from "@celestia-project/ui/lib/utils"
 
 async function writeClipboard(text: string): Promise<boolean> {
   try {
@@ -27,11 +27,9 @@ async function writeClipboard(text: string): Promise<boolean> {
 export function CopyTemplateButton({
   text,
   title,
-  className,
 }: {
   text: string
   title: string
-  className?: string
 }) {
   const [copied, setCopied] = React.useState(false)
 
@@ -42,22 +40,20 @@ export function CopyTemplateButton({
       toast.success(`Copied ${title} — paste it into your app`)
       window.setTimeout(() => setCopied(false), 2000)
     } else {
-      toast.error(`Could not copy ${title} — clipboard is blocked in this browser`)
+      toast.error(
+        `Could not copy ${title} — clipboard is blocked in this browser`
+      )
     }
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleCopy}
-      title={`Copy the ${title} source file`}
-      className={cn(
-        "bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-8 items-center gap-1.5 rounded-md px-3 text-xs font-medium whitespace-nowrap transition-colors shadow-xs",
-        className
+    <Button onClick={handleCopy} title={`Copy the ${title} source file`}>
+      {copied ? (
+        <CheckIcon className="size-3.5" />
+      ) : (
+        <CopyIcon className="size-3.5" />
       )}
-    >
-      {copied ? <CheckIcon className="size-3.5" /> : <CopyIcon className="size-3.5" />}
       {copied ? "Copied" : "Copy code"}
-    </button>
+    </Button>
   )
 }

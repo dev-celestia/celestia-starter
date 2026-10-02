@@ -1,16 +1,16 @@
 {
   "pages": [
     "---Getting Started---",
-    "index",
     "cli",
     "packages",
     "mobile",
     "design-system",
     "theming",
+    "layouts",
     "components",
     "---Feature Installer---",
+    "index",
     "features",
-    "---Features---",
     "authentication",
     "backend",
     "dashboard",

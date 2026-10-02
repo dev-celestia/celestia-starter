@@ -1,0 +1,43 @@
+---
+title: Layout & Pages
+description: 32 copy-ready page templates and 4 slot-only shells — preview them at /layout and paste the source straight into an app
+icon: layout
+---
+
+The layout family is the page-level layer of the starter: full pages (dashboard, billing, kanban, checkout, landing, …) plus the four shells they compose on. Unlike the primitives, the page templates ship as **copy templates** — plain source files under `apps/web/components/layout-templates/` rather than package exports — so you own the code the moment you install it.
+
+## Preview and copy
+
+Every template has a live preview in the [Layout & Pages gallery](/layout):
+
+- **Copy code** — copies the full template source for pasting into your app
+- **Composite** — templates that compose on a shell show which composite they expect around them
+- **Fullscreen view** — opens the template without the gallery frame
+
+The four slot-only shells the templates compose on are package composites, imported from `@celestia-project/ui`:
+
+| Shell | Import | Frame it owns |
+|-------|--------|---------------|
+| `AuthShell` | `@celestia-project/ui/composite/auth-shell` | Centred card or split screen, logo, provider `aside`, `footer` |
+| `PageShell` | `@celestia-project/ui/composite/page-shell` | Blurred sticky header, `title` / `description` / `actions`, width presets |
+| `DashboardShell` | `@celestia-project/ui/composite/dashboard-shell` | Navigation rail (`brand`, `nav`, `navFooter`), sticky header, content column, optional `aside` |
+| `MarketingShell` | `@celestia-project/ui/composite/marketing-shell` | Announcement strip, nav bar, page body, footer band |
+
+A page that sits inside a shell never draws its own chrome — `LandingPage` expects `MarketingShell` around it, and every `*Page` on `PageShell` inherits the blurred sticky header rather than repeating it.
+
+## Template catalog
+
+| Group | Templates |
+|-------|-----------|
+| Auth screens | `sign-in-page`, `sign-up-page`, `forgot-password-page`, `reset-password-page`, `two-factor-page` |
+| Screens | `dashboard-page`, `profile-page`, `settings-page`, `list-page`, `billing-page`, `status-page`, `not-found-page`, `error-page` |
+| Marketing & content | `landing-page`, `pricing-page`, `blog-index-page`, `article-page` |
+| Collaboration | `inbox-page`, `chat-page`, `kanban-page`, `calendar-page`, `files-page` |
+| Data & insights | `analytics-page`, `reports-page`, `record-detail-page`, `search-page`, `audit-log-page` |
+| Commerce & flows | `checkout-page`, `invoice-page`, `onboarding-page`, `team-page`, `integrations-page` |
+
+Component-level details for every member (deep import, exported sub-components, base primitives) live in the [Components reference](/docs/components) under **Layout & Structure**.
+
+## Where the files live
+
+Every template is a single `.tsx` file under `apps/web/components/layout-templates/`, re-exported from the family's `index.ts`. The [gallery](/layout) deep-links each preview (`/layout/dashboard-page`, `/layout/status-page`, …) so you can send a teammate straight to the template you mean.

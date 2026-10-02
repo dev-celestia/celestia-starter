@@ -81,9 +81,7 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const docsUrl = docsSlug
-    ? `/docs/components/${docsSlug}`
-    : `/docs/components`
+  const docsUrl = docsSlug ? `/docs/components/${docsSlug}` : `/docs/components`
 
   return (
     <section
@@ -98,25 +96,25 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         {/* Card Header */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/50 px-4 py-3 sm:px-5">
-          <div className="flex flex-col gap-1 min-w-0">
+          <div className="flex min-w-0 flex-col gap-1">
             <div className="flex items-center gap-2">
-              <h3 className="text-sm sm:text-base font-semibold text-foreground tracking-tight">
+              <h3 className="text-sm font-semibold tracking-tight text-foreground sm:text-base">
                 {title}
               </h3>
               <Badge
                 variant="secondary"
-                className="text-[10px] uppercase tracking-wider font-mono px-1.5 py-0 bg-muted text-muted-foreground"
+                className="bg-muted px-1.5 py-0 font-mono text-[10px] tracking-wider text-muted-foreground uppercase"
               >
                 {category}
               </Badge>
             </div>
-            <p className="text-xs text-muted-foreground leading-relaxed">
+            <p className="text-xs leading-relaxed text-muted-foreground">
               {description}
             </p>
           </div>
 
           {/* View Switcher Tabs & Actions */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             {/* Native Celestia Tabs [Preview | Code] */}
             <TabsList className="h-8">
               <TabsTrigger value="preview" className="gap-1.5 text-xs">
@@ -132,9 +130,8 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
             {/* Copy Full Code Action */}
             <Button
               variant="outline"
-              size="xs"
               onClick={() => handleCopy(fullCode, "TypeScript example")}
-              className="h-8 gap-1 text-[11px] text-muted-foreground hover:text-foreground active:scale-97 transition-transform"
+              className="gap-1 text-[11px] text-muted-foreground transition-transform hover:text-foreground active:scale-97"
               title="Copy TypeScript code example"
             >
               {copied ? (
@@ -142,7 +139,9 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
               ) : (
                 <CopyIcon className="size-3.5" />
               )}
-              <span className="hidden sm:inline">{copied ? "Copied" : "Copy"}</span>
+              <span className="hidden sm:inline">
+                {copied ? "Copied" : "Copy"}
+              </span>
             </Button>
 
             {/* Expand to Wide Modal View */}
@@ -151,8 +150,8 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
                 render={
                   <Button
                     variant="outline"
-                    size="icon-xs"
-                    className="h-8 w-8 text-muted-foreground hover:text-foreground active:scale-97 transition-transform"
+                    size="icon-sm"
+                    className="text-muted-foreground transition-transform hover:text-foreground active:scale-97"
                     title="Expand to wide canvas view"
                   >
                     <ArrowsOutSimpleIcon className="size-3.5" />
@@ -162,17 +161,24 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
 
               <DialogContent
                 showCloseButton={false}
-                className="max-w-6xl w-[95vw] h-[88vh] p-0 flex flex-col rounded-2xl overflow-hidden sm:max-w-6xl bg-card text-card-foreground border border-border shadow-2xl"
+                className="flex h-[88vh] w-[95vw] max-w-6xl flex-col overflow-hidden rounded-2xl border border-border bg-card p-0 text-card-foreground shadow-2xl sm:max-w-6xl"
               >
-                <Tabs value={modalActiveTab} onValueChange={setModalActiveTab} className="h-full flex flex-col">
+                <Tabs
+                  value={modalActiveTab}
+                  onValueChange={setModalActiveTab}
+                  className="flex h-full flex-col"
+                >
                   {/* Modal Header */}
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-muted/30 px-5 py-3.5 shrink-0">
+                  <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-border bg-muted/30 px-5 py-3.5">
                     <div className="flex flex-col gap-0.5">
                       <div className="flex items-center gap-2">
                         <DialogTitle className="text-base font-bold text-foreground">
                           {title}
                         </DialogTitle>
-                        <Badge variant="secondary" className="font-mono text-[10px] uppercase">
+                        <Badge
+                          variant="secondary"
+                          className="font-mono text-[10px] uppercase"
+                        >
                           {category}
                         </Badge>
                       </div>
@@ -185,7 +191,10 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
                     <div className="flex items-center gap-2">
                       {/* [Preview | Code] Tabs */}
                       <TabsList className="h-8">
-                        <TabsTrigger value="preview" className="gap-1.5 text-xs">
+                        <TabsTrigger
+                          value="preview"
+                          className="gap-1.5 text-xs"
+                        >
                           <EyeIcon className="size-3.5" />
                           <span>Preview</span>
                         </TabsTrigger>
@@ -197,17 +206,33 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
 
                       {/* Responsive Viewport Switcher (Only visible in Preview tab) */}
                       {modalActiveTab === "preview" && (
-                        <Tabs value={viewport} onValueChange={setViewport} className="hidden sm:inline-flex">
+                        <Tabs
+                          value={viewport}
+                          onValueChange={setViewport}
+                          className="hidden sm:inline-flex"
+                        >
                           <TabsList className="h-8">
-                            <TabsTrigger value="desktop" className="gap-1 text-xs px-2" title="Desktop (100%)">
+                            <TabsTrigger
+                              value="desktop"
+                              className="gap-1 px-2 text-xs"
+                              title="Desktop (100%)"
+                            >
                               <DesktopIcon className="size-3.5" />
                               <span className="text-[11px]">100%</span>
                             </TabsTrigger>
-                            <TabsTrigger value="tablet" className="gap-1 text-xs px-2" title="Tablet (768px)">
+                            <TabsTrigger
+                              value="tablet"
+                              className="gap-1 px-2 text-xs"
+                              title="Tablet (768px)"
+                            >
                               <DeviceTabletIcon className="size-3.5" />
                               <span className="text-[11px]">768px</span>
                             </TabsTrigger>
-                            <TabsTrigger value="mobile" className="gap-1 text-xs px-2" title="Mobile (375px)">
+                            <TabsTrigger
+                              value="mobile"
+                              className="gap-1 px-2 text-xs"
+                              title="Mobile (375px)"
+                            >
                               <DeviceMobileIcon className="size-3.5" />
                               <span className="text-[11px]">375px</span>
                             </TabsTrigger>
@@ -218,17 +243,26 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
                       {/* Copy Code */}
                       <Button
                         variant="outline"
-                        size="xs"
-                        onClick={() => handleCopy(fullCode, "TypeScript example")}
-                        className="h-8 gap-1 text-[11px] active:scale-97 transition-transform"
+                        onClick={() =>
+                          handleCopy(fullCode, "TypeScript example")
+                        }
+                        className="gap-1 text-[11px] transition-transform active:scale-97"
                       >
-                        {copied ? <CheckIcon className="size-3.5 text-success" /> : <CopyIcon className="size-3.5" />}
+                        {copied ? (
+                          <CheckIcon className="size-3.5 text-success" />
+                        ) : (
+                          <CopyIcon className="size-3.5" />
+                        )}
                         <span className="hidden sm:inline">Copy Code</span>
                       </Button>
 
                       {/* Docs Link */}
                       <a href={docsUrl}>
-                        <Button variant="outline" size="icon-xs" className="h-8 w-8 active:scale-97 transition-transform">
+                        <Button
+                          variant="outline"
+                          size="icon-sm"
+                          className="transition-transform active:scale-97"
+                        >
                           <ArrowSquareOutIcon className="size-3.5" />
                         </Button>
                       </a>
@@ -236,7 +270,11 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
                       {/* Close Dialog Button */}
                       <DialogClose
                         render={
-                          <Button variant="ghost" size="icon-xs" className="h-8 w-8 active:scale-97 transition-transform">
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            className="transition-transform active:scale-97"
+                          >
                             <XIcon className="size-4" />
                           </Button>
                         }
@@ -245,28 +283,36 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
                   </div>
 
                   {/* Modal Body */}
-                  <div className="flex-1 overflow-hidden relative flex flex-col bg-background/50">
-                    <TabsContent value="preview" className="flex-1 h-full w-full overflow-auto p-4 sm:p-8 flex items-center justify-center bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-muted/20 via-background to-background">
+                  <div className="relative flex flex-1 flex-col overflow-hidden bg-background/50">
+                    <TabsContent
+                      value="preview"
+                      className="flex h-full w-full flex-1 items-center justify-center overflow-auto bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-muted/20 via-background to-background p-4 sm:p-8"
+                    >
                       <div
                         className={cn(
-                          "transition-all duration-slow flex items-center justify-center p-6 rounded-xl",
+                          "flex items-center justify-center rounded-xl p-6 transition-all duration-slow",
                           viewport === "desktop" && "w-full",
-                          viewport === "tablet" && "w-[768px] max-w-full border border-dashed border-border/80 bg-card/40 shadow-sm",
-                          viewport === "mobile" && "w-[375px] max-w-full border-2 border-border/80 rounded-2xl bg-card shadow-lg min-h-[400px]"
+                          viewport === "tablet" &&
+                            "w-[768px] max-w-full border border-dashed border-border/80 bg-card/40 shadow-sm",
+                          viewport === "mobile" &&
+                            "min-h-[400px] w-[375px] max-w-full rounded-2xl border-2 border-border/80 bg-card shadow-lg"
                         )}
                       >
                         {children}
                       </div>
                     </TabsContent>
 
-                    <TabsContent value="code" className="flex-1 flex flex-col h-full overflow-hidden">
+                    <TabsContent
+                      value="code"
+                      className="flex h-full flex-1 flex-col overflow-hidden"
+                    >
                       <CodeBlock
                         code={fullCode}
                         language="tsx"
                         title={`${title.toLowerCase().replace(/\s+/g, "-")}.tsx`}
                         badge="TypeScript / React 19"
                         showCopy={false}
-                        className="my-0 border-0 rounded-none bg-transparent h-full flex flex-col shadow-none"
+                        className="my-0 flex h-full flex-col rounded-none border-0 bg-transparent shadow-none"
                         preClassName="flex-1 max-h-none h-full bg-background/70"
                       />
                     </TabsContent>
@@ -283,8 +329,8 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
             >
               <Button
                 variant="ghost"
-                size="icon-xs"
-                className="h-8 w-8 text-muted-foreground hover:text-foreground active:scale-97 transition-transform"
+                size="icon-sm"
+                className="text-muted-foreground transition-transform hover:text-foreground active:scale-97"
               >
                 <ArrowSquareOutIcon className="size-3.5" />
               </Button>
@@ -293,11 +339,17 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
         </div>
 
         {/* Main Card Body */}
-        <TabsContent value="preview" className="flex flex-1 items-center justify-center p-4 sm:p-6 bg-background/40 rounded-b-xl overflow-x-auto min-h-[160px]">
+        <TabsContent
+          value="preview"
+          className="flex min-h-[160px] flex-1 items-center justify-center overflow-x-auto rounded-b-xl bg-background/40 p-4 sm:p-6"
+        >
           {children}
         </TabsContent>
 
-        <TabsContent value="code" className="relative flex flex-col flex-1 rounded-b-xl overflow-hidden bg-background">
+        <TabsContent
+          value="code"
+          className="relative flex flex-1 flex-col overflow-hidden rounded-b-xl bg-background"
+        >
           <CodeBlock
             code={fullCode}
             language="tsx"
@@ -305,7 +357,7 @@ export function ${title.replace(/[^a-zA-Z0-9]/g, "")}Demo() {
             badge="TypeScript / JSX"
             showCopy={false}
             height={280}
-            className="my-0 border-0 rounded-none bg-transparent shadow-none"
+            className="my-0 rounded-none border-0 bg-transparent shadow-none"
             preClassName="bg-background/70"
           />
         </TabsContent>

@@ -10,10 +10,12 @@ import {
   CalendarBlankIcon,
   ChartLineUpIcon,
   ClockCounterClockwiseIcon,
+  CodeIcon,
   CreditCardIcon,
   CurrencyDollarIcon,
   DownloadSimpleIcon,
   EnvelopeSimpleIcon,
+  EyeIcon,
   FigmaLogoIcon,
   FolderIcon,
   FunnelSimpleIcon,
@@ -97,6 +99,9 @@ import {
   MarketingShell,
   PageShell,
   Switch,
+  Tabs,
+  TabsList,
+  TabsTrigger,
 } from "@celestia-project/ui"
 import type {
   AnalyticsBreakdownRow,
@@ -134,7 +139,8 @@ import type {
   TeamMember,
 } from "@/components/layout-templates"
 import { cn } from "@celestia-project/ui/lib/utils"
-import { getLayoutDemoMeta } from "@/lib/layout-demos"
+import { getLayoutDemoMeta, PACKAGE_COMPOSITE_SLUGS } from "@/lib/layout-demos"
+import { CodeBlock } from "@/components/shared/code-block"
 import { CopyTemplateButton } from "./copy-template-button"
 
 const noop = () => undefined
@@ -2872,31 +2878,54 @@ export function LayoutDemoStage({
 }) {
   const meta = getLayoutDemoMeta(slug)
   const Demo = DEMOS[slug]
+  const isTemplate = !PACKAGE_COMPOSITE_SLUGS.has(slug)
+  const [tab, setTab] = React.useState("view")
 
   return (
     <div className="flex h-svh flex-col bg-background text-foreground">
       <header className="flex h-12 shrink-0 items-center justify-between gap-3 border-b border-border px-3 sm:px-4">
         <Link
-          href="/layout"
-          className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border/70 px-3 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+          href={`/layout#${slug}`}
+          className="inline-flex h-[26px] items-center gap-1.5 rounded-full border border-border/70 px-3 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeftIcon className="size-3.5" />
-          All templates
+          Back
         </Link>
         <div className="flex items-center gap-2">
           <span className="hidden text-xs text-muted-foreground sm:inline">
             {meta?.title}
           </span>
-          {source ? (
-            <CopyTemplateButton
-              text={source}
-              title={meta?.title ?? "Template"}
-            />
-          ) : null}
+          <Tabs value={tab} onValueChange={setTab}>
+            <TabsList className="h-8">
+              <TabsTrigger value="view" className="gap-1.5 text-xs">
+                <EyeIcon className="size-3.5" />
+                <span>View</span>
+              </TabsTrigger>
+              <TabsTrigger value="code" className="gap-1.5 text-xs">
+                <CodeIcon className="size-3.5" />
+                <span>Code</span>
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+          {isTemplate ? (
+            source ? (
+              <CopyTemplateButton
+                text={source}
+                title={meta?.title ?? "Template"}
+              />
+            ) : null
+          ) : (
+            <span
+              title="Package composite — import from @celestia-project/ui"
+              className="inline-flex h-[26px] items-center rounded-md border border-dashed border-border/70 px-3 text-xs font-medium text-muted-foreground"
+            >
+              Composite
+            </span>
+          )}
           <Link
             href={`/docs/components/${slug}`}
             title="Open documentation"
-            className="inline-flex size-8 items-center justify-center rounded-full border border-border/70 text-muted-foreground transition-colors hover:text-foreground"
+            className="inline-flex size-[26px] items-center justify-center rounded-full border border-border/70 text-muted-foreground transition-colors hover:text-foreground"
           >
             <ArrowSquareOutIcon className="size-3.5" />
             <span className="sr-only">Open documentation</span>
@@ -2904,7 +2933,20 @@ export function LayoutDemoStage({
         </div>
       </header>
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {Demo ? <Demo /> : null}
+        {tab === "code" ? (
+          <CodeBlock
+            code={source}
+            language="tsx"
+            title={`${slug}.tsx`}
+            badge={isTemplate ? "Copy template" : "Package composite"}
+            showCopy={false}
+            height="100%"
+            className="my-0 h-full rounded-none border-0 bg-transparent shadow-none"
+            preClassName="bg-background/70"
+          />
+        ) : Demo ? (
+          <Demo />
+        ) : null}
       </div>
     </div>
   )

@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@celestia-project/ui/lib/utils"
 
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 cursor-pointer items-center justify-center gap-1 rounded-sm border border-transparent bg-clip-padding text-xs/relaxed font-medium whitespace-nowrap outline-none select-none transition-all disabled:pointer-events-none disabled:opacity-50 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 cursor-pointer items-center justify-center gap-1 rounded-sm border border-transparent bg-clip-padding text-xs/relaxed font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
@@ -13,17 +13,17 @@ const buttonVariants = cva(
         // The `shadow-3d-*` tokens own the edge colour so light/dark are
         // handled in globals.css rather than duplicated per variant.
         default:
-          "bg-background border-primary text-primary hover:bg-primary/10 shadow-3d-primary active:translate-y-[2px] active:shadow-none active:transition-none",
+          "border-primary bg-background text-primary shadow-3d-primary hover:bg-primary/10 active:translate-y-[2px] active:shadow-none active:transition-none",
         // No `dark:bg-destructive/60` fade: `--destructive` is a light red
         // (#ff6467) in dark mode, so the surface stays solid and the paired
         // `--destructive-foreground` token supplies a compliant text colour
         // (6.21:1 dark / 4.77:1 light, hover included).
         destructive:
-          "bg-destructive border-destructive text-destructive-foreground hover:bg-destructive/90 shadow-destructive-3d active:translate-y-[2px] active:shadow-none active:transition-none",
+          "border-destructive bg-destructive text-destructive-foreground shadow-destructive-3d hover:bg-destructive/90 active:translate-y-[2px] active:shadow-none active:transition-none",
         outline:
-          "border-border bg-background hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 shadow-3d active:translate-y-[2px] active:shadow-none active:transition-none",
+          "border-border bg-background shadow-3d hover:bg-accent hover:text-accent-foreground active:translate-y-[2px] active:shadow-none active:transition-none dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
         secondary:
-          "bg-secondary border-secondary text-secondary-foreground hover:bg-secondary/80 shadow-3d active:translate-y-[2px] active:shadow-none active:transition-none",
+          "border-secondary bg-secondary text-secondary-foreground shadow-3d hover:bg-secondary/80 active:translate-y-[2px] active:shadow-none active:transition-none",
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         // Ghost's chrome with a de-emphasised label. The app hand-wrote exactly
@@ -43,16 +43,18 @@ const buttonVariants = cva(
       },
       size: {
         default:
-          "h-8 gap-1.5 px-3 text-xs/relaxed has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2 [&_svg:not([class*='size-'])]:size-3.5",
+          "h-6.5 gap-1.5 px-3 text-xs/relaxed has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2 [&_svg:not([class*='size-'])]:size-3.5",
         xs: "h-5 gap-1 rounded-sm px-2 text-3xs has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-2.5",
         sm: "h-6 gap-1 px-2.5 text-xs/relaxed has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2 [&_svg:not([class*='size-'])]:size-3",
-        // `default` (h-8) is the uniform control height across this package —
-        // `input`, `select`, `native-select`, `toggle`, `input-group`,
-        // `tabs` list and `tab-bar` items all sit at h-8 so controls line up in
-        // form rows and toolbars. `md` (h-7) is the compact step below it,
-        // matching menu/option rows (`min-h-7`) and `sidebar` sm. `md` is `sm`
-        // with one more step of height and nothing else changed, which is why
-        // moving a site from `sm` to `md` cannot alter anything but the height.
+        // `default` (h-6.5 = 26px) matches the active pill inside the `tabs`
+        // list (h-8 track with p-[3px] and a 1px inset trigger), so a button
+        // reads the same height as the tab it sits beside — the gallery card
+        // headers and toolbar pairings lean on this. `input`, `select`,
+        // `native-select`, `toggle` and `tab-bar` remain h-8. `md` (h-7) sits
+        // between default and `lg` (h-9), matching menu/option rows
+        // (`min-h-7`) and `sidebar` sm; `md` is `sm` with one more step of
+        // height and nothing else changed, which is why moving a site from
+        // `sm` to `md` cannot alter anything but the height.
         md: "h-7 gap-1 px-2.5 text-xs/relaxed has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2 [&_svg:not([class*='size-'])]:size-3",
         lg: "h-9 gap-1.5 px-3.5 text-xs/relaxed has-data-[icon=inline-end]:pe-2.5 has-data-[icon=inline-start]:ps-2.5 [&_svg:not([class*='size-'])]:size-4",
         icon: "size-8 [&_svg:not([class*='size-'])]:size-3.5",
@@ -91,7 +93,8 @@ const buttonVariants = cva(
   }
 )
 
-export type ButtonProps = ButtonPrimitive.Props & VariantProps<typeof buttonVariants>
+export type ButtonProps = ButtonPrimitive.Props &
+  VariantProps<typeof buttonVariants>
 
 function Button({
   className,
@@ -112,7 +115,9 @@ function Button({
   return (
     <ButtonPrimitive
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, mono, leading, className }))}
+      className={cn(
+        buttonVariants({ variant, size, mono, leading, className })
+      )}
       nativeButton={isNative}
       render={render}
       {...props}

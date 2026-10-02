@@ -110,7 +110,19 @@ export interface LayoutDemoMeta {
 }
 
 /**
- * The layout family that gets dedicated full-page demos at `/layout`.
+ * Slot-only frames that ship as `@celestia-project/ui` composites instead of
+ * copy templates. Every other entry in `LAYOUT_DEMO_META` has a source file
+ * under `components/layout-templates/` that the Copy button hands out.
+ */
+export const PACKAGE_COMPOSITE_SLUGS: ReadonlySet<string> = new Set([
+  "auth-shell",
+  "page-shell",
+  "dashboard-shell",
+  "marketing-shell",
+])
+
+/**
+ * The layout family with dedicated fullscreen views at `/layout`.
  * Order mirrors the docs sidebar group in `content/docs/components/meta.json`.
  */
 export const LAYOUT_DEMO_META: LayoutDemoMeta[] = [

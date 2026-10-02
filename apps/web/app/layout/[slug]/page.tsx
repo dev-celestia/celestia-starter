@@ -2,7 +2,11 @@ import type { Metadata } from "next"
 import { readFile } from "node:fs/promises"
 import { join } from "node:path"
 import { notFound } from "next/navigation"
-import { LAYOUT_DEMO_META, getLayoutDemoMeta } from "@/lib/layout-demos"
+import {
+  LAYOUT_DEMO_META,
+  PACKAGE_COMPOSITE_SLUGS,
+  getLayoutDemoMeta,
+} from "@/lib/layout-demos"
 import { LayoutDemoStage } from "@/components/layout-demos/layout-demo-stage"
 import { SonnerToaster } from "@celestia-project/ui"
 
@@ -30,12 +34,23 @@ export default async function LayoutDemoPage(props: PageProps) {
   const demo = getLayoutDemoMeta(slug)
   if (!demo) notFound()
 
+  const filePath = PACKAGE_COMPOSITE_SLUGS.has(slug)
+    ? join(
+        process.cwd(),
+        "..",
+        "..",
+        "packages",
+        "ui",
+        "src",
+        "components",
+        "composite",
+        `${slug}.tsx`
+      )
+    : join(process.cwd(), "components", "layout-templates", `${slug}.tsx`)
+
   let source = ""
   try {
-    source = await readFile(
-      join(process.cwd(), "components", "layout-templates", `${slug}.tsx`),
-      "utf8"
-    )
+    source = await readFile(filePath, "utf8")
   } catch {
     source = ""
   }
