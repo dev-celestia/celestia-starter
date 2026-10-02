@@ -5,7 +5,7 @@
       "installedAt": "2026-10-01T08:18:40.714Z",
       "seq": 9,
       "files": {
-        "apps/api/src/auth.ts": "9494c093c480e05e9602d66b52a9abb75230ef6802f87c403b1aed96613372c9",
+        "apps/api/src/auth.ts": "bf050f72bd38289ff51523eb56f3fb1b08f22918e5120347e03a1993130ce0ee",
         "apps/web/lib/auth-client.ts": "a7feb5edf9fa7ccaa438399011e1c2b514b44968a305f123281ae29a9cd317bb",
         "apps/web/app/(auth)/layout.tsx": "4a2c8a5feac299e4139f3fae4ac5e9b9006b3e6d307ae4e30feb035bd8b220ca",
         "apps/web/app/(auth)/sign-in/page.tsx": "0241cdd33cb21ecad6e547f41be55b3933d6530e7062a67d49b12e75020af38c",
@@ -51,8 +51,8 @@
     },
     "access": {
       "version": "1.0.0",
-      "installedAt": "2026-10-01T08:18:41.463Z",
-      "seq": 10,
+      "installedAt": "2026-10-02T02:53:49.283Z",
+      "seq": 12,
       "files": {
         "apps/api/src/features/access/access.ts": "3869296bbb7f5841ac380dd74d20a89ddae304475f0509c5efee3ed918dbda84",
         "apps/api/src/features/access/routes.ts": "818686ccf0c6d03978b9d8776af153c7fa7e2a027291bc5e22509b366cc1008e",
@@ -65,5 +65,5 @@
       }
     }
   },
-  "seq": 11
+  "seq": 12
 }

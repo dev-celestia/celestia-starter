@@ -233,5 +233,5 @@
   "postInstall": [
     "pnpm --filter celestia db:push"
   ],
-  "notes": "Adds the CMS tables to apps/celestia/lib/db/schema.ts (run db:push), API routes under /api/cms, dashboard pages under /dashboard/cms, and a public blog at /blog. Assign the writer/editor roles from the Users page. The host file apps/celestia/components/dashboard/sidebar-nav.tsx must expose the role prop and the feature-manager imports/nav marker regions (included in this starter)."
+  "notes": "Adds the CMS tables to apps/celestia/lib/db/schema.ts (run db:push), API routes under /api/cms, dashboard pages under /dashboard/cms, and a public blog at /blog. Assign the writer/editor roles from the Users page. NOTE: this feature targets the Celestia app, which lives outside this monorepo at ../celestia — the insertion targets apps/celestia/lib/db/schema.ts and apps/celestia/components/dashboard/sidebar-nav.tsx (with feature-manager marker regions) only exist once that app is moved into apps/celestia, so keep it parked until then."
 }

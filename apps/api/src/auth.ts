@@ -43,6 +43,13 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  rateLimit: {
+    // Always on (Better Auth limits to production by default) and persisted in
+    // the rate_limit table so limits survive restarts. Sensitive endpoints
+    // (sign-in/sign-up) default to 3 attempts per 10 seconds per client IP.
+    enabled: true,
+    storage: "database",
+  },
   // Google sign-in only registers when both credentials are present, so a
   // missing env var surfaces as "Google unavailable" instead of a runtime crash.
   ...(googleConfigured

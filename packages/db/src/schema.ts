@@ -6,6 +6,7 @@ import {
   boolean,
   integer,
   index,
+  bigint,
 } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
@@ -107,6 +108,15 @@ export const twoFactor = pgTable(
     index("twoFactor_userId_idx").on(table.userId),
   ],
 );
+
+// Better Auth's rate limiter when `rateLimit.storage` is "database" (model
+// `rateLimit`). `lastRequest` is a millisecond timestamp — int4 would overflow.
+export const rateLimit = pgTable("rate_limit", {
+  id: text("id").primaryKey(),
+  key: text("key").notNull(),
+  count: integer("count").notNull(),
+  lastRequest: bigint("last_request", { mode: "number" }).notNull(),
+});
 
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
