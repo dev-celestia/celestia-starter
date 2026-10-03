@@ -1776,7 +1776,7 @@ export function ColorsPreview() {
   )
 }
 
-// ─── Layout & Pages previews ────────────────────────────────────────────────
+// ─── Templates (layout) previews ────────────────────────────────────────────
 // Layout components are full pages, so unlike PreviewShell they render
 // edge-to-edge inside a fixed-height frame instead of floating on padding.
 

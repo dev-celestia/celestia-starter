@@ -1,0 +1,14 @@
+[package]
+name = "celestia-ui"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+description = "Reusable GPUI component library for the Celestia desktop app"
+
+[dependencies]
+gpui-kit.workspace = true
+
+[dev-dependencies]
+# TestAppContext / #[gpui_kit::test] need test-support; test builds only.
+gpui-kit = { workspace = true, features = ["test-support"] }

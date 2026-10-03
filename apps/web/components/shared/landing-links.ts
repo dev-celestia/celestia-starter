@@ -19,10 +19,11 @@ export const LANDING_ANCHORS = [
 /** The starter's own surfaces. Rail shows these on lg+; the footer carries
     them at every size, so small screens still have a visible path to them. */
 export const LANDING_SURFACES = [
-  { label: "Web Components", href: "/web-components", external: false },
   { label: "Documentation", href: "/docs", external: false },
-  { label: "Layout & Pages", href: "/layout", external: false },
+  { label: "Web Components", href: "/web-components", external: false },
+  { label: "Templates", href: "/web-components?tab=templates", external: false },
   { label: "Mobile (expo)", href: "/mobile", external: false },
+  { label: "Desktop (GPUI)", href: "/desktop", external: false },
   { label: "Feature Installer", href: "/feature-installer", external: false },
   { label: "Hexbuffer", href: "https://0xbuffer.com/", external: true },
 ] as const

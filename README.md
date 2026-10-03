@@ -80,6 +80,7 @@ celestia-starter/
 │   └── web/                # Next.js 16 frontend (pure UI, landing, docs, showcase)
 ├── packages/
 │   ├── ui/                 # @celestia-project/ui component library (Base UI + Tailwind v4)
+│   ├── desktop/            # GPUI (Rust) desktop workspace: celestia-ui components + celestia-desktop app
 │   ├── mobile/             # @celestia-project/mobile native components (ships source, publishable)
 │   ├── db/                 # @workspace/db (Drizzle schema & PostgreSQL client)
 │   ├── cli/                # @celestia-project/create CLI package
@@ -111,6 +112,25 @@ The project includes modular features installed via `@workspace/feature-manager`
 - **access** — User management (roles, ban, delete) with RBAC route guards and ABAC policies over the Better Auth admin plugin
 <!-- feature-manager:features:access:end -->
 <!-- feature-manager:features:end -->
+
+### 🖥 Desktop (GPUI, not a feature-manager feature)
+
+A native Rust desktop surface lives in [`packages/desktop`](packages/desktop) as a self-contained
+Cargo workspace (invisible to pnpm/turbo — use `cargo` directly inside it):
+
+- **celestia-ui** — reusable GPUI component library with the Celestia design tokens ported to
+  light/dark gpui-kit themes (`theme.json` + `palette.rs`) and family re-exports over the
+  gpui-component library covering most of `packages/ui` (buttons, inputs, feedback, overlays,
+  data display, layout, chat, charts), the desktop counterpart of `packages/ui`
+- **celestia-desktop** — the desktop app binary (component gallery window)
+
+```bash
+pnpm desktop                     # showcase window from the repo root (⌘D / Ctrl+D toggles light/dark)
+cargo test --workspace           # from packages/desktop/
+```
+
+Documented in the docs site: [Desktop (GPUI)](apps/web/content/docs/desktop.mdx) — architecture,
+theming rules, component-family map, and app setup (published at `/docs/desktop`).
 
 ---
 
@@ -152,6 +172,7 @@ rather than deleting a file it still needs.
 |---------|---------|
 | `pnpm dev` | Start development servers for web and api in parallel |
 | `pnpm mobile` | Start the Expo dev server (Metro) for `apps/mobile`; press `i` / `a` to open a target |
+| `pnpm desktop` | Build & launch the GPUI showcase window for `packages/desktop` (native Rust, not part of turbo) |
 | `pnpm --filter mobile ios` \| `android` | Start Metro and go straight to the iOS simulator / Android emulator (web is not a supported target) |
 | `pnpm build` | Build all applications and workspace packages via Turborepo |
 | `pnpm lint` | Verify lint coverage across the workspace, then run ESLint in the packages that declare it |

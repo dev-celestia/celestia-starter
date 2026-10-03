@@ -4,6 +4,7 @@
     "cli",
     "packages",
     "mobile",
+    "desktop",
     "design-system",
     "theming",
     "layouts",

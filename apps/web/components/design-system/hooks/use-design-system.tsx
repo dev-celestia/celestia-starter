@@ -1,8 +1,13 @@
 "use client"
 
 import * as React from "react"
+import { useSearchParams } from "next/navigation"
+
+export type DesignSystemTab = "components" | "templates"
 
 interface DesignSystemContextValue {
+  activeTab: DesignSystemTab
+  setActiveTab: (tab: DesignSystemTab) => void
   searchQuery: string
   setSearchQuery: (query: string) => void
   resetSearch: () => void
@@ -14,9 +19,44 @@ interface DesignSystemContextValue {
 
 const DesignSystemContext = React.createContext<DesignSystemContextValue | null>(null)
 
-export function DesignSystemProvider({ children }: { children: React.ReactNode }) {
+export function DesignSystemProvider({
+  children,
+  defaultTab = "components",
+}: {
+  children: React.ReactNode
+  defaultTab?: DesignSystemTab
+}) {
+  const searchParams = useSearchParams()
+  const tabFromQuery = searchParams.get("tab")
+  const initialTab: DesignSystemTab =
+    tabFromQuery === "templates" || tabFromQuery === "components"
+      ? tabFromQuery
+      : defaultTab
+
+  const [activeTab, setActiveTabState] = React.useState<DesignSystemTab>(initialTab)
   const [searchQuery, setSearchQuery] = React.useState("")
   const [activeCategory, setActiveCategory] = React.useState("buttons")
+
+  // Sync tab state with URL query parameter
+  React.useEffect(() => {
+    const currentTab = searchParams.get("tab")
+    if (currentTab === "templates" || currentTab === "components") {
+      setActiveTabState(currentTab)
+    }
+  }, [searchParams])
+
+  const setActiveTab = React.useCallback((tab: DesignSystemTab) => {
+    setActiveTabState(tab)
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href)
+      if (tab === "components") {
+        url.searchParams.delete("tab")
+      } else {
+        url.searchParams.set("tab", tab)
+      }
+      window.history.replaceState(null, "", url.toString())
+    }
+  }, [])
 
   const resetSearch = React.useCallback(() => {
     setSearchQuery("")
@@ -36,6 +76,8 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
 
   const value = React.useMemo(
     () => ({
+      activeTab,
+      setActiveTab,
       searchQuery,
       setSearchQuery,
       resetSearch,
@@ -44,7 +86,15 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
       setActiveCategory,
       scrollToCategory,
     }),
-    [searchQuery, resetSearch, normalizedQuery, activeCategory, scrollToCategory]
+    [
+      activeTab,
+      setActiveTab,
+      searchQuery,
+      resetSearch,
+      normalizedQuery,
+      activeCategory,
+      scrollToCategory,
+    ]
   )
 
   return (

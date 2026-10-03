@@ -1,0 +1,48 @@
+[workspace]
+resolver = "3"
+members = ["crates/celestia-ui", "crates/celestia-desktop"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.97"
+publish = false
+
+[workspace.dependencies]
+celestia-ui = { path = "crates/celestia-ui" }
+
+# Single UI dependency, same shape as the GetCat reference: gpui-kit pins the
+# matching gpui (gpui-pre series), gpui-component, base crates and default icons.
+# Components live in `gpui_kit::component`, the platform layer in
+# `gpui_kit::platform`, icons in `gpui_kit::assets`. tree-sitter features power
+# the code editor's syntax highlighting (code_editor.rs).
+gpui-kit = { version = "0.6.1", features = [
+    "tree-sitter",
+    "tree-sitter-rust",
+    "tree-sitter-markdown",
+    "tree-sitter-markdown-inline",
+] }
+
+[profile.dev]
+debug = "limited"
+
+# Dev builds keep the render / text / component layer optimized so scrolling and
+# text shaping stay interactive while application code compiles fast.
+[profile.dev.package]
+gpui-pre = { opt-level = 3 }
+gpui-pre-platform = { opt-level = 3 }
+gpui-pre-macros = { opt-level = 3 }
+gpui-pre-sum-tree = { opt-level = 3 }
+gpui-kit = { opt-level = 3 }
+gpui-kit-assets = { opt-level = 3 }
+gpui-component = { opt-level = 3 }
+gpui-base = { opt-level = 3 }
+ropey = { opt-level = 3 }
+resvg = { opt-level = 3 }
+rustybuzz = { opt-level = 3 }
+taffy = { opt-level = 3 }
+ttf-parser = { opt-level = 3 }
+smol = { opt-level = 3 }
+
+[profile.release]
+lto = "thin"

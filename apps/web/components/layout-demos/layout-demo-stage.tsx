@@ -2885,7 +2885,7 @@ export function LayoutDemoStage({
     <div className="flex h-svh flex-col bg-background text-foreground">
       <header className="flex h-12 shrink-0 items-center justify-between gap-3 border-b border-border px-3 sm:px-4">
         <Link
-          href={`/layout#${slug}`}
+          href={`/web-components?tab=templates#${slug}`}
           className="inline-flex h-[26px] items-center gap-1.5 rounded-full border border-border/70 px-3 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeftIcon className="size-3.5" />

@@ -274,7 +274,7 @@ Two rules hold across the whole family. A page that sits inside a shell never dr
 
 State is split deliberately. Anything that belongs in the URL — `SearchPage`'s query and facets, `BlogIndexPage`'s category, `InboxPage`'s selected message — is **controlled** and passed in. Anything purely internal — `PricingPage`'s billing toggle, `OnboardingPage`'s step, `IntegrationsPage`'s connection state — is **uncontrolled** and owned by the component. That way a consumer never has to mirror state they do not route on.
 
-The page templates are documented as a family in [Layout & Pages](/docs/layouts). Unlike the primitives, they ship as **copy templates** — plain source files under `apps/web/components/layout-templates/` rather than package exports; the four slot-only shells they compose on (`AuthShell`, `PageShell`, `DashboardShell`, `MarketingShell`) are package composites. Preview any of them at [`/layout`](/layout) and copy the source straight into an app.
+The page templates are documented as a family in [Templates](/docs/layouts). Unlike the primitives, they ship as **copy templates** — plain source files under `apps/web/components/layout-templates/` rather than package exports; the four slot-only shells they compose on (`AuthShell`, `PageShell`, `DashboardShell`, `MarketingShell`) are package composites. Preview any of them at [`/layout`](/layout) and copy the source straight into an app.
 
 | Module | Deep Import | Exported Sub-Components | Base Primitive |
 |--------|-------------|-------------------------|----------------|

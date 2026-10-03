@@ -1,0 +1,122 @@
+---
+title: Desktop (GPUI)
+description: Native Rust desktop UI on GPUI Kit — celestia-ui re-exports the gpui-component library under the Celestia tokens (a compile-time theme.json) plus celestia-only builds
+icon: monitor
+---
+
+`celestia-ui` is the desktop counterpart of `@celestia-project/ui`: a Rust component library for
+native desktop apps built on [GPUI](https://gpui.rs) through **gpui-kit 0.6** (which pins the
+matching `gpui` and `gpui-component` versions — one dependency line locks the whole stack). The
+shape mirrors the web package: `packages/ui` wraps Base UI primitives with celestia tokens;
+`celestia-ui` wraps the gpui-component library the same way, so most web files map 1:1 onto a
+desktop module (`drawer.tsx` → `sheet`, `toast.tsx` → `notification`, `file-tree.tsx` → `tree`).
+
+<Callout type="info" title="Looking for the visual tour?">
+  This page is the package overview — the crates, the architecture and the
+  component-family map. For the run instructions, requirements, token swatches
+  and the app bootstrap, see the dedicated **[Desktop (GPUI)](/desktop)**
+  surface.
+</Callout>
+
+<Callout type="warn" title="Invisible to pnpm and turbo">
+  `packages/desktop` is a self-contained Cargo workspace. pnpm/turbo tasks don't
+  see it — run `cargo` directly inside `packages/desktop/`, or use the root
+  `pnpm desktop` script, which shells into cargo. Nothing under this package
+  participates in `turbo typecheck` or the web build.
+</Callout>
+
+## Where it lives
+
+| Path                                       | What it is                                                                                                                                          |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/desktop`                         | Cargo workspace root (`cargo run -p celestia-desktop` from here)                                                                                    |
+| `packages/desktop/crates/celestia-ui`      | The reusable library — theme, palette, components                                                                                                   |
+| `packages/desktop/crates/celestia-desktop` | The showcase binary (component gallery window)                                                                                                      |
+| `reference/GetCat/`                        | The design reference the stack and idioms were modeled on                                                                                           |
+| `reference/gpui-kit/`                      | The upstream gpui-kit repo checkout (v0.7.0 `crates/story` examples — usage inspiration only; verify signatures against the installed 0.6.x source) |
+
+## Running it
+
+Rust **≥ 1.97** (edition 2024); no environment variables — the theme JSON is compile-time
+embedded. macOS needs no extra toolchain, Linux needs Vulkan + Wayland/X11/fontconfig headers,
+Windows needs MSVC.
+
+```bash
+pnpm desktop                        # from the repo root — build & open the gallery window
+cargo run -p celestia-desktop       # or directly from packages/desktop/  (⌘D / Ctrl+D toggles theme)
+cargo test --workspace              # unit + gpui TestAppContext tests (theme pins live here)
+```
+
+## Architecture
+
+One file per primitive, mirroring `packages/ui/src/components/primitive/*.tsx`:
+
+1. **Celestia wrappers** — components with a shadcn-shaped prop surface that
+   render gpui-kit primitives under Celestia theming: `button.rs` (`Button` +
+   `ButtonVariant` primary/secondary/destructive/outline/ghost/link +
+   `ButtonSize`), `badge.rs` (`Badge` + `BadgeVariant`, including a `Brand`
+   variant), `card.rs`, `section_heading.rs`, `text_editor.rs` and
+   `code_editor.rs`.
+2. **Per-primitive re-exports** — every other primitive gets its own file
+   (`switch.rs`, `alert.rs`, `popover.rs`, `table.rs`, …) re-exporting the
+   matching gpui-component API, with a doc comment recording the web-file →
+   desktop mapping (the table below). Wrapper types are also flattened at
+   `celestia_ui::components::*` (e.g. `components::Button`); module-only
+   primitives are reached through their module path
+   (`components::table::…`).
+
+One rule runs through everything: **raw hex lives only in `theme.json` and `palette.rs`**. Call
+sites take colors by role through `cx.theme()` (semantic roles: background, foreground, primary,
+border, sidebar…) or `palette(cx)` (brand + charts).
+
+## Component map
+
+Each row is a file in `crates/celestia-ui/src/components/`:
+
+| File (desktop)                                                                                                                  | Web counterpart                                                                                                                   |
+| ------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `button.rs` (wrapper: `ButtonVariant`, `ButtonSize`)                                                                            | `button.tsx`                                                                                                                      |
+| `badge.rs` (wrapper: `BadgeVariant` incl. `Brand`; `GpuiBadge` for count/dot)                                                   | `badge.tsx`                                                                                                                       |
+| `input.rs`, `textarea.rs`, `input_otp.rs`, `select.rs`, `combobox.rs`                                                           | `input.tsx`, `textarea.tsx`, `input-otp.tsx`, `select.tsx`, combobox composite                                                    |
+| `switch.rs`, `checkbox.rs`, `radio.rs`, `slider.rs`, `rating.rs`, `stepper.rs`                                                  | `switch.tsx`, `checkbox.tsx`, `radio-group.tsx`, `slider.tsx`, —, —                                                               |
+| `calendar.rs`, `date_picker.rs`, `color_picker.rs`, `label.rs`                                                                  | `calendar.tsx`, —, —, `label.tsx`                                                                                                 |
+| `alert.rs`, `toast.rs` (toasts + `WindowExt`), `progress.rs`, `spinner.rs`, `skeleton.rs`, `shimmer.rs`                         | `alert.tsx`, `toast.tsx` / `sonner.tsx`, `progress.tsx`, `spinner.tsx`, `skeleton.tsx`, `ai/shimmer.tsx`                          |
+| `popover.rs`, `dialog.rs`, `sheet.rs`, `menu.rs`, `hover_card.rs`, `tooltip.rs`, `command.rs`                                   | `popover.tsx`, `dialog.tsx`, `drawer.tsx` / `sheet.tsx`, dropdown/context/menubar, `hover-card.tsx`, `tooltip.tsx`, `command.tsx` |
+| `avatar.rs`, `breadcrumb.rs`, `table.rs`, `list.rs`, `tree.rs`, `pagination.rs`, `marker.rs`, `empty.rs`, `description_list.rs` | `avatar.tsx`, `breadcrumb.tsx`, `table.tsx`, `item.tsx`, `ai/file-tree.tsx`, `pagination.tsx`, `marker.tsx`, `empty.tsx`, —       |
+| `separator.rs`, `tabs.rs`, `accordion.rs`, `collapsible.rs`, `carousel.rs`, `resizable.rs`, `scroll_area.rs`, `group_box.rs`    | `separator.tsx`, `tabs.tsx`, `accordion.tsx`, `collapsible.tsx`, `carousel.tsx`, `resizable.tsx`, `scroll-area.tsx`, —            |
+| `sidebar.rs`, `sidebar_layout.rs` (shell: `SidebarLayout` + header/nav/item/footer), `dock.rs`, `title_bar.rs`, `status_bar.rs` | `sidebar.tsx` (composite); the layout shell, dock and window chrome are desktop-only |
+| `bubble.rs`, `message.rs`, `attachment.rs`                                                                                      | the web `ai/` family's bubble, chat-message + message-scroller, attachment                                                        |
+| `charts.rs` (`chart`, `plot` — generic API, series colors from `palette(cx).chart(i)`)                                          | `chart.tsx` + the `chart-*.tsx` composites                                                                                        |
+| `swiftui.rs` (SwiftUI-style layout: `HStack`/`VStack`/`ZStack` with alignment + spacing, `Spacer`, axis `ScrollView`, `VGrid` + `GridItem`, `Frame`) | SwiftUI's layout vocabulary — no web counterpart; gallery has a dedicated section                         |
+| `card.rs`, `section_heading.rs`, `text_editor.rs`, `code_editor.rs` (wrappers / celestia-only)                                  | web `Card` / `SectionHeading` idiom; `text-editor.tsx` / `block-text-editor`                                                      |
+
+The rest of the web `ai/` family (prompt-input, reasoning, tools, …) has no gpui equivalent yet —
+port on demand as custom builds in `src/components/`.
+
+## Theming
+
+`crates/celestia-ui/src/theme.json` is the sRGB-hex port of
+`packages/ui/src/styles/globals.css` — the web CSS file stays the single source of truth, and the
+JSON is re-derived from it when tokens change (grays via OKLab → linear sRGB = L³, chromatic
+tokens through full OKLab → sRGB with gamut clamping, alpha tokens as 8-digit hex). `init()` loads
+the JSON into the `ThemeRegistry` and **replaces** gpui-kit's default light/dark configs, so
+`Theme::change` and system-appearance sync keep using the Celestia palettes with no re-patching.
+
+Key values are pinned by `cargo test --workspace`: light `primary` `#d40c1a`, dark `#ff4d46`
+(out-of-gamut `oklch(0.68 0.22 27)` clipped), the dark border as white-alpha, `selection` always
+primary at 22%, and a guard test that fails if primary ever regresses to the retired brand blue.
+Beyond the semantic roles, `palette(cx)` carries the mode-independent product colors — `brand`
+`#dc2626`, `brand_deep` `#b51230`, `brand_foreground` and the grayscale chart ramp — mirroring the
+web where these live once on `:root`.
+
+## Building a desktop app on it
+
+Depend on the crate (`celestia-ui = { path = "…/crates/celestia-ui" }` + `gpui-kit = "0.6.1"`),
+call `celestia_ui::init(cx)` inside `application().run(...)` before opening any window, and wrap
+your root view in a gpui-kit `Root`. Mount the Dialog/Sheet/Notification layers in your root
+view's render (`Root::render_dialog_layer` / `render_sheet_layer` / `render_notification_layer`) —
+`Root::render` does not draw them, and `WindowExt` (`open_dialog`, `open_sheet`,
+`push_notification`) targets nothing until they are mounted. The showcase's
+`crates/celestia-desktop/src/main.rs` is the full reference bootstrap: window options,
+keybindings, stateful entities (`InputState`, `SelectState`), the mounted layers and
+builder-style component usage across every primitive.

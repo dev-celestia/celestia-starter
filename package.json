@@ -13,6 +13,7 @@
     "docs": "turbo dev --filter=web",
     "mobile": "turbo dev --filter=mobile",
     "ai": "turbo dev --filter=ai",
+    "desktop": "cargo run --manifest-path packages/desktop/Cargo.toml -p celestia-desktop",
     "scaffold": "node packages/cli/src/index.js",
     "add-feature": "tsx packages/feature-manager/src/cli/index.ts add",
     "remove-feature": "tsx packages/feature-manager/src/cli/index.ts remove",

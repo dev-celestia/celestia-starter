@@ -421,12 +421,6 @@ export const CodeBlockContent = ({
   // Memoized raw tokens for immediate display
   const rawTokens = useMemo(() => createRawTokens(code), [code]);
 
-  // Synchronous cache lookup — avoids setState in effect for cached results
-  const syncTokens = useMemo(
-    () => highlightCode(code, safeLang) ?? rawTokens,
-    [code, safeLang, rawTokens]
-  );
-
   // Async highlighting result (populated after shiki loads)
   const [asyncTokens, setAsyncTokens] = useState<TokenizedCode | null>(null);
   const asyncKeyRef = useRef({ code, language: safeLang });
@@ -443,18 +437,27 @@ export const CodeBlockContent = ({
   useEffect(() => {
     let cancelled = false;
 
-    highlightCode(code, safeLang, (result) => {
+    // Never read the token cache during render: the server's cache can be
+    // warm from earlier requests while the client's is always cold on
+    // hydration, which produces a server/client mismatch and regenerates
+    // the tree. First paint is always the raw fallback on both sides;
+    // highlighting upgrades after mount (or synchronously here when the
+    // client cache is already warm, e.g. on client-side navigation).
+    const cached = highlightCode(code, safeLang, (result) => {
       if (!cancelled) {
         setAsyncTokens(result);
       }
     });
+    if (cached) {
+      setAsyncTokens(cached);
+    }
 
     return () => {
       cancelled = true;
     };
   }, [code, safeLang]);
 
-  const tokenized = asyncTokens ?? syncTokens;
+  const tokenized = asyncTokens ?? rawTokens;
 
   return (
     <div className="relative overflow-auto" style={style}>
