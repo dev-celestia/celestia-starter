@@ -16,14 +16,6 @@ import {
   CarouselNext,
   TextEditor,
   BlockTextEditor,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  ChartConfig,
-  Area,
-  AreaChart,
-  CartesianGrid,
-  XAxis,
   Card,
   CardContent,
   Badge,
@@ -31,26 +23,6 @@ import {
 } from "@celestia-project/ui"
 import { useTheme } from "@/lib/theme"
 import { ShowcaseCard } from "../showcase-card"
-
-const SAMPLE_CHART_DATA = [
-  { month: "Jan", requests: 186, latency: 80 },
-  { month: "Feb", requests: 305, latency: 65 },
-  { month: "Mar", requests: 237, latency: 70 },
-  { month: "Apr", requests: 730, latency: 45 },
-  { month: "May", requests: 609, latency: 50 },
-  { month: "Jun", requests: 814, latency: 40 },
-]
-
-const CHART_CONFIG = {
-  requests: {
-    label: "API Requests",
-    color: "var(--primary)",
-  },
-  latency: {
-    label: "Latency (ms)",
-    color: "var(--muted-foreground)",
-  },
-} satisfies ChartConfig
 
 const RESIZABLE_CODE = `import * as React from "react"
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@celestia-project/ui"
@@ -122,41 +94,6 @@ export function CarouselDemo() {
       <CarouselPrevious />
       <CarouselNext />
     </Carousel>
-  )
-}`
-
-const CHART_CODE = `import * as React from "react"
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  ChartConfig,
-  AreaChart,
-  Area,
-  CartesianGrid,
-  XAxis,
-} from "@celestia-project/ui"
-
-const data = [
-  { month: "Jan", requests: 186 },
-  { month: "Feb", requests: 305 },
-  { month: "Mar", requests: 730 },
-]
-
-const config = {
-  requests: { label: "API Requests", color: "var(--primary)" },
-} satisfies ChartConfig
-
-export function ChartDemo() {
-  return (
-    <ChartContainer config={config} className="h-36 w-full">
-      <AreaChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
-        <XAxis dataKey="month" fontSize={10} />
-        <ChartTooltip content={<ChartTooltipContent />} />
-        <Area type="monotone" dataKey="requests" stroke="var(--color-requests)" fill="var(--color-requests)" fillOpacity={0.2} />
-      </AreaChart>
-    </ChartContainer>
   )
 }`
 
@@ -280,7 +217,7 @@ export function SurfacesSection() {
           Surfaces & Rich Media
         </h2>
         <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-          6 components
+          5 components
         </span>
       </div>
 
@@ -367,35 +304,7 @@ export function SurfacesSection() {
           </div>
         </ShowcaseCard>
 
-        {/* 4. Chart Container */}
-        <ShowcaseCard
-          id="chart"
-          title="Chart Container"
-          category="Surfaces"
-          description="Chart container wrapper configuring responsive scales, CSS variable colors, and custom tooltips."
-          docsSlug="chart"
-          importSnippet={`import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@celestia-project/ui"`}
-          codeExample={CHART_CODE}
-        >
-          <div className="w-full max-w-sm">
-            <ChartContainer config={CHART_CONFIG} className="h-36 w-full">
-              <AreaChart data={SAMPLE_CHART_DATA}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
-                <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} fontSize={10} />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Area
-                  type="monotone"
-                  dataKey="requests"
-                  stroke="var(--color-requests)"
-                  fill="var(--color-requests)"
-                  fillOpacity={0.2}
-                />
-              </AreaChart>
-            </ChartContainer>
-          </div>
-        </ShowcaseCard>
-
-        {/* 5. Text & Code Editor (Interactive Monaco Playground) */}
+        {/* 4. Text & Code Editor (Interactive Monaco Playground) */}
         <ShowcaseCard
           id="text-editor"
           title="Text & Code Editor"
@@ -457,7 +366,7 @@ export function SurfacesSection() {
           </div>
         </ShowcaseCard>
 
-        {/* 6. Block Text Editor (Notion-style markdown blocks) */}
+        {/* 5. Block Text Editor (Notion-style markdown blocks) */}
         <ShowcaseCard
           id="block-text-editor"
           title="Block Text Editor"

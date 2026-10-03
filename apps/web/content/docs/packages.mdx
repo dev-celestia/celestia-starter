@@ -105,39 +105,6 @@ See the [Mobile (Expo) docs](/docs/mobile) for setup, the full component invento
 
 ---
 
-## @workspace/db
-
-The shared database package containing the Drizzle ORM schema, relations, and pooled PostgreSQL connection client.
-
-<Callout type="warn" title="Backend-only package">
-`@workspace/db` is imported exclusively by the backend API (`apps/api`). The frontend (`apps/web`) must never import this package or access the database directly.
-</Callout>
-
-**Exports:**
-
-| Import path | Resolves to |
-|-------------|-------------|
-| `@workspace/db` | Database client (`db`) and table schemas |
-| `@workspace/db/schema` | Direct export of all Drizzle tables and relations |
-
-**Key CLI Commands:**
-
-```bash
-# Push schema changes directly to PostgreSQL
-pnpm --filter @workspace/db db:push
-
-# Generate Drizzle SQL migrations
-pnpm --filter @workspace/db db:generate
-
-# Launch Drizzle Studio web GUI
-pnpm --filter @workspace/db db:studio
-```
-
-**Key dependencies:** `drizzle-orm`, `pg`, `@types/pg`
-
----
-
-
 ## @celestia-project/create
 
 [![npm](https://img.shields.io/npm/v/@celestia-project/create)](https://www.npmjs.com/package/@celestia-project/create)

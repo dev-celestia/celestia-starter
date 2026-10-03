@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
 
 export default function ComponentsPage() {
-  redirect("/design-system?tab=components")
+  redirect("/web-components")
 }

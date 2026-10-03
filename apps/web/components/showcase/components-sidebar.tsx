@@ -9,6 +9,7 @@ import {
   BellSimpleRingingIcon,
   CompassIcon,
   StackIcon,
+  ChartLineUpIcon,
 } from "@phosphor-icons/react"
 import { NavSidebar, type NavSidebarGroup } from "@/components/shared/nav-sidebar"
 import { cn } from "@celestia-project/ui/lib/utils"
@@ -137,17 +138,32 @@ export const CATEGORIES: CategoryItem[] = [
     ],
   },
   {
+    id: "charts",
+    name: "Charts & Data Viz",
+    icon: ChartLineUpIcon,
+    count: 8,
+    items: [
+      { id: "chart", name: "Chart Container" },
+      { id: "chart-area", name: "Area Chart" },
+      { id: "chart-line", name: "Line Chart" },
+      { id: "chart-bar", name: "Bar Chart" },
+      { id: "chart-pie", name: "Pie / Donut" },
+      { id: "chart-radar", name: "Radar" },
+      { id: "chart-radial", name: "Radial Gauge" },
+      { id: "chart-sparkline", name: "Sparkline" },
+    ],
+  },
+  {
     id: "surfaces",
     name: "Surfaces & Rich Media",
     icon: StackIcon,
-    count: 6,
+    count: 5,
     items: [
       { id: "resizable", name: "Resizable Panels" },
       { id: "scroll-area", name: "Scroll Area" },
       { id: "carousel", name: "Carousel" },
       { id: "text-editor", name: "Text & Code Editor" },
       { id: "block-text-editor", name: "Block Text Editor" },
-      { id: "chart", name: "Chart Container" },
     ],
   },
 ]

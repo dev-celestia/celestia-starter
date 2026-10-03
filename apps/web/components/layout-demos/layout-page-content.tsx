@@ -94,7 +94,7 @@ const PREVIEWS: Record<string, ComponentType> = {
 }
 
 /**
- * One gallery card, mirroring the /design-system ShowcaseCard idiom: a
+ * One gallery card, mirroring the /web-components ShowcaseCard idiom: a
  * View/Code tab pair in the header, the live template preview under View and
  * the full source file under Code.
  */
@@ -225,7 +225,7 @@ export function LayoutPageContent({
 
   return (
     <div className="pb-6">
-      {/* Hero — mirrors the /design-system hero section */}
+      {/* Hero — mirrors the /web-components hero section */}
       <section className="relative flex flex-col items-start gap-3 py-10 sm:py-14">
         <h1 className="text-3xl font-bold tracking-tight text-foreground lg:text-4xl">
           Layout Templates

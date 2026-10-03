@@ -33,8 +33,8 @@ const tabsListVariants = cva(
       },
       size: {
         sm: "group-data-[orientation=horizontal]/tabs:h-6",
-        default: "group-data-[orientation=horizontal]/tabs:h-7",
-        lg: "group-data-[orientation=horizontal]/tabs:h-8",
+        default: "group-data-[orientation=horizontal]/tabs:h-7.5",
+        lg: "group-data-[orientation=horizontal]/tabs:h-9",
       },
     },
     defaultVariants: {

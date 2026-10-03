@@ -325,7 +325,7 @@ they only belong on a page that has opted into dark explicitly.
 |---|---|---|
 | `/` (home) | Always dark, via `<div className="landing dark">` | Landing palette + brand |
 | `/feature-installer` | Always dark, via `<main className="dark bg-bg text-text-primary">` | Landing palette + brand |
-| `/docs`, `/design-system`, `/components` | Follows the user's theme | Semantic (`bg-background`, `text-foreground`, `text-muted-foreground`, `border-border`) |
+| `/docs`, `/web-components`, `/components` | Follows the user's theme | Semantic (`bg-background`, `text-foreground`, `text-muted-foreground`, `border-border`) |
 
 Do not mix the two on one page. A single `bg-bg` bar inside an otherwise
 theme-switchable page renders as a black stripe across a white page in light
@@ -500,5 +500,5 @@ The global stylesheet handles these, so components do not have to:
 
 ## Interactive Portals
 
-- **[Design System Portal](/design-system)**: Interactive token explorer, live component sandbox, and custom token exporter.
+- **[Web Components](/web-components)**: Live components showcase with search and category navigation.
 - **[UI Showcase](/components)**: Catalog of 126 components with live code demos, copyable snippets, and interactive states.
