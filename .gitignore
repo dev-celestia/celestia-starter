@@ -54,6 +54,8 @@ next-env.d.ts
 # ai prompts
 .prompts/
 .workbuddy-ai
+.zcode/
 
 # feature-manager scratch space (backups of files a feature overwrote)
 .feature-manager/
+/reference
