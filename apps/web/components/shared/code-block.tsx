@@ -2,10 +2,16 @@
 
 import * as React from "react"
 import { CopyIcon, CheckIcon } from "@phosphor-icons/react"
-import { Button, Badge, TextEditor, CodeBlockContent } from "@celestia-project/ui"
+import {
+  Button,
+  Badge,
+  TextEditor,
+  CodeBlockContent,
+} from "@celestia-project/ui"
 import { toast } from "@celestia-project/ui/primitive/sonner"
 import { cn } from "@celestia-project/ui/lib/utils"
 import { useTheme } from "@/lib/theme"
+import { extractText, looksLikeFileTree } from "@/lib/code-block-text"
 
 export interface CodeBlockProps extends React.HTMLAttributes<HTMLDivElement> {
   code?: string
@@ -23,25 +29,19 @@ export interface CodeBlockProps extends React.HTMLAttributes<HTMLDivElement> {
   preClassName?: string
   showLineNumbers?: boolean
   editor?: boolean
+  /** Pre-highlighted content rendered as-is; skips client-side Shiki highlighting */
+  highlighted?: React.ReactNode
 }
 
-function extractText(node: React.ReactNode): string {
-  if (typeof node === "string") return node
-  if (typeof node === "number") return String(node)
-  if (Array.isArray(node)) return node.map(extractText).join("")
-  if (React.isValidElement(node)) {
-    const props = node.props as { children?: React.ReactNode }
-    return props.children ? extractText(props.children) : ""
-  }
-  return ""
-}
-
-function mapLanguage(lang?: string): "javascript" | "typescript" | "tsx" | "json" | "markdown" {
+function mapLanguage(
+  lang?: string
+): "javascript" | "typescript" | "tsx" | "json" | "markdown" {
   if (!lang) return "tsx"
   const normalized = lang.toLowerCase().trim()
   if (["tsx", "jsx"].includes(normalized)) return "tsx"
   if (["ts", "typescript"].includes(normalized)) return "typescript"
-  if (["js", "javascript", "mjs", "cjs"].includes(normalized)) return "javascript"
+  if (["js", "javascript", "mjs", "cjs"].includes(normalized))
+    return "javascript"
   if (["json"].includes(normalized)) return "json"
   if (["md", "markdown", "mdx"].includes(normalized)) return "markdown"
   return "tsx"
@@ -65,6 +65,7 @@ export function CodeBlock({
   preClassName,
   showLineNumbers = false,
   editor = false,
+  highlighted,
   style,
   ...props
 }: Readonly<CodeBlockProps>) {
@@ -81,7 +82,10 @@ export function CodeBlock({
   let childCode: string | undefined
 
   if (React.isValidElement(children)) {
-    const childProps = children.props as { className?: string; children?: React.ReactNode }
+    const childProps = children.props as {
+      className?: string
+      children?: React.ReactNode
+    }
     if (childProps?.className) {
       const match = childProps.className.match(/language-([\w-]+)/)
       if (match?.[1]) {
@@ -103,10 +107,7 @@ export function CodeBlock({
     (children !== undefined ? extractText(children) : "")
   ).replace(/\n$/, "")
 
-  const isTree =
-    rawCode.includes("├──") ||
-    rawCode.includes("└──") ||
-    (/^[a-zA-Z0-9_.\-/]+\/\s*\n\s*[├└│]/.test(rawCode))
+  const isTree = looksLikeFileTree(rawCode)
 
   const lines = React.useMemo(() => rawCode.split("\n"), [rawCode])
 
@@ -136,7 +137,9 @@ export function CodeBlock({
     if (!rawCode) return
     navigator.clipboard.writeText(rawCode)
     setCopied(true)
-    toast.success(copyLabel ? `Copied ${copyLabel}` : "Code copied to clipboard")
+    toast.success(
+      copyLabel ? `Copied ${copyLabel}` : "Code copied to clipboard"
+    )
     setTimeout(() => setCopied(false), 2000)
   }
 
@@ -146,7 +149,8 @@ export function CodeBlock({
     if (l === "tsx" || l === "jsx") return "React / JSX"
     if (l === "ts" || l === "typescript") return "TypeScript"
     if (l === "js" || l === "javascript") return "JavaScript"
-    if (l === "bash" || l === "sh" || l === "shell" || l === "zsh") return "Terminal"
+    if (l === "bash" || l === "sh" || l === "shell" || l === "zsh")
+      return "Terminal"
     if (l === "json") return "JSON"
     if (l === "html") return "HTML"
     if (l === "css") return "CSS"
@@ -169,42 +173,56 @@ export function CodeBlock({
     >
       {/* Code Header Bar */}
       {showHeader && (
-        <div className="flex items-center justify-between border-b border-border/50 bg-muted/60 px-4 py-1.5 text-xs shrink-0">
+        <div className="flex shrink-0 items-center justify-between border-b border-border/50 bg-muted/60 px-4 py-1.5 text-xs">
           <div className="flex items-center gap-2">
             {autoTitle ? (
-              <span className="font-mono text-xs font-medium text-foreground">{autoTitle}</span>
+              <span className="font-mono text-xs font-medium text-foreground">
+                {autoTitle}
+              </span>
             ) : effectiveLang ? (
-              <span className="font-mono text-[11px] text-muted-foreground uppercase">{effectiveLang}</span>
+              <span className="font-mono text-[11px] text-muted-foreground uppercase">
+                {effectiveLang}
+              </span>
             ) : (
-              <span className="font-mono text-[11px] text-muted-foreground">Code</span>
+              <span className="font-mono text-[11px] text-muted-foreground">
+                Code
+              </span>
             )}
 
             {autoBadge && (
-              <Badge variant="outline" className="font-mono text-[9px] uppercase px-1.5 py-0">
+              <Badge
+                variant="outline"
+                className="px-1.5 py-0 font-mono text-[9px] uppercase"
+              >
                 {autoBadge}
               </Badge>
             )}
           </div>
 
           <div className="flex items-center gap-2">
-            {!autoTitle && formattedLang && formattedLang.toLowerCase() !== effectiveLang.toLowerCase() && (
-              <Badge variant="outline" className="hidden sm:inline-flex font-mono text-[10px] text-muted-foreground px-1.5 py-0">
-                {formattedLang}
-              </Badge>
-            )}
+            {!autoTitle &&
+              formattedLang &&
+              formattedLang.toLowerCase() !== effectiveLang.toLowerCase() && (
+                <Badge
+                  variant="outline"
+                  className="hidden px-1.5 py-0 font-mono text-[10px] text-muted-foreground sm:inline-flex"
+                >
+                  {formattedLang}
+                </Badge>
+              )}
 
             {showCopy && (
               <Button
                 variant="ghost"
                 size="xs"
                 onClick={handleCopy}
-                className="h-6 gap-1 px-2 text-[11px] text-muted-foreground hover:text-foreground active:scale-95 transition-transform"
+                className="h-6 gap-1 px-2 text-[11px] text-muted-foreground transition-transform hover:text-foreground active:scale-95"
                 title="Copy code"
               >
                 {copied ? (
                   <>
                     <CheckIcon className="size-3.5 text-success" />
-                    <span className="text-success font-medium">Copied</span>
+                    <span className="font-medium text-success">Copied</span>
                   </>
                 ) : (
                   <>
@@ -219,7 +237,33 @@ export function CodeBlock({
       )}
 
       {/* Code Content */}
-      {editor && mounted ? (
+      {highlighted !== undefined ? (
+        <div
+          className="relative overflow-auto"
+          style={{
+            height:
+              height !== undefined
+                ? typeof height === "number"
+                  ? `${height}px`
+                  : height
+                : undefined,
+            minHeight:
+              minHeight !== undefined
+                ? typeof minHeight === "number"
+                  ? `${minHeight}px`
+                  : minHeight
+                : undefined,
+            maxHeight:
+              maxHeight !== undefined
+                ? typeof maxHeight === "number"
+                  ? `${maxHeight}px`
+                  : maxHeight
+                : undefined,
+          }}
+        >
+          {highlighted}
+        </div>
+      ) : editor && mounted ? (
         <TextEditor
           value={rawCode}
           language={editorLang}
@@ -235,12 +279,27 @@ export function CodeBlock({
       ) : isTree ? (
         <pre
           style={{
-            height: height !== undefined ? (typeof height === "number" ? `${height}px` : height) : undefined,
-            minHeight: minHeight !== undefined ? (typeof minHeight === "number" ? `${minHeight}px` : minHeight) : undefined,
-            maxHeight: maxHeight !== undefined ? (typeof maxHeight === "number" ? `${maxHeight}px` : maxHeight) : undefined,
+            height:
+              height !== undefined
+                ? typeof height === "number"
+                  ? `${height}px`
+                  : height
+                : undefined,
+            minHeight:
+              minHeight !== undefined
+                ? typeof minHeight === "number"
+                  ? `${minHeight}px`
+                  : minHeight
+                : undefined,
+            maxHeight:
+              maxHeight !== undefined
+                ? typeof maxHeight === "number"
+                  ? `${maxHeight}px`
+                  : maxHeight
+                : undefined,
           }}
           className={cn(
-            "overflow-x-auto p-4 font-mono text-xs leading-relaxed text-foreground scrollbar-thin select-text",
+            "scrollbar-thin overflow-x-auto p-4 font-mono text-xs leading-relaxed text-foreground select-text",
             preClassName
           )}
         >
@@ -252,12 +311,27 @@ export function CodeBlock({
           language={derivedLang || "tsx"}
           showLineNumbers={showLineNumbers}
           style={{
-            height: height !== undefined ? (typeof height === "number" ? `${height}px` : height) : undefined,
-            minHeight: minHeight !== undefined ? (typeof minHeight === "number" ? `${minHeight}px` : minHeight) : undefined,
-            maxHeight: maxHeight !== undefined ? (typeof maxHeight === "number" ? `${maxHeight}px` : maxHeight) : undefined,
+            height:
+              height !== undefined
+                ? typeof height === "number"
+                  ? `${height}px`
+                  : height
+                : undefined,
+            minHeight:
+              minHeight !== undefined
+                ? typeof minHeight === "number"
+                  ? `${minHeight}px`
+                  : minHeight
+                : undefined,
+            maxHeight:
+              maxHeight !== undefined
+                ? typeof maxHeight === "number"
+                  ? `${maxHeight}px`
+                  : maxHeight
+                : undefined,
           }}
           className={cn(
-            "p-4 font-mono text-xs leading-relaxed select-text scrollbar-thin",
+            "scrollbar-thin p-4 font-mono text-xs leading-relaxed select-text",
             preClassName
           )}
           transparent

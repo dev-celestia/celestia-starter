@@ -1565,6 +1565,18 @@ export function TabsPreview() {
           </p>
         </TabsContent>
       </Tabs>
+      <Tabs defaultValue="account">
+        <TabsList size="sm">
+          <TabsTrigger value="account">Account</TabsTrigger>
+          <TabsTrigger value="password">Password</TabsTrigger>
+        </TabsList>
+      </Tabs>
+      <Tabs defaultValue="account">
+        <TabsList size="lg">
+          <TabsTrigger value="account">Account</TabsTrigger>
+          <TabsTrigger value="password">Password</TabsTrigger>
+        </TabsList>
+      </Tabs>
     </PreviewShell>
   )
 }
@@ -1666,8 +1678,8 @@ export function ColorsPreview() {
             <ColorSwatch label="fog" className="bg-[#878787]" value="#878787" />
             <ColorSwatch
               label="stroke"
-              className="bg-[#1f1f1f]"
-              value="#1f1f1f"
+              className="bg-[#262626]"
+              value="#262626"
             />
           </div>
         </div>
@@ -1679,13 +1691,13 @@ export function ColorsPreview() {
             <div
               className="h-10 w-20 shrink-0 rounded-lg"
               style={{
-                background: "linear-gradient(90deg, #89aacc 0%, #4e85bf 100%)",
+                background: "linear-gradient(90deg, #dc2626 0%, #b51230 100%)",
               }}
             />
             <div className="flex flex-col">
               <span className="text-sm font-medium">accent-gradient</span>
               <span className="font-mono text-xs text-muted-foreground">
-                #89aacc → #4e85bf
+                #dc2626 → #b51230
               </span>
             </div>
           </div>
@@ -1708,7 +1720,7 @@ export function ColorsPreview() {
             <ColorSwatch
               label="primary"
               className="bg-primary"
-              value="oklch(0.205 0 0)"
+              value="oklch(0.55 0.22 27)"
             />
             <ColorSwatch
               label="secondary"

@@ -24,16 +24,22 @@ function Tabs({
 }
 
 const tabsListVariants = cva(
-  "group/tabs-list relative inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground group-data-[orientation=horizontal]/tabs:h-8 group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col data-[variant=line]:rounded-none",
+  "group/tabs-list relative inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col data-[variant=line]:rounded-none",
   {
     variants: {
       variant: {
         default: "bg-muted",
         line: "gap-1 bg-transparent border-b border-border/50 group-data-[orientation=vertical]/tabs:border-b-0 group-data-[orientation=vertical]/tabs:border-e",
       },
+      size: {
+        sm: "group-data-[orientation=horizontal]/tabs:h-6",
+        default: "group-data-[orientation=horizontal]/tabs:h-7",
+        lg: "group-data-[orientation=horizontal]/tabs:h-8",
+      },
     },
     defaultVariants: {
       variant: "default",
+      size: "default",
     },
   }
 )
@@ -60,6 +66,7 @@ function TabsIndicator({
 function TabsList({
   className,
   variant = "default",
+  size = "default",
   children,
   ...props
 }: TabsPrimitive.List.Props & VariantProps<typeof tabsListVariants>) {
@@ -67,7 +74,8 @@ function TabsList({
     <TabsPrimitive.List
       data-slot="tabs-list"
       data-variant={variant}
-      className={cn(tabsListVariants({ variant }), className)}
+      data-size={size}
+      className={cn(tabsListVariants({ variant, size }), className)}
       {...props}
     >
       <TabsIndicator />

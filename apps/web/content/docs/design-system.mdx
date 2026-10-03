@@ -242,15 +242,15 @@ export function WelcomeCard() {
 | `--background` | `bg-background` | `oklch(1 0 0)` | `oklch(0.145 0 0)` |
 | `--foreground` | `text-foreground` | `oklch(0.145 0 0)` | `oklch(0.985 0 0)` |
 | `--card` / `--popover` | `bg-card` / `bg-popover` | `oklch(1 0 0)` | `oklch(0.205 0 0)` |
-| `--primary` | `bg-primary` | `oklch(0.205 0 0)` | `oklch(0.922 0 0)` |
-| `--primary-foreground` | `text-primary-foreground` | `oklch(0.985 0 0)` | `oklch(0.205 0 0)` |
+| `--primary` | `bg-primary` | `oklch(0.55 0.22 27)` | `oklch(0.68 0.22 27)` |
+| `--primary-foreground` | `text-primary-foreground` | `oklch(0.985 0 0)` | `oklch(0.145 0 0)` |
 | `--secondary` / `--muted` | `bg-secondary` / `bg-muted` | `oklch(0.97 0 0)` | `oklch(0.269 0 0)` |
 | `--muted-foreground` | `text-muted-foreground` | `oklch(0.54 0 0)` | `oklch(0.708 0 0)` |
 | `--destructive` | `bg-destructive` | `oklch(0.577 0.245 27.325)` | `oklch(0.704 0.191 22.216)` |
 | `--destructive-foreground` | `text-destructive-foreground` | `oklch(1 0 0)` | `oklch(0.205 0 0)` |
 | `--border` | `border-border` | `oklch(0.922 0 0)` | `oklch(1 0 0 / 10%)` |
 | `--input` | `bg-input` | `oklch(0.922 0 0)` | `oklch(1 0 0 / 15%)` |
-| `--ring` | `ring-ring` | `oklch(0.55 0 0)` | `oklch(0.556 0 0)` |
+| `--ring` | `ring-ring` | `oklch(0.55 0.22 27)` | `oklch(0.68 0.22 27)` |
 | `--overlay` | `bg-overlay` | `oklch(0 0 0 / 70%)` | `oklch(0 0 0 / 70%)` |
 
 **Elevation ordering.** In dark mode the ramp must rise, and it does:
@@ -302,11 +302,11 @@ The one chromatic family in the system. Previously hardcoded as hex literals.
 
 | Token Variable | Tailwind Utility | Value | Role |
 |---|---|---|---|
-| `--brand` | `bg-brand` / `text-brand` / `border-brand` | `hsl(210 40% 67%)` ≈ `#89aacc` | Accent, links, dots, hover borders |
-| `--brand-deep` | `bg-brand-deep` / `text-brand-deep` | `hsl(211 47% 53%)` ≈ `#4e85bf` | Gradient end, pressed states |
-| `--brand-foreground` | `text-brand-foreground` | `hsl(211 65% 12%)` | Text/icons on a `--brand` fill |
+| `--brand` | `bg-brand` / `text-brand` / `border-brand` | `hsl(0 72% 51%)` ≈ `#dc2626` | Accent, links, dots, hover borders |
+| `--brand-deep` | `bg-brand-deep` / `text-brand-deep` | `hsl(350 78% 40%)` ≈ `#b51230` | Gradient end, pressed states |
+| `--brand-foreground` | `text-brand-foreground` | `hsl(0 0% 100%)` ≈ `#ffffff` | Text/icons on a `--brand` fill |
 
-Gradient: `linear-gradient(90deg, hsl(var(--brand)) 0%, hsl(var(--brand-deep)) 100%)` — exposed as the `.accent-gradient` class.
+Gradient: `linear-gradient(90deg, hsl(var(--brand)) 0%, hsl(var(--brand-deep)) 100%)` — defined as the `.accent-gradient` class in `apps/web/app/landing.css` (landing-scoped, not part of the package styles).
 
 ### Landing palette (forced dark, HSL)
 

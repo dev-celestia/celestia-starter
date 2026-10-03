@@ -40,15 +40,15 @@ These tokens are always dark and used exclusively on the landing page. They're d
 
 ### Brand Accent
 
-The brand blue is tokenized — consume it with utilities, never with hex literals:
+The brand accent is tokenized — consume it with utilities, never with hex literals:
 
 | Token | Utility | Value | Role |
 |---|---|---|---|
-| `--brand` | `bg-brand` / `text-brand` / `border-brand` | `hsl(210 40% 67%)` ≈ `#89aacc` | Accent, links, dots, hover borders |
-| `--brand-deep` | `bg-brand-deep` / `text-brand-deep` | `hsl(211 47% 53%)` ≈ `#4e85bf` | Gradient end, pressed states |
-| `--brand-foreground` | `text-brand-foreground` | `hsl(211 65% 12%)` | Text/icons on a `--brand` fill |
+| `--brand` | `bg-brand` / `text-brand` / `border-brand` | `hsl(0 72% 51%)` ≈ `#dc2626` | Accent, links, dots, hover borders |
+| `--brand-deep` | `bg-brand-deep` / `text-brand-deep` | `hsl(350 78% 40%)` ≈ `#b51230` | Gradient end, pressed states |
+| `--brand-foreground` | `text-brand-foreground` | `hsl(0 0% 100%)` ≈ `#ffffff` | Text/icons on a `--brand` fill |
 
-Gradient: `linear-gradient(90deg, hsl(var(--brand)) 0%, hsl(var(--brand-deep)) 100%)` — also available as the `.accent-gradient` class.
+Gradient: `linear-gradient(90deg, hsl(var(--brand)) 0%, hsl(var(--brand-deep)) 100%)` — defined as the `.accent-gradient` class in `apps/web/app/landing.css` (landing-scoped, not part of the package styles).
 
 ### Semantic Tokens
 
@@ -62,19 +62,19 @@ These tokens power the app-shell components (dashboard, forms, dialogs) and supp
 | `--foreground` | `text-foreground` | Primary text | `oklch(0.145 0 0)` (near-black) |
 | `--card` | `bg-card` | Card backgrounds | `oklch(1 0 0)` (white) |
 | `--card-foreground` | `text-card-foreground` | Card text | `oklch(0.145 0 0)` (near-black) |
-| `--primary` | `bg-primary` | Primary buttons | `oklch(0.205 0 0)` (dark gray) |
+| `--primary` | `bg-primary` | Primary buttons | `oklch(0.55 0.22 27)` (red) |
 | `--primary-foreground` | `text-primary-foreground` | Primary button text | `oklch(0.985 0 0)` (white) |
 | `--secondary` | `bg-secondary` | Secondary buttons | `oklch(0.97 0 0)` (light gray) |
 | `--secondary-foreground` | `text-secondary-foreground` | Secondary button text | `oklch(0.205 0 0)` (dark gray) |
 | `--muted` | `bg-muted` | Muted backgrounds | `oklch(0.97 0 0)` (light gray) |
-| `--muted-foreground` | `text-muted-foreground` | Muted text | `oklch(0.556 0 0)` (mid-gray) |
+| `--muted-foreground` | `text-muted-foreground` | Muted text | `oklch(0.54 0 0)` (mid-gray) |
 | `--accent` | `bg-accent` | Accent backgrounds | `oklch(0.97 0 0)` (light gray) |
 | `--accent-foreground` | `text-accent-foreground` | Accent text | `oklch(0.205 0 0)` (dark gray) |
 | `--destructive` | `bg-destructive` | Error states | `oklch(0.577 0.245 27.325)` (red) |
 | `--destructive-foreground` | `text-destructive-foreground` | Text on a destructive fill | `oklch(1 0 0)` (white — 4.77:1 on `#e7000b`) |
 | `--border` | `border-border` | Borders | `oklch(0.922 0 0)` (light gray) |
 | `--input` | `border-input` | Input borders | `oklch(0.922 0 0)` (light gray) |
-| `--ring` | `ring-ring` | Focus rings | `oklch(0.55 0 0)` (4.88:1 on white) |
+| `--ring` | `ring-ring` | Focus rings | `oklch(0.55 0.22 27)` (red) |
 | `--overlay` | `bg-overlay` | Dialog/sheet scrim | `oklch(0 0 0 / 70%)` |
 
 #### Dark Theme (`.dark`)
@@ -85,8 +85,8 @@ These tokens power the app-shell components (dashboard, forms, dialogs) and supp
 | `--foreground` | `text-foreground` | Primary text | `oklch(0.985 0 0)` (white) |
 | `--card` | `bg-card` | Card backgrounds | `oklch(0.205 0 0)` (dark gray) |
 | `--card-foreground` | `text-card-foreground` | Card text | `oklch(0.985 0 0)` (white) |
-| `--primary` | `bg-primary` | Primary buttons | `oklch(0.922 0 0)` (light gray) |
-| `--primary-foreground` | `text-primary-foreground` | Primary button text | `oklch(0.205 0 0)` (dark gray) |
+| `--primary` | `bg-primary` | Primary buttons | `oklch(0.68 0.22 27)` (light red) |
+| `--primary-foreground` | `text-primary-foreground` | Primary button text | `oklch(0.145 0 0)` (near-black) |
 | `--secondary` | `bg-secondary` | Secondary buttons | `oklch(0.269 0 0)` (dark gray) |
 | `--secondary-foreground` | `text-secondary-foreground` | Secondary button text | `oklch(0.985 0 0)` (white) |
 | `--muted` | `bg-muted` | Muted backgrounds | `oklch(0.269 0 0)` (dark gray) |
@@ -96,7 +96,7 @@ These tokens power the app-shell components (dashboard, forms, dialogs) and supp
 | `--destructive` | `bg-destructive` | Error states | `oklch(0.704 0.191 22.216)` (red) |
 | `--border` | `border-border` | Borders | `oklch(1 0 0 / 10%)` (white with 10% opacity) |
 | `--input` | `border-input` | Input borders | `oklch(1 0 0 / 15%)` (white with 15% opacity) |
-| `--ring` | `ring-ring` | Focus rings | `oklch(0.556 0 0)` (mid-gray) |
+| `--ring` | `ring-ring` | Focus rings | `oklch(0.68 0.22 27)` (light red) |
 
 ### Chart Colors
 
@@ -255,11 +255,11 @@ import { cn } from "@celestia-project/ui/lib/utils"
 
 ## Component Mapping Reference
 
-Below is the complete mapping of all 162 component modules in `packages/ui/src/components/`, listing their deep import specifiers, exported sub-components, and underlying base primitives.
+Below is the complete mapping of every component module — 152 files across `primitive/`, `composite/` and `ai/` in `packages/ui/src/components/`, plus the 32 page templates shipped as copy sources under `apps/web/components/layout-templates/` — listing their deep import specifiers, exported sub-components, and underlying base primitives.
 
 ### Layout & Structure
 
-The `layout/` family is the page-level layer — 36 members in five groups. A few **shells** own the frame (centred/split for auth, rail + header + content for the signed-in app, a full-viewport frame for status screens, and a nav + footer frame for public pages), and thin **page** components supply their own fields and defaults on top of a shell.
+The layout family is the page-level layer — 36 members: four slot-only **shells** (package composites) and 32 page templates shipped as copy sources under `apps/web/components/layout-templates/`, grouped below. The shells own the frame (centred/split for auth, rail + header + content for the signed-in app, a full-viewport frame for status screens, and a nav + footer frame for public pages), and thin **page** components supply their own fields and defaults on top of a shell.
 
 | Group | Members | Sits in |
 |-------|---------|---------|
@@ -313,7 +313,7 @@ The page templates are documented as a family in [Layout & Pages](/docs/layouts)
 | `search-page` | `apps/web/components/layout-templates/search-page.tsx` | `SearchPage`, `SearchFacet`, `SearchFacetOption`, `SearchResult` | `PageShell` + `Checkbox` + `Input` |
 | `separator` | `@celestia-project/ui/primitive/separator` | `Separator` | Base UI `Separator` |
 | `settings-page` | `apps/web/components/layout-templates/settings-page.tsx` | `SettingsPage` | Custom HTML |
-| `sidebar` | `@celestia-project/ui/composite/sidebar` | `SidebarProvider`, `Sidebar`, `SidebarHeader`, `SidebarContent`, `SidebarGroup`, `SidebarGroupLabel`, `SidebarGroupAction`, `SidebarGroupContent`, `SidebarFooter`, `SidebarMenu`, `SidebarMenuItem`, `SidebarMenuButton`, `SidebarMenuAction`, `SidebarMenuSub`, `SidebarMenuSubItem`, `SidebarMenuSubButton`, `SidebarMenuBadge`, `SidebarMenuSkeleton`, `SidebarRail`, `SidebarTrigger`, `SidebarInset`, `SidebarInput`, `useSidebar` | Custom + Base UI Tooltip & Sheet |
+| `sidebar` | `@celestia-project/ui/composite/sidebar` | `SidebarProvider`, `Sidebar`, `SidebarHeader`, `SidebarContent`, `SidebarGroup`, `SidebarGroupLabel`, `SidebarGroupAction`, `SidebarGroupContent`, `SidebarFooter`, `SidebarMenu`, `SidebarMenuItem`, `SidebarMenuButton`, `SidebarMenuAction`, `SidebarMenuSub`, `SidebarMenuSubItem`, `SidebarMenuSubButton`, `SidebarMenuBadge`, `SidebarMenuSkeleton`, `SidebarRail`, `SidebarSeparator`, `SidebarTrigger`, `SidebarInset`, `SidebarInput`, `useSidebar` | Custom + Base UI Tooltip & Sheet |
 | `sign-in-page` | `apps/web/components/layout-templates/sign-in-page.tsx` | `SignInPage`, `SocialProvider` | `AuthShell` |
 | `sign-up-page` | `apps/web/components/layout-templates/sign-up-page.tsx` | `SignUpPage` | `AuthShell` |
 | `status-page` | `apps/web/components/layout-templates/status-page.tsx` | `StatusPage` | Custom HTML |
@@ -348,7 +348,8 @@ The page templates are documented as a family in [Layout & Pages](/docs/layouts)
 | Module | Deep Import | Exported Sub-Components | Base Primitive |
 |--------|-------------|-------------------------|----------------|
 | `alert` | `@celestia-project/ui/primitive/alert` | `Alert`, `AlertTitle`, `AlertDescription` | Custom HTML |
-| `badge` | `@celestia-project/ui/primitive/badge` | `Badge`, `badgeVariants` | Custom HTML / CVA |
+| `article-card` | `@celestia-project/ui/composite/article-card` | `ArticleCard` | Custom HTML |
+| `badge` | `@celestia-project/ui/primitive/badge` | `Badge`, `badgeVariants` | Base UI `useRender` |
 | `breadcrumb` | `@celestia-project/ui/primitive/breadcrumb` | `Breadcrumb`, `BreadcrumbList`, `BreadcrumbItem`, `BreadcrumbLink`, `BreadcrumbPage`, `BreadcrumbSeparator`, `BreadcrumbEllipsis` | Custom HTML |
 | `empty` | `@celestia-project/ui/composite/empty` | `Empty`, `EmptyHeader`, `EmptyTitle`, `EmptyDescription`, `EmptyContent`, `EmptyActions`, `EmptyMedia` | Custom HTML |
 | `item` | `@celestia-project/ui/primitive/item` | `Item`, `ItemGroup`, `ItemHeader`, `ItemFooter`, `ItemTitle`, `ItemDescription`, `ItemMedia`, `ItemActions`, `ItemContent` | Base UI `useRender` |
@@ -364,11 +365,12 @@ The page templates are documented as a family in [Layout & Pages](/docs/layouts)
 
 | Module | Deep Import | Exported Sub-Components | Base Primitive |
 |--------|-------------|-------------------------|----------------|
-| `button` | `@celestia-project/ui/primitive/button` | `Button`, `buttonVariants` | Base UI `useRender` |
+| `button` | `@celestia-project/ui/primitive/button` | `Button`, `buttonVariants` | Base UI `Button` |
 | `button-group` | `@celestia-project/ui/composite/button-group` | `ButtonGroup`, `ButtonGroupText` | Custom HTML |
 | `checkbox` | `@celestia-project/ui/primitive/checkbox` | `Checkbox` | Base UI `Checkbox` |
 | `combobox` | `@celestia-project/ui/composite/combobox` | `Combobox`, `ComboboxInput`, `ComboboxContent`, `ComboboxList`, `ComboboxItem`, `ComboboxEmpty`, `ComboboxGroup`, `ComboboxLabel` | Base UI `Combobox` |
 | `field` | `@celestia-project/ui/composite/field` | `Field`, `FieldLabel`, `FieldDescription`, `FieldError`, `FieldGroup`, `FieldLegend`, `FieldSeparator` | Base UI `Field` |
+| `form` | `@celestia-project/ui/composite/form` | `Form`, `FormField`, `FormItem`, `FormLabel`, `FormControl`, `FormDescription`, `FormMessage`, `useFormField` | `react-hook-form` |
 | `input` | `@celestia-project/ui/primitive/input` | `Input` | Custom HTML |
 | `input-group` | `@celestia-project/ui/composite/input-group` | `InputGroup`, `InputGroupAddon`, `InputGroupInput` | Custom HTML |
 | `input-otp` | `@celestia-project/ui/primitive/input-otp` | `InputOTP`, `InputOTPGroup`, `InputOTPSlot`, `InputOTPSeparator` | `input-otp` |
@@ -376,6 +378,7 @@ The page templates are documented as a family in [Layout & Pages](/docs/layouts)
 | `native-select` | `@celestia-project/ui/composite/native-select` | `NativeSelect`, `NativeSelectOptGroup`, `NativeSelectOption` | Custom HTML |
 | `radio-group` | `@celestia-project/ui/primitive/radio-group` | `RadioGroup`, `RadioGroupItem` | Base UI `RadioGroup` |
 | `select` | `@celestia-project/ui/primitive/select` | `Select`, `SelectTrigger`, `SelectValue`, `SelectContent`, `SelectItem`, `SelectGroup`, `SelectLabel`, `SelectSeparator` | Base UI `Select` |
+| `select-env-input` | `@celestia-project/ui/composite/select-env-input` | `ColorizedUrlInput` | Custom HTML + `Popover` |
 | `slider` | `@celestia-project/ui/primitive/slider` | `Slider` | Base UI `Slider` |
 | `switch` | `@celestia-project/ui/primitive/switch` | `Switch` | Base UI `Switch` |
 | `textarea` | `@celestia-project/ui/primitive/textarea` | `Textarea` | Custom HTML |
@@ -409,6 +412,7 @@ The page templates are documented as a family in [Layout & Pages](/docs/layouts)
 | `navigation-menu` | `@celestia-project/ui/primitive/navigation-menu` | `NavigationMenu`, `NavigationMenuList`, `NavigationMenuItem`, `NavigationMenuTrigger`, `NavigationMenuContent`, `NavigationMenuLink` | Radix NavigationMenu |
 | `pagination` | `@celestia-project/ui/composite/pagination` | `Pagination`, `PaginationContent`, `PaginationLink`, `PaginationItem`, `PaginationPrevious`, `PaginationNext`, `PaginationEllipsis` | Custom HTML |
 | `tabs` | `@celestia-project/ui/primitive/tabs` | `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` | Base UI `Tabs` |
+| `tab-bar` | `@celestia-project/ui/composite/tab-bar` | `TabBar`, `TabBarItem` | Custom HTML + Phosphor Icon |
 
 ---
 
@@ -420,8 +424,27 @@ The page templates are documented as a family in [Layout & Pages](/docs/layouts)
 | `calendar` | `@celestia-project/ui/primitive/calendar` | `Calendar` | `react-day-picker` |
 | `carousel` | `@celestia-project/ui/primitive/carousel` | `Carousel`, `CarouselContent`, `CarouselItem`, `CarouselPrevious`, `CarouselNext` | `embla-carousel-react` |
 | `chart` | `@celestia-project/ui/composite/chart` | `ChartContainer`, `ChartTooltip`, `ChartTooltipContent`, `ChartLegend`, `ChartLegendContent`, `ChartStyle` | Recharts wrapper |
+| `chart-area` | `@celestia-project/ui/composite/chart-area` | `ChartArea` | Recharts + `ChartContainer` |
+| `chart-bar` | `@celestia-project/ui/composite/chart-bar` | `ChartBar` | Recharts + `ChartContainer` |
+| `chart-line` | `@celestia-project/ui/composite/chart-line` | `ChartLine` | Recharts + `ChartContainer` |
+| `chart-pie` | `@celestia-project/ui/composite/chart-pie` | `ChartPie` | Recharts + `ChartContainer` |
+| `chart-radar` | `@celestia-project/ui/composite/chart-radar` | `ChartRadar` | Recharts + `ChartContainer` |
+| `chart-radial` | `@celestia-project/ui/composite/chart-radial` | `ChartRadial` | Recharts + `ChartContainer` |
+| `chart-sparkline` | `@celestia-project/ui/composite/chart-sparkline` | `ChartSparkline` | Recharts |
+| `data-table` | `@celestia-project/ui/composite/data-table` | `DataTable` | `@tanstack/react-table` + `Table` |
 | `progress` | `@celestia-project/ui/primitive/progress` | `Progress` | Base UI `Progress` |
 | `scroll-area` | `@celestia-project/ui/primitive/scroll-area` | `ScrollArea`, `ScrollBar` | Radix ScrollArea |
+
+---
+
+### Content & Block Editor
+
+Two editors ship in the composite family: a Monaco-backed source editor and the block-based text editor used by the CMS features — a compound component whose sections, drag helpers, and formatter live in one module directory.
+
+| Module | Deep Import | Exported Sub-Components | Base Primitive |
+|--------|-------------|-------------------------|----------------|
+| `block-text-editor` | `@celestia-project/ui/composite/block-text-editor` | `BlockTextEditor`, `BlockSectionRenderer`, `ParagraphSection`, `HeadingSection`, `ListSection`, `TaskListSection`, `CodeSection`, `QuoteSection`, `ImageSection`, plus block icons, drag pills, and add-section helpers | Custom HTML |
+| `text-editor` | `@celestia-project/ui/composite/text-editor` | `TextEditor` | `@monaco-editor/react` |
 
 ---
 
@@ -497,6 +520,7 @@ Comprehensive suite of 54 AI development primitives, interactive elements, strea
 | `collapsible` | `@celestia-project/ui/primitive/collapsible` | `Collapsible`, `CollapsibleTrigger`, `CollapsibleContent` | Base UI `Collapsible` |
 | `command` | `@celestia-project/ui/primitive/command` | `Command`, `CommandDialog`, `CommandInput`, `CommandList`, `CommandEmpty`, `CommandGroup`, `CommandItem`, `CommandShortcut`, `CommandSeparator` | `cmdk` |
 | `direction` | `@celestia-project/ui/primitive/direction` | `DirectionProvider`, `useDirection` | Radix Direction |
+| `ripple` | `@celestia-project/ui/primitive/ripple` | `RippleContainer`, `useRipple`, `useGlobalRipple` | Custom HTML |
 | `sonner` | `@celestia-project/ui/primitive/sonner` | `Toaster`, `toast` | `sonner` |
 | `spinner` | `@celestia-project/ui/primitive/spinner` | `Spinner` | Phosphor Icon |
 | `toast` | `@celestia-project/ui/primitive/toast` | `ToastProvider`, `ToastPortal`, `ToastViewport`, `Toast`, `ToastContent`, `ToastTitle`, `ToastDescription`, `ToastAction`, `ToastClose`, `toast` | Base UI `Toast` |
@@ -513,8 +537,10 @@ import { Button } from "@celestia-project/ui/primitive/button"
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `variant` | `"default" \| "secondary" \| "outline" \| "ghost" \| "destructive" \| "link"` | `"default"` | Visual style variant |
-| `size` | `"default" \| "xs" \| "sm" \| "lg" \| "icon" \| "icon-xs" \| "icon-sm" \| "icon-lg"` | `"default"` | Sizing option |
+| `variant` | `"default" \| "secondary" \| "outline" \| "ghost" \| "quiet" \| "destructive" \| "link"` | `"default"` | Visual style variant — `default` is an outlined primary face with the 3D shadow edge |
+| `size` | `"default" \| "xs" \| "sm" \| "md" \| "lg" \| "icon" \| "icon-xs" \| "icon-sm" \| "icon-lg"` | `"default"` | Sizing option — `default` is 26px, matching the tabs' active pill |
+| `mono` | `boolean` | `false` | Renders the label in monospace |
+| `leading` | `"relaxed" \| "tight"` | `"relaxed"` | Label leading — `tight` pins the 12px text step |
 | `render` | `ReactElement \| ((props, state) => ReactElement)` | `undefined` | Base UI polymorphic render prop (replaces `asChild`) |
 | `className` | `string` | `undefined` | Custom CSS class overrides |
 
@@ -526,21 +552,25 @@ import { Badge } from "@celestia-project/ui/primitive/badge"
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `variant` | `"default" \| "secondary" \| "outline" \| "destructive"` | `"default"` | Badge style variant |
+| `variant` | `"default" \| "secondary" \| "outline" \| "ghost" \| "link" \| "destructive" \| "success" \| "warning" \| "info"` | `"default"` | Badge style variant |
+| `size` | `"default" \| "sm"` | `"default"` | Height step — `sm` (h-4) for dense tables |
+| `mono` | `boolean` | `false` | Renders content in monospace |
+| `render` | `ReactElement \| ((props, state) => ReactElement)` | `undefined` | Base UI polymorphic render prop |
 | `className` | `string` | `undefined` | Custom CSS class overrides |
 
 ### 3. Card (`card.tsx`)
 
 ```tsx
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@celestia-project/ui/primitive/card"
+import { Card, CardHeader, CardTitle, CardDescription, CardAction, CardContent, CardFooter } from "@celestia-project/ui/primitive/card"
 ```
 
 | Component | Key Props | Description |
 |-----------|-----------|-------------|
-| `Card` | `size?: "default" \| "sm"` | Card container with border, radius, and shadow |
+| `Card` | `size?: "default" \| "sm"` | Card container with hairline ring, radius, and fixed spacing rhythm |
 | `CardHeader` | `className?: string` | Header wrapper for title and description |
 | `CardTitle` | `className?: string` | Card title heading |
 | `CardDescription` | `className?: string` | Subtitle / description copy |
+| `CardAction` | `className?: string` | Action slot inside the card header |
 | `CardContent` | `className?: string` | Card body container |
 | `CardFooter` | `className?: string` | Bottom action bar |
 

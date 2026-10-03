@@ -128,7 +128,7 @@ Instead, add the `@source` directive in your main CSS file (e.g., `src/styles/gl
   --color-surface: hsl(var(--surface, 0 0% 8%));
   --color-text-primary: hsl(var(--text, 0 0% 96%));
   --color-fog: hsl(var(--fog, 0 0% 53%));
-  --color-stroke: hsl(var(--stroke, 0 0% 12%));
+  --color-stroke: hsl(var(--stroke));
 
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
@@ -520,7 +520,7 @@ A forced-dark palette with literal tokens:
 | `--surface` | `bg-surface`        | `hsl(0 0% 8%)` — cards, raised panels |
 | `--text`    | `text-text-primary` | `hsl(0 0% 96%)` — headings            |
 | `--fog`     | `text-fog`          | `hsl(0 0% 53%)` — muted copy          |
-| `--stroke`  | `border-stroke`     | `hsl(0 0% 12%)` — borders             |
+| `--stroke`  | `border-stroke`     | `hsl(0 0% 15%)` — borders             |
 
 ### Brand colours
 
@@ -528,11 +528,11 @@ The one chromatic family in the system. Available as `bg-brand`, `text-brand`, `
 
 | Token                | Value                    | Role                          |
 | -------------------- | ------------------------ | ----------------------------- |
-| `--brand`            | `hsl(210 40% 67%)` ≈ `#89aacc` | Accent, links, dots, hover borders |
-| `--brand-deep`       | `hsl(211 47% 53%)` ≈ `#4e85bf` | Gradient end, pressed states |
-| `--brand-foreground` | `hsl(211 65% 12%)`       | Text/icons on a `--brand` fill |
+| `--brand`            | `hsl(0 72% 51%)` ≈ `#dc2626` | Accent, links, dots, hover borders |
+| `--brand-deep`       | `hsl(350 78% 40%)` ≈ `#b51230` | Gradient end, pressed states |
+| `--brand-foreground` | `hsl(0 0% 100%)` ≈ `#ffffff` | Text/icons on a `--brand` fill |
 
-Gradient: `linear-gradient(90deg, hsl(var(--brand)) 0%, hsl(var(--brand-deep)) 100%)` — also exposed as the `.accent-gradient` class.
+Gradient: `linear-gradient(90deg, hsl(var(--brand)) 0%, hsl(var(--brand-deep)) 100%)` — defined as the `.accent-gradient` class in `apps/web/app/landing.css` (landing-scoped, not part of the package styles).
 
 ### Other token groups
 
