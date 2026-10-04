@@ -34,6 +34,8 @@ desktop module (`drawer.tsx` → `sheet`, `toast.tsx` → `notification`, `file-
 | `packages/desktop/crates/celestia-desktop` | The showcase binary (component gallery window)                                                                                                      |
 | `reference/GetCat/`                        | The design reference the stack and idioms were modeled on                                                                                           |
 | `reference/gpui-kit/`                      | The upstream gpui-kit repo checkout (v0.7.0 `crates/story` examples — usage inspiration only; verify signatures against the installed 0.6.x source) |
+| `reference/zeron/`                         | The Zeron app checkout — source of the ported motion kit, loaders, notice chip and context badges (see below)                                       |
+| `reference/zui/`                           | Zeron's gpui fork checkout (`zeronsh/zui` at the rev zeron pins) — documents the fork-only render primitives that can **not** be ported             |
 
 ## Running it
 
@@ -82,7 +84,8 @@ Each row is a file in `crates/celestia-ui/src/components/`:
 | `calendar.rs`, `date_picker.rs`, `color_picker.rs`, `label.rs`                                                                  | `calendar.tsx`, —, —, `label.tsx`                                                                                                 |
 | `alert.rs`, `toast.rs` (toasts + `WindowExt`), `progress.rs`, `spinner.rs`, `skeleton.rs`, `shimmer.rs`                         | `alert.tsx`, `toast.tsx` / `sonner.tsx`, `progress.tsx`, `spinner.tsx`, `skeleton.tsx`, `ai/shimmer.tsx`                          |
 | `popover.rs`, `dialog.rs`, `sheet.rs`, `menu.rs`, `hover_card.rs`, `tooltip.rs`, `command.rs`                                   | `popover.tsx`, `dialog.tsx`, `drawer.tsx` / `sheet.tsx`, dropdown/context/menubar, `hover-card.tsx`, `tooltip.tsx`, `command.tsx` |
-| `avatar.rs`, `breadcrumb.rs`, `table.rs`, `list.rs`, `tree.rs`, `pagination.rs`, `marker.rs`, `empty.rs`, `description_list.rs` | `avatar.tsx`, `breadcrumb.tsx`, `table.tsx`, `item.tsx`, `ai/file-tree.tsx`, `pagination.tsx`, `marker.tsx`, `empty.tsx`, —       |
+| `avatar.rs`, `breadcrumb.rs`, `list.rs`, `tree.rs`, `pagination.rs`, `marker.rs`, `empty.rs`, `description_list.rs` | `avatar.tsx`, `breadcrumb.tsx`, `item.tsx`, `ai/file-tree.tsx`, `pagination.tsx`, `marker.tsx`, `empty.tsx`, —       |
+| `table.rs` — two APIs: HTML-style primitives (`Table`, `TableHeader`, `TableBody`, `TableRow`, `TableHead`, `TableCell`, `TableCaption`) + `DataTable` entity (declarative columns/rows over the virtualized delegate table, `set_rows`, `from_key_value`) | `table.tsx` (primitives), the `data-table` composite; GetCat `kv_table.rs` inspired the Key/Value constructor |
 | `separator.rs`, `tabs.rs`, `accordion.rs`, `collapsible.rs`, `carousel.rs`, `resizable.rs`, `scroll_area.rs`, `group_box.rs`    | `separator.tsx`, `tabs.tsx`, `accordion.tsx`, `collapsible.tsx`, `carousel.tsx`, `resizable.tsx`, `scroll-area.tsx`, —            |
 | `sidebar.rs`, `sidebar_layout.rs` (shell: `SidebarLayout` + header/nav/item/footer), `dock.rs`, `title_bar.rs`, `status_bar.rs` | `sidebar.tsx` (composite); the layout shell, dock and window chrome are desktop-only |
 | `bubble.rs`, `message.rs`, `attachment.rs`                                                                                      | the web `ai/` family's bubble, chat-message + message-scroller, attachment                                                        |
@@ -92,6 +95,43 @@ Each row is a file in `crates/celestia-ui/src/components/`:
 
 The rest of the web `ai/` family (prompt-input, reasoning, tools, …) has no gpui equivalent yet —
 port on demand as custom builds in `src/components/`.
+
+## Zeron-port primitives
+
+A first family of primitives is ported from the Zeron reference (`reference/zeron`, a GPUI chat
+app). These are celestia-native APIs — colors resolve from `cx.theme()` / `palette(cx)`, never
+from zeron's theme — and all motion runs through one shared module:
+
+- `celestia_ui::motion` — the animation kit: CSS-exact `CubicBezier` curves, a `MotionSpec`
+  catalog (`FADE_IN`, `MENU_IN`, `DIALOG_IN`, `PULSE`, `GRADIENT_SPIN`, …) with entrance helpers
+  (`fade_in`, `menu_in`, `dialog_in`), premultiplied-sRGB `mix`, and the **pulse clock**: a shared
+  ~30fps driver that keeps every mounted loader phase-locked and parks entirely once the last one
+  unmounts (a window with no spinner schedules nothing). Reduced motion (gpui's
+  `reduce_motion` flag) snaps loaders to a static rest brightness and zeroes the wave phases.
+- `components/loaders.rs` — the cell loaders: `pulse_loader` (5-cell opacity/scale wave),
+  `gradient_spinner` (3×3 grid on the `brand → brand_deep` ramp, the pulse travels
+  bottom-edge → top-centre), `mini_spinner` / `mini_mono_spinner` (2×3 radial chase in a
+  self-contained view), and `progress_ring` (stroked-polyline radial percent, works over dimmed
+  imagery with a white tint).
+- `components/notice.rs` — `notice_chip`: the tinted failure card (accent wash + border, alert
+  triangle, copy-to-clipboard button, wrapping message — never truncating stderr), `Plain`
+  (inline) and `Tile` (block) icon treatments, danger/warning palettes.
+- `components/context_badge.rs` — `MessageBadge` pills with `BadgeDetail` rows: a 24px chip that
+  lifts a hover card of location/tag/body rows after a 280ms hover delay. The three slots are
+  generic — the module never learns what the context cites.
+
+The gallery's **Feedback** section renders all of them live.
+
+<Callout type="warn" title="What could not be ported from Zeron">
+  Zeron does not run stock gpui — it builds on its fork `zeronsh/zui` (checked out at
+  `reference/zui`), which adds renderer-level primitives: `BackdropBlur` (frosted glass),
+  per-pixel `EdgeFade` / `Window::with_edge_fade` (scroll-edge fades), transparent-window
+  compositing and image corner-radius masks. gpui-kit's pinned `gpui` (the `gpui-pre` series) has
+  none of these, so zeron's `frost.rs`, `glass.rs` and `edge_fade.rs` stay unported — adopting
+  them would mean replacing the whole gpui-kit-locked stack with the fork. Everything built on
+  the shared core API (div/Styled, `Animation`, `canvas`, element state) ports cleanly, which is
+  the family above.
+</Callout>
 
 ## Theming
 
