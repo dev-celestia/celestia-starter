@@ -27,15 +27,15 @@ desktop module (`drawer.tsx` → `sheet`, `toast.tsx` → `notification`, `file-
 
 ## Where it lives
 
-| Path                                       | What it is                                                                                                                                          |
-| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `packages/desktop`                         | Cargo workspace root (`cargo run -p celestia-desktop` from here)                                                                                    |
-| `packages/desktop/crates/celestia-ui`      | The reusable library — theme, palette, components                                                                                                   |
-| `packages/desktop/crates/celestia-desktop` | The showcase binary (component gallery window)                                                                                                      |
-| `reference/GetCat/`                        | The design reference the stack and idioms were modeled on                                                                                           |
-| `reference/gpui-kit/`                      | The upstream gpui-kit repo checkout (v0.7.0 `crates/story` examples — usage inspiration only; verify signatures against the installed 0.6.x source) |
-| `reference/zeron/`                         | The Zeron app checkout — source of the ported motion kit, loaders, notice chip and context badges (see below)                                       |
-| `reference/zui/`                           | Zeron's gpui fork checkout (`zeronsh/zui` at the rev zeron pins) — documents the fork-only render primitives that can **not** be ported             |
+| Path                               | What it is                                                                                                                                          |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/desktop`                 | Cargo workspace root (`cargo run -p celestia-desktop` from here)                                                                                    |
+| `packages/desktop/crates/ui`       | The reusable library — theme, palette, components                                                                                                   |
+| `packages/desktop/crates/showcase` | The showcase binary (component gallery window)                                                                                                      |
+| `reference/GetCat/`                | The design reference the stack and idioms were modeled on                                                                                           |
+| `reference/gpui-kit/`              | The upstream gpui-kit repo checkout (v0.7.0 `crates/story` examples — usage inspiration only; verify signatures against the installed 0.6.x source) |
+| `reference/zeron/`                 | The Zeron app checkout — source of the ported motion kit, loaders, notice chip and context badges (see below)                                       |
+| `reference/zui/`                   | Zeron's gpui fork checkout (`zeronsh/zui` at the rev zeron pins) — documents the fork-only render primitives that can **not** be ported             |
 
 ## Running it
 
@@ -73,25 +73,26 @@ border, sidebar…) or `palette(cx)` (brand + charts).
 
 ## Component map
 
-Each row is a file in `crates/celestia-ui/src/components/`:
+Each row is a file in `crates/ui/src/components/`:
 
-| File (desktop)                                                                                                                  | Web counterpart                                                                                                                   |
-| ------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `button.rs` (wrapper: `ButtonVariant`, `ButtonSize`)                                                                            | `button.tsx`                                                                                                                      |
-| `badge.rs` (wrapper: `BadgeVariant` incl. `Brand`; `GpuiBadge` for count/dot)                                                   | `badge.tsx`                                                                                                                       |
-| `input.rs`, `textarea.rs`, `input_otp.rs`, `select.rs`, `combobox.rs`                                                           | `input.tsx`, `textarea.tsx`, `input-otp.tsx`, `select.tsx`, combobox composite                                                    |
-| `switch.rs`, `checkbox.rs`, `radio.rs`, `slider.rs`, `rating.rs`, `stepper.rs`                                                  | `switch.tsx`, `checkbox.tsx`, `radio-group.tsx`, `slider.tsx`, —, —                                                               |
-| `calendar.rs`, `date_picker.rs`, `color_picker.rs`, `label.rs`                                                                  | `calendar.tsx`, —, —, `label.tsx`                                                                                                 |
-| `alert.rs`, `toast.rs` (toasts + `WindowExt`), `progress.rs`, `spinner.rs`, `skeleton.rs`, `shimmer.rs`                         | `alert.tsx`, `toast.tsx` / `sonner.tsx`, `progress.tsx`, `spinner.tsx`, `skeleton.tsx`, `ai/shimmer.tsx`                          |
-| `popover.rs`, `dialog.rs`, `sheet.rs`, `menu.rs`, `hover_card.rs`, `tooltip.rs`, `command.rs`                                   | `popover.tsx`, `dialog.tsx`, `drawer.tsx` / `sheet.tsx`, dropdown/context/menubar, `hover-card.tsx`, `tooltip.tsx`, `command.tsx` |
-| `avatar.rs`, `breadcrumb.rs`, `list.rs`, `tree.rs`, `pagination.rs`, `marker.rs`, `empty.rs`, `description_list.rs` | `avatar.tsx`, `breadcrumb.tsx`, `item.tsx`, `ai/file-tree.tsx`, `pagination.tsx`, `marker.tsx`, `empty.tsx`, —       |
-| `table.rs` — two APIs: HTML-style primitives (`Table`, `TableHeader`, `TableBody`, `TableRow`, `TableHead`, `TableCell`, `TableCaption`) + `DataTable` entity (declarative columns/rows over the virtualized delegate table, `set_rows`, `from_key_value`) | `table.tsx` (primitives), the `data-table` composite; GetCat `kv_table.rs` inspired the Key/Value constructor |
-| `separator.rs`, `tabs.rs`, `accordion.rs`, `collapsible.rs`, `carousel.rs`, `resizable.rs`, `scroll_area.rs`, `group_box.rs`    | `separator.tsx`, `tabs.tsx`, `accordion.tsx`, `collapsible.tsx`, `carousel.tsx`, `resizable.tsx`, `scroll-area.tsx`, —            |
-| `sidebar.rs`, `sidebar_layout.rs` (shell: `SidebarLayout` + header/nav/item/footer), `dock.rs`, `title_bar.rs`, `status_bar.rs` | `sidebar.tsx` (composite); the layout shell, dock and window chrome are desktop-only |
-| `bubble.rs`, `message.rs`, `attachment.rs`                                                                                      | the web `ai/` family's bubble, chat-message + message-scroller, attachment                                                        |
-| `charts.rs` (`chart`, `plot` — generic API, series colors from `palette(cx).chart(i)`)                                          | `chart.tsx` + the `chart-*.tsx` composites                                                                                        |
-| `swiftui.rs` (SwiftUI-style layout: `HStack`/`VStack`/`ZStack` with alignment + spacing, `Spacer`, axis `ScrollView`, `VGrid` + `GridItem`, `Frame`) | SwiftUI's layout vocabulary — no web counterpart; gallery has a dedicated section                         |
-| `card.rs`, `section_heading.rs`, `text_editor.rs`, `code_editor.rs` (wrappers / celestia-only)                                  | web `Card` / `SectionHeading` idiom; `text-editor.tsx` / `block-text-editor`                                                      |
+| File (desktop)                                                                                                                                                                                                                                             | Web counterpart                                                                                                                   |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `button.rs` (wrapper: `ButtonVariant`, `ButtonSize`)                                                                                                                                                                                                       | `button.tsx`                                                                                                                      |
+| `badge.rs` (wrapper: `BadgeVariant` incl. `Brand`; `GpuiBadge` for count/dot)                                                                                                                                                                              | `badge.tsx`                                                                                                                       |
+| `input.rs`, `textarea.rs`, `input_otp.rs`, `select.rs`, `combobox.rs`                                                                                                                                                                                      | `input.tsx`, `textarea.tsx`, `input-otp.tsx`, `select.tsx`, combobox composite                                                    |
+| `switch.rs`, `checkbox.rs`, `radio.rs`, `slider.rs`, `rating.rs`, `stepper.rs`                                                                                                                                                                             | `switch.tsx`, `checkbox.tsx`, `radio-group.tsx`, `slider.tsx`, —, —                                                               |
+| `calendar.rs`, `date_picker.rs`, `color_picker.rs`, `label.rs`                                                                                                                                                                                             | `calendar.tsx`, —, —, `label.tsx`                                                                                                 |
+| `alert.rs`, `toast.rs` (toasts + `WindowExt`), `progress.rs`, `spinner.rs`, `skeleton.rs`, `shimmer.rs`                                                                                                                                                    | `alert.tsx`, `toast.tsx` / `sonner.tsx`, `progress.tsx`, `spinner.tsx`, `skeleton.tsx`, `ai/shimmer.tsx`                          |
+| `popover.rs`, `dialog.rs`, `sheet.rs`, `menu.rs`, `hover_card.rs`, `tooltip.rs`, `command.rs`                                                                                                                                                              | `popover.tsx`, `dialog.tsx`, `drawer.tsx` / `sheet.tsx`, dropdown/context/menubar, `hover-card.tsx`, `tooltip.tsx`, `command.tsx` |
+| `avatar.rs`, `breadcrumb.rs`, `list.rs`, `tree.rs`, `pagination.rs`, `marker.rs`, `empty.rs`, `description_list.rs`                                                                                                                                        | `avatar.tsx`, `breadcrumb.tsx`, `item.tsx`, `ai/file-tree.tsx`, `pagination.tsx`, `marker.tsx`, `empty.tsx`, —                    |
+| `table.rs` — two APIs: HTML-style primitives (`Table`, `TableHeader`, `TableBody`, `TableRow`, `TableHead`, `TableCell`, `TableCaption`) + `DataTable` entity (declarative columns/rows over the virtualized delegate table, `set_rows`, `from_key_value`) | `table.tsx` (primitives), the `data-table` composite; GetCat `kv_table.rs` inspired the Key/Value constructor                     |
+| `separator.rs`, `tabs.rs`, `accordion.rs`, `collapsible.rs`, `carousel.rs`, `resizable.rs`, `scroll_area.rs`, `group_box.rs`                                                                                                                               | `separator.tsx`, `tabs.tsx`, `accordion.tsx`, `collapsible.tsx`, `carousel.tsx`, `resizable.tsx`, `scroll-area.tsx`, —            |
+| `sidebar.rs`, `sidebar_layout.rs` (shell: `SidebarLayout` + header/nav/item/footer), `dock.rs`, `title_bar.rs`, `status_bar.rs`                                                                                                                            | `sidebar.tsx` (composite); the layout shell, dock and window chrome are desktop-only                                              |
+| `bubble.rs`, `message.rs`, `attachment.rs`                                                                                                                                                                                                                 | the web `ai/` family's bubble, chat-message + message-scroller, attachment                                                        |
+| `charts.rs` (`chart`, `plot` — generic API, series colors from `palette(cx).chart(i)`)                                                                                                                                                                     | `chart.tsx` + the `chart-*.tsx` composites                                                                                        |
+| `swiftui.rs` (SwiftUI-style layout: `HStack`/`VStack`/`ZStack` with alignment + spacing, `Spacer`, axis `ScrollView`, `VGrid` + `GridItem`, `Frame`)                                                                                                       | SwiftUI's layout vocabulary — no web counterpart; gallery has a dedicated section                                                 |
+| `icon.rs` (Phosphor icons: `PhosphorIcon` catalog + `Phosphor` weight wrapper)                                                                                                                                                                             | `lucide-react` on web; desktop uses Phosphor Core (no web counterpart)                                                            |
+| `card.rs`, `section_heading.rs`, `text_editor.rs`, `code_editor.rs` (wrappers / celestia-only)                                                                                                                                                             | web `Card` / `SectionHeading` idiom; `text-editor.tsx` / `block-text-editor`                                                      |
 
 The rest of the web `ai/` family (prompt-input, reasoning, tools, …) has no gpui equivalent yet —
 port on demand as custom builds in `src/components/`.
@@ -123,19 +124,65 @@ from zeron's theme — and all motion runs through one shared module:
 The gallery's **Feedback** section renders all of them live.
 
 <Callout type="warn" title="What could not be ported from Zeron">
-  Zeron does not run stock gpui — it builds on its fork `zeronsh/zui` (checked out at
-  `reference/zui`), which adds renderer-level primitives: `BackdropBlur` (frosted glass),
-  per-pixel `EdgeFade` / `Window::with_edge_fade` (scroll-edge fades), transparent-window
-  compositing and image corner-radius masks. gpui-kit's pinned `gpui` (the `gpui-pre` series) has
-  none of these, so zeron's `frost.rs`, `glass.rs` and `edge_fade.rs` stay unported — adopting
-  them would mean replacing the whole gpui-kit-locked stack with the fork. Everything built on
-  the shared core API (div/Styled, `Animation`, `canvas`, element state) ports cleanly, which is
-  the family above.
+  Zeron does not run stock gpui — it builds on its fork `zeronsh/zui` (checked
+  out at `reference/zui`), which adds renderer-level primitives: `BackdropBlur`
+  (frosted glass), per-pixel `EdgeFade` / `Window::with_edge_fade` (scroll-edge
+  fades), transparent-window compositing and image corner-radius masks.
+  gpui-kit's pinned `gpui` (the `gpui-pre` series) has none of these, so zeron's
+  `frost.rs`, `glass.rs` and `edge_fade.rs` stay unported — adopting them would
+  mean replacing the whole gpui-kit-locked stack with the fork. Everything built
+  on the shared core API (div/Styled, `Animation`, `canvas`, element state)
+  ports cleanly, which is the family above.
 </Callout>
+
+## Icons — Phosphor
+
+`crates/ui/src/components/icon.rs` ships the **Phosphor** icon set (Phosphor Core 2.1.1, MIT —
+license vendored at `assets/phosphor/LICENSE-PHOSPHOR`). The upstream
+[`gpui-phosphor`](https://docs.rs/gpui-phosphor) crate can't be used directly — it targets the
+`gpui` 0.2 lineage and can't link against gpui-kit's `gpui-pre` types — so the approach is ported
+onto this stack instead:
+
+- **SVGs** — 1,512 glyphs × 3 weights (`regular`, `bold`, `fill`) vendored under
+  `crates/ui/assets/phosphor/<weight>/<name>.svg`. Duotone is skipped: GPUI's SVG renderer paints
+  every path with one color, so duotone would render as solid.
+- **`PhosphorIcon`** — a typed catalog enum generated by `crates/ui/build.rs` at compile time
+  (`PhosphorIcon::Heart`, `PhosphorIcon::PaperPlaneTilt`, …, plus `ALL` / `COUNT` / `name()`).
+  It implements gpui-kit's `IconNamed`, so it plugs straight into gpui-kit's `Icon` at the
+  regular weight — `Icon::new(PhosphorIcon::Heart)` — and bare `.child(PhosphorIcon::Heart)`
+  renders at the surrounding text style.
+- **`Phosphor`** — the weight-aware wrapper (the counterpart of gpui-phosphor's `Icon` builder):
+  `Phosphor::new(PhosphorIcon::Heart).weight(PhosphorWeight::Fill).size(px(20.)).color(…)`.
+  Size and color default to the surrounding text style. The weight is just the asset-path prefix
+  (`phosphor/<weight>/<name>.svg`), so every enum variant exists at every embedded weight.
+
+```bash
+cargo test --workspace   # asset-source tests: every glyph resolves at every weight
+```
+
+### Asset source registration (required)
+
+gpui takes a **single asset source at startup**. Register the composite from
+`celestia_ui::assets` in `main` — Phosphor paths resolve first, gpui-kit's default Lucide bundle
+falls through second:
+
+```rust
+use celestia_ui::assets::CelestiaAssets;
+
+gpui_kit::platform::application()
+    .with_assets(CelestiaAssets)          // phosphor/… + icons/…
+    .run(|cx| { /* … */ });
+```
+
+Without a registered source gpui's fallback serves nothing and **every icon renders blank
+silently** — the showcase previously hit exactly that for its Lucide icons, and
+`CelestiaAssets` fixes it. The gallery's **Phosphor Icons** section
+(`crates/showcase/src/sections/icons.rs`) renders the full catalog with live search, a
+Regular/Bold/Fill weight switcher, and click-to-copy `PhosphorIcon::…` names.
 
 ## Theming
 
-`crates/celestia-ui/src/theme.json` is the sRGB-hex port of
+`crates/ui/src/theme.json` is the sRGB-hex port of
 `packages/ui/src/styles/globals.css` — the web CSS file stays the single source of truth, and the
 JSON is re-derived from it when tokens change (grays via OKLab → linear sRGB = L³, chromatic
 tokens through full OKLab → sRGB with gamut clamping, alpha tokens as 8-digit hex). `init()` loads
@@ -149,14 +196,145 @@ Beyond the semantic roles, `palette(cx)` carries the mode-independent product co
 `#dc2626`, `brand_deep` `#b51230`, `brand_foreground` and the grayscale chart ramp — mirroring the
 web where these live once on `:root`.
 
+### Global theme config
+
+`theme.json` is the compiled-in default; the runtime knob over it is
+**`celestia_ui::theme::AppTheme`** (`crates/ui/src/theme/config.rs`) — the desktop counterpart of
+the shadcn `:root` / `.dark` blocks in `globals.css`. One config controls the whole library's
+colors and radius, and every component picks it up because they already read `cx.theme()`:
+
+```rust
+use celestia_ui::theme::{hex, AppTheme, Scheme};
+use gpui_kit::px;
+
+let config = AppTheme {
+    radius: px(10.),
+    light: Scheme {
+        primary: Some(hex(0x2563eb)),
+        ..Default::default()
+    },
+    dark: Scheme {
+        primary: Some(hex(0x6aa5ff)),
+        ..Default::default()
+    },
+};
+
+// Re-themes the whole window on the next frame, and survives later
+// Theme::change / system-appearance switches.
+config.apply(cx);
+```
+
+The semantics mirror shadcn's variable layer:
+
+- **Overlay, not replacement.** Every `Scheme` field is optional; `None` (the default) keeps the
+  Celestia value from `theme.json`, so `AppTheme::default().apply(cx)` is a re-assert, not a
+  change. Colors are written as `hex(0xrrggbb)` — the config's unit, like a CSS variable value.
+- **One token drives every key it owns.** Setting `primary` re-colors the primary fills and their
+  derived hover/active steps, `button.primary.*`, `ring`, `caret`, `link.*`, the slider/progress
+  fills, `drag.border`, the list/table active borders, the 22% `selection` wash and the
+  primary-tinted surfaces (`list/tab/table.active`, `drop_target`, at 10% over the background) —
+  the same fan-out `theme.json` encodes by hand. The full shadcn set is covered, per mode:
+  `background`, `foreground`, `surface` (the `#fafafa` chrome family — title bar, status bar, tab
+  bar, group boxes, striped rows), `popover`, `primary`, `secondary`, `muted`, `accent`, the four
+  status accents (`destructive`/`success`/`warning`/`info`, each with a foreground), `border`,
+  `input`, `ring` and the `sidebar` family.
+- **One radius.** `radius` maps to shadcn's `--radius`; the large-element radius (`radius_lg` —
+  dialogs, notifications) derives as `radius + 4px`, the shadcn `--radius-xl` step.
+- **Mode-safe.** `apply` overlays the active family and re-applies the current mode, so toggling
+  light/dark (`Theme::change`, `sync_system_appearance`) keeps using the configured palettes.
+
+### Multi-theme families
+
+Light, dark and **custom themes** ride the same token vocabulary. A theme *family* is a named
+light + dark pair; `install()` seeds the `Celestia` family from `theme.json` and
+`crates/ui/src/theme/book.rs` keeps the registry of families plus the active one:
+
+```rust
+use celestia_ui::theme::{active, families, hex, select, AppTheme, Scheme};
+use gpui_kit::px;
+
+// Register a custom family (named light+dark pair over the Celestia base)
+// and activate it:
+AppTheme {
+    radius: px(8.),
+    dark: Scheme {
+        background: Some(hex(0x0b1120)),
+        primary: Some(hex(0x38bdf8)),
+        ..Default::default()
+    },
+    ..Default::default()
+}
+.register("Nocturne", cx);
+
+select("Celestia", cx); // switch back — the mode (light/dark) is preserved
+families(cx);           // ["Celestia", "Nocturne"]
+active(cx);             // "Celestia"
+```
+
+The mechanics, all on top of gpui-kit's `Theme` / `ThemeColor` / `ActiveTheme` (re-exported at
+`celestia_ui::theme` so apps reach the whole story in one place):
+
+- **Families are semantic-token overlays, not style forks.** `register` derives the pair from the
+  Celestia base with the same fan-out as `apply`, names the configs `"<Family> Light/Dark"` and
+  activates them. Re-registering a name replaces that family.
+- **`apply` is family-aware.** It overlays whichever family is active and stores the result on it,
+  so token tweaks survive switching away and back.
+- **The book, not the registry.** Families live in a private global because gpui-kit's
+  `ThemeRegistry` has no public replace; its change observer skips names it does not know, so
+  custom themes are untouched by registry churn.
+- **Mode toggles stay inside the family.** `Theme::change` / system-appearance sync keep operating
+  on the active pair; ⌘D in the showcase flips light/dark within it.
+
+Pinned behavior lives in the `config.rs` tests (default apply is a no-op, the radius derivation,
+per-mode primary/destructive overrides and their fan-out) and the `book.rs` tests (register /
+select / apply interplay). The showcase's **Theming & Config** section
+(`crates/showcase/src/sections/theming.rs`) switches families, registers a `Nocturne` custom
+theme, and swaps radius presets and accent palettes live.
+
+The mode-independent colors (`brand`, `brand_deep`, `brand_foreground`, the chart ramp) stay in
+`palette.rs` — like the web `:root`, they are defined once and never re-themed.
+
+## State management
+
+`crates/ui/src/state/` is the desktop counterpart of the web app's zustand stores and React
+contexts, built on GPUI's entity model (an entity re-renders when it calls `cx.notify()`). Two
+layers:
+
+- **`Store` / `StoreHandle`** — the zustand layer. `StoreHandle::new(state, cx)` creates a store
+  entity; `read(cx)` is `getState()`, `set(cx, …)` / `update(cx, …)` are `setState()` and notify
+  every observer, `replace(cx, state)` swaps the whole value, and `set_if_changed` skips the
+  notification when the state compares equal afterwards. Actions are plain `&mut self` methods on
+  the state type, passed as the closure: `store.set(cx, AppState::close_tab)`.
+- **`StoreContext<T>`** — the React-context layer. `StoreContext::<T>::provide(state, cx)` registers
+  an ambient, store-backed value once at bootstrap; any code later calls
+  `StoreContext::<T>::require(cx)` (or `consume`) and gets the full read/write handle with no prop
+  drilling. There is one ambient value per state type per app — for multiple live instances of the
+  same type, skip the ambient layer and hand out `StoreHandle`s explicitly.
+
+The re-render gate is `observe_slice`: bind an entity to a selector over the state, and its callback
+(where you call `cx.notify()`) only runs when that slice's value actually changes — the
+`useStore(selector)` equivalent. `subscribe` is the unfiltered variant for side effects
+(persistence, logging). Like GPUI's own observers, callbacks run once per update batch with that
+batch's final state, not once per `set` call.
+
+The showcase's **State & Stores** section (`crates/showcase/src/sections/state.rs`) renders this
+live: a `GalleryState` store with per-slice notification counters, and a `Session` ambient context
+provided in `main.rs`. The layer is unit-tested with `#[gpui_kit::test]` tests inside
+`crates/ui/src/state/`.
+
+Full usage guide — defining stores, actions, gating, contexts, testing, and the live demo — at
+[Desktop State](/docs/desktop-state).
+
 ## Building a desktop app on it
 
-Depend on the crate (`celestia-ui = { path = "…/crates/celestia-ui" }` + `gpui-kit = "0.6.1"`),
-call `celestia_ui::init(cx)` inside `application().run(...)` before opening any window, and wrap
+Depend on the crate (`celestia-ui = { path = "…/crates/ui" }` + `gpui-kit = "0.6.1"`), register
+the asset source with `.with_assets(celestia_ui::assets::CelestiaAssets)` (see
+[Icons — Phosphor](#icons--phosphor) — without it icons render blank), call
+`celestia_ui::init(cx)` inside `application().run(...)` before opening any window, and wrap
 your root view in a gpui-kit `Root`. Mount the Dialog/Sheet/Notification layers in your root
 view's render (`Root::render_dialog_layer` / `render_sheet_layer` / `render_notification_layer`) —
 `Root::render` does not draw them, and `WindowExt` (`open_dialog`, `open_sheet`,
 `push_notification`) targets nothing until they are mounted. The showcase's
-`crates/celestia-desktop/src/main.rs` is the full reference bootstrap: window options,
+`crates/showcase/src/main.rs` is the full reference bootstrap: window options,
 keybindings, stateful entities (`InputState`, `SelectState`), the mounted layers and
 builder-style component usage across every primitive.

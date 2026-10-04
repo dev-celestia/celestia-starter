@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import {
   ArrowRightIcon,
+  BookOpenIcon,
   CheckCircleIcon,
   DesktopIcon,
   InfoIcon,
@@ -147,6 +148,12 @@ const FAMILIES = [
     web: "alert.tsx, toast.tsx / sonner.tsx, progress.tsx, spinner.tsx, skeleton.tsx, tooltip.tsx",
   },
   {
+    id: "motion",
+    name: "motion (zeron port)",
+    modules: "motion.rs · loaders.rs · notice.rs · context_badge.rs",
+    web: "— desktop-only; ported from the reference/zeron GPUI app (see the usage guide)",
+  },
+  {
     id: "overlays",
     name: "overlays",
     modules: "popover.rs · dialog.rs · sheet.rs · hover_card.rs",
@@ -198,6 +205,25 @@ const SWATCHES = [
   { label: "chart-5", css: "var(--chart-5)" },
 ] as const
 
+const THEMING_NOTES = [
+  {
+    title: "Overlay, not replacement",
+    body: "Every Scheme field is optional — None keeps the theme.json value, so AppTheme::default().apply(cx) is a re-assert of the compiled-in theme, not a change. Colors are hex(0xrrggbb) values, the config's unit, like a CSS variable value.",
+  },
+  {
+    title: "One token drives its whole fan-out",
+    body: "Setting primary re-colors the fills, their derived hover/active steps, ring, caret, links, the 22% selection wash and the primary-tinted surfaces — the same fan-out theme.json encodes by hand. The full shadcn set is covered per mode, plus a surface token for the chrome family.",
+  },
+  {
+    title: "One radius knob",
+    body: "radius maps to shadcn's --radius and lands on theme.radius everywhere; the large-element radius (dialogs, notifications) derives as radius + 4px — the shadcn --radius-xl step.",
+  },
+  {
+    title: "Light, dark and custom families",
+    body: "register adds a named light+dark pair built from tokens and activates it; select switches between families with the mode preserved; apply overlays whichever family is active and stores the tweak on it, so it survives switching away and back.",
+  },
+] as const
+
 /* -------------------------------------------------------------------------- */
 /* Sections                                                                    */
 /* -------------------------------------------------------------------------- */
@@ -206,7 +232,7 @@ function Hero() {
   const stats = [
     { label: "gpui modules surfaced", value: "~60" },
     { label: "primitive files", value: "40+" },
-    { label: "themes (light/dark)", value: "2" },
+    { label: "theme families", value: "2 + custom" },
     { label: "crates", value: "2" },
   ]
 
@@ -275,6 +301,10 @@ function Hero() {
         <Button render={<Link href={DOCS_HREF} />}>
           Read the docs
           <ArrowRightIcon className="size-3.5" />
+        </Button>
+        <Button variant="outline" render={<Link href="#usage" />}>
+          <BookOpenIcon className="size-3.5" />
+          Usage guide
         </Button>
         <Button variant="outline" render={<Link href="#run" />}>
           <DesktopIcon className="size-3.5" />
@@ -348,7 +378,9 @@ function Overview() {
             file stays authoritative. Raw hex lives only in{" "}
             <code className="font-mono text-2xs">theme.json</code> and{" "}
             <code className="font-mono text-2xs">palette.rs</code>; tests pin
-            the values so a stale re-port fails CI.
+            the values so a stale re-port fails CI. At runtime,{" "}
+            <code className="font-mono text-2xs">AppTheme</code> overlays the
+            same tokens — see the theming sections below.
           </AlertDescription>
         </Alert>
       </div>
@@ -363,7 +395,7 @@ function Run() {
         id="run"
         eyebrow="Get started"
         title="Run the gallery"
-        description="The showcase binary renders one Card section per family through the same re-export layer an app would use — buttons and badges, inputs and selection, alerts and toasts, a live popover/dialog/sheet, an accordion, date/color/number pickers, and both text editors (markdown toolbar + tree-sitter code mode). ⌘D / Ctrl+D toggles light/dark."
+        description="The showcase binary renders one Card section per family through the same re-export layer an app would use — buttons and badges, inputs and selection, alerts and toasts, a live popover/dialog/sheet, an accordion, date/color/number pickers, both text editors (markdown toolbar + tree-sitter code mode), and a live theming section: radius presets, accent swaps and custom theme families. ⌘D / Ctrl+D toggles light/dark."
       />
 
       <div className="grid gap-3 lg:grid-cols-2">
@@ -460,6 +492,258 @@ function Families() {
   )
 }
 
+function Usage() {
+  return (
+    <section className="flex flex-col gap-4">
+      <SectionHeader
+        id="usage"
+        eyebrow="Guide"
+        title="Using the components in a project"
+        description="From an empty Rust binary to a themed window rendering Celestia components. Every snippet below compiles against the current crates — the library lives at packages/desktop/crates/ui, the package name is celestia-ui."
+      />
+
+      <UsageStep
+        n={1}
+        title="Depend on the crate"
+        body="gpui-kit is the only transitive UI dependency — its version pins the matching gpui and gpui-component. Don't add gpui crates directly."
+      />
+      <Command
+        code={`# a crate inside packages/desktop — inherit the workspace entry
+[dependencies]
+celestia-ui = { workspace = true }
+
+# an app outside the workspace — point at the library crate
+[dependencies]
+celestia-ui = { path = "../packages/desktop/crates/celestia-ui" }`}
+        label="toml — your Cargo.toml"
+      />
+
+      <UsageStep
+        n={2}
+        title="Initialize once, before any window"
+        body="celestia_ui::init installs the gpui-kit runtime and the Celestia light/dark palettes; Theme::change and system-appearance sync keep using them afterwards. The full window-opening bootstrap is in the last section of this page."
+      />
+      <Command
+        code={`use gpui_kit::App;
+
+fn main() {
+    gpui_kit::platform::application().run(|cx: &mut App| {
+        celestia_ui::init(cx); // runtime + Celestia light/dark themes
+        // open windows — see "Bootstrap" below
+    });
+}`}
+        label="rust — main.rs"
+      />
+
+      <UsageStep
+        n={3}
+        title="Compose views from the components"
+        body="Everything hangs off celestia_ui::components, with module paths mirroring the web files (components::badge ↔ badge.tsx). Stateless primitives are plain values; stateful ones are entities you create in the view constructor and render by reference."
+      />
+      <Command
+        code={`use celestia_ui::components::badge::{Badge, BadgeVariant};
+use celestia_ui::components::button::{Button, ButtonVariant};
+use celestia_ui::components::input::{Input, InputState};
+use celestia_ui::components::Card;
+use gpui_kit::{Entity, Window};
+use gpui_kit::component::{h_flex, v_flex};
+use gpui_kit::prelude::*;
+
+struct InviteView {
+    email: Entity<InputState>,
+}
+
+impl InviteView {
+    pub fn new(window: &mut Window, cx: &mut Context<Self>) -> Self {
+        Self {
+            // Stateful primitives are entities: create them in the
+            // constructor, render them by reference below.
+            email: cx.new(|cx| {
+                InputState::new(window, cx).placeholder("name@company.com")
+            }),
+        }
+    }
+}
+
+impl Render for InviteView {
+    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        v_flex().gap_3().child(
+            Card::new()
+                .title("Invite your team")
+                .description("Teammates get a magic link by email.")
+                .child(Input::new(&self.email).cleanable(true))
+                .child(
+                    h_flex()
+                        .gap_2()
+                        .items_center()
+                        .child(Badge::new("Beta").variant(BadgeVariant::Brand))
+                        .child(
+                            Button::new("send")
+                                .label("Send invite")
+                                .variant(ButtonVariant::Primary)
+                                .on_click(|_, _, _| {
+                                    // handle it — event/window/cx come in here
+                                }),
+                        )
+                        .child(
+                            Button::new("later")
+                                .label("Later")
+                                .variant(ButtonVariant::Ghost),
+                        ),
+                ),
+        )
+    }
+}`}
+        label="rust — one view, wrapper variants, a stateful input"
+      />
+
+      <UsageStep
+        n={4}
+        title="Take colors from roles, never hex"
+        body="cx.theme() resolves the semantic roles (background, muted, border, danger…) that flip with light/dark; palette(cx) carries the mode-independent product colors (brand, brand_deep, chart). The one rule of the package: no hex literals at a call site."
+      />
+      <Command
+        code={`use gpui_kit::component::ActiveTheme;
+use gpui_kit::{div, px};
+
+let theme = cx.theme();
+let row = div()
+    .flex()
+    .gap_2()
+    .rounded(px(8.0))
+    .bg(theme.muted)                       // semantic role — flips in dark mode
+    .border_1()
+    .border_color(theme.border)
+    .text_color(theme.muted_foreground);
+
+let wash = celestia_ui::palette(cx).brand().opacity(0.08); // product color, mode-independent`}
+        label="rust — theme roles + product palette"
+      />
+
+      <UsageStep
+        n={5}
+        title="Animate with the motion kit"
+        body="The zeron-port family adds a motion catalog, cell loaders, the notice chip and context badges (desktop-only — no web counterpart). All loaders share one pulse clock: mount as many as you like, and a window with none scheduled draws nothing."
+      />
+      <Command
+        code={`use celestia_ui::components::context_badge::{BadgeDetail, MessageBadge, context_badge};
+use celestia_ui::components::loaders::{gradient_spinner, progress_ring, pulse_loader};
+use celestia_ui::components::notice::{NoticeChipIcon, notice_chip};
+use celestia_ui::motion;
+
+// entrances — gpui Animations, snapped automatically under reduced motion
+motion::fade_in("invite-enter", my_card)
+
+// loaders — pass your view's id so the pulse clock can invalidate it
+pulse_loader(8.0, cx.entity_id(), cx)
+gradient_spinner(6.0, cx.entity_id(), cx)
+progress_ring(65, 40.0, cx.theme().foreground)
+
+// failure notice — tinted card, copy button, wrapping message
+notice_chip(false, "Build failed", "cargo build exited with 101", NoticeChipIcon::Tile, cx)
+
+// context pill — hovers into a card of location/tag/body rows
+context_badge(
+    "ctx-comments",
+    &MessageBadge {
+        icon: gpui_kit::assets::IconName::FileCode,
+        label: "2 comments".into(),
+        details: vec![BadgeDetail {
+            location: "src/main.rs:42".into(),
+            tag: Some("R".into()),
+            body: "early-return here".into(),
+        }],
+    },
+    cx,
+)`}
+        label="rust — motion.rs + the zeron-port primitives"
+      />
+
+      <UsageStep
+        n={6}
+        title="Build your own primitive"
+        body="Custom components are RenderOnce structs with #[derive(IntoElement)] — resolve theme colors inside render, not in the constructor, so light/dark switches apply on the next frame."
+      />
+      <Command
+        code={`use gpui_kit::component::ActiveTheme;
+use gpui_kit::{App, IntoElement, RenderOnce, SharedString, Window, div, px};
+
+#[derive(IntoElement)]
+pub struct Pill {
+    label: SharedString,
+}
+
+impl RenderOnce for Pill {
+    fn render(self, _window: &mut Window, cx: &mut App) -> impl IntoElement {
+        let theme = cx.theme();
+        div()
+            .px(px(6.0))
+            .rounded(px(4.0))
+            .bg(theme.muted)
+            .border_1()
+            .border_color(theme.border)
+            .text_color(theme.muted_foreground)
+            .child(self.label)
+    }
+}`}
+        label="rust — a minimal custom primitive"
+      />
+
+      <Alert className={cn(CALLOUT, CALLOUT_SURFACE.tip)}>
+        <CheckCircleIcon
+          className={cn("mt-0.5 size-4 shrink-0", CALLOUT_ICON.tip)}
+          weight="duotone"
+        />
+        <AlertTitle className="text-xs font-semibold text-foreground">
+          Rules of thumb
+        </AlertTitle>
+        <AlertDescription className="text-xs leading-relaxed text-muted-foreground">
+          Colors by role only —{" "}
+          <code className="font-mono text-2xs">cx.theme()</code> for semantic
+          roles, <code className="font-mono text-2xs">palette(cx)</code> for
+          brand/charts. Stateful primitives are entities — construct the state
+          in the view constructor, pass{" "}
+          <code className="font-mono text-2xs">&amp;state</code> at render.
+          Mount the dialog/sheet/notification layers in your root render or{" "}
+          <code className="font-mono text-2xs">push_notification</code> and{" "}
+          <code className="font-mono text-2xs">open_dialog</code> do nothing.
+          Re-theme at runtime through{" "}
+          <code className="font-mono text-2xs">AppTheme</code> — one config,{" "}
+          <code className="font-mono text-2xs">apply(cx)</code>, named families
+          via <code className="font-mono text-2xs">register</code> — never
+          per-component style forks. And keep the gallery open:{" "}
+          <code className="font-mono text-2xs">crates/showcase</code> renders
+          every primitive through the same re-export layer your app uses.
+        </AlertDescription>
+      </Alert>
+    </section>
+  )
+}
+
+function UsageStep({
+  n,
+  title,
+  body,
+}: {
+  n: number
+  title: string
+  body: string
+}) {
+  return (
+    <div className="flex flex-col gap-1.5 pt-2">
+      <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
+        <span className="inline-flex size-5 items-center justify-center rounded-md border border-border bg-muted/60 font-mono text-3xs tabular-nums">
+          {n}
+        </span>
+        {title}
+      </h3>
+      <p className="max-w-2xl text-xs leading-relaxed text-muted-foreground">
+        {body}
+      </p>
+    </div>
+  )
+}
+
 function Tokens() {
   return (
     <section className="flex flex-col gap-4">
@@ -467,9 +751,8 @@ function Tokens() {
         id="tokens"
         eyebrow="Theming"
         title="The same tokens, compiled in"
-        description="celestia_ui::init installs the light/dark palettes and replaces gpui-kit's defaults — Theme::change and system-appearance sync keep using them. The swatches below are the live web tokens; the native gallery renders the same roles from the ported theme."
+        description="celestia_ui::init installs the light/dark palettes and replaces gpui-kit's defaults — Theme::change and system-appearance sync keep using them. The swatches below are the live web tokens; the native gallery renders the same roles from the ported theme. The runtime layer over it is the next section."
       />
-
       <Card className={cn(PANEL_XL, "gap-3")}>
         <CardContent className="flex flex-wrap gap-3">
           {SWATCHES.map((swatch) => (
@@ -502,6 +785,89 @@ function Tokens() {
   )
 }
 
+function Theming() {
+  return (
+    <section className="flex flex-col gap-4">
+      <SectionHeader
+        id="theming"
+        eyebrow="Theming"
+        title="One config drives the theme at runtime"
+        description="AppTheme is the desktop counterpart of the shadcn :root / .dark blocks in globals.css — semantic tokens and one radius, with overlay semantics over the compiled-in theme. Nothing per-component changes: every primitive already reads cx.theme(), so applying a config re-themes the whole window on the next frame."
+      />
+
+      <Command
+        code={`use celestia_ui::theme::{hex, AppTheme, Scheme};
+use gpui_kit::px;
+
+let config = AppTheme {
+    radius: px(10.),                    // one knob — radius_lg derives +4px
+    light: Scheme {
+        primary: Some(hex(0x2563eb)),   // None = keep the theme.json value
+        ..Default::default()
+    },
+    dark: Scheme {
+        primary: Some(hex(0x6aa5ff)),
+        ..Default::default()
+    },
+};
+
+// Re-themes every window on the next frame — and survives later
+// Theme::change / system-appearance switches.
+config.apply(cx);`}
+        label="rust — celestia_ui::theme::AppTheme, the runtime globals.css equivalent"
+      />
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        {THEMING_NOTES.map((note) => (
+          <Card key={note.title} className={cn(PANEL_XL, "gap-2")}>
+            <CardContent className="flex flex-col gap-2">
+              <p className="text-xs font-semibold text-foreground">
+                {note.title}
+              </p>
+              <p className="text-2xs leading-relaxed text-muted-foreground">
+                {note.body}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <Command
+        code={`use celestia_ui::theme::{active, families, select, AppTheme, Scheme, hex};
+
+// Register a named light+dark family from tokens — and activate it:
+AppTheme {
+    dark: Scheme {
+        background: Some(hex(0x0b1120)),
+        primary: Some(hex(0x38bdf8)),
+        ..Default::default()
+    },
+    ..Default::default()
+}
+.register("Nocturne", cx);
+
+select("Celestia", cx);  // switch back — light/dark mode is preserved
+families(cx);            // ["Celestia", "Nocturne"]
+active(cx);              // "Celestia"`}
+        label="rust — light, dark and custom themes (theme/book.rs)"
+      />
+
+      <p className="max-w-2xl text-xs leading-relaxed text-muted-foreground">
+        The gpui-kit theming surface is re-exported at{" "}
+        <code className="font-mono text-2xs">celestia_ui::theme</code> —{" "}
+        <code className="font-mono text-2xs">Theme</code>,{" "}
+        <code className="font-mono text-2xs">ThemeColor</code> and{" "}
+        <code className="font-mono text-2xs">ActiveTheme</code> — so apps reach
+        the whole story from one import. Brand and the chart ramp stay
+        mode-independent in{" "}
+        <code className="font-mono text-2xs">palette(cx)</code>; the showcase&rsquo;s{" "}
+        <strong className="font-medium text-foreground">Theming &amp; Config</strong>{" "}
+        section drives all of this live.
+      </p>
+    </section>
+  )
+}
+
 function Bootstrap() {
   return (
     <section className="flex flex-col gap-4">
@@ -520,7 +886,7 @@ function Bootstrap() {
     })?;
     cx.activate(true);
 });`}
-        label="rust — the full reference bootstrap lives in crates/celestia-desktop/src/main.rs"
+        label="rust — the full reference bootstrap lives in crates/showcase/src/main.rs"
       />
       <Command
         code={`// inside MyApp::render — dialogs, sheets and toasts are invisible until
@@ -567,7 +933,9 @@ export function DesktopPageContent() {
         <Overview />
         <Run />
         <Families />
+        <Usage />
         <Tokens />
+        <Theming />
         <Bootstrap />
       </div>
     </main>

@@ -19,6 +19,7 @@ pub mod badge;
 pub mod button;
 pub mod card;
 pub mod code_editor;
+pub mod icon;
 pub mod section_heading;
 pub mod text_editor;
 
@@ -113,6 +114,7 @@ pub use color_picker::*;
 pub use context_badge::*;
 pub use date_picker::*;
 pub use dialog::*;
+pub use icon::*;
 pub use input::*;
 pub use input_otp::*;
 pub use kbd::*;

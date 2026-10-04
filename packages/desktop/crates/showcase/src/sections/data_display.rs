@@ -1,3 +1,4 @@
+use celestia_ui::components::Card;
 use celestia_ui::components::breadcrumb::{Breadcrumb, BreadcrumbItem};
 use celestia_ui::components::button::{Button, ButtonVariant};
 use celestia_ui::components::description_list::DescriptionList;
@@ -5,7 +6,6 @@ use celestia_ui::components::empty::{
     Empty as EmptyState, EmptyDescription, EmptyHeader, EmptyTitle,
 };
 use celestia_ui::components::pagination::Pagination;
-use celestia_ui::components::Card;
 use gpui_kit::component::{h_flex, v_flex};
 use gpui_kit::*;
 
@@ -18,7 +18,9 @@ impl Showcase {
             .child(
                 Card::new()
                     .title("Data Table")
-                    .description("Structured tabular data presentation with columns, borders, and rows.")
+                    .description(
+                        "Structured tabular data presentation with columns, borders, and rows.",
+                    )
                     .child(self.demo_table.clone()),
             )
             .child(
@@ -47,25 +49,26 @@ impl Showcase {
                                     .child(BreadcrumbItem::new("Data Display")),
                             )
                             .child(
-                                h_flex()
-                                    .items_center()
-                                    .child(Pagination::new("pg-demo").total_pages(8).current_page(3)),
+                                h_flex().items_center().child(
+                                    Pagination::new("pg-demo").total_pages(8).current_page(3),
+                                ),
                             ),
                     ),
             )
             .child(
                 Card::new()
                     .title("Empty State")
-                    .description("Placeholder presentation when query results or datasets are empty.")
+                    .description(
+                        "Placeholder presentation when query results or datasets are empty.",
+                    )
                     .child(
                         EmptyState::new()
                             .header(
                                 EmptyHeader::new()
                                     .title(EmptyTitle::new().child("No records found"))
-                                    .description(
-                                        EmptyDescription::new()
-                                            .child("There are no items matching the selected criteria."),
-                                    ),
+                                    .description(EmptyDescription::new().child(
+                                        "There are no items matching the selected criteria.",
+                                    )),
                             )
                             .child(
                                 Button::new("empty-reset")

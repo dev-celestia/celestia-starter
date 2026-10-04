@@ -1,9 +1,9 @@
+use celestia_ui::components::Card;
 use celestia_ui::components::calendar::Calendar;
 use celestia_ui::components::color_picker::ColorPicker;
 use celestia_ui::components::date_picker::DatePicker;
 use celestia_ui::components::input::NumberInput;
 use celestia_ui::components::label::Label;
-use celestia_ui::components::Card;
 use gpui_kit::component::{h_flex, v_flex};
 use gpui_kit::*;
 
@@ -55,4 +55,3 @@ impl Showcase {
             )
     }
 }
-

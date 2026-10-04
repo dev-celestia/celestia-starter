@@ -34,7 +34,12 @@ pub fn pulse_loader(cell_px: f32, view: EntityId, cx: &mut App) -> impl IntoElem
 
 /// [`pulse_loader`] with an explicit tint (zeron's loaders color off the theme
 /// text; a tinted variant lets call sites keep the same motion off an accent).
-pub fn pulse_loader_tinted(cell_px: f32, color: Hsla, view: EntityId, cx: &mut App) -> impl IntoElement {
+pub fn pulse_loader_tinted(
+    cell_px: f32,
+    color: Hsla,
+    view: EntityId,
+    cx: &mut App,
+) -> impl IntoElement {
     let slot = cell_px;
     let delta = motion::pulse_delta(&PULSE, view, cx);
     div()
@@ -68,11 +73,7 @@ pub fn pulse_loader_tinted(cell_px: f32, color: Hsla, view: EntityId, cx: &mut A
 pub fn gradient_spinner(cell_px: f32, view: EntityId, cx: &mut App) -> impl IntoElement {
     let brand = palette(cx).brand();
     let brand_deep = palette(cx).brand_deep();
-    let row_tints = [
-        brand,
-        motion::mix(brand, brand_deep, 0.5),
-        brand_deep,
-    ];
+    let row_tints = [brand, motion::mix(brand, brand_deep, 0.5), brand_deep];
     let pulse = motion::activity_pulse_slow(view, cx);
     div()
         .flex()
@@ -135,29 +136,30 @@ impl RenderOnce for MiniSpinner {
         // The element state holds the animating view so it survives repaints;
         // the pulse clock invalidates the view (not this container), keeping
         // cached sibling rows reusable while these six cells animate.
-        window.with_global_id(self.key.into(), |id, window| {
-            window.with_element_state(id, |previous: Option<Entity<MiniSpinnerView>>, _| {
-                let view = previous.unwrap_or_else(|| {
-                    cx.new(|_| MiniSpinnerView {
-                        cell_px: self.cell_px,
-                        row_tints: self.row_tints,
-                    })
-                });
-                view.update(cx, |view, cx| {
-                    if view.cell_px != self.cell_px || view.row_tints != self.row_tints {
-                        view.cell_px = self.cell_px;
-                        view.row_tints = self.row_tints;
-                        cx.notify();
-                    }
-                });
-                (view.clone(), view)
+        window
+            .with_global_id(self.key.into(), |id, window| {
+                window.with_element_state(id, |previous: Option<Entity<MiniSpinnerView>>, _| {
+                    let view = previous.unwrap_or_else(|| {
+                        cx.new(|_| MiniSpinnerView {
+                            cell_px: self.cell_px,
+                            row_tints: self.row_tints,
+                        })
+                    });
+                    view.update(cx, |view, cx| {
+                        if view.cell_px != self.cell_px || view.row_tints != self.row_tints {
+                            view.cell_px = self.cell_px;
+                            view.row_tints = self.row_tints;
+                            cx.notify();
+                        }
+                    });
+                    (view.clone(), view)
+                })
             })
-        })
-        .cached(
-            StyleRefinement::default()
-                .w(px(self.cell_px * 2.5))
-                .h(px(self.cell_px * 4.0)),
-        )
+            .cached(
+                StyleRefinement::default()
+                    .w(px(self.cell_px * 2.5))
+                    .h(px(self.cell_px * 4.0)),
+            )
     }
 }
 
@@ -167,7 +169,11 @@ struct MiniSpinnerView {
 }
 
 impl Render for MiniSpinnerView {
-    fn render(&mut self, _window: &mut Window, cx: &mut gpui_kit::Context<Self>) -> impl IntoElement {
+    fn render(
+        &mut self,
+        _window: &mut Window,
+        cx: &mut gpui_kit::Context<Self>,
+    ) -> impl IntoElement {
         mini_spinner_cells(self.cell_px, self.row_tints, cx.entity_id(), cx)
     }
 }

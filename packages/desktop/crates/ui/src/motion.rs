@@ -598,7 +598,10 @@ mod tests {
         assert_eq!(EASE_OUT_EXPO.eval(0.0), 0.0);
         assert_eq!(EASE_OUT_EXPO.eval(1.0), 1.0);
         let mid = EASE_OUT_EXPO.eval(0.5);
-        assert!(mid > 0.85, "expo-out should be far along at x=0.5, got {mid}");
+        assert!(
+            mid > 0.85,
+            "expo-out should be far along at x=0.5, got {mid}"
+        );
     }
 
     #[test]

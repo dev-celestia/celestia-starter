@@ -15,7 +15,7 @@ use gpui_kit::*;
 use crate::showcase::Showcase;
 
 impl Showcase {
-    pub(crate) fn render_inputs(&self, _cx: &mut Context<Self>) -> impl IntoElement {
+    pub(crate) fn render_inputs(&self, cx: &mut Context<Self>) -> impl IntoElement {
         Card::new()
             .title("Inputs & Selection")
             .description("input, textarea, otp_input, select, slider, switch, checkbox, radio, rating, label.")
@@ -69,22 +69,56 @@ impl Showcase {
                         h_flex()
                             .gap_4()
                             .flex_wrap()
-                            .child(Switch::new("sw-1").checked(true).label("Notifications"))
+                            .child(
+                                Switch::new("sw-1")
+                                    .checked(self.demo_switch)
+                                    .label("Notifications")
+                                    .on_click(cx.listener(|this, &checked, _, cx| {
+                                        this.demo_switch = checked;
+                                        cx.notify();
+                                    })),
+                            )
                             .child(
                                 Checkbox::new("cb-1")
-                                    .checked(true)
-                                    .label("Include archived"),
+                                    .checked(self.demo_checkbox)
+                                    .label("Include archived")
+                                    .on_click(cx.listener(|this, &checked, _, cx| {
+                                        this.demo_checkbox = checked;
+                                        cx.notify();
+                                    })),
                             )
-                            .child(Radio::new("rd-1").checked(true).label("Weekly"))
-                            .child(Radio::new("rd-2").checked(false).label("Daily")),
+                            .child(
+                                Radio::new("rd-1")
+                                    .checked(self.demo_radio == 0)
+                                    .label("Weekly")
+                                    .on_click(cx.listener(|this, _, _, cx| {
+                                        this.demo_radio = 0;
+                                        cx.notify();
+                                    })),
+                            )
+                            .child(
+                                Radio::new("rd-2")
+                                    .checked(self.demo_radio == 1)
+                                    .label("Daily")
+                                    .on_click(cx.listener(|this, _, _, cx| {
+                                        this.demo_radio = 1;
+                                        cx.notify();
+                                    })),
+                            ),
                     )
                     .child(
                         v_flex()
                             .gap_1p5()
                             .child(Label::new("Star Rating"))
-                            .child(Rating::new("rating-1").value(4)),
+                            .child(
+                                Rating::new("rating-1")
+                                    .value(self.demo_rating)
+                                    .on_click(cx.listener(|this, &val, _, cx| {
+                                        this.demo_rating = val;
+                                        cx.notify();
+                                    })),
+                            ),
                     ),
             )
     }
 }
-

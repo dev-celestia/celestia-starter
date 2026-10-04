@@ -9,6 +9,8 @@
 //! stderr, and a one-line ellipsis is what makes them undiagnosable from a
 //! screenshot.
 
+use gpui_kit::assets::IconName;
+use gpui_kit::component::ActiveTheme;
 use gpui_kit::component::Icon;
 use gpui_kit::component::tooltip::Tooltip;
 use gpui_kit::prelude::FluentBuilder as _;
@@ -16,8 +18,6 @@ use gpui_kit::{
     App, ClipboardItem, Div, FontWeight, Hsla, InteractiveElement, IntoElement, ParentElement,
     SharedString, StatefulInteractiveElement, Styled, div, px,
 };
-use gpui_kit::assets::IconName;
-use gpui_kit::component::ActiveTheme;
 
 use crate::motion::mix;
 
@@ -122,13 +122,9 @@ pub fn notice_chip(
                     // not take the notice with it.
                     .on_click(move |_, _, cx| {
                         cx.stop_propagation();
-                        cx.write_to_clipboard(ClipboardItem::new_string(
-                            copy_message.to_string(),
-                        ));
+                        cx.write_to_clipboard(ClipboardItem::new_string(copy_message.to_string()));
                     })
-                    .tooltip(|window, cx| {
-                        Tooltip::new("Copy message").build(window, cx)
-                    })
+                    .tooltip(|window, cx| Tooltip::new("Copy message").build(window, cx))
                     .child(
                         Icon::new(IconName::Copy)
                             .size(px(12.0))
@@ -140,8 +136,9 @@ pub fn notice_chip(
         div()
             .min_w_0()
             .w_full()
+            .line_height(px(18.0))
             .when(tile, |message| {
-                message.text_color(theme.foreground.opacity(0.8))
+                message.text_color(theme.foreground.opacity(0.85))
             })
             .child(message),
     )

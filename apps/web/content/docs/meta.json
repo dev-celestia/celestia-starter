@@ -5,6 +5,7 @@
     "packages",
     "mobile",
     "desktop",
+    "desktop-state",
     "design-system",
     "theming",
     "layouts",

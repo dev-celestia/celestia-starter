@@ -1,8 +1,8 @@
+use celestia_ui::components::Card;
 use celestia_ui::components::swiftui::{
     GridItem, HStack, HorizontalAlignment, Spacer, VGrid, VStack, VerticalAlignment, ZAlignment,
     ZStack,
 };
-use celestia_ui::components::Card;
 use gpui_kit::component::{ActiveTheme, v_flex};
 use gpui_kit::*;
 

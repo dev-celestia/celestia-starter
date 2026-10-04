@@ -8,6 +8,9 @@ description = "Reusable GPUI component library for the Celestia desktop app"
 
 [dependencies]
 gpui-kit.workspace = true
+# Embeds the vendored Phosphor SVGs (assets/phosphor/**) as an AssetSource;
+# reads from disk in debug, embeds in release.
+rust-embed = { version = "8", features = ["interpolate-folder-path"] }
 
 [dev-dependencies]
 # TestAppContext / #[gpui_kit::test] need test-support; test builds only.

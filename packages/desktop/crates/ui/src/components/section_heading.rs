@@ -39,7 +39,7 @@ impl SectionHeading {
 impl RenderOnce for SectionHeading {
     fn render(self, _: &mut Window, cx: &mut App) -> impl IntoElement {
         v_flex()
-            .gap_1()
+            .gap(px(6.0))
             .when_some(self.eyebrow, |this, eyebrow| {
                 this.child(
                     div()
@@ -52,6 +52,7 @@ impl RenderOnce for SectionHeading {
             .child(
                 div()
                     .text_size(px(18.))
+                    .line_height(px(24.))
                     .font_weight(FontWeight::SEMIBOLD)
                     .text_color(cx.theme().foreground)
                     .child(self.title),
@@ -60,6 +61,7 @@ impl RenderOnce for SectionHeading {
                 this.child(
                     div()
                         .text_sm()
+                        .line_height(px(20.))
                         .text_color(cx.theme().muted_foreground)
                         .child(description),
                 )

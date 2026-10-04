@@ -1,0 +1,271 @@
+---
+title: Desktop State
+description: Application state for Celestia Desktop — zustand-style stores and React-context-style ambient values on GPUI's entity model
+icon: store
+---
+
+# Desktop State
+
+`celestia_ui::state` is the desktop counterpart of the web app's zustand stores and React contexts.
+GPUI re-renders an entity when it calls `cx.notify()`; this module layers the familiar web
+conventions on top of that primitive, so many views can share one application state tree without
+hand-rolling an entity per concern.
+
+Two layers:
+
+- **`StoreHandle<T>`** — the zustand layer. A cloneable handle to a store entity holding a plain
+  state value: `read` / `set` / `update` / `replace` / `set_if_changed` for writes, `observe_slice`
+  for selector-gated subscriptions, `subscribe` for side effects.
+- **`StoreContext<T>`** — the React-context layer. `provide` once at the bootstrap, `require`
+  anywhere — a store-backed ambient value with no prop drilling.
+
+---
+
+## File overview
+
+| Path                                                     | Purpose                                                            |
+| -------------------------------------------------------- | ------------------------------------------------------------------ |
+| `packages/desktop/crates/ui/src/state/store.rs`          | `Store` entity, `StoreHandle`, `observe_slice`, `subscribe`        |
+| `packages/desktop/crates/ui/src/state/context.rs`        | `StoreContext` + the `ContextSlot<T>` global that makes it ambient |
+| `packages/desktop/crates/showcase/src/sections/state.rs` | Live demo — a `GalleryState` store and a `Session` context         |
+| `packages/desktop/crates/showcase/src/main.rs`           | Where the demo provides its ambient context                        |
+
+The module ships inside `celestia-ui` — nothing to install, just import:
+
+```rust
+use celestia_ui::state::{StoreContext, StoreHandle};
+```
+
+---
+
+## Defining a store
+
+State is plain data. Actions are plain `&mut self` methods — the zustand "slice" pattern, in Rust:
+
+```rust
+#[derive(Clone, Debug, PartialEq, Default)]
+struct WorkspaceState {
+    open_tabs: usize,
+    dirty: bool,
+}
+
+impl WorkspaceState {
+    // Actions — called through StoreHandle::set / update.
+    fn tab_opened(&mut self) {
+        self.open_tabs += 1;
+    }
+
+    fn tab_closed(&mut self) {
+        self.open_tabs = self.open_tabs.saturating_sub(1);
+    }
+}
+```
+
+Deriving `Clone` and `PartialEq` unlocks `set_if_changed`; derive `Default` when a store starts
+empty.
+
+## Creating and sharing the handle
+
+`StoreHandle::new` works with any GPUI context, so a store can be created in the app bootstrap
+(`&mut App`), inside an entity constructor (`&mut Context<Self>`), or in async code. Cloning the
+handle is cheap — it is a GPUI entity handle — so hand clones to any view, action, or task that
+needs access:
+
+```rust
+let workspace = StoreHandle::new(WorkspaceState::default(), cx);
+
+struct Shell {
+    workspace: StoreHandle<WorkspaceState>,
+}
+```
+
+## Reading and writing
+
+| zustand                | API                                             |
+| ---------------------- | ----------------------------------------------- |
+| `getState()`           | `workspace.read(cx)`                            |
+| `setState(fn)`         | `workspace.set(cx, closure)`                    |
+| actions                | `workspace.set(cx, WorkspaceState::tab_opened)` |
+| `setState(next, true)` | `workspace.replace(cx, next)`                   |
+| skip no-op writes      | `workspace.set_if_changed(cx, closure)`         |
+
+```rust
+// Read at render time:
+let dirty = workspace.read(cx).dirty;
+
+// Write through an action (business logic stays on the state type):
+workspace.set(cx, WorkspaceState::tab_opened);
+
+// Inline update:
+workspace.set(cx, |s| s.dirty = true);
+
+// update() returns the closure's result — handy for computed writes:
+let tabs = workspace.update(cx, |s| {
+    s.tab_closed();
+    s.open_tabs
+});
+
+// Swap the whole value:
+workspace.replace(cx, WorkspaceState::default());
+
+// Skip the notification when the write turns out to be a no-op
+// (takes a snapshot; requires Clone + PartialEq):
+workspace.set_if_changed(cx, |s| s.dirty = false);
+```
+
+Every write notifies the store's observers — except `set_if_changed`, which stays silent when the
+state compares equal afterwards.
+
+<Callout type="info" title="Notifications coalesce per update batch">
+  Like GPUI's own observers, callbacks run once per update batch with that
+  batch's final state. Two `set` calls inside one update fire a single
+  notification — never rely on per-write notification counts.
+</Callout>
+
+## Selector-gated subscriptions (`observe_slice`)
+
+`observe_slice` is the `useStore(selector)` equivalent: bind an entity to one slice of the state,
+and its callback runs only when that slice's value actually changes. This is what keeps a big state
+tree from re-rendering every view on every write:
+
+```rust
+struct Toolbar {
+    save_visible: bool,
+}
+
+impl Toolbar {
+    fn new(workspace: &StoreHandle<WorkspaceState>, cx: &mut Context<Self>) -> Self {
+        // 1. Apply the current slice yourself — there is no initial callback.
+        let toolbar = Self {
+            save_visible: workspace.read(cx).dirty,
+        };
+
+        // 2. Bind: the callback (and the cx.notify() re-render) runs only
+        //    when the `dirty` slice flips.
+        workspace
+            .observe_slice(cx, |s| s.dirty, |toolbar, dirty, cx| {
+                toolbar.save_visible = dirty;
+                cx.notify();
+            })
+            .detach(); // or keep the Subscription in a field
+
+        toolbar
+    }
+}
+```
+
+- The selector maps `&T` to any `PartialEq + Clone` value — a field, a tuple of fields, a computed
+  bool, a `Vec` of items.
+- The subscription lives as long as the returned `Subscription`: `.detach()` for the observer's
+  lifetime, or store it to cancel earlier.
+- Untouched slices never fire — a write to `open_tabs` will not wake the `dirty` binding.
+
+## Side-effect subscriptions (`subscribe`)
+
+When code rather than UI should react to every change — persistence, logging, driving other
+entities — use `subscribe`. It hands you a full snapshot of the state plus the app context:
+
+```rust
+workspace
+    .subscribe(cx, |state, cx| {
+        save_to_disk(state);
+    })
+    .detach();
+```
+
+For a gated side effect (fire only when one slice changes), keep the previous value in the closure:
+
+```rust
+let mut last_tab_count = workspace.read(cx).open_tabs;
+cx.observe(&workspace, move |_, cx| {
+    let tabs = workspace.read(cx).open_tabs;
+    if tabs != last_tab_count {
+        last_tab_count = tabs;
+        sync_window_title(tabs, cx);
+    }
+})
+.detach();
+```
+
+## Ambient contexts (`StoreContext`)
+
+`StoreContext<T>` mirrors React context for app-wide values — a session, feature flags, a
+workspace preference. Provide it once at the bootstrap and the value becomes ambient for the whole
+app:
+
+```rust
+fn main() {
+    gpui_kit::platform::application().run(|cx| {
+        celestia_ui::init(cx);
+
+        // The provider: once, at the root.
+        StoreContext::<SessionState>::provide(SessionState::default(), cx);
+
+        // …open windows, build views…
+    });
+}
+```
+
+Consume anywhere — no handles threaded through constructors:
+
+```rust
+// useContext — panics with a helpful message when nothing was provided.
+let session = StoreContext::<SessionState>::require(cx);
+
+// Deref to the store handle: read, write, subscribe…
+let user = session.read(cx).user.clone();
+session.set(cx, |s| s.user = "celeste".into());
+
+// …and observe_slice works exactly the same way.
+session
+    .observe_slice(cx, |s| s.role.clone(), |this, role, cx| {
+        this.role_label = role;
+        cx.notify();
+    })
+    .detach();
+
+// Fallible variant:
+let maybe = StoreContext::<SessionState>::consume(cx); // Option<_>
+```
+
+<Callout type="warn" title="One ambient value per state type per app">
+  GPUI globals are app-scoped, so providing again replaces the previous value,
+  and handles captured before the re-provide keep pointing at the old store. For
+  multiple live instances of the same type — split panes, per-tab state — skip
+  the ambient layer and pass `StoreHandle`s explicitly.
+</Callout>
+
+## Raw GPUI interop
+
+The handle derefs to the backing `Entity<Store<T>>`, so everything GPUI-native keeps working:
+
+```rust
+// Raw observer — no snapshot, no gating:
+cx.observe(&workspace, |_, _, cx| cx.notify()).detach();
+
+// Identity comparison — two handles to the same store are equal:
+let same_store = workspace == other_handle;
+```
+
+## Testing
+
+The layer is covered by `#[gpui_kit::test]` unit tests inside `crates/ui/src/state/`. Use the same
+harness for your own stores:
+
+```rust
+#[gpui_kit::test]
+fn set_updates_the_state(cx: &mut TestAppContext) {
+    let store = cx.update(|cx| StoreHandle::new(WorkspaceState::default(), cx));
+    cx.update(|cx| store.set(cx, WorkspaceState::tab_opened));
+    cx.update(|cx| assert_eq!(store.read(cx).open_tabs, 1));
+}
+```
+
+Run with `cargo test --workspace` from `packages/desktop/`.
+
+## Live demo
+
+Run `pnpm desktop` and pick **State & Stores** in the sidebar: the demo shows a store with
+per-slice notification counters (bump one slice and the other counter stays put), a
+`set_if_changed` no-op button, and a `Session` ambient context provided in `main.rs`. The Code tab
+shows the exact source.

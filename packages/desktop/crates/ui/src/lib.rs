@@ -3,11 +3,14 @@
 //!
 //! Apps initialize once with [`init`] (gpui-kit runtime + Celestia theme),
 //! then build screens from [`components`] and gpui-kit primitives, taking all
-//! colors from `cx.theme()` / [`palette`].
+//! colors from `cx.theme()` / [`palette`]. Shared application state lives in
+//! [`state`] — zustand-style stores and React-context-style ambient values.
 
+pub mod assets;
 pub mod components;
 pub mod motion;
 pub mod palette;
+pub mod state;
 pub mod theme;
 
 // The accessor keeps the module's name: `use celestia_ui::palette;` brings

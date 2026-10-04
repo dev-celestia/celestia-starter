@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["crates/celestia-ui", "crates/celestia-desktop"]
+members = ["crates/ui", "crates/showcase"]
 
 [workspace.package]
 version = "0.1.0"
@@ -9,7 +9,7 @@ rust-version = "1.97"
 publish = false
 
 [workspace.dependencies]
-celestia-ui = { path = "crates/celestia-ui" }
+celestia-ui = { path = "crates/ui" }
 
 # Single UI dependency, same shape as the GetCat reference: gpui-kit pins the
 # matching gpui (gpui-pre series), gpui-component, base crates and default icons.

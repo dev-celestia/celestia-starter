@@ -5,19 +5,22 @@
 //! shadows and tactile vertical translation press animation (`active:translate-y-[2px]
 //! active:shadow-none`), matching `@celestia-project/ui`.
 
+use std::cell::Cell;
 use std::rc::Rc;
 
 use gpui_kit::component::menu::{DropdownMenu, PopupMenu};
 use gpui_kit::component::select::Caret;
-use gpui_kit::component::{
-    ActiveTheme, Colorize as _, Disableable, Selectable, Sizable, Size,
-};
-use gpui_kit::prelude::FluentBuilder as _;
+use gpui_kit::component::{ActiveTheme, Colorize as _, Disableable, Selectable, Sizable, Size};
 use gpui_kit::{
-    point, px, AnyElement, App, BoxShadow, ClickEvent, Context, Div, ElementId, FontWeight, Hsla,
-    InteractiveElement, Interactivity, IntoElement, MouseButton, ParentElement, RenderOnce,
-    SharedString, Stateful, StatefulInteractiveElement as _, StyleRefinement, Styled, Window, div,
+    AnimationExt as _, AnyElement, App, BoxShadow, ClickEvent, Context, Div, ElementId,
+    FocusHandle, FontWeight, Hsla, InteractiveElement, Interactivity, IntoElement, MouseButton,
+    ParentElement, Pixels, RenderOnce, SharedString, SpringAnimation, SpringConfig, Stateful,
+    StatefulInteractiveElement as _, StyleRefinement, Styled, Window, div, point, px,
 };
+
+/// Spring physics configuration for tactile button press & rebound (900 stiffness, 50 damping).
+/// Damped harmonic oscillator that reaches equilibrium smoothly in ~120-150ms with a subtle physical snap.
+const BUTTON_SPRING: SpringConfig = SpringConfig::new(900.0, 50.0, 1.0);
 
 /// Visual weight of the button (web `variant` prop).
 #[derive(Clone, Copy, Default, PartialEq, Eq, Debug)]
@@ -203,6 +206,14 @@ impl ParentElement for Button {
     }
 }
 
+/// Persistent per-button state storing the focus handle and spring impulse tracking.
+struct ButtonState {
+    focus_handle: FocusHandle,
+    pressed: Cell<bool>,
+    impulse_id: Cell<usize>,
+    rendered_impulse_id: Cell<usize>,
+}
+
 /// Helper wrapper allowing DropdownMenu trait to attach popup menus to the styled button.
 struct ButtonTrigger {
     element: Stateful<Div>,
@@ -248,11 +259,11 @@ impl RenderOnce for Button {
             ButtonSize::XSmall => (px(20.), px(8.), px(4.), px(10.), px(10.), false),
             ButtonSize::Small => (px(24.), px(10.), px(4.), px(12.), px(12.), false),
             ButtonSize::Medium => (px(26.), px(12.), px(6.), px(12.), px(14.), false),
-            ButtonSize::Large => (px(36.), px(14.), px(6.), px(12.), px(16.), false),
+            ButtonSize::Large => (px(36.), px(14.), px(8.), px(14.), px(16.), false),
             ButtonSize::Icon => (px(32.), px(0.), px(0.), px(12.), px(14.), true),
             ButtonSize::IconXs => (px(20.), px(0.), px(0.), px(10.), px(10.), true),
             ButtonSize::IconSm => (px(24.), px(0.), px(0.), px(12.), px(12.), true),
-            ButtonSize::IconLg => (px(36.), px(0.), px(0.), px(12.), px(16.), true),
+            ButtonSize::IconLg => (px(36.), px(0.), px(0.), px(14.), px(16.), true),
         };
 
         let is_dark = cx.theme().mode.is_dark();
@@ -284,18 +295,19 @@ impl RenderOnce for Button {
                     inset: false,
                     color: cx.theme().primary,
                 };
+                let white: Hsla = gpui_kit::rgb(0xffffff).into();
                 (
                     cx.theme().background,
                     cx.theme().primary,
                     cx.theme().primary,
                     Some(shadow),
-                    cx.theme().primary.opacity(0.10),
                     cx.theme().primary,
                     cx.theme().primary,
+                    white,
                     false,
-                    cx.theme().primary.opacity(0.15),
+                    cx.theme().primary.opacity(0.90),
                     cx.theme().primary,
-                    cx.theme().primary,
+                    white,
                     true,
                 )
             }
@@ -455,10 +467,22 @@ impl RenderOnce for Button {
             ),
         };
 
-        let focus_handle = window
-            .use_keyed_state(self.id.clone(), cx, |_, cx| cx.focus_handle())
-            .read(cx)
-            .clone();
+        let button_state = window.use_keyed_state(self.id.clone(), cx, |_, cx| ButtonState {
+            focus_handle: cx.focus_handle(),
+            pressed: Cell::new(false),
+            impulse_id: Cell::new(0),
+            rendered_impulse_id: Cell::new(0),
+        });
+
+        let (focus_handle, is_pressed, impulse_id, is_quick_tap) = {
+            let state = button_state.read(cx);
+            let p = state.pressed.get();
+            let imp = state.impulse_id.get();
+            let rend = state.rendered_impulse_id.get();
+            let quick_tap = !p && (imp != rend) && imp > 0;
+            state.rendered_impulse_id.set(imp);
+            (state.focus_handle.clone(), p, imp, quick_tap)
+        };
 
         let mut el = div()
             .id(self.id.clone())
@@ -503,6 +527,8 @@ impl RenderOnce for Button {
                     cx.stop_propagation();
                 });
         } else {
+            let normal_shadows: Vec<BoxShadow> = shadow.clone().into_iter().collect();
+
             el = el
                 .cursor_pointer()
                 .bg(bg)
@@ -517,27 +543,48 @@ impl RenderOnce for Button {
                     .text_color(cx.theme().primary);
             }
 
+            let state_down = button_state.clone();
+            let state_up = button_state.clone();
+            let state_up_out = button_state.clone();
+
+            el = el
+                .on_mouse_down(MouseButton::Left, move |_, _, cx| {
+                    state_down.update(cx, |state, cx| {
+                        state.pressed.set(true);
+                        state.impulse_id.set(state.impulse_id.get() + 1);
+                        cx.notify();
+                    });
+                })
+                .on_mouse_up(MouseButton::Left, move |_, _, cx| {
+                    state_up.update(cx, |state, cx| {
+                        state.pressed.set(false);
+                        cx.notify();
+                    });
+                })
+                .on_mouse_up_out(MouseButton::Left, move |_, _, cx| {
+                    state_up_out.update(cx, |state, cx| {
+                        state.pressed.set(false);
+                        cx.notify();
+                    });
+                });
+
             if has_3d_press {
-                el = el
-                    .relative()
-                    .top(px(0.))
-                    .when_some(shadow, |this, s| this.shadow(vec![s]))
-                    .hover(move |style| {
+                if is_pressed {
+                    el = el
+                        .bg(active_bg)
+                        .border_color(active_border)
+                        .text_color(active_text);
+                } else {
+                    el = el.shadow(normal_shadows).hover(move |style| {
                         style
                             .bg(hover_bg)
                             .border_color(hover_border)
                             .text_color(hover_text)
-                    })
-                    .active(move |style| {
-                        style
-                            .top(px(2.))
-                            .shadow_none()
-                            .bg(active_bg)
-                            .border_color(active_border)
-                            .text_color(active_text)
                     });
+                }
             } else {
                 el = el
+                    .shadow(normal_shadows)
                     .hover(move |mut style| {
                         style = style
                             .bg(hover_bg)
@@ -585,16 +632,53 @@ impl RenderOnce for Button {
             });
         }
 
-        let trigger = ButtonTrigger {
-            element: el,
-            selected: self.selected,
-        };
-
-        let element: AnyElement = match self.dropdown_menu {
-            Some(build) => trigger
+        let element: AnyElement = if let Some(build) = self.dropdown_menu {
+            let trigger = ButtonTrigger {
+                element: el,
+                selected: self.selected,
+            };
+            trigger
                 .dropdown_menu(move |menu, window, cx| build(menu, window, cx))
-                .into_any_element(),
-            None => trigger.into_any_element(),
+                .into_any_element()
+        } else if has_3d_press && !self.disabled {
+            let shadow_color = shadow.as_ref().map(|s| s.color);
+            let target_pos = if is_pressed { px(2.0) } else { px(0.0) };
+
+            let mut spring_anim = SpringAnimation::new(BUTTON_SPRING)
+                .to(target_pos)
+                .with_epsilon(0.02);
+
+            if is_quick_tap {
+                spring_anim = spring_anim.from(px(2.0));
+            }
+
+            let spring_id = ElementId::NamedInteger(
+                SharedString::from(format!("{}-spring", self.id)),
+                impulse_id as u64,
+            );
+
+            el.with_spring(spring_id, spring_anim, move |this, y: Pixels| {
+                let offset_y = y.clamp(px(0.0), px(2.5));
+                let shadow_y = (px(2.0) - offset_y).max(px(0.0));
+
+                let mut shadows = Vec::with_capacity(1);
+                if let Some(color) = shadow_color {
+                    if shadow_y > px(0.05) {
+                        shadows.push(BoxShadow {
+                            offset: point(px(0.), shadow_y),
+                            blur_radius: px(0.),
+                            spread_radius: px(0.),
+                            inset: false,
+                            color,
+                        });
+                    }
+                }
+
+                this.relative().top(offset_y).shadow(shadows)
+            })
+            .into_any_element()
+        } else {
+            el.into_any_element()
         };
         element
     }
@@ -615,6 +699,14 @@ mod tests {
         assert_eq!(Size::from(ButtonSize::IconXs), Size::XSmall);
         assert_eq!(Size::from(ButtonSize::IconSm), Size::Small);
         assert_eq!(Size::from(ButtonSize::IconLg), Size::Large);
+    }
+
+    #[test]
+    fn button_spring_config_is_stable_and_damped() {
+        let (freq, damping_ratio) = BUTTON_SPRING.canonical();
+        assert!(freq > 0.0);
+        // Damping ratio ~0.83 represents a snappy Apple-style tactile rebound
+        assert!(damping_ratio >= 0.75 && damping_ratio <= 1.0);
     }
 
     struct TestView;
@@ -676,4 +768,3 @@ mod tests {
         let _window = cx.add_window(|_window, _cx| TestView);
     }
 }
-

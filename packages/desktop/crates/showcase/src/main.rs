@@ -15,8 +15,10 @@ mod sections;
 mod showcase;
 
 use actions::ToggleTheme;
+use celestia_ui::state::StoreContext;
 use gpui_kit::component::{Root, TitleBar};
 use gpui_kit::*;
+use sections::state::Session;
 use showcase::Showcase;
 
 fn primary(key: &str) -> String {
@@ -28,8 +30,14 @@ fn primary(key: &str) -> String {
 }
 
 fn main() {
-    gpui_kit::platform::application().run(|cx| {
+    gpui_kit::platform::application()
+        .with_assets(celestia_ui::assets::CelestiaAssets)
+        .run(|cx| {
         celestia_ui::init(cx);
+
+        // Ambient session context (React-context pattern): provided once at
+        // the root, consumed anywhere via StoreContext::<Session>::require.
+        StoreContext::<Session>::provide(Session::default(), cx);
 
         cx.bind_keys([KeyBinding::new(&primary("d"), ToggleTheme, None)]);
 

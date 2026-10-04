@@ -20,14 +20,14 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 // Re-exported for advanced use (custom delegates, sorting, virtualization).
+use gpui_kit::component::ActiveTheme;
+pub use gpui_kit::component::table;
 pub use gpui_kit::component::table::{
     Column, ColumnSort, DataTable as GpuiDataTable, TableDelegate, TableState,
 };
-pub use gpui_kit::component::table;
-use gpui_kit::component::ActiveTheme;
 use gpui_kit::{
-    App, AppContext as _, Context, ElementId, Entity, InteractiveElement, IntoElement, ParentElement, Render,
-    RenderOnce, SharedString, Styled, Window, div, px,
+    App, AppContext as _, Context, ElementId, Entity, InteractiveElement, IntoElement,
+    ParentElement, Render, RenderOnce, SharedString, Styled, Window, div, px,
 };
 
 // ---------------------------------------------------------------------------
@@ -89,7 +89,9 @@ pub struct TableHeader {
 
 impl TableHeader {
     pub fn new() -> Self {
-        Self { children: Vec::new() }
+        Self {
+            children: Vec::new(),
+        }
     }
 }
 
@@ -124,7 +126,9 @@ pub struct TableBody {
 
 impl TableBody {
     pub fn new() -> Self {
-        Self { children: Vec::new() }
+        Self {
+            children: Vec::new(),
+        }
     }
 }
 
@@ -185,9 +189,10 @@ impl RenderOnce for TableRow {
             .id(self.id)
             .w_full()
             .flex()
+            .items_center()
             .border_b_1()
             .border_color(cx.theme().border)
-            .hover(|style| style.bg(cx.theme().muted))
+            .hover(|style| style.bg(cx.theme().muted.opacity(0.5)))
             .children(self.children)
     }
 }
@@ -200,7 +205,9 @@ pub struct TableHead {
 
 impl TableHead {
     pub fn new() -> Self {
-        Self { children: Vec::new() }
+        Self {
+            children: Vec::new(),
+        }
     }
 }
 
@@ -221,8 +228,10 @@ impl RenderOnce for TableHead {
         div()
             .flex_1()
             .min_w_0()
-            .px_2()
-            .py_2()
+            .h_9()
+            .px_3()
+            .flex()
+            .items_center()
             .text_xs()
             .font_weight(gpui_kit::FontWeight::MEDIUM)
             .text_color(cx.theme().muted_foreground)
@@ -238,7 +247,9 @@ pub struct TableCell {
 
 impl TableCell {
     pub fn new() -> Self {
-        Self { children: Vec::new() }
+        Self {
+            children: Vec::new(),
+        }
     }
 }
 
@@ -255,13 +266,17 @@ impl ParentElement for TableCell {
 }
 
 impl RenderOnce for TableCell {
-    fn render(self, _: &mut Window, _cx: &mut App) -> impl IntoElement {
+    fn render(self, _: &mut Window, cx: &mut App) -> impl IntoElement {
         div()
             .flex_1()
             .min_w_0()
-            .px_2()
+            .min_h(px(36.0))
+            .px_3()
             .py_2()
-            .truncate()
+            .flex()
+            .items_center()
+            .text_sm()
+            .text_color(cx.theme().foreground)
             .children(self.children)
     }
 }
@@ -274,7 +289,9 @@ pub struct TableCaption {
 
 impl TableCaption {
     pub fn new() -> Self {
-        Self { children: Vec::new() }
+        Self {
+            children: Vec::new(),
+        }
     }
 }
 
@@ -368,7 +385,13 @@ impl TableDelegate for TableData {
             .cloned()
             .unwrap_or_default();
 
-        div().px_2().flex().items_center().child(text)
+        div()
+            .px_3()
+            .min_h(px(32.0))
+            .flex()
+            .items_center()
+            .text_sm()
+            .child(text)
     }
 
     fn cell_text(&self, row_ix: usize, col_ix: usize, _: &App) -> String {
@@ -425,7 +448,10 @@ impl DataTable {
             .map(|(key, value)| vec![key.into(), value.into()])
             .collect();
         Self::new(
-            [TableColumn::new("Key").width(160.), TableColumn::new("Value")],
+            [
+                TableColumn::new("Key").width(160.),
+                TableColumn::new("Value"),
+            ],
             rows,
             window,
             cx,
@@ -443,8 +469,9 @@ impl Render for DataTable {
     fn render(&mut self, _: &mut Window, _: &mut Context<Self>) -> impl IntoElement {
         // Same sizing contract as the upstream story: the table fills a
         // flexing, min-h-0 wrapper (content-height when the parent is auto).
-        div().flex_1().min_h_0().child(
-            GpuiDataTable::new(&self.state).stripe(true).bordered(true),
-        )
+        div()
+            .flex_1()
+            .min_h_0()
+            .child(GpuiDataTable::new(&self.state).stripe(true).bordered(true))
     }
 }

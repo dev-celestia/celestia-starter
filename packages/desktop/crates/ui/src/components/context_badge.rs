@@ -10,14 +10,15 @@
 use std::sync::Arc;
 use std::time::Duration;
 
+use gpui_kit::assets::IconName;
+use gpui_kit::component::ActiveTheme;
 use gpui_kit::component::Icon;
 use gpui_kit::prelude::FluentBuilder as _;
 use gpui_kit::{
-    App, AppContext as _, Context, Div, ElementId, FontWeight, InteractiveElement, IntoElement, ParentElement, Render,
-    SharedString, Stateful, StatefulInteractiveElement, Styled, Window, div, px,
+    App, AppContext as _, Context, Div, ElementId, FontWeight, InteractiveElement, IntoElement,
+    ParentElement, Render, SharedString, Stateful, StatefulInteractiveElement, Styled, Window, div,
+    px,
 };
-use gpui_kit::assets::IconName;
-use gpui_kit::component::ActiveTheme;
 
 /// A badge pill: icon + label, plus optional hover-card details.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -51,12 +52,9 @@ const HOVER_DELAY: Duration = Duration::from_millis(280);
 
 /// The badge pill. `id` scopes the hover card and must be stable per rendered
 /// pill.
-pub fn context_badge(
-    id: impl Into<ElementId>,
-    badge: &MessageBadge,
-    cx: &App,
-) -> Stateful<Div> {
+pub fn context_badge(id: impl Into<ElementId>, badge: &MessageBadge, cx: &App) -> Stateful<Div> {
     let theme = cx.theme();
+    let has_details = !badge.details.is_empty();
     div()
         .id(id)
         .h(px(BADGE_HEIGHT))
@@ -67,16 +65,22 @@ pub fn context_badge(
         .px(px(8.0))
         .rounded(px(PILL_RADIUS))
         .bg(theme.muted)
+        .border_1()
+        .border_color(theme.border)
         .text_size(px(TEXT_SIZE))
         .font_weight(FontWeight::MEDIUM)
         .text_color(theme.muted_foreground)
+        .when(has_details, |el| {
+            el.cursor_pointer()
+                .hover(move |s| s.bg(theme.accent).text_color(theme.accent_foreground))
+        })
         .child(
             Icon::new(badge.icon)
                 .size(px(ICON_SIZE))
                 .text_color(theme.muted_foreground.opacity(0.7)),
         )
         .child(badge.label.clone())
-        .when(!badge.details.is_empty(), |el| {
+        .when(has_details, |el| {
             let details = Arc::new(badge.details.clone());
             el.tooltip(move |_, cx| {
                 cx.new(|_| BadgeCard {

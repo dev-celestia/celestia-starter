@@ -25,12 +25,22 @@
 //! `Theme::light_theme` / `Theme::dark_theme`, so `Theme::change` and system
 //! appearance sync keep using them afterwards.
 
+pub mod book;
+pub mod config;
+
+pub use book::{active, families, select};
+pub use config::{AppTheme, Scheme, hex};
+// The gpui-kit theming surface, re-exported so apps reach the whole story —
+// the global `Theme`, its resolved `ThemeColor` set, and the `ActiveTheme`
+// accessor every component reads — from one place.
+pub use gpui_kit::component::{ActiveTheme, Theme, ThemeColor};
+
 use gpui_kit::App;
-use gpui_kit::component::{Theme, ThemeRegistry};
+use gpui_kit::component::ThemeRegistry;
 
 const THEME_JSON: &str = include_str!("theme.json");
-const LIGHT: &str = "Celestia Light";
-const DARK: &str = "Celestia Dark";
+pub(crate) const LIGHT: &str = "Celestia Light";
+pub(crate) const DARK: &str = "Celestia Dark";
 
 /// Install the Celestia light/dark palettes as the active theme configs.
 ///
@@ -56,6 +66,9 @@ pub fn install(cx: &mut App) {
     let mode = theme.mode;
     // Re-apply the current mode so the new configs take effect immediately.
     Theme::change(mode, None, cx);
+
+    // Seed the theme book with the Celestia family (the multi-theme layer).
+    book::install(cx);
 }
 
 #[cfg(test)]

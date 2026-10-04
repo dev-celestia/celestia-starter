@@ -1,10 +1,10 @@
+use celestia_ui::components::Card;
 use celestia_ui::components::attachment::{
     Attachment, AttachmentContent, AttachmentDescription, AttachmentTitle,
 };
 use celestia_ui::components::avatar::Avatar;
 use celestia_ui::components::bubble::{Bubble, BubbleVariant};
 use celestia_ui::components::message::{Message, MessageAlignment, MessageContent, MessageGroup};
-use celestia_ui::components::Card;
 use gpui_kit::component::v_flex;
 use gpui_kit::*;
 
@@ -71,4 +71,3 @@ impl Showcase {
             )
     }
 }
-

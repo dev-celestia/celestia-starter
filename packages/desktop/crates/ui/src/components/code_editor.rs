@@ -68,25 +68,36 @@ impl Render for CodeEditor {
 
         v_flex()
             .w_full()
-            .gap_2()
+            .border_1()
+            .border_color(cx.theme().border)
+            .rounded(cx.theme().radius)
+            .overflow_hidden()
+            .bg(cx.theme().background)
             .child(
-                div()
-                    .h(px(280.))
+                h_flex()
                     .w_full()
-                    .bg(cx.theme().background)
-                    .border_1()
+                    .items_center()
+                    .justify_between()
+                    .px_3()
+                    .py_1p5()
+                    .bg(cx.theme().muted.opacity(0.4))
+                    .border_b_1()
                     .border_color(cx.theme().border)
-                    .rounded(cx.theme().radius)
-                    .overflow_hidden()
-                    .child(Editor::new(&self.editor)),
+                    .child(
+                        div()
+                            .text_xs()
+                            .font_weight(gpui_kit::FontWeight::MEDIUM)
+                            .text_color(cx.theme().foreground)
+                            .child(self.language.clone()),
+                    )
+                    .child(
+                        div()
+                            .text_xs()
+                            .font_family(cx.theme().mono_font_family.clone())
+                            .text_color(cx.theme().muted_foreground)
+                            .child(format!("{lines} lines")),
+                    ),
             )
-            .child(
-                h_flex().justify_between().child(
-                    div()
-                        .text_xs()
-                        .text_color(cx.theme().muted_foreground)
-                        .child(format!("{} · {lines} lines", self.language)),
-                ),
-            )
+            .child(div().h(px(280.)).w_full().child(Editor::new(&self.editor)))
     }
 }

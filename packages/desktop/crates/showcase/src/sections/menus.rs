@@ -1,6 +1,6 @@
+use celestia_ui::components::Card;
 use celestia_ui::components::button::{Button, ButtonVariant};
 use celestia_ui::components::menu::{ContextMenuExt as _, PopupMenuItem};
-use celestia_ui::components::Card;
 use gpui_kit::component::{ActiveTheme, h_flex, v_flex};
 use gpui_kit::*;
 
@@ -13,7 +13,9 @@ impl Showcase {
             .child(
                 Card::new()
                     .title("Dropdown & Action Menus")
-                    .description("Button-anchored popup menus with items, accelerators, and dividers.")
+                    .description(
+                        "Button-anchored popup menus with items, accelerators, and dividers.",
+                    )
                     .child(
                         h_flex()
                             .gap_3()
@@ -24,11 +26,13 @@ impl Showcase {
                                     .label("File Menu")
                                     .dropdown_caret(true)
                                     .dropdown_menu(|menu, _, _| {
-                                        menu.item(PopupMenuItem::new("New File").on_click(|_, _, _| {}))
-                                            .item(PopupMenuItem::new("Open…").on_click(|_, _, _| {}))
-                                            .separator()
-                                            .item(PopupMenuItem::new("Save").on_click(|_, _, _| {}))
-                                            .item(PopupMenuItem::new("Save As…").on_click(|_, _, _| {}))
+                                        menu.item(
+                                            PopupMenuItem::new("New File").on_click(|_, _, _| {}),
+                                        )
+                                        .item(PopupMenuItem::new("Open…").on_click(|_, _, _| {}))
+                                        .separator()
+                                        .item(PopupMenuItem::new("Save").on_click(|_, _, _| {}))
+                                        .item(PopupMenuItem::new("Save As…").on_click(|_, _, _| {}))
                                     }),
                             )
                             .child(
@@ -42,7 +46,9 @@ impl Showcase {
                                             .separator()
                                             .item(PopupMenuItem::new("Cut").on_click(|_, _, _| {}))
                                             .item(PopupMenuItem::new("Copy").on_click(|_, _, _| {}))
-                                            .item(PopupMenuItem::new("Paste").on_click(|_, _, _| {}))
+                                            .item(
+                                                PopupMenuItem::new("Paste").on_click(|_, _, _| {}),
+                                            )
                                     }),
                             ),
                     ),
@@ -67,10 +73,12 @@ impl Showcase {
                             .justify_center()
                             .child("Right-click anywhere in this zone to invoke context menu")
                             .context_menu(|menu, _, _| {
-                                menu.item(PopupMenuItem::new("Inspect Element").on_click(|_, _, _| {}))
-                                    .item(PopupMenuItem::new("Copy Selector").on_click(|_, _, _| {}))
-                                    .separator()
-                                    .item(PopupMenuItem::new("Reload Frame").on_click(|_, _, _| {}))
+                                menu.item(
+                                    PopupMenuItem::new("Inspect Element").on_click(|_, _, _| {}),
+                                )
+                                .item(PopupMenuItem::new("Copy Selector").on_click(|_, _, _| {}))
+                                .separator()
+                                .item(PopupMenuItem::new("Reload Frame").on_click(|_, _, _| {}))
                             }),
                     ),
             )

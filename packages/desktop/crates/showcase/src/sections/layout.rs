@@ -1,34 +1,61 @@
+use celestia_ui::components::Card;
 use celestia_ui::components::accordion::Accordion;
 use celestia_ui::components::collapsible::Collapsible;
 use celestia_ui::components::group_box::GroupBox;
 use celestia_ui::components::separator::Separator;
 use celestia_ui::components::status_bar::StatusBar;
-use celestia_ui::components::tabs::{Tab, TabBar};
-use celestia_ui::components::Card;
-use gpui_kit::component::{h_flex, v_flex};
+use celestia_ui::components::tabs::{TabsList, TabsTrigger, TabsVariant};
+use gpui_kit::component::{ActiveTheme, h_flex, v_flex};
 use gpui_kit::*;
 
 use crate::showcase::Showcase;
 
 impl Showcase {
     pub(crate) fn render_layout(&self, _cx: &mut Context<Self>) -> impl IntoElement {
+        let muted = _cx.theme().muted_foreground;
         v_flex()
             .gap_6()
             .child(
                 Card::new()
                     .title("Tabs & Separators")
-                    .description("Tab bars with selection states and content separators.")
+                    .description("Shadcn-styled tab lists (segmented pill and line underline variants) with separators.")
                     .child(
                         v_flex()
-                            .gap_3()
+                            .gap_4()
                             .child(
-                                TabBar::new("tabs-layout")
-                                    .child(Tab::new().label("Overview"))
-                                    .child(Tab::new().label("Configuration"))
-                                    .child(Tab::new().label("Security"))
-                                    .selected_index(0),
+                                v_flex()
+                                    .gap_1p5()
+                                    .child(
+                                        div()
+                                            .text_xs()
+                                            .text_color(muted)
+                                            .child("Segmented Track (Default):"),
+                                    )
+                                    .child(
+                                        TabsList::new("tabs-demo-default")
+                                            .child(TabsTrigger::new("t-overview").label("Overview").selected(true))
+                                            .child(TabsTrigger::new("t-config").label("Configuration"))
+                                            .child(TabsTrigger::new("t-security").label("Security")),
+                                    ),
                             )
-                            .child(Separator::horizontal()),
+                            .child(Separator::horizontal())
+                            .child(
+                                v_flex()
+                                    .gap_1p5()
+                                    .child(
+                                        div()
+                                            .text_xs()
+                                            .text_color(muted)
+                                            .child("Line Underline Track:"),
+                                    )
+                                    .child(
+                                        TabsList::new("tabs-demo-line")
+                                            .variant(TabsVariant::Line)
+                                            .child(TabsTrigger::new("tl-overview").label("Overview").selected(true).variant(TabsVariant::Line))
+                                            .child(TabsTrigger::new("tl-config").label("Configuration").variant(TabsVariant::Line))
+                                            .child(TabsTrigger::new("tl-security").label("Security").variant(TabsVariant::Line)),
+                                    ),
+                            ),
                     ),
             )
             .child(

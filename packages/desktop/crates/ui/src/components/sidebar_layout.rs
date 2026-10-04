@@ -154,8 +154,8 @@ impl RenderOnce for SidebarSection {
     fn render(self, _: &mut Window, cx: &mut App) -> impl IntoElement {
         div()
             .px_3()
-            .pt_3()
-            .pb_1()
+            .pt(px(16.0))
+            .pb(px(4.0))
             .flex_none()
             .text_xs()
             .font_weight(FontWeight::SEMIBOLD)
@@ -206,6 +206,8 @@ impl RenderOnce for SidebarNav {
 pub struct SidebarNavItem {
     id: ElementId,
     label: SharedString,
+    icon: Option<AnyElement>,
+    badge: Option<SharedString>,
     selected: bool,
     on_click: Option<ClickHandler>,
 }
@@ -215,9 +217,21 @@ impl SidebarNavItem {
         Self {
             id: id.into(),
             label: label.into(),
+            icon: None,
+            badge: None,
             selected: false,
             on_click: None,
         }
+    }
+
+    pub fn icon(mut self, icon: impl IntoElement) -> Self {
+        self.icon = Some(icon.into_any_element());
+        self
+    }
+
+    pub fn badge(mut self, badge: impl Into<SharedString>) -> Self {
+        self.badge = Some(badge.into());
+        self
     }
 
     pub fn selected(mut self, selected: bool) -> Self {
@@ -241,8 +255,9 @@ impl RenderOnce for SidebarNavItem {
         let mut row = h_flex()
             .id(self.id)
             .w_full()
-            .h_7()
+            .h_8()
             .px_2()
+            .gap_2()
             .items_center()
             .rounded(px(6.))
             .text_sm()
@@ -255,8 +270,38 @@ impl RenderOnce for SidebarNavItem {
             .when(!self.selected, |row| {
                 row.text_color(theme.sidebar_foreground)
                     .hover(|style| style.bg(theme.sidebar_accent))
-            })
-            .child(self.label);
+            });
+
+        if self.selected {
+            row = row.child(
+                div()
+                    .w(px(2.5))
+                    .h(px(14.0))
+                    .rounded(px(1.0))
+                    .bg(theme.primary)
+                    .flex_none(),
+            );
+        }
+
+        if let Some(icon) = self.icon {
+            row = row.child(div().flex_none().child(icon));
+        }
+
+        row = row.child(div().flex_1().min_w_0().truncate().child(self.label));
+
+        if let Some(badge) = self.badge {
+            row = row.child(
+                div()
+                    .flex_none()
+                    .px(px(6.0))
+                    .py(px(2.0))
+                    .rounded(px(4.))
+                    .bg(theme.muted)
+                    .text_xs()
+                    .text_color(theme.muted_foreground)
+                    .child(badge),
+            );
+        }
 
         if let Some(on_click) = self.on_click {
             row = row.on_click(move |event, window, cx| on_click(event, window, cx));

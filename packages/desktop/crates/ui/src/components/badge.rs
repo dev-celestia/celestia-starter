@@ -7,7 +7,10 @@
 
 use gpui_kit::component::ActiveTheme;
 use gpui_kit::component::tag::Tag;
-use gpui_kit::{App, IntoElement, ParentElement as _, RenderOnce, SharedString, Window};
+use gpui_kit::{
+    AnyElement, App, IntoElement, ParentElement as _, RenderOnce, SharedString, Styled, Window,
+    div, px,
+};
 
 use crate::palette;
 
@@ -41,6 +44,7 @@ pub enum BadgeVariant {
 pub struct Badge {
     label: SharedString,
     variant: BadgeVariant,
+    icon: Option<AnyElement>,
 }
 
 impl Badge {
@@ -48,6 +52,7 @@ impl Badge {
         Self {
             label: label.into(),
             variant: BadgeVariant::default(),
+            icon: None,
         }
     }
 
@@ -55,12 +60,19 @@ impl Badge {
         self.variant = variant;
         self
     }
+
+    /// Optional prefix icon or status indicator (ensures meaning is not
+    /// conveyed by color alone).
+    pub fn icon(mut self, icon: impl IntoElement) -> Self {
+        self.icon = Some(icon.into_any_element());
+        self
+    }
 }
 
 impl RenderOnce for Badge {
     fn render(self, _: &mut Window, cx: &mut App) -> impl IntoElement {
         let theme = cx.theme();
-        let tag = match self.variant {
+        let mut tag = match self.variant {
             BadgeVariant::Default => Tag::primary(),
             BadgeVariant::Secondary => Tag::secondary(),
             BadgeVariant::Destructive => Tag::danger(),
@@ -74,6 +86,11 @@ impl RenderOnce for Badge {
                 theme.border,
             ),
         };
+
+        if let Some(icon) = self.icon {
+            tag = tag.child(div().mr(px(4.0)).flex().items_center().child(icon));
+        }
+
         tag.child(self.label)
     }
 }

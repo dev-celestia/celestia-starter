@@ -10,6 +10,8 @@ crates/
 ├─ celestia-ui       # Reusable GPUI component library (the desktop analog of packages/ui)
 │  ├─ theme.json     # Celestia light/dark token port (source: packages/ui/src/styles/globals.css)
 │  ├─ theme.rs       # Theme install + contrast-pinning tests
+│  ├─ theme/config.rs # AppTheme — the runtime globals.css equivalent (colors + radius per mode)
+│  ├─ theme/book.rs  # Multi-theme: named light/dark families, register + select
 │  ├─ palette.rs     # Semantic roles the Theme lacks (brand, charts) — raw hex lives only here
 │  └─ components/    # ONE FILE PER PRIMITIVE, mirroring packages/ui primitive/*.tsx
 │     ├─ button.rs / badge.rs       # Celestia wrappers: ButtonVariant/ButtonSize, BadgeVariant
@@ -45,6 +47,12 @@ doc comment records the web-file → desktop mapping, e.g. `drawer.tsx` →
 types are flattened at `celestia_ui::components::*`; module-only primitives
 go through their module path (`components::table::…`). Raw hex only in
 `theme.json`/`palette.rs`; call sites use `cx.theme()` / `palette(cx)`.
+The whole library re-themes at runtime through `celestia_ui::theme::AppTheme`
+— one shadcn-style config (semantic colors per mode + one radius) applied
+with `config.apply(cx)`; unset fields keep the `theme.json` defaults.
+Multi-theme: `config.register("Nocturne", cx)` adds a named light/dark
+family, `theme::select` / `theme::active` / `theme::families` switch and
+list them.
 
 The gallery (`pnpm desktop`) renders one section per family through the same
 re-export layer an app would use: buttons/kbd/link, tags & badges, inputs &
