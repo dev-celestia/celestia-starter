@@ -1,12 +1,12 @@
 use celestia_ui::components::Card;
-use celestia_ui::components::badge::{Badge, BadgeVariant};
-use celestia_ui::components::button::{Button, ButtonSize, ButtonVariant};
-use celestia_ui::components::input::Input;
-use celestia_ui::components::kbd::Kbd;
-use celestia_ui::components::link::Link;
+use celestia_ui::components::primitive::badge::{Badge, BadgeVariant};
+use celestia_ui::components::primitive::button::{Button, ButtonSize, ButtonVariant};
+use celestia_ui::components::primitive::input::Input;
+use celestia_ui::components::primitive::kbd::Kbd;
+use celestia_ui::components::primitive::link::Link;
 use celestia_ui::theme::{AppTheme, Scheme, active, families, hex, select};
-use gpui_kit::component::{ActiveTheme, h_flex, v_flex};
-use gpui_kit::*;
+use gpui_component::{ActiveTheme, h_flex, v_flex};
+use gpui::*;
 
 use crate::showcase::Showcase;
 
@@ -271,7 +271,7 @@ impl Showcase {
         let Some(primary) = self.theme.light.primary else {
             return ACCENTS[0].0;
         };
-        let rgba = gpui_kit::Rgba::from(primary);
+        let rgba = gpui::Rgba::from(primary);
         let code = ((rgba.r * 255.0).round() as u32) << 16
             | ((rgba.g * 255.0).round() as u32) << 8
             | (rgba.b * 255.0).round() as u32;

@@ -7,4 +7,9 @@ publish = false
 
 [dependencies]
 celestia-ui.workspace = true
-gpui-kit.workspace = true
+gpui.workspace = true
+gpui-base.workspace = true
+gpui-component.workspace = true
+# Opens the window; `gpui` itself does not depend on the platform backend.
+gpui-platform.workspace = true
+rust-embed = "8"

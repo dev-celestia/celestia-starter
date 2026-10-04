@@ -1,9 +1,9 @@
 use celestia_ui::components::Card;
-use celestia_ui::components::button::{Button, ButtonSize, ButtonVariant};
-use celestia_ui::components::kbd::Kbd;
-use celestia_ui::components::link::Link;
-use gpui_kit::component::h_flex;
-use gpui_kit::*;
+use celestia_ui::components::primitive::button::{Button, ButtonSize, ButtonVariant};
+use celestia_ui::components::primitive::kbd::Kbd;
+use celestia_ui::components::primitive::link::Link;
+use gpui_component::h_flex;
+use gpui::*;
 
 use crate::showcase::Showcase;
 

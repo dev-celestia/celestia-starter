@@ -7,7 +7,7 @@
 //! `:root` and never overridden by `.dark`. The accessor form keeps call sites
 //! stable if a mode-dependent role is ever added.
 
-use gpui_kit::{App, Hsla, rgb};
+use gpui::{App, Hsla, rgb};
 
 pub struct Palette {
     brand: u32,
@@ -72,7 +72,7 @@ pub fn palette(_cx: &App) -> &'static Palette {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use gpui_kit::Rgba;
+    use gpui::Rgba;
 
     fn hex(color: Hsla) -> u32 {
         let rgba = Rgba::from(color);

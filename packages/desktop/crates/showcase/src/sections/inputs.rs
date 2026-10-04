@@ -1,16 +1,16 @@
 use celestia_ui::components::Card;
-use celestia_ui::components::checkbox::Checkbox;
-use celestia_ui::components::input::Input;
-use celestia_ui::components::input_otp::OtpInput;
-use celestia_ui::components::label::Label;
-use celestia_ui::components::radio::Radio;
-use celestia_ui::components::rating::Rating;
-use celestia_ui::components::select::Select;
-use celestia_ui::components::slider::Slider;
-use celestia_ui::components::switch::Switch;
-use celestia_ui::components::textarea::Textarea;
-use gpui_kit::component::{h_flex, v_flex};
-use gpui_kit::*;
+use celestia_ui::components::primitive::checkbox::Checkbox;
+use celestia_ui::components::primitive::input::Input;
+use celestia_ui::components::primitive::input_otp::OtpInput;
+use celestia_ui::components::primitive::label::Label;
+use celestia_ui::components::primitive::radio::Radio;
+use celestia_ui::components::primitive::rating::Rating;
+use celestia_ui::components::primitive::select::Select;
+use celestia_ui::components::primitive::slider::Slider;
+use celestia_ui::components::primitive::switch::Switch;
+use celestia_ui::components::primitive::textarea::Textarea;
+use gpui_component::{h_flex, v_flex};
+use gpui::*;
 
 use crate::showcase::Showcase;
 

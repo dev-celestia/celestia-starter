@@ -24,7 +24,7 @@
 //!
 //! ```ignore
 //! use celestia_ui::theme::{hex, AppTheme, Scheme};
-//! use gpui_kit::px;
+//! use gpui::px;
 //!
 //! let config = AppTheme {
 //!     radius: px(10.),
@@ -39,15 +39,15 @@
 //! ramp) are not part of the config — like the web `:root` they are defined
 //! once and never re-themed; see [`crate::palette`].
 
-use gpui_kit::component::{ThemeConfig, ThemeConfigColors, ThemeMode};
-use gpui_kit::{App, Hsla, Pixels, Rgba, SharedString, px, rgb};
+use gpui_component::{ThemeConfig, ThemeConfigColors, ThemeMode};
+use gpui::{App, Hsla, Pixels, Rgba, SharedString, px, rgb};
 
 /// A semantic color as `#rrggbb` — the config's unit, like a shadcn CSS
 /// variable value.
 ///
 /// ```
 /// use celestia_ui::theme::hex;
-/// use gpui_kit::Rgba;
+/// use gpui::Rgba;
 ///
 /// assert_eq!(Rgba::from(hex(0xd40c1a)).r * 255.0, 212.0);
 /// ```
@@ -580,13 +580,13 @@ fn lighten(color: Hsla, amount: f32) -> Hsla {
 
 #[cfg(test)]
 mod tests {
-    use gpui_kit::TestAppContext;
-    use gpui_kit::component::{ActiveTheme, Theme, ThemeMode};
+    use gpui::TestAppContext;
+    use gpui_component::{ActiveTheme, Theme, ThemeMode};
 
     use super::*;
 
     /// RGB part of a color as `0xrrggbb` (the theme.rs test idiom).
-    fn code(color: gpui_kit::Hsla) -> u32 {
+    fn code(color: gpui::Hsla) -> u32 {
         let rgba = Rgba::from(color);
         let to8 = |v: f32| (v * 255.0).round() as u32;
         (to8(rgba.r) << 16) | (to8(rgba.g) << 8) | to8(rgba.b)
@@ -605,10 +605,10 @@ mod tests {
         assert_eq!(parse_hex("#nope"), None);
     }
 
-    #[gpui_kit::test]
+    #[gpui::test]
     fn default_apply_reasserts_the_celestia_defaults(cx: &mut TestAppContext) {
         cx.update(|cx| {
-            gpui_kit::init(cx);
+            gpui_component::init(cx);
             crate::theme::install(cx);
             AppTheme::default().apply(cx);
 
@@ -627,10 +627,10 @@ mod tests {
         });
     }
 
-    #[gpui_kit::test]
+    #[gpui::test]
     fn radius_applies_to_both_modes(cx: &mut TestAppContext) {
         cx.update(|cx| {
-            gpui_kit::init(cx);
+            gpui_component::init(cx);
             crate::theme::install(cx);
             AppTheme {
                 radius: px(12.),
@@ -648,10 +648,10 @@ mod tests {
 
     /// One token override must recolor everything that token drives — here
     /// the light accent — and nothing in the other mode.
-    #[gpui_kit::test]
+    #[gpui::test]
     fn light_primary_override_fans_out_light_only(cx: &mut TestAppContext) {
         cx.update(|cx| {
-            gpui_kit::init(cx);
+            gpui_component::init(cx);
             crate::theme::install(cx);
 
             let blue = hex(0x2563eb);
@@ -697,10 +697,10 @@ mod tests {
         });
     }
 
-    #[gpui_kit::test]
+    #[gpui::test]
     fn dark_destructive_override_leaves_light_alone(cx: &mut TestAppContext) {
         cx.update(|cx| {
-            gpui_kit::init(cx);
+            gpui_component::init(cx);
             crate::theme::install(cx);
 
             AppTheme {

@@ -1,27 +1,31 @@
-//! Application asset sources — the embedded Phosphor catalog composed with
-//! gpui-kit's default Lucide bundle.
+//! Application asset source — the embedded Phosphor catalog.
 //!
 //! gpui-pre accepts a single `AssetSource` at startup (`with_assets`), so
-//! applications register [`CelestiaAssets`], which serves the vendored
-//! Phosphor SVGs first and delegates everything else to `gpui_kit::assets`.
-//! Phosphor paths are `phosphor/<weight>/<name>.svg`; Lucide stays at the
-//! gpui-kit `icons/…` prefix, so the two catalogs never collide.
+//! applications register [`CelestiaAssets`]. It serves the vendored Phosphor
+//! SVGs at `phosphor/<weight>/<name>.svg` and reports every other path as a
+//! clean miss.
+//!
+//! Phosphor is the only icon catalog: the crate used to delegate unknown paths
+//! to gpui-kit's bundled Lucide set, which meant a second catalog with its own
+//! `icons/…` prefix and a second crate to keep pinned. The three Lucide glyphs
+//! still referenced (a tab's `BookOpen`, the showcase's `Eye` and `Code`) have
+//! direct Phosphor equivalents, so the fallback is gone.
 
 use std::borrow::Cow;
 
-use gpui_kit::{AssetSource, Result, SharedString};
+use gpui::{AssetSource, Result, SharedString};
 
-/// The embedded Phosphor catalog (`assets/phosphor/**`, Phosphor Core
-/// 2.1.1, MIT — see `assets/phosphor/LICENSE-PHOSPHOR`).
+/// The embedded Phosphor catalog (`assets/phosphor/**`, Phosphor Core 2.1.1,
+/// MIT — see `assets/phosphor/LICENSE-PHOSPHOR`).
 ///
 /// In debug builds rust-embed reads the SVGs from disk; release builds embed
 /// them in the binary.
 #[derive(rust_embed::RustEmbed)]
 #[folder = "assets"]
 #[include = "phosphor/**/*.svg"]
-pub struct PhosphorAssets;
+pub struct CelestiaAssets;
 
-impl AssetSource for PhosphorAssets {
+impl AssetSource for CelestiaAssets {
     fn load(&self, path: &str) -> Result<Option<Cow<'static, [u8]>>> {
         Ok(Self::get(path).map(|file| file.data))
     }
@@ -34,51 +38,14 @@ impl AssetSource for PhosphorAssets {
     }
 }
 
-/// The application asset source: Phosphor first, gpui-kit's default Lucide
-/// bundle as the fallback.
-///
-/// Register before the app runs:
-///
-/// ```ignore
-/// gpui_kit::platform::application()
-///     .with_assets(CelestiaAssets)
-///     .run(|cx| { … });
-/// ```
-pub struct CelestiaAssets;
-
-impl AssetSource for CelestiaAssets {
-    fn load(&self, path: &str) -> Result<Option<Cow<'static, [u8]>>> {
-        if let Some(data) = PhosphorAssets.load(path)? {
-            return Ok(Some(data));
-        }
-        // gpui-kit's `Assets` reports missing paths as an error; translate to
-        // `Ok(None)` so callers (and the SVG renderer) treat this source as
-        // uniformly miss-tolerant.
-        Ok(gpui_kit::assets::Assets::new("assets")
-            .load(path)
-            .ok()
-            .flatten())
-    }
-
-    fn list(&self, path: &str) -> Result<Vec<SharedString>> {
-        let mut paths = PhosphorAssets.list(path)?;
-        paths.extend(
-            gpui_kit::assets::Assets::new("assets")
-                .list(path)
-                .unwrap_or_default(),
-        );
-        Ok(paths)
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::components::icon::{PhosphorIcon, PhosphorWeight};
+    use crate::components::primitive::icon::{PhosphorIcon, PhosphorWeight};
 
     #[test]
     fn phosphor_assets_serve_regular_weight() {
-        let heart = PhosphorAssets
+        let heart = CelestiaAssets
             .load("phosphor/regular/heart.svg")
             .expect("load must not error")
             .expect("heart.svg must be embedded");
@@ -89,36 +56,41 @@ mod tests {
     #[test]
     fn every_glyph_resolves_at_every_weight() {
         for icon in PhosphorIcon::ALL {
-            for weight in [PhosphorWeight::Regular, PhosphorWeight::Bold, PhosphorWeight::Fill] {
+            for weight in [
+                PhosphorWeight::Regular,
+                PhosphorWeight::Bold,
+                PhosphorWeight::Fill,
+            ] {
                 let path = weight.path(*icon);
                 assert!(
-                    PhosphorAssets.load(&path).expect("load").is_some(),
+                    CelestiaAssets.load(&path).expect("load").is_some(),
                     "missing phosphor asset: {path}"
                 );
             }
         }
     }
 
+    /// An unknown path is a clean miss, not an error — the SVG renderer treats
+    /// a missing glyph as "draw nothing", and an `Err` here would surface as a
+    /// render panic instead.
     #[test]
-    fn celestia_assets_compose_phosphor_and_lucide() {
-        // Phosphor resolves at its own prefix…
-        assert!(CelestiaAssets
-            .load("phosphor/regular/heart.svg")
-            .expect("load")
-            .is_some());
-        // …the gpui-kit Lucide bundle still resolves at `icons/…`…
-        let lucide = gpui_kit::assets::IconName::Search.path();
-        assert!(CelestiaAssets.load(&lucide).expect("load").is_some());
-        // …and unknown paths are a clean miss, not an error.
-        assert!(CelestiaAssets.load("nope/missing.svg").expect("load").is_none());
+    fn unknown_paths_miss_cleanly() {
+        assert!(
+            CelestiaAssets
+                .load("nope/missing.svg")
+                .expect("load")
+                .is_none()
+        );
     }
 
     #[test]
     fn list_prefixes_partition_the_catalog() {
-        let regular = PhosphorAssets.list("phosphor/regular/").expect("list");
+        let regular = CelestiaAssets.list("phosphor/regular/").expect("list");
         assert!(regular.len() >= PhosphorIcon::COUNT);
-        assert!(regular
-            .iter()
-            .all(|path| path.starts_with("phosphor/regular/")));
+        assert!(
+            regular
+                .iter()
+                .all(|path| path.starts_with("phosphor/regular/"))
+        );
     }
 }

@@ -16,7 +16,7 @@
 
 use std::any::type_name;
 
-use gpui_kit::{App, Global};
+use gpui::{App, Global};
 
 use super::store::StoreHandle;
 
@@ -92,7 +92,7 @@ impl<T> std::ops::Deref for StoreContext<T> {
 
 #[cfg(test)]
 mod tests {
-    use gpui_kit::TestAppContext;
+    use gpui::TestAppContext;
 
     use super::*;
 
@@ -102,7 +102,7 @@ mod tests {
         user: String,
     }
 
-    #[gpui_kit::test]
+    #[gpui::test]
     fn provide_then_consume_shares_one_store(cx: &mut TestAppContext) {
         cx.update(|cx| {
             StoreContext::provide(
@@ -124,14 +124,14 @@ mod tests {
         });
     }
 
-    #[gpui_kit::test]
+    #[gpui::test]
     fn consume_before_provide_is_none(cx: &mut TestAppContext) {
         cx.update(|cx| {
             assert!(StoreContext::<Session>::consume(cx).is_none());
         });
     }
 
-    #[gpui_kit::test]
+    #[gpui::test]
     fn providing_again_replaces_the_value(cx: &mut TestAppContext) {
         cx.update(|cx| {
             StoreContext::provide(

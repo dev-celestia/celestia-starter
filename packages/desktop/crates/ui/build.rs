@@ -1,10 +1,14 @@
 //! Generates the typed Phosphor icon catalog from the SVGs vendored under
-//! `assets/phosphor/{weight}/` — the same approach gpui-phosphor uses, but
-//! targeting gpui-kit's `IconNamed` so the glyphs plug into gpui-kit's `Icon`.
+//! `assets/phosphor/{weight}/`.
+//!
+//! The catalog is emitted against raw `gpui` (`gpui-pre`) only — the icons
+//! render through [`crate::components::icon::Phosphor`], which draws a plain
+//! `gpui::svg()`. Nothing here reaches for gpui-kit.
 
 use std::{
     collections::{BTreeMap, BTreeSet},
-    env, fmt::Write as _,
+    env,
+    fmt::Write as _,
     fs,
     path::PathBuf,
 };
@@ -74,7 +78,7 @@ fn main() {
     .unwrap();
     writeln!(
         code,
-        "#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, ::gpui_kit::IntoElement)]"
+        "#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, ::gpui::IntoElement)]"
     )
     .unwrap();
     writeln!(code, "pub enum PhosphorIcon {{").unwrap();
@@ -110,51 +114,20 @@ fn main() {
     writeln!(code, "    }}").unwrap();
     writeln!(code, "}}").unwrap();
 
-    // Regular is the default weight: `Icon::new(PhosphorIcon::Heart)` resolves
-    // without any wrapper.
+    // `.child(PhosphorIcon::Heart)` renders at the surrounding text style, at
+    // the default (regular) weight — `Phosphor` is defined in `icon.rs`, which
+    // `include!`s this file.
+    writeln!(code, "impl ::gpui::RenderOnce for PhosphorIcon {{").unwrap();
     writeln!(
         code,
-        "impl ::gpui_kit::assets::IconNamed for PhosphorIcon {{"
+        "    fn render(self, _: &mut ::gpui::Window, _: &mut ::gpui::App) -> impl ::gpui::IntoElement {{"
     )
     .unwrap();
-    writeln!(
-        code,
-        "    fn path(self) -> ::gpui_kit::SharedString {{"
-    )
-    .unwrap();
-    writeln!(code, "        match self {{").unwrap();
-    for (variant, stem) in &variants {
-        writeln!(
-            code,
-            "            Self::{variant} => \"phosphor/regular/{stem}.svg\","
-        )
-        .unwrap();
-    }
-    writeln!(code, "        }}.into()").unwrap();
+    writeln!(code, "        Phosphor::new(self)").unwrap();
     writeln!(code, "    }}").unwrap();
     writeln!(code, "}}").unwrap();
 
-    // `.child(PhosphorIcon::Heart)` renders at the surrounding text style,
-    // mirroring `gpui_kit::assets::IconName`.
-    writeln!(
-        code,
-        "impl ::gpui_kit::RenderOnce for PhosphorIcon {{"
-    )
-    .unwrap();
-    writeln!(
-        code,
-        "    fn render(self, _: &mut ::gpui_kit::Window, _: &mut ::gpui_kit::App) -> impl ::gpui_kit::IntoElement {{"
-    )
-    .unwrap();
-    writeln!(code, "        ::gpui_kit::component::Icon::new(self)").unwrap();
-    writeln!(code, "    }}").unwrap();
-    writeln!(code, "}}").unwrap();
-
-    writeln!(
-        code,
-        "impl From<PhosphorIcon> for ::gpui_kit::AnyElement {{"
-    )
-    .unwrap();
+    writeln!(code, "impl From<PhosphorIcon> for ::gpui::AnyElement {{").unwrap();
     writeln!(code, "    fn from(icon: PhosphorIcon) -> Self {{").unwrap();
     writeln!(code, "        icon.into_any_element()").unwrap();
     writeln!(code, "    }}").unwrap();

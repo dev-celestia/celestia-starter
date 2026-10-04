@@ -1,9 +1,9 @@
 use celestia_ui::components::Card;
-use celestia_ui::components::button::{Button, ButtonVariant};
-use celestia_ui::components::popover::Popover;
-use celestia_ui::components::toast::{Notification, WindowExt};
-use gpui_kit::component::h_flex;
-use gpui_kit::*;
+use celestia_ui::components::primitive::button::{Button, ButtonVariant};
+use celestia_ui::components::primitive::popover::Popover;
+use celestia_ui::components::primitive::toast::{Notification, WindowExt};
+use gpui_component::h_flex;
+use gpui::*;
 
 use crate::showcase::Showcase;
 

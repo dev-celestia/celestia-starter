@@ -1,7 +1,7 @@
 use celestia_ui::components::Card;
-use celestia_ui::components::badge::{Badge, BadgeVariant, GpuiBadge};
-use gpui_kit::component::h_flex;
-use gpui_kit::*;
+use celestia_ui::components::primitive::badge::{Badge, BadgeVariant, GpuiBadge};
+use gpui_component::h_flex;
+use gpui::*;
 
 use crate::showcase::Showcase;
 

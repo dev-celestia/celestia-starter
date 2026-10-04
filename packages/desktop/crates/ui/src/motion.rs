@@ -7,7 +7,7 @@
 //!    (duration + delay + curve, foldable into a gpui [`Animation`]) and the
 //!    named entrances ([`fade_in`], [`menu_in`], [`dialog_in`], …).
 //! 2. **Pulse clock** — a shared ~30fps driver for the repeating loaders in
-//!    [`components::loaders`]. Loader cells stay phase-locked across instances
+//!    [`components::composite::loaders`]. Loader cells stay phase-locked across instances
 //!    because every caller reads phase off one epoch; a view leases a slot
 //!    while its spinner is mounted and the clock parks entirely when the last
 //!    lease expires, so a window with no spinner schedules nothing. This is the
@@ -25,9 +25,12 @@
 use std::collections::HashMap;
 use std::time::{Duration, Instant};
 
-use gpui_kit::{
+use gpui_base::motion::Transition;
+use gpui_base::{Easing, Spring};
+use gpui_component::theme::MotionTokens;
+use gpui::{
     Animation, AnimationElement, AnimationExt, App, ElementId, EntityId, Global, Hsla, IntoElement,
-    Rgba, Styled, px,
+    Rgba, Styled, px, rems,
 };
 
 // ---------------------------------------------------------------------------
@@ -134,6 +137,42 @@ pub const EASE_IN_OUT: CubicBezier = CubicBezier::new(0.42, 0.0, 0.58, 1.0);
 pub const EASE_TAILWIND: CubicBezier = CubicBezier::new(0.4, 0.0, 0.2, 1.0);
 
 // ---------------------------------------------------------------------------
+// Celestia design-system motion (globals.css `@theme` → "Motion")
+// ---------------------------------------------------------------------------
+//
+// The six curves above are Zeron's / the CSS keywords'. The three below are the
+// Celestia web tokens — the ones every `duration-*` transition in
+// `packages/ui/src/components/primitive/*.tsx` actually rides on. They carry a
+// `_TOKEN` suffix because two of them share a name with a CSS *keyword* that is
+// already taken above (`EASE_OUT` is `ease-out`, not `--ease-out`).
+//
+// Re-derive these when globals.css changes; the values are pinned by the tests
+// at the bottom of this file.
+
+/// `--ease-out` — the design system's signature curve. The tabs indicator and
+/// panel entrance, the switch, popover and dialog entrances, and every
+/// `ease-out` hover fade all use it: `cubic-bezier(0.23, 1, 0.32, 1)`.
+pub const EASE_OUT_TOKEN: CubicBezier = CubicBezier::new(0.23, 1.0, 0.32, 1.0);
+/// `--ease-in-out` — symmetric, for moves that should read as deliberate
+/// rather than snappy: `cubic-bezier(0.77, 0, 0.175, 1)`.
+pub const EASE_IN_OUT_TOKEN: CubicBezier = CubicBezier::new(0.77, 0.0, 0.175, 1.0);
+/// `--ease-drawer` — sheets, drawers and the overlay scrim that rides with
+/// them: `cubic-bezier(0.32, 0.72, 0, 1)`.
+pub const EASE_DRAWER_TOKEN: CubicBezier = CubicBezier::new(0.32, 0.72, 0.0, 1.0);
+
+/// `--transition-duration-instant` — 80ms. Press feedback (`active:*`).
+pub const DURATION_INSTANT: Duration = Duration::from_millis(80);
+/// `--transition-duration-fast` — 150ms. Hover colour and background fades.
+pub const DURATION_FAST: Duration = Duration::from_millis(150);
+/// `--transition-duration-normal` — 220ms. The tabs indicator, panel
+/// entrances, dialog and overlay fades.
+pub const DURATION_NORMAL: Duration = Duration::from_millis(220);
+/// `--transition-duration-slow` — 320ms. Sheets, navigation-menu and toasts.
+pub const DURATION_SLOW: Duration = Duration::from_millis(320);
+/// `--transition-duration-slower` — 500ms. Caret blink and long reveals.
+pub const DURATION_SLOWER: Duration = Duration::from_millis(500);
+
+// ---------------------------------------------------------------------------
 // Motion specs (the catalog)
 // ---------------------------------------------------------------------------
 
@@ -209,6 +248,28 @@ pub const PULSE: MotionSpec = MotionSpec::new(2400, EASE);
 /// The gradient spinner's period: 750ms per-cell phase wave.
 pub const GRADIENT_SPIN: MotionSpec = MotionSpec::new(750, EASE);
 
+// ---------------------------------------------------------------------------
+// The design-system scale as MotionSpecs
+// ---------------------------------------------------------------------------
+//
+// One spec per `duration-*` utility the web primitives actually use, so a
+// component can name the effect it is reproducing instead of restating a
+// duration and a curve. `HOVER` is the `transition-colors duration-fast
+// ease-out` that every interactive surface carries; `SLIDE` is the tabs
+// indicator and panel entrance; `PRESS` is `active:duration-instant`.
+
+/// Hover colour / background fade — `transition-colors duration-fast ease-out`.
+pub const HOVER: MotionSpec = MotionSpec::new(150, EASE_OUT_TOKEN);
+/// Selection and panel motion — the tabs indicator slide, `data-open` panel
+/// entrances, `duration-normal` with the signature curve.
+pub const SLIDE: MotionSpec = MotionSpec::new(220, EASE_OUT_TOKEN);
+/// Press feedback — `active:duration-instant`.
+pub const PRESS: MotionSpec = MotionSpec::new(80, EASE_OUT_TOKEN);
+/// Popup entrance — `duration-fast ease-out` (popover, tooltip, hover card).
+pub const POPUP_IN: MotionSpec = MotionSpec::new(150, EASE_OUT_TOKEN);
+/// Overlay scrim and sheets — `duration-slow` with `--ease-drawer`.
+pub const OVERLAY: MotionSpec = MotionSpec::new(320, EASE_DRAWER_TOKEN);
+
 /// Standard entrance: opacity 0→1 + translateY 4→0 over [`FADE_IN`].
 pub fn fade_in<E>(id: impl Into<ElementId>, element: E) -> AnimationElement<E>
 where
@@ -277,6 +338,100 @@ where
     element.with_animation(id, SPLASH_OUT.animation(), |el, t| {
         el.opacity(1.0 - t).top(px(-6.0 * t))
     })
+}
+
+// ---------------------------------------------------------------------------
+// Value transitions — the `transition-*` half of the design system
+// ---------------------------------------------------------------------------
+//
+// `with_animation` above replays a fixed timeline; it cannot express
+// `transition-colors duration-fast ease-out`, because the target changes with
+// interaction. `gpui_base::motion::transition` can: it samples a value toward a
+// target and reverses from wherever it currently is. These helpers hand a
+// component the policy for one of the design system's steps, so a hover fade is
+// named the way the web names it.
+//
+// Call them while rendering, and key them per element:
+//
+// ```ignore
+// let t = transition(("btn-hover", self.id.clone()), hovered as u8 as f32,
+//                    motion::hover_transition(), window, cx);
+// let bg = motion::mix(rest, hover, t);
+// ```
+
+/// `transition-colors duration-fast ease-out` — a hover colour or background
+/// fade between two states.
+pub fn hover_transition() -> Transition {
+    spec_transition(HOVER)
+}
+
+/// `active:duration-instant` — press feedback.
+pub fn press_transition() -> Transition {
+    spec_transition(PRESS)
+}
+
+/// `duration-normal` with the signature curve — selection slides, indicator
+/// travel and panel entrances.
+pub fn slide_transition() -> Transition {
+    spec_transition(SLIDE)
+}
+
+/// Any catalog [`MotionSpec`] as a value-transition policy. Every helper above
+/// is this function over a named spec, so a helper's duration and curve are the
+/// spec's — the ones the tests pin against `globals.css`.
+pub fn spec_transition(spec: MotionSpec) -> Transition {
+    Transition::new(Duration::from_millis(spec.duration_ms)).ease(spec.curve.easing())
+}
+
+// ---------------------------------------------------------------------------
+// The design system as gpui-kit's MotionTokens
+// ---------------------------------------------------------------------------
+
+/// The Celestia motion policy as gpui-kit's [`MotionTokens`].
+///
+/// `theme.json` cannot carry this: `Theme::motion` is `#[serde(skip)]`, so the
+/// scale is assigned directly in [`crate::theme::install`]. Without it every
+/// re-exported gpui-kit component — switch, checkbox, slider, accordion,
+/// collapsible, progress, carousel, `TabBar` — animates on gpui-kit's own scale
+/// (instant 0 / fast 120 / normal 180 / slow 280ms) rather than the web design
+/// system's (80 / 150 / 220 / 320ms).
+///
+/// Mapping, web token → gpui slot:
+///
+/// | gpui slot | Celestia value | Because |
+/// | --- | --- | --- |
+/// | `duration_instant` | `DURATION_INSTANT` (80ms) | `active:duration-instant` |
+/// | `duration_fast` | `DURATION_FAST` (150ms) | `duration-fast` hovers |
+/// | `duration_normal` | `DURATION_NORMAL` (220ms) | indicator + entrances |
+/// | `duration_slow` | `DURATION_SLOW` (320ms) | sheets, navigation-menu |
+/// | `easing_enter` | `--ease-out` | `data-open:animate-in … ease-out` |
+/// | `easing_exit` | `--ease-drawer` | sheet / drawer / overlay exit |
+/// | `easing_move` | `--ease-out` | the tabs indicator's own curve |
+/// | `spring_control` | 150ms | switch / checkbox thumbs are `duration-fast` |
+/// | `spring_move` | 220ms | the tabs indicator is `duration-normal` |
+pub fn motion_tokens() -> MotionTokens {
+    MotionTokens {
+        duration_instant: DURATION_INSTANT,
+        duration_fast: DURATION_FAST,
+        duration_normal: DURATION_NORMAL,
+        duration_slow: DURATION_SLOW,
+        easing_enter: easing(EASE_OUT_TOKEN),
+        easing_exit: easing(EASE_DRAWER_TOKEN),
+        easing_move: easing(EASE_OUT_TOKEN),
+        spring_control: Spring::new(DURATION_FAST),
+        spring_move: Spring::new(DURATION_NORMAL)
+            .with_damping(0.85)
+            .with_epsilon(0.1),
+        distance_short: rems(0.25),
+        distance_medium: rems(0.5),
+    }
+}
+
+/// A [`CubicBezier`] as a gpui-base [`Easing`]. The control points are compile-
+/// time constants, so an invalid curve is a bug, not a runtime condition.
+fn easing(curve: CubicBezier) -> Easing {
+    Easing::cubic_bezier(curve.x1, curve.y1, curve.x2, curve.y2)
+        .expect("celestia motion curves are valid CSS beziers")
 }
 
 // ---------------------------------------------------------------------------
@@ -473,7 +628,7 @@ fn schedule_pulse_every(view: EntityId, stride: u64, cx: &mut App) {
 }
 
 // ---------------------------------------------------------------------------
-// Loader math (pure; rendered by components::loaders)
+// Loader math (pure; rendered by components::composite::loaders)
 // ---------------------------------------------------------------------------
 
 /// Cells in the pulse wave loader.
@@ -688,5 +843,117 @@ mod tests {
         let out = Rgba::from(mix(clear, clear_blue, 0.5));
         assert!(out.a <= f32::EPSILON);
         assert!(out.b > 0.9);
+    }
+
+    /// The three design-system curves are read off `globals.css` and must stay
+    /// pinned to those control points — the same trap as the theme hex values.
+    #[test]
+    fn design_system_curves_match_globals_css() {
+        assert_eq!(EASE_OUT_TOKEN, CubicBezier::new(0.23, 1.0, 0.32, 1.0));
+        assert_eq!(EASE_IN_OUT_TOKEN, CubicBezier::new(0.77, 0.0, 0.175, 1.0));
+        assert_eq!(EASE_DRAWER_TOKEN, CubicBezier::new(0.32, 0.72, 0.0, 1.0));
+
+        // Endpoints are fixed, and the signature curve is far along at the
+        // midpoint — the "fast start, long settle" the web transitions read as.
+        for curve in [EASE_OUT_TOKEN, EASE_IN_OUT_TOKEN, EASE_DRAWER_TOKEN] {
+            assert_eq!(curve.eval(0.0), 0.0);
+            assert_eq!(curve.eval(1.0), 1.0);
+        }
+        assert!(EASE_OUT_TOKEN.eval(0.5) > 0.75);
+        // `--ease-in-out` is deliberately asymmetric (0.77 / 0.175), so it is
+        // NOT the identity at the midpoint: it is slow in *and* slow out, which
+        // is what "moves that read as deliberate" means. Assert the shape, not
+        // a midpoint value it was never going to have.
+        assert!(EASE_IN_OUT_TOKEN.eval(0.25) < 0.25);
+        assert!(EASE_IN_OUT_TOKEN.eval(0.75) > 0.75);
+        assert!(EASE_IN_OUT_TOKEN.eval(0.5) > 0.4 && EASE_IN_OUT_TOKEN.eval(0.5) < 0.6);
+    }
+
+    #[test]
+    fn design_system_durations_match_globals_css() {
+        assert_eq!(DURATION_INSTANT, Duration::from_millis(80));
+        assert_eq!(DURATION_FAST, Duration::from_millis(150));
+        assert_eq!(DURATION_NORMAL, Duration::from_millis(220));
+        assert_eq!(DURATION_SLOW, Duration::from_millis(320));
+        assert_eq!(DURATION_SLOWER, Duration::from_millis(500));
+
+        // A closed, monotonic scale — the property the token layer asserts.
+        assert!(DURATION_INSTANT < DURATION_FAST);
+        assert!(DURATION_FAST < DURATION_NORMAL);
+        assert!(DURATION_NORMAL < DURATION_SLOW);
+        assert!(DURATION_SLOW < DURATION_SLOWER);
+    }
+
+    /// The named specs must actually carry the design-system step, otherwise a
+    /// component naming `HOVER` would silently animate on a Zeron curve.
+    #[test]
+    fn named_specs_carry_the_design_system_steps() {
+        assert_eq!(HOVER.duration_ms, 150);
+        assert_eq!(HOVER.curve, EASE_OUT_TOKEN);
+        assert_eq!(SLIDE.duration_ms, 220);
+        assert_eq!(SLIDE.curve, EASE_OUT_TOKEN);
+        assert_eq!(PRESS.duration_ms, 80);
+        assert_eq!(POPUP_IN.duration_ms, 150);
+        assert_eq!(OVERLAY.duration_ms, 320);
+        assert_eq!(OVERLAY.curve, EASE_DRAWER_TOKEN);
+    }
+
+    #[test]
+    fn transition_helpers_build_from_the_pinned_specs() {
+        // Every helper is `spec_transition(<named spec>)`, so its duration and
+        // curve are the spec's — the values the two tests above pin. Nothing
+        // else may creep into a helper.
+        assert_eq!(HOVER.duration_ms, DURATION_FAST.as_millis() as u64);
+        assert_eq!(PRESS.duration_ms, DURATION_INSTANT.as_millis() as u64);
+        assert_eq!(SLIDE.duration_ms, DURATION_NORMAL.as_millis() as u64);
+        assert_eq!(POPUP_IN.curve, EASE_OUT_TOKEN);
+        assert_eq!(SLIDE.curve, EASE_OUT_TOKEN);
+        assert_eq!(PRESS.curve, EASE_OUT_TOKEN);
+
+        // Constructing them is infallible and allocates the expected easing.
+        let _ = hover_transition();
+        let _ = press_transition();
+        let _ = slide_transition();
+        let _ = spec_transition(OVERLAY);
+    }
+
+    /// `motion_tokens()` is what re-times the 55 re-exported gpui-kit
+    /// components, so pin it against gpui-kit's defaults it replaces.
+    #[test]
+    fn motion_tokens_replace_the_gpui_default_scale() {
+        let tokens = motion_tokens();
+        let kit = MotionTokens::default();
+
+        assert_eq!(tokens.duration_instant, DURATION_INSTANT);
+        assert_eq!(tokens.duration_fast, DURATION_FAST);
+        assert_eq!(tokens.duration_normal, DURATION_NORMAL);
+        assert_eq!(tokens.duration_slow, DURATION_SLOW);
+
+        // Every duration actually moved off the kit default.
+        assert_ne!(tokens.duration_instant, kit.duration_instant);
+        assert_ne!(tokens.duration_fast, kit.duration_fast);
+        assert_ne!(tokens.duration_normal, kit.duration_normal);
+        assert_ne!(tokens.duration_slow, kit.duration_slow);
+
+        // Curves sample like their source tokens.
+        for (slot, curve) in [
+            (tokens.easing_enter.clone(), EASE_OUT_TOKEN),
+            (tokens.easing_exit.clone(), EASE_DRAWER_TOKEN),
+            (tokens.easing_move.clone(), EASE_OUT_TOKEN),
+        ] {
+            for x in [0.0, 0.25, 0.5, 0.75, 1.0] {
+                assert!(
+                    (slot.sample(x) - curve.eval(x)).abs() < 1e-4,
+                    "easing sample at {x}"
+                );
+            }
+        }
+        // …and differ from the kit's own curves.
+        assert!((tokens.easing_enter.sample(0.5) - kit.easing_enter.sample(0.5)).abs() > 1e-3);
+        assert!((tokens.easing_move.sample(0.5) - kit.easing_move.sample(0.5)).abs() > 1e-3);
+
+        // The move spring keeps the kit's settle tolerance (it is a pixel
+        // spring — the tabs indicator travels in pixels).
+        assert_eq!(tokens.spring_move.epsilon(), 0.1);
     }
 }

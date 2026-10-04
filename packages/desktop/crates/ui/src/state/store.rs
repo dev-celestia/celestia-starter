@@ -19,7 +19,7 @@
 //! See [`super`] for the ambient [`StoreContext`](super::StoreContext) layer
 //! and a worked example.
 
-use gpui_kit::{App, AppContext, Entity, Subscription};
+use gpui::{App, AppContext, Entity, Subscription};
 
 /// The entity payload backing a [`StoreHandle`] — a plain state value.
 ///
@@ -160,9 +160,9 @@ impl<T: 'static> StoreHandle<T> {
     /// that batch, not once per `set` call.
     pub fn observe_slice<O, S>(
         &self,
-        cx: &mut gpui_kit::Context<O>,
+        cx: &mut gpui::Context<O>,
         select: impl Fn(&T) -> S + 'static,
-        mut on_change: impl FnMut(&mut O, S, &mut gpui_kit::Context<O>) + 'static,
+        mut on_change: impl FnMut(&mut O, S, &mut gpui::Context<O>) + 'static,
     ) -> Subscription
     where
         O: 'static,
@@ -208,7 +208,7 @@ impl<T: 'static> StoreHandle<T> {
 mod tests {
     use std::{cell::Cell, rc::Rc};
 
-    use gpui_kit::TestAppContext;
+    use gpui::TestAppContext;
 
     use super::*;
 
@@ -224,7 +224,7 @@ mod tests {
         }
     }
 
-    #[gpui_kit::test]
+    #[gpui::test]
     fn set_updates_state_and_notifies_observers(cx: &mut TestAppContext) {
         let fired = Rc::new(Cell::new(0usize));
         let store = cx.update(|cx| {
@@ -253,7 +253,7 @@ mod tests {
         });
     }
 
-    #[gpui_kit::test]
+    #[gpui::test]
     fn replace_swaps_the_whole_state(cx: &mut TestAppContext) {
         let store = cx.update(|cx| StoreHandle::new(Sample::default(), cx));
         cx.update(|cx| {
@@ -268,7 +268,7 @@ mod tests {
         cx.update(|cx| assert_eq!(store.read(cx).count, 9));
     }
 
-    #[gpui_kit::test]
+    #[gpui::test]
     fn set_if_changed_skips_equal_writes(cx: &mut TestAppContext) {
         let fired = Rc::new(Cell::new(0usize));
         let store = cx.update(|cx| {
@@ -288,7 +288,7 @@ mod tests {
         assert_eq!(fired.get(), 1, "a real change must notify");
     }
 
-    #[gpui_kit::test]
+    #[gpui::test]
     fn observe_slice_fires_only_when_its_slice_changes(cx: &mut TestAppContext) {
         struct Probe {
             counts: Vec<u32>,
@@ -353,7 +353,7 @@ mod tests {
         });
     }
 
-    #[gpui_kit::test]
+    #[gpui::test]
     fn notifications_coalesce_within_one_update_batch(cx: &mut TestAppContext) {
         let fired = Rc::new(Cell::new(0usize));
         let store = cx.update(|cx| {
@@ -376,7 +376,7 @@ mod tests {
         cx.update(|cx| assert_eq!(store.read(cx).count, 3));
     }
 
-    #[gpui_kit::test]
+    #[gpui::test]
     fn subscribe_reports_the_final_state_of_each_batch(cx: &mut TestAppContext) {
         let seen = Rc::new(std::cell::RefCell::new(Vec::new()));
         let store = cx.update(|cx| {

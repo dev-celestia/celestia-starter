@@ -1,3 +1,3 @@
-use gpui_kit::actions;
+use gpui::actions;
 
 actions!(celestia_desktop, [ToggleTheme]);

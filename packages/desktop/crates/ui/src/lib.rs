@@ -8,6 +8,7 @@
 
 pub mod assets;
 pub mod components;
+pub mod focus_ring;
 pub mod motion;
 pub mod palette;
 pub mod state;
@@ -17,11 +18,11 @@ pub mod theme;
 // both, and `palette(cx)` resolves to this function.
 pub use palette::palette;
 
-pub use gpui_kit;
+pub use gpui;
 
 /// Install the gpui-kit runtime and the Celestia theme. Call from the app's
 /// `application().run(|cx| ...)` closure before opening any windows.
-pub fn init(cx: &mut gpui_kit::App) {
-    gpui_kit::init(cx);
+pub fn init(cx: &mut gpui::App) {
+    gpui_component::init(cx);
     theme::install(cx);
 }

@@ -33,10 +33,10 @@ pub use config::{AppTheme, Scheme, hex};
 // The gpui-kit theming surface, re-exported so apps reach the whole story —
 // the global `Theme`, its resolved `ThemeColor` set, and the `ActiveTheme`
 // accessor every component reads — from one place.
-pub use gpui_kit::component::{ActiveTheme, Theme, ThemeColor};
+pub use gpui_component::{ActiveTheme, Theme, ThemeColor};
 
-use gpui_kit::App;
-use gpui_kit::component::ThemeRegistry;
+use gpui::App;
+use gpui_component::ThemeRegistry;
 
 const THEME_JSON: &str = include_str!("theme.json");
 pub(crate) const LIGHT: &str = "Celestia Light";
@@ -44,7 +44,7 @@ pub(crate) const DARK: &str = "Celestia Dark";
 
 /// Install the Celestia light/dark palettes as the active theme configs.
 ///
-/// Must run after `gpui_kit::init`. The JSON is compile-time embedded and its
+/// Must run after `gpui_component::init`. The JSON is compile-time embedded and its
 /// key values are pinned by the tests below, so a failure here is a bug and
 /// panics rather than silently falling back to gpui-kit's default gray.
 pub fn install(cx: &mut App) {
@@ -67,6 +67,13 @@ pub fn install(cx: &mut App) {
     // Re-apply the current mode so the new configs take effect immediately.
     Theme::change(mode, None, cx);
 
+    // `Theme::motion` is `#[serde(skip)]`, so the motion scale cannot ride in
+    // `theme.json`. Assign it directly — `apply_config` never touches the field,
+    // so it survives later `Theme::change` / system-appearance switches. This
+    // is what makes every re-exported gpui-kit component animate on the web
+    // design system's durations and curves instead of gpui-kit's own.
+    Theme::global_mut(cx).motion = crate::motion::motion_tokens();
+
     // Seed the theme book with the Celestia family (the multi-theme layer).
     book::install(cx);
 }
@@ -74,20 +81,20 @@ pub fn install(cx: &mut App) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use gpui_kit::Rgba;
-    use gpui_kit::TestAppContext;
-    use gpui_kit::component::{ActiveTheme, ThemeMode};
+    use gpui::Rgba;
+    use gpui::TestAppContext;
+    use gpui_component::{ActiveTheme, ThemeMode};
 
-    fn hex(color: gpui_kit::Hsla) -> u32 {
+    fn hex(color: gpui::Hsla) -> u32 {
         let rgba = Rgba::from(color);
         let to8 = |v: f32| (v * 255.0).round() as u32;
         (to8(rgba.r) << 16) | (to8(rgba.g) << 8) | to8(rgba.b)
     }
 
-    #[gpui_kit::test]
+    #[gpui::test]
     fn install_replaces_the_default_palette(cx: &mut TestAppContext) {
         cx.update(|cx| {
-            gpui_kit::init(cx);
+            gpui_component::init(cx);
             install(cx);
 
             Theme::change(ThemeMode::Light, None, cx);
@@ -116,10 +123,10 @@ mod tests {
 
     /// Dark borders ride on white alpha (oklch(1 0 0 / 10%)) — the rgb part is
     /// white and the alpha carries the value.
-    #[gpui_kit::test]
+    #[gpui::test]
     fn dark_border_is_white_alpha(cx: &mut TestAppContext) {
         cx.update(|cx| {
-            gpui_kit::init(cx);
+            gpui_component::init(cx);
             install(cx);
 
             Theme::change(ThemeMode::Dark, None, cx);
@@ -132,10 +139,10 @@ mod tests {
     }
 
     /// The selection tint rides on the primary hue at 22% alpha in both modes.
-    #[gpui_kit::test]
+    #[gpui::test]
     fn selection_matches_primary_at_22_percent(cx: &mut TestAppContext) {
         cx.update(|cx| {
-            gpui_kit::init(cx);
+            gpui_component::init(cx);
             install(cx);
 
             for mode in [ThemeMode::Light, ThemeMode::Dark] {
@@ -149,10 +156,10 @@ mod tests {
 
     /// Primary must not regress to the old blue (#3f87bd) the brand moved away
     /// from — the same staleness trap as the web token tables.
-    #[gpui_kit::test]
+    #[gpui::test]
     fn primary_is_the_brand_red_not_legacy_blue(cx: &mut TestAppContext) {
         cx.update(|cx| {
-            gpui_kit::init(cx);
+            gpui_component::init(cx);
             install(cx);
 
             Theme::change(ThemeMode::Light, None, cx);

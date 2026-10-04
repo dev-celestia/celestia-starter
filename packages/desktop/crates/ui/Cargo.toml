@@ -7,11 +7,19 @@ publish = false
 description = "Reusable GPUI component library for the Celestia desktop app"
 
 [dependencies]
-gpui-kit.workspace = true
+# GPUI — the framework. Migrated components are written against this directly.
+gpui.workspace = true
+# The widget layers that not-yet-rewritten components re-export. Depended on
+# directly rather than through the `gpui-kit` facade, so every import names the
+# layer it actually comes from.
+gpui-base.workspace = true
+gpui-component.workspace = true
 # Embeds the vendored Phosphor SVGs (assets/phosphor/**) as an AssetSource;
 # reads from disk in debug, embeds in release.
 rust-embed = { version = "8", features = ["interpolate-folder-path"] }
 
 [dev-dependencies]
-# TestAppContext / #[gpui_kit::test] need test-support; test builds only.
-gpui-kit = { workspace = true, features = ["test-support"] }
+# TestAppContext / #[gpui::test] need test-support; test builds only.
+gpui = { workspace = true, features = ["test-support"] }
+gpui-base = { workspace = true, features = ["test-support"] }
+gpui-component = { workspace = true, features = ["test-support"] }

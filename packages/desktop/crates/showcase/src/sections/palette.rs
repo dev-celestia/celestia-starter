@@ -1,7 +1,7 @@
 use celestia_ui::components::Card;
 use celestia_ui::palette;
-use gpui_kit::component::{ActiveTheme, h_flex, v_flex};
-use gpui_kit::*;
+use gpui_component::{ActiveTheme, h_flex, v_flex};
+use gpui::*;
 
 use crate::showcase::Showcase;
 

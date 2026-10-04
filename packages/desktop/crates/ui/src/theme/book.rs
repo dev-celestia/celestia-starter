@@ -45,8 +45,8 @@
 
 use std::collections::HashMap;
 
-use gpui_kit::component::{Theme, ThemeConfig, ThemeRegistry};
-use gpui_kit::{App, Global, SharedString};
+use gpui_component::{Theme, ThemeConfig, ThemeRegistry};
+use gpui::{App, Global, SharedString};
 
 /// The default family name — seeded from `theme.json` by [`install`].
 pub(crate) const CELESTIA: &str = "Celestia";
@@ -214,24 +214,24 @@ fn book(cx: &App) -> Option<&ThemeBook> {
 
 #[cfg(test)]
 mod tests {
-    use gpui_kit::Rgba;
-    use gpui_kit::TestAppContext;
-    use gpui_kit::component::{ActiveTheme, ThemeMode};
+    use gpui::Rgba;
+    use gpui::TestAppContext;
+    use gpui_component::{ActiveTheme, ThemeMode};
 
     use super::super::config::{AppTheme, Scheme, hex};
     use super::*;
 
     /// RGB part of a color as `0xrrggbb` (the theme.rs test idiom).
-    fn code(color: gpui_kit::Hsla) -> u32 {
+    fn code(color: gpui::Hsla) -> u32 {
         let rgba = Rgba::from(color);
         let to8 = |v: f32| (v * 255.0).round() as u32;
         (to8(rgba.r) << 16) | (to8(rgba.g) << 8) | to8(rgba.b)
     }
 
-    #[gpui_kit::test]
+    #[gpui::test]
     fn register_activates_and_select_switches_back(cx: &mut TestAppContext) {
         cx.update(|cx| {
-            gpui_kit::init(cx);
+            gpui_component::init(cx);
             crate::theme::install(cx);
             assert_eq!(active(cx), CELESTIA);
             assert_eq!(families(cx), vec![SharedString::from(CELESTIA)]);
@@ -274,10 +274,10 @@ mod tests {
         });
     }
 
-    #[gpui_kit::test]
+    #[gpui::test]
     fn apply_overlays_whichever_family_is_active(cx: &mut TestAppContext) {
         cx.update(|cx| {
-            gpui_kit::init(cx);
+            gpui_component::init(cx);
             crate::theme::install(cx);
 
             AppTheme {

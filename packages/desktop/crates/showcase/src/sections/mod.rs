@@ -12,6 +12,5 @@ pub mod overlays;
 pub mod palette;
 pub mod pickers;
 pub mod state;
-pub mod swiftui;
 pub mod tags;
 pub mod theming;

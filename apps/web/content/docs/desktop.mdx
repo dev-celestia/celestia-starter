@@ -51,21 +51,80 @@ cargo test --workspace              # unit + gpui TestAppContext tests (theme pi
 
 ## Architecture
 
-One file per primitive, mirroring `packages/ui/src/components/primitive/*.tsx`:
+One file per component, split into two category modules mirroring
+`packages/ui/src/components/{primitive,composite}`:
 
 1. **Celestia wrappers** — components with a shadcn-shaped prop surface that
    render gpui-kit primitives under Celestia theming: `button.rs` (`Button` +
    `ButtonVariant` primary/secondary/destructive/outline/ghost/link +
-   `ButtonSize`), `badge.rs` (`Badge` + `BadgeVariant`, including a `Brand`
-   variant), `card.rs`, `section_heading.rs`, `text_editor.rs` and
-   `code_editor.rs`.
-2. **Per-primitive re-exports** — every other primitive gets its own file
-   (`switch.rs`, `alert.rs`, `popover.rs`, `table.rs`, …) re-exporting the
-   matching gpui-component API, with a doc comment recording the web-file →
-   desktop mapping (the table below). Wrapper types are also flattened at
+   `ButtonSize`), `badge.rs` (`Badge` + `BadgeVariant` — composed from a plain
+   `div` rather than gpui-kit's `Tag`, because the web status variants are a 10%
+   tint of the accent under accent-coloured text and the Tag paints solid fills
+   plus a hover dim the web does not have), `avatar.rs` (`Avatar` +
+   `AvatarSize`, the web's 24/32/40px scale), `card.rs`, `section_heading.rs`,
+   `text_editor.rs` and `code_editor.rs`.
+2. **Per-component re-exports** — the remaining components each get a file
+   (`switch.rs`, `popover.rs`, `table.rs`, …) re-exporting the matching
+   gpui-component API, with a doc comment recording the web-file → desktop
+   mapping (the table below). Wrapper types are also flattened at
    `celestia_ui::components::*` (e.g. `components::Button`); module-only
-   primitives are reached through their module path
-   (`components::table::…`).
+   components are reached through their category-qualified path
+   (`components::primitive::table::…`, `components::composite::sidebar::…`).
+3. **Raw-GPUI components** — written directly on `gpui` (`gpui-pre`) and
+   importing nothing from gpui-kit: `primitive/alert.rs`, `primitive/progress.rs`,
+   `primitive/skeleton.rs`, `primitive/spinner.rs`, `primitive/shimmer.rs`,
+   `primitive/icon.rs`, `composite/loaders.rs`, `composite/notice.rs`,
+   `composite/context_badge.rs`. They render with `gpui::div` / `gpui::svg` /
+   `gpui::canvas` and read colors from `cx.theme()`.
+
+### Migrating off gpui-kit
+
+`celestia-ui` depends on **both** `gpui-kit` and raw `gpui`, pinned to the same
+snapshot so the two name identical types and the two styles coexist in one
+crate. Components move from (2) → (3) one **family** at a time, and
+`crates/ui/src/components/mod.rs` tracks what is done. Migrated so far:
+
+- **Feedback** — `primitive/`: `alert`, `progress`, `skeleton`, `spinner`,
+  `shimmer`, `icon`; `composite/`: `loaders`, `notice`, `context_badge`.
+- **Structural** — `primitive/`: `separator`, `kbd`, `link`, `breadcrumb`;
+  `composite/`: `group_box`, `status_bar`, `description_list`, `empty`.
+- **Display** — `primitive/`: `badge`, `label`, `rating`.
+
+Pick the next family by **transitive cost, not file size**: a one-line re-export
+is not automatically cheap, because the type it re-exports may itself be built
+out of the facade's other layers. Most of what remains is built on `gpui-base`
+state machines (`checkbox`, `radio`, `switch`, `slider`, `accordion`, `table`,
+`tabs`, `dialog`, `input`, `select`, `popover`, `tooltip`, `toast`,
+`scroll_area`, `avatar`, `tree`, `calendar`, `date_picker`, `color_picker`,
+`combobox`, `dock`, `list`, `pagination`, `sheet`, `stepper`, `menu`,
+`sidebar`) — the base layer is the next milestone, not the component layer.
+
+The substitutions that recur, and the two places the facade was load-bearing:
+
+| Was (gpui-kit) | Now (raw `gpui`) |
+| --- | --- |
+| `use gpui_kit::{div, px, …}` | `use gpui::{div, px, …}` — same items, so mostly mechanical |
+| `use gpui_kit::component::ActiveTheme` | `use crate::theme::ActiveTheme as _` |
+| `gpui_kit::component::Icon` / `assets::IconName` | `crate::components::primitive::icon::{Phosphor, PhosphorIcon}` |
+| `IconName::StarFill` | `Phosphor::new(PhosphorIcon::Star).weight(PhosphorWeight::Fill)` |
+| `.refine_style(&style)` | `el.style().refine(&style)` |
+| `h_flex()` / `v_flex()` | `div().flex().flex_row()` / `div().flex().flex_col()` |
+| `Tooltip::new(..).build(..)` | `.tooltip(\|_, cx\| cx.new(\|_\| MyHint).into())` |
+| `Sizable` / `Size` | a crate-local metric bucket, e.g. `DescriptionListSize`, `RatingSize`, `GpuiBadgeSize` |
+
+`refine_style` and the `h_flex`/`v_flex` helpers are **gpui-base**, not core
+gpui, so a migrated file spells out `style().refine(..)` and the flex
+direction. Two further traps: `ParentElement` must be imported **by name**
+(not `as _`) if the file implements it, and `Styled` / `InteractiveElement` /
+`Refineable` must be in scope or `h_4` / `child` / `id` / `refine` silently
+fail to resolve. A third: a facade enum that derives `Clone` may not survive the
+port — widening one arm to hold an `AnyElement` (not `Clone`) means dropping the
+derive, not boxing around it. The full recipe — and how to pick the next family
+by *transitive* cost rather than file size — is the module doc of
+`crates/ui/src/components/mod.rs`. The theme service (`cx.theme()` →
+gpui-component's `Theme`/`ThemeColor`) is the last piece scheduled to move; it
+is re-exported from `crate::theme` so component files never name `gpui_kit`
+directly.
 
 One rule runs through everything: **raw hex lives only in `theme.json` and `palette.rs`**. Call
 sites take colors by role through `cx.theme()` (semantic roles: background, foreground, primary,
@@ -73,29 +132,37 @@ border, sidebar…) or `palette(cx)` (brand + charts).
 
 ## Component map
 
-Each row is a file in `crates/ui/src/components/`:
+Every component lives in `crates/ui/src/components/`, under one of two
+categories that mirror `packages/ui/src/components/{primitive,composite}`:
+
+- **`primitive/`** — one control, or one visual atom, per file.
+- **`composite/`** — surfaces assembled from several primitives, plus
+  application-level assemblies (chrome, shells, editors).
+
+The split is by **composition, not size**: a file that renders two or more
+primitives, or that owns a layout region rather than a control, is a composite.
 
 | File (desktop)                                                                                                                                                                                                                                             | Web counterpart                                                                                                                   |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `button.rs` (wrapper: `ButtonVariant`, `ButtonSize`)                                                                                                                                                                                                       | `button.tsx`                                                                                                                      |
-| `badge.rs` (wrapper: `BadgeVariant` incl. `Brand`; `GpuiBadge` for count/dot)                                                                                                                                                                              | `badge.tsx`                                                                                                                       |
-| `input.rs`, `textarea.rs`, `input_otp.rs`, `select.rs`, `combobox.rs`                                                                                                                                                                                      | `input.tsx`, `textarea.tsx`, `input-otp.tsx`, `select.tsx`, combobox composite                                                    |
-| `switch.rs`, `checkbox.rs`, `radio.rs`, `slider.rs`, `rating.rs`, `stepper.rs`                                                                                                                                                                             | `switch.tsx`, `checkbox.tsx`, `radio-group.tsx`, `slider.tsx`, —, —                                                               |
-| `calendar.rs`, `date_picker.rs`, `color_picker.rs`, `label.rs`                                                                                                                                                                                             | `calendar.tsx`, —, —, `label.tsx`                                                                                                 |
-| `alert.rs`, `toast.rs` (toasts + `WindowExt`), `progress.rs`, `spinner.rs`, `skeleton.rs`, `shimmer.rs`                                                                                                                                                    | `alert.tsx`, `toast.tsx` / `sonner.tsx`, `progress.tsx`, `spinner.tsx`, `skeleton.tsx`, `ai/shimmer.tsx`                          |
-| `popover.rs`, `dialog.rs`, `sheet.rs`, `menu.rs`, `hover_card.rs`, `tooltip.rs`, `command.rs`                                                                                                                                                              | `popover.tsx`, `dialog.tsx`, `drawer.tsx` / `sheet.tsx`, dropdown/context/menubar, `hover-card.tsx`, `tooltip.tsx`, `command.tsx` |
-| `avatar.rs`, `breadcrumb.rs`, `list.rs`, `tree.rs`, `pagination.rs`, `marker.rs`, `empty.rs`, `description_list.rs`                                                                                                                                        | `avatar.tsx`, `breadcrumb.tsx`, `item.tsx`, `ai/file-tree.tsx`, `pagination.tsx`, `marker.tsx`, `empty.tsx`, —                    |
-| `table.rs` — two APIs: HTML-style primitives (`Table`, `TableHeader`, `TableBody`, `TableRow`, `TableHead`, `TableCell`, `TableCaption`) + `DataTable` entity (declarative columns/rows over the virtualized delegate table, `set_rows`, `from_key_value`) | `table.tsx` (primitives), the `data-table` composite; GetCat `kv_table.rs` inspired the Key/Value constructor                     |
-| `separator.rs`, `tabs.rs`, `accordion.rs`, `collapsible.rs`, `carousel.rs`, `resizable.rs`, `scroll_area.rs`, `group_box.rs`                                                                                                                               | `separator.tsx`, `tabs.tsx`, `accordion.tsx`, `collapsible.tsx`, `carousel.tsx`, `resizable.tsx`, `scroll-area.tsx`, —            |
-| `sidebar.rs`, `sidebar_layout.rs` (shell: `SidebarLayout` + header/nav/item/footer), `dock.rs`, `title_bar.rs`, `status_bar.rs`                                                                                                                            | `sidebar.tsx` (composite); the layout shell, dock and window chrome are desktop-only                                              |
-| `bubble.rs`, `message.rs`, `attachment.rs`                                                                                                                                                                                                                 | the web `ai/` family's bubble, chat-message + message-scroller, attachment                                                        |
-| `charts.rs` (`chart`, `plot` — generic API, series colors from `palette(cx).chart(i)`)                                                                                                                                                                     | `chart.tsx` + the `chart-*.tsx` composites                                                                                        |
-| `swiftui.rs` (SwiftUI-style layout: `HStack`/`VStack`/`ZStack` with alignment + spacing, `Spacer`, axis `ScrollView`, `VGrid` + `GridItem`, `Frame`)                                                                                                       | SwiftUI's layout vocabulary — no web counterpart; gallery has a dedicated section                                                 |
-| `icon.rs` (Phosphor icons: `PhosphorIcon` catalog + `Phosphor` weight wrapper)                                                                                                                                                                             | `lucide-react` on web; desktop uses Phosphor Core (no web counterpart)                                                            |
-| `card.rs`, `section_heading.rs`, `text_editor.rs`, `code_editor.rs` (wrappers / celestia-only)                                                                                                                                                             | web `Card` / `SectionHeading` idiom; `text-editor.tsx` / `block-text-editor`                                                      |
+| `primitive/button.rs` (wrapper: `ButtonVariant`, `ButtonSize`)                                                                                                                                                                                                       | `button.tsx`                                                                                                                      |
+| `primitive/badge.rs` (wrapper: `BadgeVariant` incl. `Brand`; `GpuiBadge` for count/dot)                                                                                                                                                                              | `badge.tsx`                                                                                                                       |
+| `primitive/input.rs`, `primitive/textarea.rs`, `primitive/input_otp.rs`, `primitive/select.rs`, `composite/combobox.rs`                                                                                                                                                                                      | `input.tsx`, `textarea.tsx`, `input-otp.tsx`, `select.tsx`, combobox composite                                                    |
+| `primitive/switch.rs`, `primitive/checkbox.rs`, `primitive/radio.rs`, `primitive/slider.rs`, `primitive/rating.rs`, `composite/stepper.rs`                                                                                                                                                                             | `switch.tsx`, `checkbox.tsx`, `radio-group.tsx`, `slider.tsx`, —, —                                                               |
+| `primitive/calendar.rs`, `composite/date_picker.rs`, `composite/color_picker.rs`, `primitive/label.rs`                                                                                                                                                                                             | `calendar.tsx`, —, —, `label.tsx`                                                                                                 |
+| `primitive/alert.rs`, `primitive/toast.rs` (toasts + `WindowExt`), `primitive/progress.rs`, `primitive/spinner.rs`, `primitive/skeleton.rs`, `primitive/shimmer.rs`                                                                                                                                                    | `alert.tsx`, `toast.tsx` / `sonner.tsx`, `progress.tsx`, `spinner.tsx`, `skeleton.tsx`, `ai/shimmer.tsx`                          |
+| `primitive/popover.rs`, `primitive/dialog.rs`, `primitive/sheet.rs`, `composite/menu.rs`, `primitive/hover_card.rs`, `primitive/tooltip.rs`, `primitive/command.rs`                                                                                                                                                              | `popover.tsx`, `dialog.tsx`, `drawer.tsx` / `sheet.tsx`, dropdown/context/menubar, `hover-card.tsx`, `tooltip.tsx`, `command.tsx` |
+| `primitive/avatar.rs` (wrapper: `AvatarSize` — web 24/32/40px), `primitive/breadcrumb.rs`, `composite/list.rs`, `composite/tree.rs`, `composite/pagination.rs`, `composite/marker.rs`, `composite/empty.rs`, `composite/description_list.rs`, `composite/virtual_list.rs`                                          | `avatar.tsx`, `breadcrumb.tsx`, `item.tsx`, `ai/file-tree.tsx`, `pagination.tsx`, `marker.tsx`, `empty.tsx`, —, —                 |
+| `primitive/table.rs` — two APIs: HTML-style primitives (`Table`, `TableHeader`, `TableBody`, `TableRow`, `TableHead`, `TableCell`, `TableCaption`) + `DataTable` entity (declarative columns/rows over the virtualized delegate table, `set_rows`, `from_key_value`) | `table.tsx` (primitives), the `data-table` composite; GetCat `kv_table.rs` inspired the Key/Value constructor                     |
+| `primitive/separator.rs`, `primitive/tabs.rs`, `primitive/accordion.rs`, `primitive/collapsible.rs`, `primitive/carousel.rs`, `primitive/resizable.rs`, `primitive/scroll_area.rs`, `composite/group_box.rs`                                                                                                                               | `separator.tsx`, `tabs.tsx`, `accordion.tsx`, `collapsible.tsx`, `carousel.tsx`, `resizable.tsx`, `scroll-area.tsx`, —            |
+| `composite/sidebar.rs`, `composite/sidebar_layout.rs` (shell: `SidebarLayout` + header/nav/item/footer), `composite/dock.rs`, `composite/title_bar.rs`, `composite/status_bar.rs`                                                                                                                            | `sidebar.tsx` (composite); the layout shell, dock and window chrome are desktop-only                                              |
+| `primitive/bubble.rs`, `composite/message.rs`, `composite/attachment.rs`                                                                                                                                                                                                                 | the web `ai/` family's bubble, chat-message + message-scroller, attachment                                                        |
+| `composite/charts.rs` (`chart`, `plot` — generic API, series colors from `palette(cx).chart(i)`)                                                                                                                                                                     | `chart.tsx` + the `chart-*.tsx` composites                                                                                        |
+| `composite/swiftui.rs` (SwiftUI-style layout: `HStack`/`VStack`/`ZStack` with alignment + spacing, `Spacer`, axis `ScrollView`, `VGrid` + `GridItem`, `Frame`)                                                                                                       | SwiftUI's layout vocabulary — no web counterpart; gallery has a dedicated section                                                 |
+| `primitive/icon.rs` (Phosphor icons: `PhosphorIcon` catalog + `Phosphor` weight wrapper)                                                                                                                                                                             | `lucide-react` on web; desktop uses Phosphor Core (no web counterpart)                                                            |
+| `primitive/card.rs`, `composite/section_heading.rs`, `composite/text_editor.rs`, `composite/code_editor.rs` (wrappers / celestia-only)                                                                                                                                                             | web `Card` / `SectionHeading` idiom; `text-editor.tsx` / `block-text-editor`                                                      |
 
 The rest of the web `ai/` family (prompt-input, reasoning, tools, …) has no gpui equivalent yet —
-port on demand as custom builds in `src/components/`.
+port on demand as custom builds in `src/components/composite/`.
 
 ## Zeron-port primitives
 
@@ -135,9 +202,90 @@ The gallery's **Feedback** section renders all of them live.
   ports cleanly, which is the family above.
 </Callout>
 
+## Motion
+
+`celestia_ui::motion` has two layers, and it is worth knowing which one a given
+component is on.
+
+**1. The design-system token layer.** The same curves and durations the web
+primitives use, ported from `@theme` in `packages/ui/src/styles/globals.css`:
+
+| Token                  | Value                                  | Used for                                              |
+| ---------------------- | -------------------------------------- | ----------------------------------------------------- |
+| `EASE_OUT_TOKEN`       | `cubic-bezier(0.23, 1, 0.32, 1)`       | the signature curve — hovers, indicator, entrances    |
+| `EASE_IN_OUT_TOKEN`    | `cubic-bezier(0.77, 0, 0.175, 1)`      | deliberate moves                                      |
+| `EASE_DRAWER_TOKEN`    | `cubic-bezier(0.32, 0.72, 0, 1)`       | sheets, drawers, the overlay scrim                    |
+| `DURATION_INSTANT`     | 80ms                                   | press feedback (`active:*`)                           |
+| `DURATION_FAST`        | 150ms                                  | hover colour and background fades                     |
+| `DURATION_NORMAL`      | 220ms                                  | the tabs indicator, panel entrances                   |
+| `DURATION_SLOW`        | 320ms                                  | sheets, navigation menus, toasts                      |
+| `DURATION_SLOWER`      | 500ms                                  | caret blink, long reveals                             |
+
+They are exposed three ways. Named `MotionSpec`s (`HOVER`, `SLIDE`, `PRESS`,
+`POPUP_IN`, `OVERLAY`) let a component name the effect it is reproducing;
+`spec_transition(spec)` (and the `hover_transition` / `press_transition` /
+`slide_transition` shorthands) turn one into a `gpui_base` value-transition
+policy for `transition-colors`-style fades; and `motion_tokens()` packages the
+whole scale as gpui-kit's `MotionTokens`.
+
+```rust
+// `transition-colors duration-fast ease-out` — a hover fade between two states.
+let t = transition(("btn-hover", self.id.clone()), hovered as u8 as f32,
+                   motion::hover_transition(), window, cx);
+let bg = motion::mix(rest, hover, t);
+```
+
+`theme.json` **cannot** carry this scale — gpui-kit's `Theme::motion` is
+`#[serde(skip)]` — so `theme::install` assigns it directly. That one assignment
+is what re-times every re-exported gpui-kit component (switch, checkbox, slider,
+accordion, collapsible, progress, carousel, `TabBar`) off gpui-kit's own
+0/120/180/280ms ladder and onto the design system's 80/150/220/320ms. Because
+`apply_config` never touches the field, it survives `Theme::change` and
+system-appearance switches.
+
+Colour blending goes through `motion::mix`, which interpolates component-wise in
+sRGB with premultiplied alpha — the way a browser transitions a colour — so a
+wash fading in from transparent brightens rather than passing through grey.
+
+**2. The Zeron catalogue.** The entrances and the loader pulse clock described
+under [Zeron-port primitives](#zeron-port-primitives) below are a separate,
+older layer: Zeron's own curves (`EASE_OUT_EXPO`, `EASE`, …) and periods
+(`PULSE`, `GRADIENT_SPIN`). They have no web-primitive counterpart to match and
+were deliberately left alone.
+
+### Focus rings
+
+Every focus ring is **2px at full strength** — `focus-visible:ring-2
+focus-visible:ring-ring`, enforced on the web by
+`scripts/ui-audit/focus-rings.mjs`. gpui-kit's own `focus_ring_style` draws 3px
+at 50% opacity, which that rule forbids, so `celestia_ui::focus_ring::focus_ring`
+is an in-crate replacement: it reads the element's own border widths and corner
+radii, adds 2px, and attaches an absolutely-positioned bordered child at
+`-inset` coloured `cx.theme().ring` with no alpha.
+
+### What GPUI cannot animate
+
+**GPUI has no element transform** — only images and SVGs take a
+`TransformationMatrix`, so there is nothing to scale a subtree with. Two web
+effects therefore cannot be reproduced literally:
+
+- `active:scale-[0.97]` on a tab trigger. The desktop keeps the web's *colour*
+  behaviour (no colour change beyond hover) and drops only the geometry.
+- `zoom-in-[0.99]` on the tabs panel entrance. The 1% zoom is approximated by a
+  2px rise, which reads the same on a panel edge.
+
+gpui-component documents the same constraint for the dropdown entrance in its
+`popover.rs`. Anything built on the shared core API — `div`/`Styled`,
+`Animation`, `canvas`, element state — ports cleanly; only the renderer-level
+extras do not.
+
+The component-by-component audit that produced this layer, including the
+per-wrapper parity tables and the deliberate non-goals, lives at
+`packages/desktop/AUDIT-component-motion.md`.
+
 ## Icons — Phosphor
 
-`crates/ui/src/components/icon.rs` ships the **Phosphor** icon set (Phosphor Core 2.1.1, MIT —
+`crates/ui/src/components/primitive/icon.rs` ships the **Phosphor** icon set (Phosphor Core 2.1.1, MIT —
 license vendored at `assets/phosphor/LICENSE-PHOSPHOR`). The upstream
 [`gpui-phosphor`](https://docs.rs/gpui-phosphor) crate can't be used directly — it targets the
 `gpui` 0.2 lineage and can't link against gpui-kit's `gpui-pre` types — so the approach is ported
@@ -179,6 +327,12 @@ silently** — the showcase previously hit exactly that for its Lucide icons, an
 `CelestiaAssets` fixes it. The gallery's **Phosphor Icons** section
 (`crates/showcase/src/sections/icons.rs`) renders the full catalog with live search, a
 Regular/Bold/Fill weight switcher, and click-to-copy `PhosphorIcon::…` names.
+
+An application can layer its own media on top the same way: embed a folder with
+`rust_embed` and wrap `CelestiaAssets` as the fallback. The showcase does exactly this —
+`crates/showcase/src/assets.rs` embeds its demo avatars (`assets/avatars/**`, used by the
+chat section's image `Avatar`s) and registers a `ShowcaseAssets` that checks the demo
+media first, then falls through to `CelestiaAssets`.
 
 ## Theming
 

@@ -11,16 +11,30 @@ publish = false
 [workspace.dependencies]
 celestia-ui = { path = "crates/ui" }
 
-# Single UI dependency, same shape as the GetCat reference: gpui-kit pins the
-# matching gpui (gpui-pre series), gpui-component, base crates and default icons.
-# Components live in `gpui_kit::component`, the platform layer in
-# `gpui_kit::platform`, icons in `gpui_kit::assets`. tree-sitter features power
-# the code editor's syntax highlighting (code_editor.rs).
-gpui-kit = { version = "0.6.1", features = [
+# GPUI and the layers the component library still builds on. `gpui` is the
+# framework itself. `gpui-base` (state machines, scroll, motion) and
+# `gpui-component` (the styled widgets) used to arrive bundled inside the
+# `gpui-kit` facade; they are depended on directly so no facade sits in
+# between, and each import names the layer it actually comes from. Components
+# are being rewritten onto `gpui` alone, family by family — see
+# crates/ui/src/components/mod.rs.
+gpui = { package = "gpui-pre", version = "=0.3.6" }
+gpui-base = "0.6.6"
+# tree-sitter features power the code editor's syntax highlighting
+# (code_editor.rs).
+gpui-component = { version = "0.6.6", features = [
     "tree-sitter",
     "tree-sitter-rust",
     "tree-sitter-markdown",
     "tree-sitter-markdown-inline",
+] }
+# The windowing backend. `gpui` does not depend on it; an application names it
+# to open its first window (`application().run(..)`).
+gpui-platform = { package = "gpui-pre-platform", version = "=0.3.6", features = [
+    "font-kit",
+    "x11",
+    "wayland",
+    "runtime_shaders",
 ] }
 
 [profile.dev]
@@ -33,8 +47,6 @@ gpui-pre = { opt-level = 3 }
 gpui-pre-platform = { opt-level = 3 }
 gpui-pre-macros = { opt-level = 3 }
 gpui-pre-sum-tree = { opt-level = 3 }
-gpui-kit = { opt-level = 3 }
-gpui-kit-assets = { opt-level = 3 }
 gpui-component = { opt-level = 3 }
 gpui-base = { opt-level = 3 }
 ropey = { opt-level = 3 }

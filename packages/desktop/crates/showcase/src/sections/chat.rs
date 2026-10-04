@@ -1,12 +1,14 @@
 use celestia_ui::components::Card;
-use celestia_ui::components::attachment::{
+use celestia_ui::components::composite::attachment::{
     Attachment, AttachmentContent, AttachmentDescription, AttachmentTitle,
 };
-use celestia_ui::components::avatar::Avatar;
-use celestia_ui::components::bubble::{Bubble, BubbleVariant};
-use celestia_ui::components::message::{Message, MessageAlignment, MessageContent, MessageGroup};
-use gpui_kit::component::v_flex;
-use gpui_kit::*;
+use celestia_ui::components::composite::message::{
+    Message, MessageAlignment, MessageContent, MessageGroup,
+};
+use celestia_ui::components::primitive::avatar::Avatar;
+use celestia_ui::components::primitive::bubble::{Bubble, BubbleVariant};
+use gpui_component::v_flex;
+use gpui::*;
 
 use crate::showcase::Showcase;
 
@@ -23,7 +25,7 @@ impl Showcase {
                             .child(
                                 Message::new()
                                     .alignment(MessageAlignment::Start)
-                                    .avatar(Avatar::new().name("Celestia AI"))
+                                    .avatar(Avatar::new().src("avatars/celestia-ai.png").name("Celestia AI"))
                                     .content(
                                         MessageContent::new().bubble(
                                             Bubble::new()
@@ -35,6 +37,7 @@ impl Showcase {
                             .child(
                                 Message::new()
                                     .alignment(MessageAlignment::End)
+                                    .avatar(Avatar::new().src("avatars/demo-user.jpg").name("Alex Rivera"))
                                     .content(
                                         MessageContent::new().bubble(
                                             Bubble::new()
@@ -46,7 +49,7 @@ impl Showcase {
                             .child(
                                 Message::new()
                                     .alignment(MessageAlignment::Start)
-                                    .avatar(Avatar::new().name("Celestia AI"))
+                                    .avatar(Avatar::new().src("avatars/celestia-ai.png").name("Celestia AI"))
                                     .content(
                                         MessageContent::new().bubble(
                                             Bubble::new()

@@ -1,6 +1,6 @@
 use celestia_ui::components::Card;
-use gpui_kit::component::v_flex;
-use gpui_kit::*;
+use gpui_component::v_flex;
+use gpui::*;
 
 use crate::showcase::Showcase;
 

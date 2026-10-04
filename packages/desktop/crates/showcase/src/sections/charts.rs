@@ -1,7 +1,7 @@
 use celestia_ui::components::Card;
-use celestia_ui::components::charts::chart::BarChart;
-use gpui_kit::component::v_flex;
-use gpui_kit::*;
+use celestia_ui::components::composite::charts::chart::BarChart;
+use gpui_component::v_flex;
+use gpui::*;
 
 use crate::showcase::Showcase;
 

@@ -1,32 +1,33 @@
 use celestia_ui::components::Card;
-use celestia_ui::components::button::{Button, ButtonSize, ButtonVariant};
-use celestia_ui::components::calendar::CalendarState;
-use celestia_ui::components::color_picker::ColorPickerState;
-use celestia_ui::components::date_picker::DatePickerState;
-use celestia_ui::components::icon::PhosphorWeight;
-use celestia_ui::components::input::InputState;
-use celestia_ui::components::input_otp::OtpState;
-use celestia_ui::components::kbd::Kbd;
-use celestia_ui::components::select::SelectState;
-use celestia_ui::components::sidebar_layout::{
+use celestia_ui::components::composite::color_picker::ColorPickerState;
+use celestia_ui::components::composite::date_picker::DatePickerState;
+use celestia_ui::components::composite::sidebar_layout::{
     SidebarFooter, SidebarHeader, SidebarLayout, SidebarNav, SidebarNavItem, SidebarSection,
 };
-use celestia_ui::components::slider::SliderState;
-use celestia_ui::components::table::DataTable;
-use celestia_ui::components::textarea::TextareaState;
-use celestia_ui::components::toast::{Notification, WindowExt as _};
+use celestia_ui::components::primitive::button::{Button, ButtonSize, ButtonVariant};
+use celestia_ui::components::primitive::calendar::CalendarState;
+use celestia_ui::components::primitive::icon::PhosphorWeight;
+use celestia_ui::components::primitive::input::InputState;
+use celestia_ui::components::primitive::input_otp::OtpState;
+use celestia_ui::components::primitive::kbd::Kbd;
+use celestia_ui::components::primitive::select::SelectState;
+use celestia_ui::components::primitive::slider::SliderState;
+use celestia_ui::components::primitive::table::DataTable;
+use celestia_ui::components::primitive::textarea::TextareaState;
+use celestia_ui::components::primitive::toast::{Notification, WindowExt as _};
 use celestia_ui::components::{CodeEditor, SectionHeading, TextEditor};
+use celestia_ui::motion;
 use celestia_ui::state::StoreHandle;
+use celestia_ui::components::primitive::icon::{Phosphor, PhosphorIcon};
 use celestia_ui::theme::AppTheme;
-use gpui_kit::assets::IconName;
-use gpui_kit::component::input::{Editor, EditorState, InputEvent};
-use gpui_kit::component::{
-    ActiveTheme, Icon, IndexPath, Root, Theme, ThemeMode, TitleBar, h_flex, v_flex,
-};
-use gpui_kit::*;
+use gpui_base::spring;
+use gpui_component::input::{Editor, EditorState, InputEvent};
+use gpui_component::{ActiveTheme, IndexPath, Root, Theme, ThemeMode, TitleBar, h_flex, v_flex};
+use gpui::*;
 
 use crate::actions::ToggleTheme;
 use crate::section::{SECTIONS, Section};
+use crate::sections::data_display::VirtualListDemo;
 use crate::sections::state::GalleryState;
 
 #[derive(Clone, Copy, PartialEq, Eq, Default, Debug)]
@@ -45,6 +46,8 @@ pub struct Showcase {
     pub(crate) demo_checkbox: bool,
     pub(crate) demo_radio: usize,
     pub(crate) demo_rating: usize,
+    pub(crate) demo_tab_segmented: usize,
+    pub(crate) demo_tab_line: usize,
     pub(crate) demo_input: Entity<InputState>,
     pub(crate) demo_select: Entity<SelectState<Vec<&'static str>>>,
     pub(crate) demo_editor: Entity<TextEditor>,
@@ -57,6 +60,7 @@ pub struct Showcase {
     pub(crate) demo_slider: Entity<SliderState>,
     pub(crate) demo_calendar: Entity<CalendarState>,
     pub(crate) demo_table: Entity<DataTable>,
+    pub(crate) demo_virtual_list: Entity<VirtualListDemo>,
     pub(crate) demo_state: StoreHandle<GalleryState>,
     pub(crate) state_count: u32,
     pub(crate) state_label: SharedString,
@@ -155,6 +159,8 @@ impl Showcase {
             demo_checkbox: true,
             demo_radio: 0,
             demo_rating: 4,
+            demo_tab_segmented: 0,
+            demo_tab_line: 0,
             demo_input: cx.new(|cx| InputState::new(window, cx).placeholder("Type something…")),
             demo_select: cx.new(|cx| {
                 SelectState::new(
@@ -175,6 +181,7 @@ impl Showcase {
             demo_slider: cx.new(|_| SliderState::new()),
             demo_calendar: cx.new(|cx| CalendarState::new(window, cx)),
             demo_table,
+            demo_virtual_list: cx.new(|_| VirtualListDemo::new()),
             demo_state,
             state_count,
             state_label,
@@ -228,7 +235,7 @@ impl Render for Showcase {
             .bg(cx.theme().background)
             .text_color(cx.theme().foreground)
             .child(title_bar(cx))
-            .child(self.render_shell(cx))
+            .child(self.render_shell(window, cx))
             .children(dialog_layer)
             .children(sheet_layer)
             .children(notification_layer)
@@ -237,7 +244,7 @@ impl Render for Showcase {
 
 impl Showcase {
     /// The SidebarLayout shell: nav column + the selected section's pane.
-    fn render_shell(&self, cx: &mut Context<Self>) -> impl IntoElement {
+    fn render_shell(&self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let is_dark = cx.theme().is_dark();
 
         SidebarLayout::new("shell")
@@ -294,50 +301,76 @@ impl Showcase {
                     .overflow_y_scroll()
                     .h_full()
                     .p_8()
-                    .child(self.render_section(cx)),
+                    .child(self.render_section(window, cx)),
             )
     }
 
-    fn render_toggle_button(&self, cx: &mut Context<Self>) -> impl IntoElement {
+    fn render_toggle_button(
+        &self,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> impl IntoElement {
         let is_view = self.active_tab == ShowcaseTab::View;
         let is_code = self.active_tab == ShowcaseTab::Code;
-        let theme = cx.theme();
+
+        let (
+            policy,
+            tab_bar_bg,
+            border_color,
+            radius,
+            primary_bg,
+            primary_fg,
+            muted_fg,
+            accent_color,
+            fg_color,
+        ) = {
+            let theme = cx.theme();
+            (
+                theme.motion_tokens().spring_move,
+                theme.tokens.tab_bar,
+                theme.border,
+                theme.radius,
+                theme.primary,
+                theme.primary_foreground,
+                theme.muted_foreground,
+                theme.accent,
+                theme.foreground,
+            )
+        };
+
+        // 76px segment width + 2.5px track padding + 2px gap = 80.5px offset for tab 1.
+        let to_left = if is_view { px(2.5) } else { px(80.5) };
+        let left = spring(
+            (ElementId::from("view-code-toggle"), "indicator-left"),
+            to_left,
+            policy,
+            window,
+            cx,
+        );
 
         let render_segment = |id: &'static str,
                               label: &'static str,
-                              icon: IconName,
+                              icon: PhosphorIcon,
                               is_active: bool,
-                              tab: ShowcaseTab| {
-            let (bg, border, text_color, icon_color, font_weight) = if is_active {
-                (
-                    theme.primary,
-                    theme.primary,
-                    theme.primary_foreground,
-                    theme.primary_foreground,
-                    FontWeight::SEMIBOLD,
-                )
+                              tab: ShowcaseTab,
+                              cx: &mut Context<Self>| {
+            let (text_color, icon_color, font_weight) = if is_active {
+                (primary_fg, primary_fg, FontWeight::SEMIBOLD)
             } else {
-                (
-                    theme.transparent,
-                    theme.transparent,
-                    theme.muted_foreground,
-                    theme.muted_foreground,
-                    FontWeight::MEDIUM,
-                )
+                (muted_fg, muted_fg, FontWeight::MEDIUM)
             };
 
             let mut el = h_flex()
                 .id(id)
+                .relative()
+                .w(px(76.))
+                .h(px(26.))
                 .items_center()
+                .justify_center()
                 .gap(px(5.))
-                .px(px(10.))
-                .py(px(4.))
                 .rounded(px(5.))
-                .bg(bg)
-                .border_1()
-                .border_color(border)
                 .cursor_pointer()
-                .child(Icon::new(icon).size(px(13.)).text_color(icon_color))
+                .child(Phosphor::new(icon).size(px(13.)).color(icon_color))
                 .child(
                     div()
                         .text_xs()
@@ -348,14 +381,8 @@ impl Showcase {
 
             if !is_active {
                 el = el
-                    .hover(|style| {
-                        style
-                            .bg(theme.accent.opacity(0.5))
-                            .text_color(theme.foreground)
-                    })
-                    .active(|style| style.bg(theme.accent.opacity(0.8)));
-            } else {
-                el = el.hover(|style| style.bg(theme.primary.opacity(0.92)));
+                    .hover(move |style| style.bg(accent_color.opacity(0.35)).text_color(fg_color))
+                    .active(move |style| style.bg(accent_color.opacity(0.6)));
             }
 
             el.on_click(cx.listener(move |this, _, window, cx| {
@@ -365,30 +392,43 @@ impl Showcase {
 
         h_flex()
             .id("view-code-toggle")
+            .relative()
             .items_center()
             .gap(px(2.))
             .p(px(2.5))
-            .bg(theme.tokens.tab_bar)
+            .bg(tab_bar_bg)
             .border_1()
-            .border_color(theme.border)
-            .rounded(theme.radius)
+            .border_color(border_color)
+            .rounded(radius)
+            .child(
+                div()
+                    .absolute()
+                    .top(px(2.5))
+                    .bottom(px(2.5))
+                    .left(left)
+                    .w(px(76.))
+                    .rounded(px(5.))
+                    .bg(primary_bg),
+            )
             .child(render_segment(
                 "btn-trigger-view",
                 "Visual",
-                IconName::Eye,
+                PhosphorIcon::Eye,
                 is_view,
                 ShowcaseTab::View,
+                cx,
             ))
             .child(render_segment(
                 "btn-trigger-code",
                 "Code",
-                IconName::Code,
+                PhosphorIcon::Code,
                 is_code,
                 ShowcaseTab::Code,
+                cx,
             ))
     }
 
-    fn render_section(&self, cx: &mut Context<Self>) -> impl IntoElement {
+    fn render_section(&self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let heading = SectionHeading::new(self.selected.label())
             .eyebrow("CELESTIA DESKTOP")
             .description(self.selected.description());
@@ -398,7 +438,7 @@ impl Showcase {
             .justify_between()
             .items_end()
             .child(heading)
-            .child(self.render_toggle_button(cx));
+            .child(self.render_toggle_button(window, cx));
 
         let body: AnyElement = match self.active_tab {
             ShowcaseTab::View => match self.selected {
@@ -411,7 +451,6 @@ impl Showcase {
                 Section::MenusDialogs => self.render_menus(cx).into_any_element(),
                 Section::DataDisplay => self.render_data_display(cx).into_any_element(),
                 Section::Layout => self.render_layout(cx).into_any_element(),
-                Section::SwiftUI => self.render_swiftui(cx).into_any_element(),
                 Section::ChatAI => self.render_chat(cx).into_any_element(),
                 Section::Editors => self.render_editors(cx).into_any_element(),
                 Section::Charts => self.render_charts(cx).into_any_element(),
@@ -423,7 +462,21 @@ impl Showcase {
             ShowcaseTab::Code => self.render_code_view(cx).into_any_element(),
         };
 
-        v_flex().gap_6().child(header).child(body)
+        let anim_key = match self.active_tab {
+            ShowcaseTab::View => "tab-content-view",
+            ShowcaseTab::Code => "tab-content-code",
+        };
+        let anim_id = ElementId::Name(format!("{}-{anim_key}", self.selected.id()).into());
+
+        let animated_body = div()
+            .id(anim_id.clone())
+            .w_full()
+            .with_animation(anim_id, motion::SLIDE.animation(), |el, t| {
+                el.opacity(t).relative().top(px(4.0 * (1.0 - t)))
+            })
+            .child(body);
+
+        v_flex().gap_6().child(header).child(animated_body)
     }
 
     fn render_code_view(&self, cx: &mut Context<Self>) -> impl IntoElement {
@@ -452,9 +505,9 @@ impl Showcase {
                                     .gap_2()
                                     .items_center()
                                     .child(
-                                        Icon::new(IconName::Code)
+                                        Phosphor::new(PhosphorIcon::Code)
                                             .size(px(14.0))
-                                            .text_color(cx.theme().muted_foreground),
+                                            .color(cx.theme().muted_foreground),
                                     )
                                     .child(
                                         div()
@@ -483,9 +536,9 @@ impl Showcase {
                                                     .gap_1p5()
                                                     .items_center()
                                                     .child(
-                                                        Icon::new(IconName::Eye)
+                                                        Phosphor::new(PhosphorIcon::Eye)
                                                             .size(px(12.))
-                                                            .text_color(cx.theme().foreground),
+                                                            .color(cx.theme().foreground),
                                                     )
                                                     .child("Visual View"),
                                             )

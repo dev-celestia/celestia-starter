@@ -1,16 +1,16 @@
 use celestia_ui::components::Card;
-use celestia_ui::components::alert::Alert;
-use celestia_ui::components::context_badge::{BadgeDetail, MessageBadge, context_badge};
-use celestia_ui::components::loaders::{
+use celestia_ui::components::composite::context_badge::{BadgeDetail, MessageBadge, context_badge};
+use celestia_ui::components::composite::loaders::{
     gradient_spinner, mini_mono_spinner, mini_spinner, progress_ring, pulse_loader,
 };
-use celestia_ui::components::notice::{NoticeChipIcon, notice_chip};
-use celestia_ui::components::progress::Progress;
-use celestia_ui::components::skeleton::Skeleton;
-use celestia_ui::components::spinner::Spinner;
-use gpui_kit::assets::IconName;
-use gpui_kit::component::{ActiveTheme, h_flex, v_flex};
-use gpui_kit::*;
+use celestia_ui::components::composite::notice::{NoticeChipIcon, notice_chip};
+use celestia_ui::components::primitive::alert::Alert;
+use celestia_ui::components::primitive::icon::PhosphorIcon;
+use celestia_ui::components::primitive::progress::Progress;
+use celestia_ui::components::primitive::skeleton::Skeleton;
+use celestia_ui::components::primitive::spinner::Spinner;
+use gpui_component::{ActiveTheme, h_flex, v_flex};
+use gpui::*;
 
 use crate::showcase::Showcase;
 
@@ -93,7 +93,7 @@ impl Showcase {
                     context_badge(
                         "fb-badge-comments",
                         &MessageBadge {
-                            icon: IconName::FileCode,
+                            icon: PhosphorIcon::FileCode,
                             label: "2 comments".into(),
                             details: vec![
                                 BadgeDetail {
