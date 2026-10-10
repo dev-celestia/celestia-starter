@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { Inter, Geist_Mono } from "next/font/google"
+import { Analytics } from "@vercel/analytics/next"
 
 import "@celestia-project/ui/globals.css"
 import { ThemeProvider } from "@/lib/theme"
@@ -48,6 +49,7 @@ export default function RootLayout({
           {children}
           <ThemeCustomizer />
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   )
