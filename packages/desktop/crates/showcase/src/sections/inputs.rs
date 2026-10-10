@@ -9,8 +9,8 @@ use celestia_ui::components::primitive::select::Select;
 use celestia_ui::components::primitive::slider::Slider;
 use celestia_ui::components::primitive::switch::Switch;
 use celestia_ui::components::primitive::textarea::Textarea;
-use gpui_component::{h_flex, v_flex};
 use gpui::*;
+use gpui_component::{h_flex, v_flex};
 
 use crate::showcase::Showcase;
 

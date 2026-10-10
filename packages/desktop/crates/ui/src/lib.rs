@@ -1,8 +1,8 @@
 //! celestia-ui — reusable GPUI components and theming for the Celestia desktop
 //! app. The desktop counterpart of `@celestia-project/ui`.
 //!
-//! Apps initialize once with [`init`] (gpui-kit runtime + Celestia theme),
-//! then build screens from [`components`] and gpui-kit primitives, taking all
+//! Apps initialize once with [`init`] (`gpui-component` runtime + Celestia theme),
+//! then build screens from [`components`] and `gpui-component` primitives, taking all
 //! colors from `cx.theme()` / [`palette`]. Shared application state lives in
 //! [`state`] — zustand-style stores and React-context-style ambient values.
 
@@ -20,7 +20,7 @@ pub use palette::palette;
 
 pub use gpui;
 
-/// Install the gpui-kit runtime and the Celestia theme. Call from the app's
+/// Install the `gpui-component` runtime and the Celestia theme. Call from the app's
 /// `application().run(|cx| ...)` closure before opening any windows.
 pub fn init(cx: &mut gpui::App) {
     gpui_component::init(cx);

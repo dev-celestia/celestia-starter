@@ -1,5 +1,17 @@
 # Desktop component audit — style, animation and effect parity
 
+> **Status note.** This audit was taken while the `gpui-kit` facade was still a
+> dependency, so "gpui-kit" below means what is now the direct `gpui-component`
+> dependency (and, for the motion/state helpers, `gpui-base`). The facade has
+> since been **removed from the whole workspace** — see
+> `crates/ui/src/components/mod.rs` and the README's "Dependency layers". The
+> wrapper/shim counts and the per-component findings are a snapshot of the state
+> at audit time; the "shim" rows in particular have been moving as families are
+> rewritten onto raw gpui. Since then the SwiftUI layout family has also been
+> split one component per file — `swiftui.rs` is now `h_stack.rs`, `v_stack.rs`,
+> `z_stack.rs`, `spacer.rs`, `scroll_view.rs`, `v_grid.rs`, `frame.rs` and
+> `alignment.rs`.
+
 Scope: every file in `packages/desktop/crates/ui/src/components/` (68 component
 files — `mod.rs` is the module index) audited against
 `packages/ui/src/components/primitive/` (47 `.tsx` files).
@@ -159,7 +171,7 @@ Legend for *Effect gap*: **✗ missing**, **~ partial**, **✓ parity**.
 | File | Verdict |
 | --- | --- |
 | `section_heading.rs` | Static typography. No web primitive, no motion. ✓ |
-| `swiftui.rs` | SwiftUI layout vocabulary — `HStack` / `VStack` / `ZStack` / `Spacer` / `ScrollView` / `VGrid` / `Frame` plus the alignment enums. Geometry only: no colour, no hover, no press, no transition. `ScrollView` is the sole interactive surface and scroll physics are the platform's, not ours to style. No web primitive to match. ✓ |
+| `h_stack.rs` / `v_stack.rs` / `z_stack.rs` / `spacer.rs` / `scroll_view.rs` / `v_grid.rs` / `frame.rs` (was `swiftui.rs`) | SwiftUI layout vocabulary — `HStack` / `VStack` / `ZStack` / `Spacer` / `ScrollView` / `VGrid` / `Frame` plus the alignment enums. Geometry only: no colour, no hover, no press, no transition. `ScrollView` is the sole interactive surface and scroll physics are the platform's, not ours to style. No web primitive to match. ✓ |
 | `text_editor.rs`, `code_editor.rs` | Celestia-only chrome (Monaco/toolbar has no GPUI equivalent). Static surfaces; the toolbar buttons inherit `Button`. ✓ |
 | `notice.rs`, `context_badge.rs` | Zeron ports, not web primitives. `context_badge` already has a 280ms hover-delay card + hover tint. ✓ |
 | `loaders.rs` | Zeron loaders; already routed through `motion.rs` and the pulse clock. ✓ (but see finding 1 — `PULSE`/`GRADIENT_SPIN` are Zeron periods, deliberately not design-system tokens) |

@@ -25,13 +25,13 @@
 use std::collections::HashMap;
 use std::time::{Duration, Instant};
 
-use gpui_base::motion::Transition;
-use gpui_base::{Easing, Spring};
-use gpui_component::theme::MotionTokens;
 use gpui::{
     Animation, AnimationElement, AnimationExt, App, ElementId, EntityId, Global, Hsla, IntoElement,
     Rgba, Styled, px, rems,
 };
+use gpui_base::motion::Transition;
+use gpui_base::{Easing, Spring};
+use gpui_component::theme::MotionTokens;
 
 // ---------------------------------------------------------------------------
 // Cubic bezier
@@ -384,15 +384,15 @@ pub fn spec_transition(spec: MotionSpec) -> Transition {
 }
 
 // ---------------------------------------------------------------------------
-// The design system as gpui-kit's MotionTokens
+// The design system as `gpui-component`'s MotionTokens
 // ---------------------------------------------------------------------------
 
-/// The Celestia motion policy as gpui-kit's [`MotionTokens`].
+/// The Celestia motion policy as `gpui-component`'s [`MotionTokens`].
 ///
 /// `theme.json` cannot carry this: `Theme::motion` is `#[serde(skip)]`, so the
 /// scale is assigned directly in [`crate::theme::install`]. Without it every
-/// re-exported gpui-kit component — switch, checkbox, slider, accordion,
-/// collapsible, progress, carousel, `TabBar` — animates on gpui-kit's own scale
+/// re-exported `gpui-component` component — switch, checkbox, slider, accordion,
+/// collapsible, progress, carousel, `TabBar` — animates on `gpui-component`'s own scale
 /// (instant 0 / fast 120 / normal 180 / slow 280ms) rather than the web design
 /// system's (80 / 150 / 220 / 320ms).
 ///
@@ -917,8 +917,8 @@ mod tests {
         let _ = spec_transition(OVERLAY);
     }
 
-    /// `motion_tokens()` is what re-times the 55 re-exported gpui-kit
-    /// components, so pin it against gpui-kit's defaults it replaces.
+    /// `motion_tokens()` is what re-times the 55 re-exported `gpui-component`
+    /// components, so pin it against `gpui-component`'s defaults it replaces.
     #[test]
     fn motion_tokens_replace_the_gpui_default_scale() {
         let tokens = motion_tokens();

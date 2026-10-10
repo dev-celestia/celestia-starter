@@ -1,4 +1,4 @@
-//! Product-level palette: semantic color roles gpui-kit's `Theme` has no slot
+//! Product-level palette: semantic color roles `gpui-component`'s `Theme` has no slot
 //! for. Same rule as the web token layer — raw hex literals live only here;
 //! call sites take colors by role through [`palette`].
 //!

@@ -7,8 +7,8 @@ use celestia_ui::components::composite::message::{
 };
 use celestia_ui::components::primitive::avatar::Avatar;
 use celestia_ui::components::primitive::bubble::{Bubble, BubbleVariant};
-use gpui_component::v_flex;
 use gpui::*;
+use gpui_component::v_flex;
 
 use crate::showcase::Showcase;
 

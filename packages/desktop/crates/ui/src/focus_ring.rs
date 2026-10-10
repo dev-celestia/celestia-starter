@@ -6,14 +6,14 @@
 //! > Every focus ring is `focus-visible:ring-2 focus-visible:ring-ring` (2px,
 //! > full strength). Diluted rings (`ring-ring/30`) fail WCAG 2.4.11.
 //!
-//! and is enforced on the web by `scripts/ui-audit/focus-rings.mjs`. gpui-kit's
+//! and is enforced on the web by `scripts/ui-audit/focus-rings.mjs`. `gpui-component`'s
 //! own [`ThemeStyled::focus_ring_style`](gpui_component::ThemeStyled::focus_ring_style)
 //! draws a **3px ring at 50% opacity** — deliberately softer, and therefore the
 //! opposite of the Celestia rule. Components in this crate that show a focus
 //! ring call [`focus_ring`] here instead, so the desktop ring is the same 2px
 //! at full strength as the web one.
 //!
-//! Geometry follows gpui-kit's helper: the ring is a child painted *outside* the
+//! Geometry follows `gpui-component`'s helper: the ring is a child painted *outside* the
 //! element's border box, so an ancestor that clips its content will cut it off.
 //! Leave the element a couple of pixels of room, or don't clip.
 //!
@@ -26,10 +26,8 @@
 //! };
 //! ```
 
+use gpui::{App, Corners, Edges, ParentElement, Pixels, StyleRefinement, Styled, Window, div, px};
 use gpui_component::{ActiveTheme as _, StyledExt as _};
-use gpui::{
-    App, Corners, Edges, ParentElement, Pixels, StyleRefinement, Styled, Window, div, px,
-};
 
 /// Ring thickness — Tailwind's `ring-2`, and the value the web audit gate
 /// requires.
@@ -101,7 +99,7 @@ mod tests {
         assert_eq!(FOCUS_RING_OFFSET, px(2.));
 
         // The rule is stated in terms of Tailwind's `ring-2`, which is 2px.
-        // gpui-kit's own ring is 3px at 50% — assert we are not that.
+        // `gpui-component`'s own ring is 3px at 50% — assert we are not that.
         assert_ne!(FOCUS_RING_WIDTH, px(3.));
     }
 }

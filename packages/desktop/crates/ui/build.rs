@@ -3,7 +3,7 @@
 //!
 //! The catalog is emitted against raw `gpui` (`gpui-pre`) only — the icons
 //! render through [`crate::components::icon::Phosphor`], which draws a plain
-//! `gpui::svg()`. Nothing here reaches for gpui-kit.
+//! `gpui::svg()`. Nothing here reaches for `gpui-component`.
 
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -137,8 +137,8 @@ fn main() {
     fs::write(out_dir.join("phosphor_icon.rs"), code).expect("write phosphor_icon.rs");
 }
 
-/// `paper-plane-tilt` -> `PaperPlaneTilt`, matching gpui-kit-assets' variant
-/// naming so the two catalogs read the same.
+/// `paper-plane-tilt` -> `PaperPlaneTilt`. PascalCase is the naming the
+/// Phosphor catalog uses, and the one the crate's call sites expect.
 fn pascal_case(stem: &str) -> String {
     stem.split(['-', '_', '.'])
         .filter(|part| !part.is_empty())

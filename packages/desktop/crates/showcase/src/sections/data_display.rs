@@ -9,8 +9,8 @@ use celestia_ui::components::composite::pagination::Pagination;
 use celestia_ui::components::composite::virtual_list::{VirtualListScrollHandle, v_virtual_list};
 use celestia_ui::components::primitive::breadcrumb::{Breadcrumb, BreadcrumbItem};
 use celestia_ui::components::primitive::button::{Button, ButtonSize, ButtonVariant};
-use gpui_component::{ActiveTheme, h_flex, v_flex};
 use gpui::*;
+use gpui_component::{ActiveTheme, h_flex, v_flex};
 
 use crate::showcase::Showcase;
 
@@ -131,7 +131,7 @@ impl LogEntry {
         let source = ["sync-engine", "store", "renderer", "scheduler"][ix % 4];
 
         let mut details = vec![format!("Task finished in {} ms.", 40 + (ix * 37) % 460)];
-        if (ix * 5 + 1) % 3 > 0 {
+        if !(ix * 5 + 1).is_multiple_of(3) {
             details.push(format!(
                 "Synced {} objects across 2 peers.",
                 12 + (ix * 13) % 240
@@ -179,7 +179,7 @@ impl VirtualListDemo {
         };
         // `list` the field name is taken by Theme's ListSettings — the zebra
         // color tokens live under .colors.
-        let zebra = if ix % 2 == 0 {
+        let zebra = if ix.is_multiple_of(2) {
             cx.theme().colors.list_even
         } else {
             cx.theme().colors.list

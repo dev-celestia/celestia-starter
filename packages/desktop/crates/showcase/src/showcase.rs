@@ -4,9 +4,12 @@ use celestia_ui::components::composite::date_picker::DatePickerState;
 use celestia_ui::components::composite::sidebar_layout::{
     SidebarFooter, SidebarHeader, SidebarLayout, SidebarNav, SidebarNavItem, SidebarSection,
 };
+use celestia_ui::components::composite::title_bar::TitleBar;
+use celestia_ui::components::composite::virtual_list::VirtualListScrollHandle;
 use celestia_ui::components::primitive::button::{Button, ButtonSize, ButtonVariant};
 use celestia_ui::components::primitive::calendar::CalendarState;
 use celestia_ui::components::primitive::icon::PhosphorWeight;
+use celestia_ui::components::primitive::icon::{Phosphor, PhosphorIcon};
 use celestia_ui::components::primitive::input::InputState;
 use celestia_ui::components::primitive::input_otp::OtpState;
 use celestia_ui::components::primitive::kbd::Kbd;
@@ -18,16 +21,16 @@ use celestia_ui::components::primitive::toast::{Notification, WindowExt as _};
 use celestia_ui::components::{CodeEditor, SectionHeading, TextEditor};
 use celestia_ui::motion;
 use celestia_ui::state::StoreHandle;
-use celestia_ui::components::primitive::icon::{Phosphor, PhosphorIcon};
 use celestia_ui::theme::AppTheme;
+use gpui::*;
 use gpui_base::spring;
 use gpui_component::input::{Editor, EditorState, InputEvent};
-use gpui_component::{ActiveTheme, IndexPath, Root, Theme, ThemeMode, TitleBar, h_flex, v_flex};
-use gpui::*;
+use gpui_component::{ActiveTheme, IndexPath, Root, Theme, ThemeMode, h_flex, v_flex};
 
 use crate::actions::ToggleTheme;
 use crate::section::{SECTIONS, Section};
 use crate::sections::data_display::VirtualListDemo;
+use crate::sections::layout::PlaygroundAxis;
 use crate::sections::state::GalleryState;
 
 #[derive(Clone, Copy, PartialEq, Eq, Default, Debug)]
@@ -68,6 +71,14 @@ pub struct Showcase {
     pub(crate) state_label_notifications: usize,
     pub(crate) icon_search: Entity<InputState>,
     pub(crate) icon_weight: PhosphorWeight,
+    pub(crate) icon_scroll_handle: VirtualListScrollHandle,
+    /// The interactive layout playground (see sections/layout.rs): the stack
+    /// axis, the index into that axis's alignment vocabulary, the index into
+    /// `PLAYGROUND_SPACINGS`, and the number of preview children (2–6).
+    pub(crate) layout_axis: PlaygroundAxis,
+    pub(crate) layout_align: usize,
+    pub(crate) layout_spacing_ix: usize,
+    pub(crate) layout_children: usize,
     /// The live global theme config (see sections/theming.rs). Applied with
     /// `AppTheme::apply` on every change — the whole window re-themes.
     pub(crate) theme: AppTheme,
@@ -143,8 +154,11 @@ impl Showcase {
 
         // Phosphor gallery search: re-render the icons grid on every keystroke.
         let icon_search = cx.new(|cx| InputState::new(window, cx).placeholder("Search glyphs…"));
-        cx.subscribe(&icon_search, |_, _, event: &InputEvent, cx| {
+        let icon_scroll_handle = VirtualListScrollHandle::new();
+        let scroll_handle_for_sub = icon_scroll_handle.clone();
+        cx.subscribe(&icon_search, move |_, _, event: &InputEvent, cx| {
             if matches!(event, InputEvent::Change) {
+                scroll_handle_for_sub.scroll_to_item(0, ScrollStrategy::Top);
                 cx.notify();
             }
         })
@@ -189,6 +203,11 @@ impl Showcase {
             state_label_notifications: 0,
             icon_search,
             icon_weight: PhosphorWeight::Regular,
+            icon_scroll_handle,
+            layout_axis: PlaygroundAxis::Row,
+            layout_align: 1,
+            layout_spacing_ix: 2,
+            layout_children: 3,
             theme: AppTheme::default(),
         }
     }
@@ -454,7 +473,7 @@ impl Showcase {
                 Section::ChatAI => self.render_chat(cx).into_any_element(),
                 Section::Editors => self.render_editors(cx).into_any_element(),
                 Section::Charts => self.render_charts(cx).into_any_element(),
-                Section::Icons => self.render_icons(cx).into_any_element(),
+                Section::Icons => self.render_icons(window, cx).into_any_element(),
                 Section::Palette => self.render_palette(cx).into_any_element(),
                 Section::Theming => self.render_theming(cx).into_any_element(),
                 Section::State => self.render_state(cx).into_any_element(),

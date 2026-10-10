@@ -103,7 +103,9 @@ impl Section {
                 "table, virtual_list, description_list, breadcrumb, pagination, and empty states."
             }
             Section::Layout => {
-                "HStack, VStack, ZStack, Spacer, VGrid, tabs, accordion, collapsible, and group_box."
+                "SwiftUI layout vocabulary — HStack, VStack, ZStack, Spacer, VGrid with every \
+                 alignment variant live, defaults and gotchas per card, an interactive \
+                 playground, plus tabs, accordion, collapsible, and group_box."
             }
             Section::ChatAI => {
                 "message groups, bubbles with reactions, avatars, and file attachments."
@@ -400,68 +402,81 @@ EmptyState::new().header(
         .description(EmptyDescription::new().child("Try adjusting your filters.")),
 )"#;
 
-const LAYOUT_CODE: &str = r#"use celestia_ui::components::primitive::accordion::Accordion;
-use celestia_ui::components::primitive::collapsible::Collapsible;
-use celestia_ui::components::composite::group_box::GroupBox;
-use celestia_ui::components::primitive::separator::Separator;
-use celestia_ui::components::composite::status_bar::StatusBar;
-use celestia_ui::components::composite::swiftui::{
-    GridItem, HStack, HorizontalAlignment, Spacer, VGrid, VStack, VerticalAlignment,
-    ZAlignment, ZStack,
+const LAYOUT_CODE: &str = r#"use celestia_ui::components::composite::alignment::{
+    HorizontalAlignment, VerticalAlignment, ZAlignment,
 };
-use celestia_ui::components::primitive::tabs::{Tabs, TabsContent, TabsList, TabsTrigger, TabsVariant};
+use celestia_ui::components::composite::group_box::GroupBox;
+use celestia_ui::components::composite::h_stack::HStack;
+use celestia_ui::components::composite::spacer::Spacer;
+use celestia_ui::components::composite::status_bar::StatusBar;
+use celestia_ui::components::composite::v_grid::{GridItem, VGrid};
+use celestia_ui::components::composite::v_stack::VStack;
+use celestia_ui::components::composite::z_stack::ZStack;
+use celestia_ui::components::primitive::accordion::Accordion;
+use celestia_ui::components::primitive::collapsible::Collapsible;
+use celestia_ui::components::primitive::separator::Separator;
+use celestia_ui::components::primitive::tabs::{
+    Tabs, TabsContent, TabsList, TabsTrigger, TabsVariant,
+};
 use gpui::*;
 
-// Flexible stacks with alignment & expanding Spacers
-VStack::new(HorizontalAlignment::Leading)
-    .spacing(px(12.))
+// HStack — a gpui flex row; `spacing` becomes the flex gap (default 8px)
+// and the alignment argument is the CROSS axis (vertical here).
+HStack::new(VerticalAlignment::Top).spacing(px(8.))
+    .child(div().h(px(24.)).child("short"))
+    .child(div().h(px(56.)).child("tall"))
+    .child(Spacer::new()) // pushes everything after it to the trailing edge
+    .child(Button::new("act").label("Action"))
+
+// VStack — the vertical twin; alignment is the horizontal cross axis
+// (Leading | Center | Trailing).
+VStack::new(HorizontalAlignment::Leading).spacing(px(12.))
+    .child("Title")
+    .child("Body copy")
+
+// Spacer — expands along the parent stack's main axis; never shrinks below
+// minLength (it floors BOTH min-width and min-height).
+Spacer::new().min_length(px(64.))
+
+// ZStack — the depth stack: every child becomes an absolutely-positioned
+// full-bleed layer and the ONE alignment pins each layer. ZStack fills its
+// parent, so give it a bounded frame. Compose inside a layer (an inner
+// HStack) to place content on independent edges.
+ZStack::new(ZAlignment::BottomTrailing)
+    .child(div().size_full().bg(cx.theme().primary.opacity(0.10))) // photo
     .child(
-        HStack::new(VerticalAlignment::Center)
-            .spacing(px(8.))
-            .child(div().p_2().child("Leading Item"))
-            .child(Spacer::new())
-            .child(div().p_2().child("Trailing Item")),
+        div().w_full().p_3().child(
+            HStack::new(VerticalAlignment::Bottom)
+                .child("Caption")
+                .child(Spacer::new())
+                .child("Badge"),
+        ),
     )
 
-// Layered depth alignment
-ZStack::new(ZAlignment::Center)
-    .child(div().size_full().bg(gpui::hsla(0., 0., 0.5, 0.05)))
-    .child(div().p_3().child("Centered in ZStack"))
+// VGrid (LazyVGrid) — column rules size each row; children wrap in child
+// order, so the grid grows vertically — put long content in a ScrollView.
+VGrid::new([
+    GridItem::Fixed(px(88.)), // pinned column width
+    GridItem::Flexible,       // shares what's left (flex_1)
+    GridItem::Flexible,
+])
+.spacing(px(8.))
+.children(items)
 
-// Responsive multi-column grid
-VGrid::new([GridItem::Flexible, GridItem::Flexible, GridItem::Flexible])
-    .spacing(px(8.))
-    .child(div().p_3().child("Col 1"))
-    .child(div().p_3().child("Col 2"))
-    .child(div().p_3().child("Col 3"))
-
-// Tab navigation (segmented pill and underline variants) with content panels
-Tabs::new("tabs-layout")
+// Tabs (segmented pill / line underline), accordion, collapsible,
+// separators, group boxes and status bars round out the family.
+Tabs::new("tabs")
     .child(
-        TabsList::new("tab-list")
-            .child(TabsTrigger::new("t-overview").label("Overview").selected(true))
-            .child(TabsTrigger::new("t-config").label("Configuration"))
-            .child(TabsTrigger::new("t-security").label("Security")),
+        TabsList::new("tabs-list")
+            .child(TabsTrigger::new("t-1").label("One").selected(true))
+            .child(TabsTrigger::new("t-2").label("Two")),
     )
-    .child(TabsContent::new("tc-overview").child(div().child("Overview Panel content")))
-
-// Content separator line
+    .child(TabsContent::new("tc-1").child("Panel one"))
+Accordion::new("acc")
+    .item(|item| item.title("What is Celestia Desktop?").child("GPU-rendered native desktop UI on GPUI."))
+Collapsible::new().open(true).content(div().p_3().child("Revealed with layout animation."))
 Separator::horizontal()
-
-// Expandable accordion disclosure & collapsible panel
-Accordion::new("acc-demo")
-    .item(|item| {
-        item.title("What is Celestia Desktop?")
-            .open(true)
-            .child(div().text_sm().child("GPU-rendered native desktop UI on GPUI."))
-    })
-
-Collapsible::new().open(true).content(
-    div().p_3().child("Collapsible panel revealed with layout animation."),
-)
-
-// Grouped box container & window status bar
-GroupBox::new().child(div().p_3().child("Unified bordered content box"))
+GroupBox::new().child(div().p_3().child("Grouped content"))
 StatusBar::new().left("Git: main* (clean)").right("UTF-8  •  Rust")"#;
 
 const CHAT_AI_CODE: &str = r#"use celestia_ui::components::composite::attachment::{

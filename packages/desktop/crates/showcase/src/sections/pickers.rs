@@ -4,8 +4,8 @@ use celestia_ui::components::composite::date_picker::DatePicker;
 use celestia_ui::components::primitive::calendar::Calendar;
 use celestia_ui::components::primitive::input::NumberInput;
 use celestia_ui::components::primitive::label::Label;
-use gpui_component::{h_flex, v_flex};
 use gpui::*;
+use gpui_component::{h_flex, v_flex};
 
 use crate::showcase::Showcase;
 

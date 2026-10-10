@@ -19,17 +19,17 @@
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
+use crate::theme::ActiveTheme as _;
 use gpui_base::motion::transition;
-use gpui_component::ActiveTheme;
 // Re-exported for advanced use (custom delegates, sorting, virtualization).
-pub use gpui_component::table;
-pub use gpui_component::table::{
-    Column, ColumnSort, DataTable as GpuiDataTable, TableDelegate, TableState,
-};
 use gpui::{
     App, AppContext as _, Context, ElementId, Entity, InteractiveElement, IntoElement,
     ParentElement, Render, RenderOnce, SharedString, StatefulInteractiveElement as _, Styled,
     Window, div, px,
+};
+pub use gpui_component::table;
+pub use gpui_component::table::{
+    Column, ColumnSort, DataTable as GpuiDataTable, TableDelegate, TableState,
 };
 
 use crate::motion;

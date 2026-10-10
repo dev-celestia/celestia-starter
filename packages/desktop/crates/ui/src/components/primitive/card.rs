@@ -6,12 +6,13 @@
 //! token. `overflow-hidden` clips a leading/trailing child image to the card's
 //! radius, which is what the web's `*:[img:first-child]:rounded-t-lg` relies on.
 
-use gpui_component::{ActiveTheme, h_flex, v_flex};
 use gpui::prelude::FluentBuilder as _;
 use gpui::{
     AnyElement, App, FontWeight, IntoElement, ParentElement, RenderOnce, SharedString, Styled,
     Window, div, px,
 };
+
+use crate::theme::ActiveTheme as _;
 
 /// Card padding and spacing density.
 #[derive(Clone, Copy, Default, PartialEq, Eq, Debug)]
@@ -103,13 +104,17 @@ impl RenderOnce for Card {
             self.title.is_some() || self.description.is_some() || self.action.is_some();
         let header = if has_header {
             Some(
-                h_flex()
+                div()
+                    .flex()
+                    .flex_row()
                     .w_full()
                     .items_start()
                     .justify_between()
                     .gap_3()
                     .child(
-                        v_flex()
+                        div()
+                            .flex()
+                            .flex_col()
                             .flex_1()
                             .min_w_0()
                             .gap(px(3.0))
@@ -141,7 +146,9 @@ impl RenderOnce for Card {
             None
         };
 
-        v_flex()
+        div()
+            .flex()
+            .flex_col()
             .w_full()
             .gap(gap)
             .p(p)

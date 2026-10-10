@@ -6,8 +6,9 @@
 //! The window is itself a demo of the [`SidebarLayout`] shell: a sidebar nav
 //! picks the component section, the content pane renders it through the same
 //! re-export layer an application would use. Bootstrap follows the GetCat
-//! reference: gpui-kit application → `celestia_ui::init` (runtime + theme) →
-//! keybindings → open window wrapping the root view in a gpui-kit `Root`.
+//! reference: `gpui_platform::application()` → `celestia_ui::init` (runtime +
+//! theme) → keybindings → open window wrapping the root view in a
+//! `gpui-component` `Root`.
 
 mod actions;
 mod assets;
@@ -16,9 +17,10 @@ mod sections;
 mod showcase;
 
 use actions::ToggleTheme;
+use celestia_ui::components::composite::title_bar::TitleBar;
 use celestia_ui::state::StoreContext;
-use gpui_component::{Root, TitleBar};
 use gpui::*;
+use gpui_component::Root;
 use sections::state::Session;
 use showcase::Showcase;
 

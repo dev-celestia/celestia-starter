@@ -1,8 +1,8 @@
 use celestia_ui::components::Card;
 use celestia_ui::components::composite::menu::{ContextMenuExt as _, PopupMenuItem};
 use celestia_ui::components::primitive::button::{Button, ButtonVariant};
-use gpui_component::{ActiveTheme, h_flex, v_flex};
 use gpui::*;
+use gpui_component::{ActiveTheme, h_flex, v_flex};
 
 use crate::showcase::Showcase;
 

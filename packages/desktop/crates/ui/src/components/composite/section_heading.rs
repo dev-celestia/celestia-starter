@@ -1,11 +1,12 @@
 //! Section heading: eyebrow + title + description, the agency idiom from the
 //! web landing (SectionHeading/IconTile) ported to GPUI.
 
-use gpui_component::{ActiveTheme, v_flex};
 use gpui::prelude::FluentBuilder as _;
 use gpui::{
     App, FontWeight, IntoElement, ParentElement, RenderOnce, SharedString, Styled, Window, div, px,
 };
+
+use crate::theme::ActiveTheme as _;
 
 #[derive(IntoElement)]
 pub struct SectionHeading {
@@ -38,7 +39,9 @@ impl SectionHeading {
 
 impl RenderOnce for SectionHeading {
     fn render(self, _: &mut Window, cx: &mut App) -> impl IntoElement {
-        v_flex()
+        div()
+            .flex()
+            .flex_col()
             .gap(px(6.0))
             .when_some(self.eyebrow, |this, eyebrow| {
                 this.child(

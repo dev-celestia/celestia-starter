@@ -3,19 +3,19 @@
 //!
 //! Monaco doesn't exist in GPUI; the shared editing engine's code mode does
 //! the same job: `EditorState` (code layout) + tree-sitter highlighting via
-//! the `tree-sitter-*` features on `gpui-kit` (this workspace enables
+//! the `tree-sitter-*` features on ``gpui-component`` (this workspace enables
 //! `rust` and `markdown`). The celestia chrome — bordered surface, language
 //! tag, line count — lives here.
 //!
 //! Like [`super::text_editor::TextEditor`], this is an entity so the footer
 //! refreshes while typing.
 
-use gpui_component::input::{Editor, EditorState, InputEvent, RopeExt};
-use gpui_component::{ActiveTheme, h_flex, v_flex};
 use gpui::{
     App, AppContext as _, Context, Entity, IntoElement, ParentElement, Render, SharedString,
     Styled, Subscription, Window, div, px,
 };
+use gpui_component::input::{Editor, EditorState, InputEvent, RopeExt};
+use gpui_component::{ActiveTheme, h_flex, v_flex};
 
 /// A syntax-highlighted code editor for one language.
 pub struct CodeEditor {

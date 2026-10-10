@@ -20,27 +20,78 @@
 //! | Layer | Crate | Used for |
 //! | --- | --- | --- |
 //! | Framework | `gpui` (`gpui-pre`) | everything a component draws |
-//! | Base | `gpui-base` | state machines, scroll, motion — `spring`, `motion::transition`, `h_flex` / `v_flex`, `StyledExt` |
-//! | Widgets | `gpui-component` | the styled controls a file still re-exports |
+//! | Base | `gpui-base` | **the inner component library** — `Checkbox`, `Popover`, `Tree`, `Resizable`, `Slider`, `Tabs`, `Table`, `VirtualList`, the motion stack, scroll. The free style helpers are *gone* from this list: [`traits`] now owns `Size` / `Sizable` / `Disableable` / `Selectable` and `h_flex` / `v_flex`, so component files import those from [`traits`] instead of naming either widget layer |
+//! | Widgets | `gpui-component` | a thin styling layer *over* `gpui-base`; the styled controls a file still re-exports |
 //!
 //! A file that imports nothing but `gpui` is **written on raw gpui**; the rest
 //! re-export `gpui-component` and are still being rewritten, one family at a
 //! time. Written on raw gpui so far:
 //!
 //! - **Feedback** — `alert`, `progress`, `skeleton`, `spinner`, `shimmer`,
-//!   `icon` (primitive); `loaders`, `notice`, `context_badge` (composite).
+//!   `icon`, `tooltip` (primitive); `loaders`, `notice`, `context_badge`
+//!   (composite).
 //! - **Structural** — `separator`, `kbd`, `link`, `breadcrumb` (primitive);
-//!   `group_box`, `status_bar`, `description_list`, `empty` (composite).
-//! - **Display** — `badge`, `label`, `rating` (primitive).
+//!   `group_box`, `status_bar`, `title_bar`, `description_list`, `empty`
+//!   (composite).
+//! - **Display** — `badge`, `label`, `rating`, `avatar` (+ its own
+//!   `AvatarGroup` and the OkLCH identity ring) (primitive).
+//! - **Layout** — `card` (primitive); `section_heading`, `sidebar_layout`, and
+//!   the SwiftUI vocabulary `h_stack`, `v_stack`, `z_stack`, `spacer`,
+//!   `scroll_view`, `v_grid`, `frame`, `alignment` (composite).
+//! - **Conversation** — `bubble` (primitive); `message`, `marker` (composite);
+//!   `message_scroller` (composite, one tolerated `gpui_base::motion`
+//!   value-transition).
+//! - **Controls** — `button`, `checkbox`, `switch`, `radio`, `slider`
+//!   (primitive); `stepper`, `pagination`, `collapsible` (composite/primitive).
+//!   `button` keeps two deliberate upstreams: the dropdown menu still rides
+//!   `gpui-component`'s `PopupMenu` (menu family pending) and the value
+//!   transition is `gpui_base::motion::transition` (motion stack pending).
+//! - **Content** — `attachment` (composite).
 //!
-//! Pick the next family by **transitive cost, not file size**: a one-line
-//! re-export is not automatically cheap, because the type it re-exports may
-//! itself be built on `gpui-base` state machines. Most of what is left
-//! (`checkbox`, `radio`, `switch`, `slider`, `accordion`, `table`, `tabs`,
-//! `dialog`, `input`, `select`, `popover`, `tooltip`, `toast`, `scroll_area`,
-//! `avatar`, `tree`, `calendar`, `date_picker`, `color_picker`, `combobox`,
-//! `dock`, `list`, `pagination`, `sheet`, `stepper`, `menu`, `sidebar`) sits on
-//! the base layer, so the base layer is the next milestone.
+//! Pick the next family by **transitive cost, not file size**, measured on two
+//! independent axes:
+//!
+//! 1. **What the closure drags in.** A one-line re-export is not automatically
+//!    cheap — follow the target's own `crate::` imports and add up what they
+//!    reach. The question that settles the cost is not "how big is it" but
+//!    **"does the closure reach a `gpui-base` state machine"**. `StyledExt`,
+//!    `h_flex` / `v_flex`, `RoleOverride`, `AxisExt` and the sizing traits are
+//!    base-layer *style helpers* and cost nothing to inline; `Checkbox`,
+//!    `Slider`, `Popover`, `Tree`, `ResizableState` and the motion stack are
+//!    *state machines* and have to be reimplemented rather than inlined.
+//! 2. **Who else imports the target.** A module the rest of the tree leans on
+//!    cannot move alone. `bubble` and `message` import each other
+//!    (`MessageContent::bubble` takes the crate's `Bubble`), so they migrated
+//!    together. `menu` is imported by ten upstream modules and `input` by six,
+//!    which is exactly why the heavy shims stay heavy.
+//!
+//! Measured against that rule, the remaining 24 shims all close over real
+//! `gpui-base` state machines (the input stack alone drags in 11 at depth 1
+//! and is imported by six upstream modules), so the base layer is the
+//! milestone, not another component batch. The two conventions that keep the
+//! remaining files portable are already in place: [`traits`] owns the sizing
+//! and interaction traits plus `h_flex` / `v_flex`, and `crate::motion` owns
+//! the design-system timing — a rewritten file stops naming either widget
+//! layer for both.
+//!
+//! This is a measurement, not an impression:
+//! `scripts/ui-audit/gpui-migration-cost.py` re-derives it. Read its **`gb1`**
+//! column — the `gpui-base` modules the target's *own* files import, at depth 1.
+//! Not the closure columns: a closure total saturates at ~45k lines for nearly
+//! every shim *and* over-reaches (`stepper`'s closure claims `markdown_ext`,
+//! `number_input` and `virtual_list`, which a stepper plainly does not use).
+//! Depth 1 cannot be inflated transitively, so `gb1 == 0` means a one-file port
+//! and nothing else does. (`resizable` reports a false zero: `gpui_component::
+//! resizable` is an inline `pub mod` over `gpui-base`, not a file. A name that
+//! resolves to nothing is a red flag, not a cheap target.)
+//!
+//! A correction that reframes that whole list: **`gpui-base` is not a helper
+//! crate, it is the inner component library.** `gpui-component` is a thin
+//! styling layer over it — upstream `checkbox.rs` is a struct holding
+//! `base: gpui_base::Checkbox`, and `popover.rs` does
+//! `use gpui_base::Popover as BasePopover`. Only the style helpers listed above
+//! are free to inline, which is exactly why `title_bar` — zero of them — cost
+//! one file and no reimplementation.
 //!
 //! What a raw-gpui file looks like:
 //!
@@ -55,33 +106,47 @@
 //! - `.tooltip(|_, cx| cx.new(|_| MyHint).into())` — gpui's native tooltip —
 //!   rather than `gpui_component::tooltip::Tooltip`.
 //! - `div().flex().flex_row()` / `div().flex().flex_col()` rather than
-//!   gpui-base's `h_flex()` / `v_flex()`, and `ParentElement` imported by name
-//!   (not `as _`) whenever a file implements it.
+//!   gpui-base's `h_flex()` / `v_flex()` — **plus whatever cross-axis rule the
+//!   helper supplied**. `h_flex()` is `.flex().flex_row().items_center()`, so a
+//!   row that relied on that centering keeps an explicit `.items_center()`
+//!   (while one that already overrides it with `.items_start()` does not);
+//!   `v_flex()` is plain `.flex().flex_col()`. Dropping the `items_center()`
+//!   silently re-aligns every row in the file.
+//! - `ParentElement` imported by name (not `as _`) whenever a file implements
+//!   it.
 //!
 //! Colors always come from `cx.theme()` / `crate::palette(cx)` — never from a
 //! hex literal at a call site.
 
 pub mod composite;
 pub mod primitive;
+pub mod traits;
 
 // Flat re-exports — `use celestia_ui::components::Button` works, mirroring the
 // web package's index. Only files with typed exports are globbed here;
 // module-only components (avatar, table, tree, empty, …) are reached through
 // their module path (`components::primitive::table`,
 // `components::composite::empty`).
+pub use composite::alignment::*;
 pub use composite::code_editor::*;
 pub use composite::color_picker::*;
 pub use composite::context_badge::*;
 pub use composite::date_picker::*;
+pub use composite::frame::*;
+pub use composite::h_stack::*;
 pub use composite::loaders::*;
 pub use composite::menu::*;
 pub use composite::notice::*;
+pub use composite::scroll_view::*;
 pub use composite::section_heading::*;
 pub use composite::sidebar_layout::*;
-pub use composite::swiftui::*;
+pub use composite::spacer::*;
 pub use composite::text_editor::*;
 pub use composite::title_bar::*;
+pub use composite::v_grid::*;
+pub use composite::v_stack::*;
 pub use composite::virtual_list::*;
+pub use composite::z_stack::*;
 
 pub use primitive::accordion::*;
 pub use primitive::alert::*;
@@ -115,23 +180,34 @@ mod migrated_family_tests {
     //! Smoke tests for the families rewritten onto raw `gpui`. Each family adds
     //! its members here as it migrates, so one render pass proves the whole
     //! group still mounts — the same shape as the per-component tests, but
-    //! spanning a family. `#[gpui::test]` (not `#[gpui::test]`) so the test
-    //! itself stays off the facade.
+    //! spanning a family. `#[gpui::test]` rather than a facade-provided macro,
+    //! so the test itself stays off the facade.
 
     use gpui::{
-        Context, IntoElement, Keystroke, ParentElement as _, Render, Styled as _, TestAppContext,
-        Window, div, px,
+        Context, IntoElement, Keystroke, ParentElement as _, Render, Role, Styled as _,
+        TestAppContext, Window, div, px,
     };
 
     use crate::components::composite::context_badge::{BadgeDetail, MessageBadge, context_badge};
     use crate::components::composite::description_list::DescriptionList;
     use crate::components::composite::empty::{Empty, EmptyDescription, EmptyHeader, EmptyTitle};
     use crate::components::composite::group_box::{GroupBox, GroupBoxVariants as _};
+    use crate::components::composite::marker::{
+        Marker, MarkerContent, MarkerIcon, MarkerLoadingStyle, MarkerVariant,
+    };
+    use crate::components::composite::message::{
+        Message, MessageAlignment, MessageAvatar, MessageContent, MessageFooter, MessageGroup,
+        MessageHeader,
+    };
     use crate::components::composite::notice::{NoticeChipIcon, notice_chip};
     use crate::components::composite::status_bar::StatusBar;
+    use crate::components::composite::title_bar::TitleBar;
     use crate::components::primitive::alert::Alert;
     use crate::components::primitive::badge::{Badge, BadgeVariant, GpuiBadge, GpuiBadgeSize};
     use crate::components::primitive::breadcrumb::{Breadcrumb, BreadcrumbItem};
+    use crate::components::primitive::bubble::{
+        Bubble, BubbleGroup, BubbleReactionSide, BubbleReactions, BubbleVariant,
+    };
     use crate::components::primitive::icon::PhosphorIcon;
     use crate::components::primitive::kbd::Kbd;
     use crate::components::primitive::label::{HighlightsMatch, Label};
@@ -222,6 +298,11 @@ mod migrated_family_tests {
                 .child(GroupBox::new().fill().child(div().child("Filled content")))
                 .child(StatusBar::new().left("main").right("UTF-8").child("center"))
                 .child(
+                    TitleBar::new()
+                        .child(div().child("Celestia Desktop"))
+                        .on_close_window(|_, _, _| {}),
+                )
+                .child(
                     Breadcrumb::new()
                         .child(BreadcrumbItem::new("Home"))
                         .child(BreadcrumbItem::new("Components"))
@@ -311,5 +392,114 @@ mod migrated_family_tests {
     fn display_family_mounts(cx: &mut TestAppContext) {
         cx.update(crate::init);
         let _window = cx.add_window(|_, _| DisplayFamily);
+    }
+
+    /// The Conversation family — the chat stack. `bubble` and `message` are
+    /// mutually coupled (`MessageContent::bubble` takes the crate's `Bubble`),
+    /// so they are exercised together; `marker` rides along as the status row.
+    /// Every variant and both loading styles are rendered, so the branches a
+    /// default mount would skip — a ghost surface, a reaction pill, a separator
+    /// rule, a shimmering non-text child — are all compiled and painted here.
+    struct ConversationFamily;
+
+    impl Render for ConversationFamily {
+        fn render(&mut self, _: &mut Window, _: &mut Context<Self>) -> impl IntoElement {
+            div()
+                .flex()
+                .flex_col()
+                .child(
+                    MessageGroup::new()
+                        .child(
+                            Message::new()
+                                .alignment(MessageAlignment::Start)
+                                .avatar(MessageAvatar::new().child(div().size(px(32.0))))
+                                .header(MessageHeader::new().child("Celestia"))
+                                .content(
+                                    MessageContent::new()
+                                        .bubble(Bubble::new().child("How can I help?"))
+                                        .bubble(
+                                            Bubble::new()
+                                                .with_variant(BubbleVariant::Ghost)
+                                                .child("surface-less body"),
+                                        ),
+                                )
+                                .footer(MessageFooter::new().child("Delivered")),
+                        )
+                        .child(
+                            Message::new()
+                                .alignment(MessageAlignment::End)
+                                .avatar(MessageAvatar::new().child(div().size(px(32.0))))
+                                .content(
+                                    MessageContent::new().bubble(
+                                        Bubble::new()
+                                            .with_variant(BubbleVariant::Secondary)
+                                            .reactions(
+                                                BubbleReactions::new()
+                                                    .side(BubbleReactionSide::Top)
+                                                    .child("👍 2"),
+                                            )
+                                            .child("Secondary surface"),
+                                    ),
+                                ),
+                        ),
+                )
+                .child(
+                    BubbleGroup::new()
+                        .child(Bubble::new().child("Filled"))
+                        .child(
+                            Bubble::new()
+                                .with_variant(BubbleVariant::Tinted)
+                                .child("Tinted"),
+                        )
+                        .child(
+                            Bubble::new()
+                                .with_variant(BubbleVariant::Outline)
+                                .child("Outline"),
+                        )
+                        .child(
+                            Bubble::new()
+                                .with_variant(BubbleVariant::Muted)
+                                .child("Muted"),
+                        )
+                        .child(
+                            Bubble::new()
+                                .with_variant(BubbleVariant::Destructive)
+                                .child("Destructive"),
+                        ),
+                )
+                .child(
+                    Marker::new()
+                        .with_variant(MarkerVariant::Separator)
+                        .content(MarkerContent::new().child("Today")),
+                )
+                .child(
+                    Marker::new()
+                        .id("c-status")
+                        .role(Role::Status)
+                        .with_variant(MarkerVariant::Border)
+                        .loading(true)
+                        .with_loading_style(MarkerLoadingStyle::Spinner)
+                        .icon(MarkerIcon::new().child(PhosphorIcon::Sparkle))
+                        .content(MarkerContent::new().text("Thinking")),
+                )
+                .child(
+                    Marker::new()
+                        .loading(true)
+                        .with_loading_style(MarkerLoadingStyle::Shimmer)
+                        .content(MarkerContent::new().text("Shimmering label")),
+                )
+                .child(
+                    Marker::new()
+                        .loading(true)
+                        .with_loading_style(MarkerLoadingStyle::Shimmer)
+                        .content(MarkerContent::new().child("an arbitrary child pulses")),
+                )
+        }
+    }
+
+    #[gpui::test]
+    fn conversation_family_mounts(cx: &mut TestAppContext) {
+        cx.update(crate::init);
+        let _window = cx.add_window(|_, _| ConversationFamily);
     }
 }

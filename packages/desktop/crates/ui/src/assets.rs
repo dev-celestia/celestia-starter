@@ -6,8 +6,9 @@
 //! clean miss.
 //!
 //! Phosphor is the only icon catalog: the crate used to delegate unknown paths
-//! to gpui-kit's bundled Lucide set, which meant a second catalog with its own
-//! `icons/…` prefix and a second crate to keep pinned. The three Lucide glyphs
+//! to the bundled Lucide set from the `gpui-kit-assets` crate that the old
+//! facade re-exported — a second catalog with its own `icons/…` prefix and a
+//! second crate to keep pinned. The three Lucide glyphs
 //! still referenced (a tab's `BookOpen`, the showcase's `Eye` and `Code`) have
 //! direct Phosphor equivalents, so the fallback is gone.
 

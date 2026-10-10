@@ -12,12 +12,12 @@
 //! `InputEvent::Change` and re-notifies, which re-renders the whole editor.
 
 use crate::components::primitive::button::{Button, ButtonSize, ButtonVariant};
-use gpui_component::input::{InputEvent, Textarea, TextareaState};
-use gpui_component::{ActiveTheme, h_flex, v_flex};
 use gpui::{
     App, AppContext as _, Context, DefiniteLength, Entity, IntoElement, ParentElement, Render,
     SharedString, Styled, Subscription, Window, div, px,
 };
+use gpui_component::input::{InputEvent, Textarea, TextareaState};
+use gpui_component::{ActiveTheme, h_flex, v_flex};
 
 /// A markdown text editor: toolbar + auto-growing textarea + word/char count.
 ///

@@ -119,7 +119,7 @@ A native Rust desktop surface lives in [`packages/desktop`](packages/desktop) as
 Cargo workspace (invisible to pnpm/turbo — use `cargo` directly inside it):
 
 - **celestia-ui** — reusable GPUI component library with the Celestia design tokens ported to
-  light/dark gpui-kit themes (`theme.json` + `palette.rs`), family re-exports over the
+  light/dark `gpui-component` themes (`theme.json` + `palette.rs`), family re-exports over the
   gpui-component library covering most of `packages/ui` (buttons, inputs, feedback, overlays,
   data display, layout, chat, charts), and a zustand/react-context-style state layer (`state/`)
   with selector-gated subscriptions — the desktop counterpart of `packages/ui`

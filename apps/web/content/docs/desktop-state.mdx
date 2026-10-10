@@ -195,7 +195,7 @@ app:
 
 ```rust
 fn main() {
-    gpui_kit::platform::application().run(|cx| {
+    gpui_platform::application().run(|cx| {
         celestia_ui::init(cx);
 
         // The provider: once, at the root.
@@ -249,11 +249,11 @@ let same_store = workspace == other_handle;
 
 ## Testing
 
-The layer is covered by `#[gpui_kit::test]` unit tests inside `crates/ui/src/state/`. Use the same
+The layer is covered by `#[gpui::test]` unit tests inside `crates/ui/src/state/`. Use the same
 harness for your own stores:
 
 ```rust
-#[gpui_kit::test]
+#[gpui::test]
 fn set_updates_the_state(cx: &mut TestAppContext) {
     let store = cx.update(|cx| StoreHandle::new(WorkspaceState::default(), cx));
     cx.update(|cx| store.set(cx, WorkspaceState::tab_opened));

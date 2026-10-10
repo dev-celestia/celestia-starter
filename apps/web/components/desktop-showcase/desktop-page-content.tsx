@@ -243,7 +243,7 @@ function Hero() {
           celestia-ui (rust crate)
         </Badge>
         <Badge variant="outline" className="font-mono">
-          gpui-kit 0.6
+          gpui 0.3.6
         </Badge>
         <Badge variant="outline" className="font-mono">
           Rust ≥ 1.97
@@ -258,11 +258,11 @@ function Hero() {
           Desktop
         </h1>
         <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-          Native Rust desktop components built on GPUI through{" "}
+          Native Rust desktop components built directly on{" "}
           <code className="rounded-md border border-border/70 bg-muted/60 px-1.5 py-0.5 font-mono text-xs">
-            gpui-kit
+            gpui
           </code>{" "}
-          — the desktop counterpart of{" "}
+          (gpui-pre) — the desktop counterpart of{" "}
           <code className="rounded-md border border-border/70 bg-muted/60 px-1.5 py-0.5 font-mono text-xs">
             @celestia-project/ui
           </code>
@@ -505,7 +505,7 @@ function Usage() {
       <UsageStep
         n={1}
         title="Depend on the crate"
-        body="gpui-kit is the only transitive UI dependency — its version pins the matching gpui and gpui-component. Don't add gpui crates directly."
+        body="celestia-ui depends on the framework and its two widget layers directly — gpui, gpui-base and gpui-component — with no facade crate in between. Every import names the layer it actually comes from."
       />
       <Command
         code={`# a crate inside packages/desktop — inherit the workspace entry
@@ -514,20 +514,20 @@ celestia-ui = { workspace = true }
 
 # an app outside the workspace — point at the library crate
 [dependencies]
-celestia-ui = { path = "../packages/desktop/crates/celestia-ui" }`}
+celestia-ui = { path = "../packages/desktop/crates/ui" }`}
         label="toml — your Cargo.toml"
       />
 
       <UsageStep
         n={2}
         title="Initialize once, before any window"
-        body="celestia_ui::init installs the gpui-kit runtime and the Celestia light/dark palettes; Theme::change and system-appearance sync keep using them afterwards. The full window-opening bootstrap is in the last section of this page."
+        body="celestia_ui::init installs the gpui-component runtime and the Celestia light/dark palettes; Theme::change and system-appearance sync keep using them afterwards. The full window-opening bootstrap is in the last section of this page."
       />
       <Command
-        code={`use gpui_kit::App;
+        code={`use gpui::App;
 
 fn main() {
-    gpui_kit::platform::application().run(|cx: &mut App| {
+    gpui_platform::application().run(|cx: &mut App| {
         celestia_ui::init(cx); // runtime + Celestia light/dark themes
         // open windows — see "Bootstrap" below
     });
@@ -545,9 +545,9 @@ fn main() {
 use celestia_ui::components::button::{Button, ButtonVariant};
 use celestia_ui::components::input::{Input, InputState};
 use celestia_ui::components::Card;
-use gpui_kit::{Entity, Window};
-use gpui_kit::component::{h_flex, v_flex};
-use gpui_kit::prelude::*;
+use gpui::{Entity, Window};
+use gpui_component::{h_flex, v_flex};
+use gpui::prelude::*;
 
 struct InviteView {
     email: Entity<InputState>,
@@ -603,8 +603,8 @@ impl Render for InviteView {
         body="cx.theme() resolves the semantic roles (background, muted, border, danger…) that flip with light/dark; palette(cx) carries the mode-independent product colors (brand, brand_deep, chart). The one rule of the package: no hex literals at a call site."
       />
       <Command
-        code={`use gpui_kit::component::ActiveTheme;
-use gpui_kit::{div, px};
+        code={`use celestia_ui::theme::ActiveTheme;
+use gpui::{div, px};
 
 let theme = cx.theme();
 let row = div()
@@ -627,6 +627,7 @@ let wash = celestia_ui::palette(cx).brand().opacity(0.08); // product color, mod
       />
       <Command
         code={`use celestia_ui::components::context_badge::{BadgeDetail, MessageBadge, context_badge};
+use celestia_ui::components::primitive::icon::PhosphorIcon;
 use celestia_ui::components::loaders::{gradient_spinner, progress_ring, pulse_loader};
 use celestia_ui::components::notice::{NoticeChipIcon, notice_chip};
 use celestia_ui::motion;
@@ -646,7 +647,7 @@ notice_chip(false, "Build failed", "cargo build exited with 101", NoticeChipIcon
 context_badge(
     "ctx-comments",
     &MessageBadge {
-        icon: gpui_kit::assets::IconName::FileCode,
+        icon: PhosphorIcon::FileCode,
         label: "2 comments".into(),
         details: vec![BadgeDetail {
             location: "src/main.rs:42".into(),
@@ -665,8 +666,8 @@ context_badge(
         body="Custom components are RenderOnce structs with #[derive(IntoElement)] — resolve theme colors inside render, not in the constructor, so light/dark switches apply on the next frame."
       />
       <Command
-        code={`use gpui_kit::component::ActiveTheme;
-use gpui_kit::{App, IntoElement, RenderOnce, SharedString, Window, div, px};
+        code={`use celestia_ui::theme::ActiveTheme;
+use gpui::{App, IntoElement, RenderOnce, SharedString, Window, div, px};
 
 #[derive(IntoElement)]
 pub struct Pill {
@@ -751,7 +752,7 @@ function Tokens() {
         id="tokens"
         eyebrow="Theming"
         title="The same tokens, compiled in"
-        description="celestia_ui::init installs the light/dark palettes and replaces gpui-kit's defaults — Theme::change and system-appearance sync keep using them. The swatches below are the live web tokens; the native gallery renders the same roles from the ported theme. The runtime layer over it is the next section."
+        description="celestia_ui::init installs the light/dark palettes and replaces gpui-component's defaults — Theme::change and system-appearance sync keep using them. The swatches below are the live web tokens; the native gallery renders the same roles from the ported theme. The runtime layer over it is the next section."
       />
       <Card className={cn(PANEL_XL, "gap-3")}>
         <CardContent className="flex flex-wrap gap-3">
@@ -797,7 +798,7 @@ function Theming() {
 
       <Command
         code={`use celestia_ui::theme::{hex, AppTheme, Scheme};
-use gpui_kit::px;
+use gpui::px;
 
 let config = AppTheme {
     radius: px(10.),                    // one knob — radius_lg derives +4px
@@ -853,7 +854,7 @@ active(cx);              // "Celestia"`}
       />
 
       <p className="max-w-2xl text-xs leading-relaxed text-muted-foreground">
-        The gpui-kit theming surface is re-exported at{" "}
+        The gpui-component theming surface is re-exported at{" "}
         <code className="font-mono text-2xs">celestia_ui::theme</code> —{" "}
         <code className="font-mono text-2xs">Theme</code>,{" "}
         <code className="font-mono text-2xs">ThemeColor</code> and{" "}
@@ -875,10 +876,10 @@ function Bootstrap() {
         id="bootstrap"
         eyebrow="Apps"
         title="App bootstrap in three lines"
-        description="Install the runtime + theme, open a window, wrap the root view in a gpui-kit Root — then mount the overlay layers yourself, because Root::render does not draw them."
+        description="Install the runtime + theme, open a window, wrap the root view in a gpui-component Root — then mount the overlay layers yourself, because Root::render does not draw them."
       />
       <Command
-        code={`gpui_kit::platform::application().run(|cx: &mut App| {
+        code={`gpui_platform::application().run(|cx: &mut App| {
     celestia_ui::init(cx);                    // runtime + Celestia light/dark themes
     cx.open_window(WindowOptions { ..TitleBar::window_options() }, |window, cx| {
         let view = cx.new(|cx| MyApp::new(window, cx));

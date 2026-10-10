@@ -9,8 +9,8 @@ use celestia_ui::components::primitive::icon::PhosphorIcon;
 use celestia_ui::components::primitive::progress::Progress;
 use celestia_ui::components::primitive::skeleton::Skeleton;
 use celestia_ui::components::primitive::spinner::Spinner;
-use gpui_component::{ActiveTheme, h_flex, v_flex};
 use gpui::*;
+use gpui_component::{ActiveTheme, h_flex, v_flex};
 
 use crate::showcase::Showcase;
 

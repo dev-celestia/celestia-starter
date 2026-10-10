@@ -17,7 +17,6 @@
 
 use std::rc::Rc;
 
-use gpui_component::{ActiveTheme, h_flex, v_flex};
 use gpui::prelude::FluentBuilder as _;
 use gpui::{
     AnyElement, App, ClickEvent, ElementId, FontWeight, InteractiveElement, IntoElement,
@@ -26,6 +25,7 @@ use gpui::{
 };
 
 use crate::focus_ring::focus_ring;
+use crate::theme::ActiveTheme as _;
 
 type ClickHandler = Rc<dyn Fn(&ClickEvent, &mut Window, &mut App)>;
 
@@ -72,11 +72,17 @@ impl RenderOnce for SidebarLayout {
     fn render(self, _: &mut Window, cx: &mut App) -> impl IntoElement {
         let theme = cx.theme();
 
-        h_flex()
+        div()
+            .flex()
+            .flex_row()
+            // `h_flex()`'s cross-axis centering; nothing below overrides it.
+            .items_center()
             .id(self.id)
             .size_full()
             .child(
-                v_flex()
+                div()
+                    .flex()
+                    .flex_col()
                     .w(self.width)
                     .flex_none()
                     .h_full()
@@ -126,7 +132,9 @@ impl ParentElement for SidebarHeader {
 
 impl RenderOnce for SidebarHeader {
     fn render(self, _: &mut Window, cx: &mut App) -> impl IntoElement {
-        h_flex()
+        div()
+            .flex()
+            .flex_row()
             .h_12()
             .flex_none()
             .px_3()
@@ -191,7 +199,9 @@ impl ParentElement for SidebarNav {
 
 impl RenderOnce for SidebarNav {
     fn render(self, _: &mut Window, _cx: &mut App) -> impl IntoElement {
-        v_flex()
+        div()
+            .flex()
+            .flex_col()
             .id(self.id)
             .flex_1()
             .min_h_0()
@@ -291,7 +301,9 @@ impl RenderOnce for SidebarNavItem {
             .read(cx)
             .clone();
 
-        let mut row = h_flex()
+        let mut row = div()
+            .flex()
+            .flex_row()
             .id(self.id)
             .w_full()
             .h_8()
@@ -392,7 +404,9 @@ impl ParentElement for SidebarFooter {
 
 impl RenderOnce for SidebarFooter {
     fn render(self, _: &mut Window, cx: &mut App) -> impl IntoElement {
-        h_flex()
+        div()
+            .flex()
+            .flex_row()
             .flex_none()
             .px_2()
             .py_2()

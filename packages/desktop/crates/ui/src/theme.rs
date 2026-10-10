@@ -1,4 +1,4 @@
-//! Celestia theming: loads `theme.json` into gpui-kit's `ThemeRegistry` and
+//! Celestia theming: loads `theme.json` into `gpui-component`'s `ThemeRegistry` and
 //! replaces the default light/dark configs.
 //!
 //! `theme.json` is the sRGB-hex port of `packages/ui/src/styles/globals.css`
@@ -15,7 +15,7 @@
 //!   #ff6467. Dark `--primary` `oklch(0.68 0.22 27)` is slightly out of gamut
 //!   and clips to #ff4d46.
 //! - Alpha-carrying tokens (`--border` dark = `oklch(1 0 0 / 10%)`) become
-//!   8-digit hex (#ffffff1a), the same form gpui-kit's `overlay` uses.
+//!   8-digit hex (#ffffff1a), the same form `gpui-component`'s `overlay` uses.
 //! - Hover/active steps are not defined per-state in the CSS; light steps
 //!   darken the base (GetCat's desktop idiom), dark steps lighten toward
 //!   white. Status foregrounds follow the CSS: white in light, near-black
@@ -30,7 +30,7 @@ pub mod config;
 
 pub use book::{active, families, select};
 pub use config::{AppTheme, Scheme, hex};
-// The gpui-kit theming surface, re-exported so apps reach the whole story —
+// The `gpui-component` theming surface, re-exported so apps reach the whole story —
 // the global `Theme`, its resolved `ThemeColor` set, and the `ActiveTheme`
 // accessor every component reads — from one place.
 pub use gpui_component::{ActiveTheme, Theme, ThemeColor};
@@ -46,7 +46,7 @@ pub(crate) const DARK: &str = "Celestia Dark";
 ///
 /// Must run after `gpui_component::init`. The JSON is compile-time embedded and its
 /// key values are pinned by the tests below, so a failure here is a bug and
-/// panics rather than silently falling back to gpui-kit's default gray.
+/// panics rather than silently falling back to `gpui-component`'s default gray.
 pub fn install(cx: &mut App) {
     ThemeRegistry::global_mut(cx)
         .load_themes_from_str(THEME_JSON)
@@ -70,8 +70,8 @@ pub fn install(cx: &mut App) {
     // `Theme::motion` is `#[serde(skip)]`, so the motion scale cannot ride in
     // `theme.json`. Assign it directly — `apply_config` never touches the field,
     // so it survives later `Theme::change` / system-appearance switches. This
-    // is what makes every re-exported gpui-kit component animate on the web
-    // design system's durations and curves instead of gpui-kit's own.
+    // is what makes every re-exported `gpui-component` component animate on the web
+    // design system's durations and curves instead of `gpui-component`'s own.
     Theme::global_mut(cx).motion = crate::motion::motion_tokens();
 
     // Seed the theme book with the Celestia family (the multi-theme layer).

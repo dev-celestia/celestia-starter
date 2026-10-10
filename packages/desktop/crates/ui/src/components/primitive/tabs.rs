@@ -50,21 +50,22 @@
 //! `reference/gpui-kit/.../popover.rs`, which documents the same constraint for
 //! the dropdown entrance.
 //!
-//! Re-exports [`Tab`] and [`TabBar`] from `gpui-kit` for full backward
+//! Re-exports [`Tab`] and [`TabBar`] from `gpui-component` for full backward
 //! compatibility.
 
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
-use gpui_base::motion::transition;
-use gpui_base::{ElementExt as _, spring};
-use gpui_component::{ActiveTheme, Disableable, Selectable, h_flex, v_flex};
+use crate::components::traits::{Disableable, Selectable, h_flex, v_flex};
+use crate::theme::ActiveTheme as _;
 use gpui::prelude::FluentBuilder as _;
 use gpui::{
     AnimationExt as _, AnyElement, App, Bounds, BoxShadow, ClickEvent, ElementId, FocusHandle,
     FontWeight, InteractiveElement, IntoElement, ParentElement, Pixels, RenderOnce, SharedString,
     StatefulInteractiveElement as _, Styled, Window, div, point, px,
 };
+use gpui_base::motion::transition;
+use gpui_base::{ElementExt as _, spring};
 
 use crate::components::primitive::icon::{Phosphor, PhosphorIcon};
 use crate::focus_ring::focus_ring;
@@ -715,7 +716,7 @@ impl RenderOnce for TabsTrigger {
         el = el.children(self.children);
 
         // `focus-visible:ring-2 focus-visible:ring-ring` — the Celestia house
-        // ring, not gpui-kit's 3px-at-50% helper.
+        // ring, not `gpui-component`'s 3px-at-50% helper.
         if !self.disabled && focus_handle.is_focused(window) {
             el = focus_ring(el, window, cx);
         }

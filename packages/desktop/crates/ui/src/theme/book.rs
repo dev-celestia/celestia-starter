@@ -1,7 +1,7 @@
-//! The theme book — multi-theme support on top of gpui-kit's two-mode
+//! The theme book — multi-theme support on top of `gpui-component`'s two-mode
 //! `Theme` global.
 //!
-//! gpui-kit's `Theme` holds exactly one light and one dark [`ThemeConfig`]
+//! `gpui-component`'s `Theme` holds exactly one light and one dark [`ThemeConfig`]
 //! and `Theme::change` flips between them. That covers "light and dark";
 //! this module adds the third axis — **named custom themes** — without
 //! replacing either mechanism:
@@ -15,7 +15,7 @@
 //! - `AppTheme::apply` stays an *overlay on the active family*, so radius and
 //!   token tweaks compose with whichever family is selected.
 //!
-//! Families live in a private [`ThemeBook`] global rather than the gpui-kit
+//! Families live in a private [`ThemeBook`] global rather than the `gpui-component`
 //! `ThemeRegistry`: the registry has no public replace/remove, and its change
 //! observer re-pulls configs by name — families it does not know are simply
 //! left alone, so custom themes survive registry churn untouched. Selecting
@@ -45,8 +45,8 @@
 
 use std::collections::HashMap;
 
-use gpui_component::{Theme, ThemeConfig, ThemeRegistry};
 use gpui::{App, Global, SharedString};
+use gpui_component::{Theme, ThemeConfig, ThemeRegistry};
 
 /// The default family name — seeded from `theme.json` by [`install`].
 pub(crate) const CELESTIA: &str = "Celestia";

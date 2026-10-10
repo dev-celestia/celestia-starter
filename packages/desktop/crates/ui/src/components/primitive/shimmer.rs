@@ -55,6 +55,19 @@ impl ShimmerStyle {
         self.once = once;
         self
     }
+
+    /// The clock this style implies — the one [`ShimmerText`] rides.
+    ///
+    /// Exposed so an element that cannot be a [`ShimmerText`] (arbitrary
+    /// content rather than a label, as in a loading marker) still pulses on the
+    /// *same* schedule instead of inventing a second, drifting one.
+    pub(crate) fn animation(&self) -> Animation {
+        if self.once {
+            Animation::new(self.duration)
+        } else {
+            Animation::new(self.duration).repeat_synced()
+        }
+    }
 }
 
 impl Default for ShimmerStyle {
@@ -132,13 +145,9 @@ impl RenderOnce for ShimmerText {
         let text = self.text;
         let highlight = self.shimmer_style.highlight_color;
 
-        let animation = if self.shimmer_style.once {
-            Animation::new(self.shimmer_style.duration)
-        } else {
-            // `repeat_synced` phase-locks every mounted shimmer to one clock, so
-            // a row of labels breathes together instead of drifting.
-            Animation::new(self.shimmer_style.duration).repeat_synced()
-        };
+        // `repeat_synced` phase-locks every mounted shimmer to one clock, so a
+        // row of labels breathes together instead of drifting.
+        let animation = self.shimmer_style.animation();
 
         let mut label = div().min_w_0().child(text);
         label.style().refine(&self.style);

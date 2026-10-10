@@ -304,7 +304,7 @@ mod tests {
                 cx,
             );
             let probe = cx.new(|cx| {
-                let mut this = Probe {
+                let this = Probe {
                     // The initial slice is applied by the observer's constructor.
                     counts: vec![store.read(cx).count],
                     labels: vec![],

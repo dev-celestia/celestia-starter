@@ -7,7 +7,7 @@
 //! that single place for the desktop library: a set of semantic color tokens
 //! per mode ([`Scheme`]) and one [`radius`](AppTheme::radius), with an
 //! [`apply`](AppTheme::apply) that pushes the whole configuration onto
-//! gpui-kit's `Theme` global — the same global every component already reads
+//! `gpui-component`'s `Theme` global — the same global every component already reads
 //! through `cx.theme()`, so nothing in `components/` changes when the config
 //! does.
 //!
@@ -39,8 +39,8 @@
 //! ramp) are not part of the config — like the web `:root` they are defined
 //! once and never re-themed; see [`crate::palette`].
 
-use gpui_component::{ThemeConfig, ThemeConfigColors, ThemeMode};
 use gpui::{App, Hsla, Pixels, Rgba, SharedString, px, rgb};
+use gpui_component::{ThemeConfig, ThemeConfigColors, ThemeMode};
 
 /// A semantic color as `#rrggbb` — the config's unit, like a shadcn CSS
 /// variable value.

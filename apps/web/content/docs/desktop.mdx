@@ -1,15 +1,16 @@
 ---
 title: Desktop (GPUI)
-description: Native Rust desktop UI on GPUI Kit — celestia-ui re-exports the gpui-component library under the Celestia tokens (a compile-time theme.json) plus celestia-only builds
+description: Native Rust desktop UI on raw GPUI — celestia-ui wraps the gpui-component library under the Celestia tokens (a compile-time theme.json) plus celestia-only builds, with no facade crate in between
 icon: monitor
 ---
 
 `celestia-ui` is the desktop counterpart of `@celestia-project/ui`: a Rust component library for
-native desktop apps built on [GPUI](https://gpui.rs) through **gpui-kit 0.6** (which pins the
-matching `gpui` and `gpui-component` versions — one dependency line locks the whole stack). The
-shape mirrors the web package: `packages/ui` wraps Base UI primitives with celestia tokens;
-`celestia-ui` wraps the gpui-component library the same way, so most web files map 1:1 onto a
-desktop module (`drawer.tsx` → `sheet`, `toast.tsx` → `notification`, `file-tree.tsx` → `tree`).
+native desktop apps built on [GPUI](https://gpui.rs) (`gpui-pre` 0.3.6) **directly** — the two
+widget layers it wraps, `gpui-base` and `gpui-component` 0.6.6, are named as themselves, so every
+import states the crate it comes from. The shape mirrors the web package: `packages/ui` wraps Base
+UI primitives with celestia tokens; `celestia-ui` wraps the gpui-component library the same way, so
+most web files map 1:1 onto a desktop module (`drawer.tsx` → `sheet`, `toast.tsx` → `notification`,
+`file-tree.tsx` → `tree`).
 
 <Callout type="info" title="Looking for the visual tour?">
   This page is the package overview — the crates, the architecture and the
@@ -55,10 +56,13 @@ One file per component, split into two category modules mirroring
 `packages/ui/src/components/{primitive,composite}`:
 
 1. **Celestia wrappers** — components with a shadcn-shaped prop surface that
-   render gpui-kit primitives under Celestia theming: `button.rs` (`Button` +
-   `ButtonVariant` primary/secondary/destructive/outline/ghost/link +
-   `ButtonSize`), `badge.rs` (`Badge` + `BadgeVariant` — composed from a plain
-   `div` rather than gpui-kit's `Tag`, because the web status variants are a 10%
+   render `gpui-component` primitives under Celestia theming: `button.rs` (`Button` +
+   `ButtonVariant` — primary/secondary/destructive/outline/ghost/quiet/link, plus
+   desktop-only `success`/`warning`/`info` status fills — with `ButtonSize`'s five
+   height steps and four icon steps, `leading_icon`/`trailing_icon` slots, the
+   `Button::icon` constructor, and a `loading` state that swaps the leading slot for
+   a `Spinner`), `badge.rs` (`Badge` + `BadgeVariant` — composed from a plain
+   `div` rather than `gpui-component`'s `Tag`, because the web status variants are a 10%
    tint of the accent under accent-coloured text and the Tag paints solid fills
    plus a hover dim the web does not have), `avatar.rs` (`Avatar` +
    `AvatarSize`, the web's 24/32/40px scale), `card.rs`, `section_heading.rs`,
@@ -71,44 +75,89 @@ One file per component, split into two category modules mirroring
    components are reached through their category-qualified path
    (`components::primitive::table::…`, `components::composite::sidebar::…`).
 3. **Raw-GPUI components** — written directly on `gpui` (`gpui-pre`) and
-   importing nothing from gpui-kit: `primitive/alert.rs`, `primitive/progress.rs`,
-   `primitive/skeleton.rs`, `primitive/spinner.rs`, `primitive/shimmer.rs`,
-   `primitive/icon.rs`, `composite/loaders.rs`, `composite/notice.rs`,
-   `composite/context_badge.rs`. They render with `gpui::div` / `gpui::svg` /
-   `gpui::canvas` and read colors from `cx.theme()`.
+   importing nothing from `gpui_component`: `primitive/alert.rs`,
+   `primitive/progress.rs`, `primitive/skeleton.rs`, `primitive/spinner.rs`,
+   `primitive/shimmer.rs`, `primitive/icon.rs`, `primitive/badge.rs`,
+   `primitive/label.rs`, `primitive/rating.rs`, `composite/loaders.rs`,
+   `composite/notice.rs`, `composite/context_badge.rs`. They render with
+   `gpui::div` / `gpui::svg` / `gpui::canvas` and read colors from `cx.theme()`.
 
-### Migrating off gpui-kit
+### Dependency layers
 
-`celestia-ui` depends on **both** `gpui-kit` and raw `gpui`, pinned to the same
-snapshot so the two name identical types and the two styles coexist in one
-crate. Components move from (2) → (3) one **family** at a time, and
-`crates/ui/src/components/mod.rs` tracks what is done. Migrated so far:
+There is **no facade crate**. `celestia-ui` depends on the framework and its two
+widget layers directly, so every import names the crate it actually comes from:
+
+| Layer     | Crate            | Used for                                                                                     |
+| --------- | ---------------- | -------------------------------------------------------------------------------------------- |
+| Framework | `gpui` (`gpui-pre`) | everything a component draws                                                                 |
+| Base      | `gpui-base`      | **the inner component library** (`Checkbox`, `Popover`, `Tree`, `Resizable`, `Slider`, `Tabs`, `Table`, the motion stack, scroll) plus the free style helpers (`h_flex` / `v_flex`, `StyledExt`, `RoleOverride`, `box_shadow`) |
+| Widgets   | `gpui-component` | a thin styling layer *over* `gpui-base`; the styled controls a file still re-exports                     |
+
+Components move from (2) → (3) one **family** at a time, and
+`crates/ui/src/components/mod.rs` tracks what is done. Rewritten so far:
 
 - **Feedback** — `primitive/`: `alert`, `progress`, `skeleton`, `spinner`,
   `shimmer`, `icon`; `composite/`: `loaders`, `notice`, `context_badge`.
 - **Structural** — `primitive/`: `separator`, `kbd`, `link`, `breadcrumb`;
-  `composite/`: `group_box`, `status_bar`, `description_list`, `empty`.
+  `composite/`: `group_box`, `status_bar`, `title_bar`, `description_list`,
+  `empty`.
 - **Display** — `primitive/`: `badge`, `label`, `rating`.
+- **Layout** — `primitive/`: `card`; `composite/`: `section_heading`,
+  `sidebar_layout`, and the SwiftUI vocabulary `h_stack`, `v_stack`, `z_stack`,
+  `spacer`, `scroll_view`, `v_grid`, `frame`, `alignment`.
+- **Conversation** — `primitive/`: `bubble`; `composite/`: `message`, `marker`.
+  (`message_scroller` is split out and still a shim — it is the one part of the
+  conversation stack sitting on `gpui-base` motion and scroll.)
 
-Pick the next family by **transitive cost, not file size**: a one-line re-export
-is not automatically cheap, because the type it re-exports may itself be built
-out of the facade's other layers. Most of what remains is built on `gpui-base`
-state machines (`checkbox`, `radio`, `switch`, `slider`, `accordion`, `table`,
-`tabs`, `dialog`, `input`, `select`, `popover`, `tooltip`, `toast`,
-`scroll_area`, `avatar`, `tree`, `calendar`, `date_picker`, `color_picker`,
-`combobox`, `dock`, `list`, `pagination`, `sheet`, `stepper`, `menu`,
-`sidebar`) — the base layer is the next milestone, not the component layer.
+Pick the next family by **transitive cost, not file size**, measured on two axes.
+First, what the target's own imports drag in: the question is not "how big is it"
+but "does the closure reach a `gpui-base` **state machine**". `StyledExt`,
+`h_flex` / `v_flex`, `RoleOverride` and the sizing traits are *style helpers* and
+cost nothing to inline; `Checkbox`, `Slider`, `Popover`, `Tree`, `ResizableState`
+and the motion stack are *state machines* and have to be reimplemented. Second,
+who else imports it: `bubble` and `message` import each other (`MessageContent::bubble`
+takes the crate's own `Bubble`), so they move together, and `menu` is imported by
+ten upstream modules.
 
-The substitutions that recur, and the two places the facade was load-bearing:
+34 shims remain, and exactly one of them is still free. `attachment` (1017
+upstream lines) references `gpui_base` **not once** — it draws from `gpui` plus
+the free style helpers, and its only component dependency, `shimmer`, is already
+migrated. `title_bar` was the other one; it is done. Everything else names at
+least one `gpui-base` module directly, and the large ones close over ~45k
+upstream lines each — for those the base layer is the next milestone, not another
+component batch. (`resizable` is the one the analyzer cannot rank: it reports a
+zero because `gpui_component::resizable` is an inline `pub mod` over `gpui-base`
+rather than a file. A name that resolves to nothing is a red flag, not a cheap
+target.)
 
-| Was (gpui-kit) | Now (raw `gpui`) |
+Two things make that measurement reproducible rather than remembered.
+`scripts/ui-audit/gpui-migration-cost.py` resolves each shim's target module and
+reports a **`gb1`** column — the `gpui-base` modules the target's *own* files
+import, at depth 1. Read `gb1`, not the closure columns: a closure total
+saturates at ~45k lines for nearly every shim *and* over-reaches (`stepper`'s
+closure claims `markdown_ext`, `number_input` and `virtual_list`, which a stepper
+plainly does not use). Depth 1 cannot be inflated transitively, so `gb1 == 0`
+means a one-file port and nothing else does.
+
+And a correction that reframes the whole remaining list: **`gpui-base` is not a
+helper crate, it is the inner component library.** `gpui-component` is a thin
+styling layer over it — upstream `checkbox.rs` is a struct holding
+`base: gpui_base::Checkbox`, and `popover.rs` does
+`use gpui_base::Popover as BasePopover`. Only the pure style helpers re-exported
+through it (`h_flex` / `v_flex`, `StyledExt`, `RoleOverride`, `FocusableExt`,
+`box_shadow`, `AxisExt`, `LengthExt`, `Edges`, `Placement`, `Side`, `Measure`)
+are free to inline, which is why `title_bar` — zero of them — was cheap.
+
+The substitutions that recur, and the two places the old facade was load-bearing:
+
+| Was (`gpui-kit` facade) | Now |
 | --- | --- |
 | `use gpui_kit::{div, px, …}` | `use gpui::{div, px, …}` — same items, so mostly mechanical |
 | `use gpui_kit::component::ActiveTheme` | `use crate::theme::ActiveTheme as _` |
 | `gpui_kit::component::Icon` / `assets::IconName` | `crate::components::primitive::icon::{Phosphor, PhosphorIcon}` |
 | `IconName::StarFill` | `Phosphor::new(PhosphorIcon::Star).weight(PhosphorWeight::Fill)` |
 | `.refine_style(&style)` | `el.style().refine(&style)` |
-| `h_flex()` / `v_flex()` | `div().flex().flex_row()` / `div().flex().flex_col()` |
+| `h_flex()` / `v_flex()` | `div().flex().flex_row()` / `div().flex().flex_col()`, **plus the cross-axis rule the helper supplied** — `h_flex()` is `.items_center()`, so a row that relied on it keeps an explicit `.items_center()` |
 | `Tooltip::new(..).build(..)` | `.tooltip(\|_, cx\| cx.new(\|_\| MyHint).into())` |
 | `Sizable` / `Size` | a crate-local metric bucket, e.g. `DescriptionListSize`, `RatingSize`, `GpuiBadgeSize` |
 
@@ -122,9 +171,9 @@ port — widening one arm to hold an `AnyElement` (not `Clone`) means dropping t
 derive, not boxing around it. The full recipe — and how to pick the next family
 by *transitive* cost rather than file size — is the module doc of
 `crates/ui/src/components/mod.rs`. The theme service (`cx.theme()` →
-gpui-component's `Theme`/`ThemeColor`) is the last piece scheduled to move; it
-is re-exported from `crate::theme` so component files never name `gpui_kit`
-directly.
+`gpui-component`'s `Theme`/`ThemeColor`) is the last piece scheduled to move; it
+is re-exported from `crate::theme` so component files never name
+`gpui_component` directly.
 
 One rule runs through everything: **raw hex lives only in `theme.json` and `palette.rs`**. Call
 sites take colors by role through `cx.theme()` (semantic roles: background, foreground, primary,
@@ -155,14 +204,125 @@ primitives, or that owns a layout region rather than a control, is a composite.
 | `primitive/table.rs` — two APIs: HTML-style primitives (`Table`, `TableHeader`, `TableBody`, `TableRow`, `TableHead`, `TableCell`, `TableCaption`) + `DataTable` entity (declarative columns/rows over the virtualized delegate table, `set_rows`, `from_key_value`) | `table.tsx` (primitives), the `data-table` composite; GetCat `kv_table.rs` inspired the Key/Value constructor                     |
 | `primitive/separator.rs`, `primitive/tabs.rs`, `primitive/accordion.rs`, `primitive/collapsible.rs`, `primitive/carousel.rs`, `primitive/resizable.rs`, `primitive/scroll_area.rs`, `composite/group_box.rs`                                                                                                                               | `separator.tsx`, `tabs.tsx`, `accordion.tsx`, `collapsible.tsx`, `carousel.tsx`, `resizable.tsx`, `scroll-area.tsx`, —            |
 | `composite/sidebar.rs`, `composite/sidebar_layout.rs` (shell: `SidebarLayout` + header/nav/item/footer), `composite/dock.rs`, `composite/title_bar.rs`, `composite/status_bar.rs`                                                                                                                            | `sidebar.tsx` (composite); the layout shell, dock and window chrome are desktop-only                                              |
-| `primitive/bubble.rs`, `composite/message.rs`, `composite/attachment.rs`                                                                                                                                                                                                                 | the web `ai/` family's bubble, chat-message + message-scroller, attachment                                                        |
+| `primitive/bubble.rs`, `composite/message.rs`, `composite/message_scroller.rs`, `composite/marker.rs`, `composite/attachment.rs`                                                                                                                                                                                                                 | the web `ai/` family's bubble, chat-message + message-scroller, attachment                                                       |
 | `composite/charts.rs` (`chart`, `plot` — generic API, series colors from `palette(cx).chart(i)`)                                                                                                                                                                     | `chart.tsx` + the `chart-*.tsx` composites                                                                                        |
-| `composite/swiftui.rs` (SwiftUI-style layout: `HStack`/`VStack`/`ZStack` with alignment + spacing, `Spacer`, axis `ScrollView`, `VGrid` + `GridItem`, `Frame`)                                                                                                       | SwiftUI's layout vocabulary — no web counterpart; gallery has a dedicated section                                                 |
+| `composite/h_stack.rs`, `v_stack.rs`, `z_stack.rs`, `spacer.rs`, `scroll_view.rs`, `v_grid.rs`, `frame.rs`, `alignment.rs` (SwiftUI-style layout: `HStack`/`VStack`/`ZStack` with alignment + spacing, `Spacer`, axis `ScrollView`, `VGrid` + `GridItem`, `Frame`)                                                                                                       | SwiftUI's layout vocabulary — no web counterpart; gallery has a dedicated section                                                 |
 | `primitive/icon.rs` (Phosphor icons: `PhosphorIcon` catalog + `Phosphor` weight wrapper)                                                                                                                                                                             | `lucide-react` on web; desktop uses Phosphor Core (no web counterpart)                                                            |
 | `primitive/card.rs`, `composite/section_heading.rs`, `composite/text_editor.rs`, `composite/code_editor.rs` (wrappers / celestia-only)                                                                                                                                                             | web `Card` / `SectionHeading` idiom; `text-editor.tsx` / `block-text-editor`                                                      |
 
 The rest of the web `ai/` family (prompt-input, reasoning, tools, …) has no gpui equivalent yet —
 port on demand as custom builds in `src/components/composite/`.
+
+### Button
+
+`Button` is the one component that goes past its web counterpart, so its extra surface is worth
+spelling out.
+
+**Sizes** are web's height ladder plus its icon ladder, in one place:
+
+| Step | Web | Height | Padding | Gap | Text | Icon |
+| ---- | --- | ------ | ------- | --- | ---- | ---- |
+| `XSmall` | `xs` | 20px | 8px | 4px | 10px | 10px |
+| `Small` | `sm` | 24px | 10px | 4px | 12px | 12px |
+| `Medium` *(default)* | `default` | 26px | 12px | 6px | 12px | 14px |
+| `Md` | `md` | 28px | 10px | 4px | 12px | 12px |
+| `Large` | `lg` | 36px | 14px | 8px | 14px | 16px |
+| `Icon` | `icon` | 32px square | — | — | 12px | 14px |
+| `IconXs` / `IconSm` / `IconLg` | `icon-xs` / `icon-sm` / `icon-lg` | 20 / 24 / 36px square | — | — | 10 / 12 / 14px | 10 / 12 / 16px |
+
+`Md` and `Medium` are **different steps** — web's `default` and `md` are not the same thing. The
+icon column is deliberately non-monotonic: `Md` is `sm` with one more step of height and nothing
+else changed, so the taller button keeps the smaller icon. `Large` is the one deliberate
+deviation — web's `lg` is 36px but keeps `text-xs` and `gap-1.5`; the desktop widens both.
+
+**Variants** are the web set (`primary` / `secondary` / `destructive` / `outline` / `ghost` /
+`quiet` / `link`) plus three desktop-only status fills — `Success`, `Warning`, `Info` — which
+complete the set `alert.rs` and `badge.rs` already carry. All four status variants share one
+recipe: the accent is the surface *and* the border, the paired `*_foreground` token is the text,
+and the 3D edge is the accent darkened toward black.
+
+**Icon slots and loading** are typed rather than assembled by hand:
+
+```rust
+use celestia_ui::components::primitive::button::{Button, ButtonSize, ButtonVariant};
+use celestia_ui::components::primitive::icon::PhosphorIcon;
+
+// Leading / trailing slots — a bare PhosphorIcon renders at the size step's
+// icon size and inherits the button's text colour, so it follows the hover
+// fade and the disabled dimming for free.
+Button::new("export")
+    .variant(ButtonVariant::Outline)
+    .leading_icon(PhosphorIcon::DownloadSimple)
+    .trailing_icon(PhosphorIcon::CaretDown)
+    .label("Export");
+
+// Icon-only: the `icon` constructor defaults to `ButtonSize::Icon`.
+Button::icon("settings", PhosphorIcon::Gear);
+
+// Loading: the spinner takes the *leading slot* rather than being pushed in
+// front of it, so the label and the trailing icon keep their positions and the
+// button does not reflow. Interaction is blocked, but the fill, the elevation
+// and the opacity are kept — a loading button is busy, not forbidden.
+Button::new("save")
+    .variant(ButtonVariant::Primary)
+    .loading(true)
+    .label("Saving");
+```
+
+Two GPUI-specific notes on the icon ladder. Web expresses it with a descendant selector
+(`[&_svg:not([class*='size-'])]:size-3.5`); GPUI has no descendant styling, so the slot is an
+explicit wrapper whose `text_size` a bare `PhosphorIcon` inherits — an icon that carries its own
+explicit size still wins, which is what web's `:not([class*='size-'])` guard buys. And
+`Button::icon_size` is the escape hatch for a glyph whose proportions need another step.
+
+`CursorStyle` has no wait/progress variant, so a loading button keeps the plain arrow cursor;
+`OperationNotAllowed` is the *disabled* signal and would read as a broken control.
+
+### TitleBar
+
+The window chrome is desktop-only, so `TitleBar` is a port of `gpui-component`'s rather than
+of a web component. It is the cheapest kind of port — upstream's file reaches **zero**
+`gpui-base` components, so nothing had to be reimplemented on its behalf.
+
+Use it as the first child of the window's root view, and start the window from
+`TitleBar::window_options()`:
+
+```rust
+use celestia_ui::components::composite::title_bar::TitleBar;
+use celestia_ui::gpui::WindowOptions;
+
+let options = WindowOptions {
+    window_min_size: None,
+    ..TitleBar::window_options()   // app_owns_titlebar_drag: true
+};
+```
+
+`window_options()` sets `app_owns_titlebar_drag: true` deliberately. The bar moves the window
+itself via `start_window_move`, so AppKit must not also treat it as a system window-move
+region — otherwise macOS handles double clicks on its own *in addition* to ours and delays
+every title bar click while it disambiguates.
+
+Four deviations from the upstream file, all marked `DEV:` in the source:
+
+- **Caption glyphs.** Upstream's `IconName::WindowMinimize` / `WindowRestore` / `WindowMaximize`
+  / `WindowClose` are not in the Phosphor catalog, so they map to the closest Phosphor shapes:
+  `Minus`, `CopySimple`, `Square`, `X`.
+- **`Vec` in place of `SmallVec<[AnyElement; 1]>`** — one inline slot is not worth a new direct
+  dependency.
+- **No `Render` impl on the drag state.** Upstream carries an empty one with a "remove this when
+  GPUI has released v0.2.3" TODO; `Window::use_state<S: 'static>` places no such bound.
+- **The real `ClickEvent` is passed to the close callback** instead of a synthesized
+  `ClickEvent::default()`.
+
+Two upstream helpers were inlined rather than ported: `on_double_click` is `on_click` plus a
+`click_count() == 2` guard, and `Icon::new(..).small()` resolves to a 14px glyph, which is
+`Phosphor::new(icon).size(px(14.0))` here.
+
+The caption cluster is platform-conditional and worth knowing about: it renders nothing on
+macOS (the traffic lights are the OS's) or in the browser, and on Linux it stands down entirely
+when `window.window_decorations()` is not `Decorations::Client` — under server-side decorations
+the window manager already draws min/max/close, so ours would stack a duplicate pair on top,
+most visibly two close buttons.
 
 ## Zeron-port primitives
 
@@ -195,9 +355,9 @@ The gallery's **Feedback** section renders all of them live.
   out at `reference/zui`), which adds renderer-level primitives: `BackdropBlur`
   (frosted glass), per-pixel `EdgeFade` / `Window::with_edge_fade` (scroll-edge
   fades), transparent-window compositing and image corner-radius masks.
-  gpui-kit's pinned `gpui` (the `gpui-pre` series) has none of these, so zeron's
+  the pinned `gpui` (the `gpui-pre` series) has none of these, so zeron's
   `frost.rs`, `glass.rs` and `edge_fade.rs` stay unported — adopting them would
-  mean replacing the whole gpui-kit-locked stack with the fork. Everything built
+  mean replacing the whole pinned stack with the fork. Everything built
   on the shared core API (div/Styled, `Animation`, `canvas`, element state)
   ports cleanly, which is the family above.
 </Callout>
@@ -226,7 +386,7 @@ They are exposed three ways. Named `MotionSpec`s (`HOVER`, `SLIDE`, `PRESS`,
 `spec_transition(spec)` (and the `hover_transition` / `press_transition` /
 `slide_transition` shorthands) turn one into a `gpui_base` value-transition
 policy for `transition-colors`-style fades; and `motion_tokens()` packages the
-whole scale as gpui-kit's `MotionTokens`.
+whole scale as `gpui-component`'s `MotionTokens`.
 
 ```rust
 // `transition-colors duration-fast ease-out` — a hover fade between two states.
@@ -235,10 +395,10 @@ let t = transition(("btn-hover", self.id.clone()), hovered as u8 as f32,
 let bg = motion::mix(rest, hover, t);
 ```
 
-`theme.json` **cannot** carry this scale — gpui-kit's `Theme::motion` is
+`theme.json` **cannot** carry this scale — `gpui-component`'s `Theme::motion` is
 `#[serde(skip)]` — so `theme::install` assigns it directly. That one assignment
-is what re-times every re-exported gpui-kit component (switch, checkbox, slider,
-accordion, collapsible, progress, carousel, `TabBar`) off gpui-kit's own
+is what re-times every re-exported `gpui-component` component (switch, checkbox, slider,
+accordion, collapsible, progress, carousel, `TabBar`) off `gpui-component`'s own
 0/120/180/280ms ladder and onto the design system's 80/150/220/320ms. Because
 `apply_config` never touches the field, it survives `Theme::change` and
 system-appearance switches.
@@ -257,7 +417,7 @@ were deliberately left alone.
 
 Every focus ring is **2px at full strength** — `focus-visible:ring-2
 focus-visible:ring-ring`, enforced on the web by
-`scripts/ui-audit/focus-rings.mjs`. gpui-kit's own `focus_ring_style` draws 3px
+`scripts/ui-audit/focus-rings.mjs`. `gpui-component`'s own `focus_ring_style` draws 3px
 at 50% opacity, which that rule forbids, so `celestia_ui::focus_ring::focus_ring`
 is an in-crate replacement: it reads the element's own border widths and corner
 radii, adds 2px, and attaches an absolutely-positioned bordered child at
@@ -283,12 +443,80 @@ The component-by-component audit that produced this layer, including the
 per-wrapper parity tables and the deliberate non-goals, lives at
 `packages/desktop/AUDIT-component-motion.md`.
 
+## Layout stacks — SwiftUI vocabulary
+
+`components/composite/` carries SwiftUI's layout vocabulary — one file per
+construct, no web counterpart. Each is a thin `RenderOnce` wrapper over a gpui
+flex row / column / layer, so they compose with every other component in the
+library:
+
+| Component | Maps to | Notes |
+| --- | --- | --- |
+| `HStack` | `HStack(alignment:spacing:)` | flex row; `spacing` becomes the flex gap (default 8px); alignment is the vertical cross axis (`Top` / `Center` / `Bottom`) |
+| `VStack` | `VStack(alignment:spacing:)` | flex column; defaults `Leading` / 8px; alignment is the horizontal cross axis (`Leading` / `Center` / `Trailing`) |
+| `Spacer` | `Spacer(minLength:)` | expands along the parent stack's main axis; `min_length` floors BOTH axes (min-width and min-height) |
+| `ZStack` | `ZStack(alignment:)` | every child becomes an absolutely-positioned full-bleed layer; the single alignment pins all layers; fills its parent, so give it a bounded frame |
+| `VGrid` | `LazyVGrid(columns:spacing:)` | children chunk into rows sized by `GridItem::Fixed(px(...))` / `GridItem::Flexible` rules; rows wrap in child order; spacing applies between rows and columns |
+
+```rust
+use celestia_ui::components::composite::alignment::{
+    HorizontalAlignment, VerticalAlignment, ZAlignment,
+};
+use celestia_ui::components::composite::h_stack::HStack;
+use celestia_ui::components::composite::spacer::Spacer;
+use celestia_ui::components::composite::v_grid::{GridItem, VGrid};
+use celestia_ui::components::composite::v_stack::VStack;
+use celestia_ui::components::composite::z_stack::ZStack;
+
+// Toolbar idiom: content leading, actions trailing, Spacer in between.
+HStack::new(VerticalAlignment::Center).spacing(px(8.))
+    .child(title)
+    .child(Spacer::new())
+    .child(Button::new("act").label("Action"))
+
+// One alignment pins every ZStack layer; compose a layer (an inner
+// HStack) to place content on independent edges.
+ZStack::new(ZAlignment::BottomTrailing)
+    .child(div().size_full().bg(photo))
+    .child(
+        div().w_full().p_3().child(
+            HStack::new(VerticalAlignment::Bottom)
+                .child(caption)
+                .child(Spacer::new())
+                .child(badge),
+        ),
+    )
+
+// Column rules: Fixed pins a width, Flexible shares what's left.
+VGrid::new([GridItem::Fixed(px(88.)), GridItem::Flexible, GridItem::Flexible])
+    .spacing(px(8.))
+    .children(cards)
+```
+
+Three gotchas worth internalizing:
+
+- **The stacks are layout-only** — they implement `ParentElement` but not
+  `Styled`, so there is no `HStack::new(..).p_3()`. Wrap them in a plain
+  `div()` for width, padding, or background.
+- **ZStack is always full-bleed.** Its root is `relative size_full` and each
+  child is wrapped in an `absolute inset-0` layer, so a ZStack inside an
+  unsized container collapses. Put a real frame (`h(px(..))` / `size_full`)
+  under it.
+- **VGrid grows vertically** — wrap long content in a `ScrollView` (the axis
+  `ScrollView` lives beside it in `composite/`).
+
+The gallery's **Layout** section (`crates/showcase/src/sections/layout.rs`)
+renders every alignment variant of all three stacks live, states the defaults
+and gotchas in each card's footer, and ships an interactive playground: pick
+the axis (row / column / depth), alignment, spacing, and child count, and the
+preview plus the exact constructor snippet update together.
+
 ## Icons — Phosphor
 
 `crates/ui/src/components/primitive/icon.rs` ships the **Phosphor** icon set (Phosphor Core 2.1.1, MIT —
 license vendored at `assets/phosphor/LICENSE-PHOSPHOR`). The upstream
 [`gpui-phosphor`](https://docs.rs/gpui-phosphor) crate can't be used directly — it targets the
-`gpui` 0.2 lineage and can't link against gpui-kit's `gpui-pre` types — so the approach is ported
+`gpui` 0.2 lineage and can't link against the pinned `gpui-pre` types — so the approach is ported
 onto this stack instead:
 
 - **SVGs** — 1,512 glyphs × 3 weights (`regular`, `bold`, `fill`) vendored under
@@ -296,9 +524,8 @@ onto this stack instead:
   every path with one color, so duotone would render as solid.
 - **`PhosphorIcon`** — a typed catalog enum generated by `crates/ui/build.rs` at compile time
   (`PhosphorIcon::Heart`, `PhosphorIcon::PaperPlaneTilt`, …, plus `ALL` / `COUNT` / `name()`).
-  It implements gpui-kit's `IconNamed`, so it plugs straight into gpui-kit's `Icon` at the
-  regular weight — `Icon::new(PhosphorIcon::Heart)` — and bare `.child(PhosphorIcon::Heart)`
-  renders at the surrounding text style.
+  It renders through a plain `gpui::svg` — no third-party icon component sits in between — and
+  bare `.child(PhosphorIcon::Heart)` renders at the surrounding text style, regular weight.
 - **`Phosphor`** — the weight-aware wrapper (the counterpart of gpui-phosphor's `Icon` builder):
   `Phosphor::new(PhosphorIcon::Heart).weight(PhosphorWeight::Fill).size(px(20.)).color(…)`.
   Size and color default to the surrounding text style. The weight is just the asset-path prefix
@@ -311,20 +538,22 @@ cargo test --workspace   # asset-source tests: every glyph resolves at every wei
 ### Asset source registration (required)
 
 gpui takes a **single asset source at startup**. Register the composite from
-`celestia_ui::assets` in `main` — Phosphor paths resolve first, gpui-kit's default Lucide bundle
-falls through second:
+`celestia_ui::assets` in `main` — it serves the vendored Phosphor SVGs and
+reports every other path as a clean miss:
 
 ```rust
 use celestia_ui::assets::CelestiaAssets;
 
-gpui_kit::platform::application()
-    .with_assets(CelestiaAssets)          // phosphor/… + icons/…
+gpui_platform::application()
+    .with_assets(CelestiaAssets)          // phosphor/…
     .run(|cx| { /* … */ });
 ```
 
 Without a registered source gpui's fallback serves nothing and **every icon renders blank
-silently** — the showcase previously hit exactly that for its Lucide icons, and
-`CelestiaAssets` fixes it. The gallery's **Phosphor Icons** section
+silently** — `CelestiaAssets` fixes it. Phosphor is the only catalog: the crate used to fall
+through to a bundled Lucide set, which was dropped once the three Lucide glyphs still in use
+(a tab's `BookOpen`, the showcase's `Eye` and `Code`) proved to have direct Phosphor
+equivalents. The gallery's **Phosphor Icons** section
 (`crates/showcase/src/sections/icons.rs`) renders the full catalog with live search, a
 Regular/Bold/Fill weight switcher, and click-to-copy `PhosphorIcon::…` names.
 
@@ -340,7 +569,7 @@ media first, then falls through to `CelestiaAssets`.
 `packages/ui/src/styles/globals.css` — the web CSS file stays the single source of truth, and the
 JSON is re-derived from it when tokens change (grays via OKLab → linear sRGB = L³, chromatic
 tokens through full OKLab → sRGB with gamut clamping, alpha tokens as 8-digit hex). `init()` loads
-the JSON into the `ThemeRegistry` and **replaces** gpui-kit's default light/dark configs, so
+the JSON into the `ThemeRegistry` and **replaces** `gpui-component`'s default light/dark configs, so
 `Theme::change` and system-appearance sync keep using the Celestia palettes with no re-patching.
 
 Key values are pinned by `cargo test --workspace`: light `primary` `#d40c1a`, dark `#ff4d46`
@@ -359,7 +588,7 @@ colors and radius, and every component picks it up because they already read `cx
 
 ```rust
 use celestia_ui::theme::{hex, AppTheme, Scheme};
-use gpui_kit::px;
+use gpui::px;
 
 let config = AppTheme {
     radius: px(10.),
@@ -405,7 +634,7 @@ light + dark pair; `install()` seeds the `Celestia` family from `theme.json` and
 
 ```rust
 use celestia_ui::theme::{active, families, hex, select, AppTheme, Scheme};
-use gpui_kit::px;
+use gpui::px;
 
 // Register a custom family (named light+dark pair over the Celestia base)
 // and activate it:
@@ -425,7 +654,7 @@ families(cx);           // ["Celestia", "Nocturne"]
 active(cx);             // "Celestia"
 ```
 
-The mechanics, all on top of gpui-kit's `Theme` / `ThemeColor` / `ActiveTheme` (re-exported at
+The mechanics, all on top of `gpui-component`'s `Theme` / `ThemeColor` / `ActiveTheme` (re-exported at
 `celestia_ui::theme` so apps reach the whole story in one place):
 
 - **Families are semantic-token overlays, not style forks.** `register` derives the pair from the
@@ -433,7 +662,7 @@ The mechanics, all on top of gpui-kit's `Theme` / `ThemeColor` / `ActiveTheme` (
   activates them. Re-registering a name replaces that family.
 - **`apply` is family-aware.** It overlays whichever family is active and stores the result on it,
   so token tweaks survive switching away and back.
-- **The book, not the registry.** Families live in a private global because gpui-kit's
+- **The book, not the registry.** Families live in a private global because `gpui-component`'s
   `ThemeRegistry` has no public replace; its change observer skips names it does not know, so
   custom themes are untouched by registry churn.
 - **Mode toggles stay inside the family.** `Theme::change` / system-appearance sync keep operating
@@ -473,7 +702,7 @@ batch's final state, not once per `set` call.
 
 The showcase's **State & Stores** section (`crates/showcase/src/sections/state.rs`) renders this
 live: a `GalleryState` store with per-slice notification counters, and a `Session` ambient context
-provided in `main.rs`. The layer is unit-tested with `#[gpui_kit::test]` tests inside
+provided in `main.rs`. The layer is unit-tested with `#[gpui::test]` tests inside
 `crates/ui/src/state/`.
 
 Full usage guide — defining stores, actions, gating, contexts, testing, and the live demo — at
@@ -481,11 +710,12 @@ Full usage guide — defining stores, actions, gating, contexts, testing, and th
 
 ## Building a desktop app on it
 
-Depend on the crate (`celestia-ui = { path = "…/crates/ui" }` + `gpui-kit = "0.6.1"`), register
+Depend on the crate (`celestia-ui = { path = "…/crates/ui" }`, plus `gpui`,
+`gpui-base`, `gpui-component` and `gpui-platform`), register
 the asset source with `.with_assets(celestia_ui::assets::CelestiaAssets)` (see
 [Icons — Phosphor](#icons--phosphor) — without it icons render blank), call
 `celestia_ui::init(cx)` inside `application().run(...)` before opening any window, and wrap
-your root view in a gpui-kit `Root`. Mount the Dialog/Sheet/Notification layers in your root
+your root view in a `gpui-component` `Root`. Mount the Dialog/Sheet/Notification layers in your root
 view's render (`Root::render_dialog_layer` / `render_sheet_layer` / `render_notification_layer`) —
 `Root::render` does not draw them, and `WindowExt` (`open_dialog`, `open_sheet`,
 `push_notification`) targets nothing until they are mounted. The showcase's
