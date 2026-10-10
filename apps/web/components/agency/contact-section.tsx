@@ -92,7 +92,7 @@ export function ContactSection() {
             <EmptyTitle className="text-xl">We&apos;ll be in touch shortly</EmptyTitle>
             <EmptyDescription className="text-sm leading-relaxed">
               A senior engineer from our team will reach out within one business
-              day to schedule your free strategy call.
+              day to schedule your free strategy call, or write to us directly at hello@devcelestia.com.
             </EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
@@ -114,7 +114,7 @@ export function ContactSection() {
               align="start"
               eyebrow="Get in touch"
               title="Start your project with a free strategy call"
-              description="Tell us about your project and we'll match you with the right engineer for a no-pressure technical conversation. No pitch decks, no commitment."
+              description="Tell us about your project or email hello@devcelestia.com. We'll match you with the right engineer for a no-pressure technical conversation. No pitch decks, no commitment."
             />
 
             <ItemGroup className="gap-2">

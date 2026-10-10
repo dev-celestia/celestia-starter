@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import Link from "next/link"
 import {
   ArrowSquareOutIcon,
+  EnvelopeSimpleIcon,
   GithubLogoIcon,
   LinkedinLogoIcon,
   XLogoIcon,
@@ -38,6 +39,7 @@ const SOCIALS = [
   { icon: GithubLogoIcon, href: GITHUB_URL, label: "GitHub" },
   { icon: LinkedinLogoIcon, href: "#", label: "LinkedIn" },
   { icon: XLogoIcon, href: "#", label: "X / Twitter" },
+  { icon: EnvelopeSimpleIcon, href: "mailto:hello@devcelestia.com", label: "Email (hello@devcelestia.com)" },
 ]
 
 const LEGAL = ["Privacy Policy", "Terms of Service", "Cookie Policy"]
@@ -141,7 +143,7 @@ function SiteFooter({
             </Link>
 
             <p className="max-w-[38ch] text-sm leading-relaxed text-muted-foreground">
-              Enterprise software development for teams that need to move fast
+              Modern software engineering for teams that need to move fast
               without breaking things. Web and mobile — shipped with the
               architecture to scale.
             </p>

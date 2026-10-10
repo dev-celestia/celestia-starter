@@ -12,13 +12,13 @@ import { SiteLayout } from "@/components/shared/site-layout"
 import "./landing.css"
 
 export const metadata: Metadata = {
-  title: "Celestia — Enterprise Software Development",
+  title: "Celestia — Software Engineering & Development",
   description:
-    "We build enterprise-grade web and mobile software that scales with your business. Schedule a free tech strategy call with our senior engineers.",
+    "We build modern web and mobile software that scales with your business. Schedule a free tech strategy call with our senior engineers at hello@devcelestia.com.",
   openGraph: {
-    title: "Celestia — Enterprise Software Development",
+    title: "Celestia — Software Engineering & Development",
     description:
-      "Custom software development for CTOs, founders, and enterprise product teams. Web and mobile — shipped with architecture built to last.",
+      "Custom software development for founders, product leaders, and ambitious engineering teams. Web and mobile — shipped with architecture built to last.",
     type: "website",
   },
 }

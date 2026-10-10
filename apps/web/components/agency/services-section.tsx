@@ -57,7 +57,7 @@ export function ServicesSection() {
         <SectionHeading
           eyebrow="Services"
           title="Everything you need to ship great software"
-          description="From greenfield builds to enterprise transformations, our engineering practice covers every layer of the modern software stack."
+          description="From greenfield builds to scaling existing systems, our engineering practice covers every layer of the modern software stack."
         />
       </Reveal>
 
