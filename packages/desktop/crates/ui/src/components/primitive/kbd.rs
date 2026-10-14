@@ -225,11 +225,11 @@ impl RenderOnce for Kbd {
         let mut root = div()
             .debug_selector(move || debug_label)
             .text_color(cx.theme().muted_foreground)
-            .bg(cx.theme().tokens.muted)
+            .bg(cx.theme().muted)
             .when(self.outline, |this| {
                 this.border_1()
                     .border_color(cx.theme().border)
-                    .bg(cx.theme().tokens.background)
+                    .bg(cx.theme().background)
             })
             .py(px(2.0))
             .px(px(4.0))

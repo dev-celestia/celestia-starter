@@ -33,7 +33,7 @@ use gpui::{
     ParentElement, Pixels, RenderOnce, Role, SharedString, SpringAnimation, SpringConfig, Stateful,
     StatefulInteractiveElement as _, StyleRefinement, Styled, Window, div, point, px,
 };
-use gpui_base::motion::transition;
+use crate::motion::transition;
 // The menu family has not moved to raw gpui yet; until it does, the dropdown
 // trigger keeps gpui-component's `Selectable` bound alongside the crate's own.
 use gpui_component::Selectable as GpuiSelectable;

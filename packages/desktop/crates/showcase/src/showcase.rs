@@ -25,7 +25,7 @@ use celestia_ui::theme::AppTheme;
 use gpui::*;
 use gpui_base::spring;
 use gpui_component::input::{Editor, EditorState, InputEvent};
-use gpui_component::{ActiveTheme, IndexPath, Root, Theme, ThemeMode, h_flex, v_flex};
+use gpui_component::{ActiveTheme, IndexPath, Theme, ThemeMode, h_flex, v_flex};
 
 use crate::actions::ToggleTheme;
 use crate::section::{SECTIONS, Section};
@@ -166,7 +166,7 @@ impl Showcase {
 
         Self {
             focus_handle: cx.focus_handle(),
-            selected: Section::Buttons,
+            selected: Section::Editors, // TEMP-VERIFY: revert to Section::Buttons
             active_tab: ShowcaseTab::View,
             code_view,
             demo_switch: true,
@@ -237,9 +237,9 @@ impl Showcase {
 
 impl Render for Showcase {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        let dialog_layer = Root::render_dialog_layer(window, cx);
-        let sheet_layer = Root::render_sheet_layer(window, cx);
-        let notification_layer = Root::render_notification_layer(window, cx);
+        // Dialog, sheet, notification and tooltip overlays are mounted by the
+        // root plugin `gpui_component::init` registers (0.7 root architecture);
+        // they are no longer rendered by the app view.
 
         div()
             .id("showcase")
@@ -255,9 +255,6 @@ impl Render for Showcase {
             .text_color(cx.theme().foreground)
             .child(title_bar(cx))
             .child(self.render_shell(window, cx))
-            .children(dialog_layer)
-            .children(sheet_layer)
-            .children(notification_layer)
     }
 }
 
@@ -346,7 +343,7 @@ impl Showcase {
             let theme = cx.theme();
             (
                 theme.motion_tokens().spring_move,
-                theme.tokens.tab_bar,
+                theme.tab_bar,
                 theme.border,
                 theme.radius,
                 theme.primary,
@@ -516,7 +513,7 @@ impl Showcase {
                             .px_3()
                             .py_1p5()
                             .rounded(cx.theme().radius)
-                            .bg(cx.theme().tokens.tab_bar)
+                            .bg(cx.theme().tab_bar)
                             .border_1()
                             .border_color(cx.theme().border)
                             .child(
@@ -596,7 +593,14 @@ impl Showcase {
                             .border_color(cx.theme().border)
                             .rounded(cx.theme().radius)
                             .overflow_hidden()
-                            .child(Editor::new(&self.code_view).readonly(true).bordered(false)),
+                            // Same rule as CodeEditor: the height must sit on
+                            // the Editor itself or it lays out one line tall.
+                            .child(
+                                Editor::new(&self.code_view)
+                                    .readonly(true)
+                                    .bordered(false)
+                                    .h(px(editor_height)),
+                            ),
                     ),
             )
     }

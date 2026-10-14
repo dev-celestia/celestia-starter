@@ -32,11 +32,10 @@ impl Showcase {
                         v_flex()
                             .gap_1p5()
                             .child(Label::new("Multi-line Textarea"))
-                            .child(
-                                div()
-                                    .h_24()
-                                    .child(Textarea::new(&self.demo_textarea)),
-                            ),
+                            // The height goes on the Textarea itself — a sized
+                            // wrapper div doesn't propagate into the input's
+                            // own `h_auto` box, leaving it one line tall.
+                            .child(Textarea::new(&self.demo_textarea).h_24()),
                     )
                     .child(
                         v_flex()

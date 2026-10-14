@@ -6,16 +6,16 @@
 //! single `--radius`, and every component reads `var(--…)`. [`AppTheme`] is
 //! that single place for the desktop library: a set of semantic color tokens
 //! per mode ([`Scheme`]) and one [`radius`](AppTheme::radius), with an
-//! [`apply`](AppTheme::apply) that pushes the whole configuration onto
-//! `gpui-component`'s `Theme` global — the same global every component already reads
-//! through `cx.theme()`, so nothing in `components/` changes when the config
-//! does.
+//! [`apply`](AppTheme::apply) that pushes the whole configuration onto the
+//! crate's [`Theme`](super::Theme) global — the same global every component
+//! already reads through `cx.theme()`, so nothing in `components/` changes
+//! when the config does.
 //!
 //! Overlay semantics: every [`Scheme`] field is optional and `None` (the
 //! default) keeps the Celestia value from `theme.json`. A set token expands
-//! into **every** gpui color key that token drives in `theme.json` — setting
-//! `primary` re-colors `primary.background`, the button/danger-family hovers,
-//! `ring`, `caret`, `link`, `slider`/`progress` fills, the list/table active
+//! into **every** color field that token drives in `theme.json` — setting
+//! `primary` re-colors `primary`, the button/danger-family hovers, `ring`,
+//! `caret`, `link`, `slider_thumb`/`progress_bar` fills, the list/table active
 //! borders, the 22% `selection` wash and the primary-tinted surfaces — with
 //! hover/active steps re-derived the way `theme.json` derives them (light
 //! steps darken the base, dark steps lighten toward white).
@@ -40,7 +40,9 @@
 //! once and never re-themed; see [`crate::palette`].
 
 use gpui::{App, Hsla, Pixels, Rgba, SharedString, px, rgb};
-use gpui_component::{ThemeConfig, ThemeConfigColors, ThemeMode};
+
+use super::book;
+use super::{ThemeColor, ThemeMode};
 
 /// A semantic color as `#rrggbb` — the config's unit, like a shadcn CSS
 /// variable value.
@@ -102,10 +104,10 @@ impl AppTheme {
     ///
     /// Runs after [`crate::init`].
     pub fn apply(&self, cx: &mut App) {
-        let (light, dark) = super::book::active_pair(cx);
+        let (light, dark) = book::active_pair(cx);
         let (light, dark) = self.overlaid(light, dark);
-        super::book::store_active_pair(cx, light.clone(), dark.clone());
-        super::book::activate(cx, light, dark);
+        book::store_active_pair(cx, light.clone(), dark.clone());
+        book::activate(cx, light, dark);
     }
 
     /// Register this configuration as a named, selectable theme family —
@@ -121,26 +123,25 @@ impl AppTheme {
     /// Runs after [`crate::init`].
     pub fn register(&self, name: impl Into<SharedString>, cx: &mut App) {
         let name = name.into();
-        let (light, dark) = super::book::celestia_pair(cx);
+        let (light, dark) = book::celestia_pair(cx);
         let (light, dark) = self.overlaid(light, dark);
-        super::book::insert_and_activate(cx, name, light, dark);
+        book::insert_and_activate(cx, name, light, dark);
     }
 
     /// Expand the tokens onto a base config pair: overlay both schemes and
     /// apply the radius (with its +4px large-element step).
     fn overlaid(
         &self,
-        mut light: ThemeConfig,
-        mut dark: ThemeConfig,
-    ) -> (ThemeConfig, ThemeConfig) {
-        self.light.overlay(ThemeMode::Light, &mut light.colors);
+        mut light: super::ThemeConfig,
+        mut dark: super::ThemeConfig,
+    ) -> (super::ThemeConfig, super::ThemeConfig) {
+        self.light
+            .overlay(ThemeMode::Light, &mut light.colors);
         self.dark.overlay(ThemeMode::Dark, &mut dark.colors);
 
-        let radius = f32::from(self.radius) as usize;
-        let radius_lg = f32::from(self.radius + px(4.)) as usize;
         for config in [&mut light, &mut dark] {
-            config.radius = Some(radius);
-            config.radius_lg = Some(radius_lg);
+            config.radius = self.radius;
+            config.radius_lg = self.radius + px(4.);
         }
         (light, dark)
     }
@@ -224,320 +225,243 @@ pub struct Scheme {
 }
 
 impl Scheme {
-    /// Expand the set tokens into gpui's flat color map, deriving the state
+    /// Expand the set tokens into the resolved color set, deriving the state
     /// steps `theme.json` derives (light hovers darken the base, dark hovers
     /// lighten toward white; selection rides the primary hue at 22% alpha;
     /// primary-tinted surfaces sit at 10% over the background).
-    fn overlay(&self, mode: ThemeMode, colors: &mut ThemeConfigColors) {
+    fn overlay(&self, mode: ThemeMode, colors: &mut ThemeColor) {
         let dark = mode.is_dark();
-        let set = |field: &mut Option<SharedString>, color: Hsla| {
-            *field = Some(SharedString::from(hex_string(color)))
-        };
 
         if let Some(color) = self.background {
-            set(&mut colors.background, color);
+            colors.background = color;
         }
         if let Some(color) = self.foreground {
-            set(&mut colors.foreground, color);
-            set(&mut colors.tab_active_foreground, color);
+            colors.foreground = color;
+            colors.tab_active_foreground = color;
         }
         if let Some(color) = self.surface {
-            for field in [
-                &mut colors.title_bar,
-                &mut colors.status_bar,
-                &mut colors.tab_bar,
-                &mut colors.group_box,
-                &mut colors.list_head,
-                &mut colors.list_even,
-                &mut colors.table_head,
-                &mut colors.table_even,
-            ] {
-                set(field, color);
-            }
+            colors.title_bar = color;
+            colors.status_bar = color;
+            colors.tab_bar = color;
+            colors.group_box = color;
+            colors.list_head = color;
+            colors.list_even = color;
+            colors.table_head = color;
+            colors.table_even = color;
         }
         if let Some(color) = self.popover {
-            set(&mut colors.popover, color);
-            set(&mut colors.accordion, color);
+            colors.popover = color;
+            colors.accordion = color;
         }
         if let Some(color) = self.popover_foreground {
-            set(&mut colors.popover_foreground, color);
+            colors.popover_foreground = color;
         }
 
         if let Some(color) = self.primary {
             let hover = hover_step(color, dark);
             let active = active_step(color, dark);
-            for field in [
-                &mut colors.primary,
-                &mut colors.button_primary,
-                &mut colors.link,
-                &mut colors.ring,
-                &mut colors.caret,
-                &mut colors.slider_thumb,
-                &mut colors.progress_bar,
-                &mut colors.drag_border,
-                &mut colors.list_active_border,
-                &mut colors.table_active_border,
-                &mut colors.sidebar_primary,
-            ] {
-                set(field, color);
-            }
-            for field in [
-                &mut colors.primary_hover,
-                &mut colors.button_primary_hover,
-                &mut colors.link_hover,
-            ] {
-                set(field, hover);
-            }
-            for field in [
-                &mut colors.primary_active,
-                &mut colors.button_primary_active,
-                &mut colors.link_active,
-            ] {
-                set(field, active);
-            }
-            set(&mut colors.selection, with_alpha(color, 0x38));
+            colors.primary = color;
+            colors.button_primary = color;
+            colors.link = color;
+            colors.ring = color;
+            colors.caret = color;
+            colors.slider_thumb = color;
+            colors.progress_bar = color;
+            colors.drag_border = color;
+            colors.list_active_border = color;
+            colors.table_active_border = color;
+            colors.sidebar_primary = color;
+
+            colors.primary_hover = hover;
+            colors.button_primary_hover = hover;
+            colors.link_hover = hover;
+
+            colors.primary_active = active;
+            colors.button_primary_active = active;
+            colors.link_active = active;
+
+            colors.selection = with_alpha(color, 0x38);
             // Tinted surfaces: primary at 10% composited over the current
             // background (which the overlay above may just have replaced).
-            if let Some(background) = colors.background.as_deref().and_then(parse_hex) {
-                let wash = tint_over(color, background, 0.10);
-                for field in [
-                    &mut colors.list_active,
-                    &mut colors.table_active,
-                    &mut colors.tab_active,
-                    &mut colors.drop_target,
-                ] {
-                    set(field, wash);
-                }
-            }
+            let wash = tint_over(color, colors.background, 0.10);
+            colors.list_active = wash;
+            colors.table_active = wash;
+            colors.tab_active = wash;
+            colors.drop_target = wash;
         }
         if let Some(color) = self.primary_foreground {
-            set(&mut colors.primary_foreground, color);
-            set(&mut colors.button_primary_foreground, color);
-            set(&mut colors.sidebar_primary_foreground, color);
+            colors.primary_foreground = color;
+            colors.button_primary_foreground = color;
+            colors.sidebar_primary_foreground = color;
         }
 
         if let Some(color) = self.secondary {
-            set(&mut colors.secondary, color);
-            set(&mut colors.button_secondary, color);
-            set(&mut colors.secondary_hover, hover_step(color, dark));
-            set(&mut colors.secondary_active, active_step(color, dark));
-            set(&mut colors.button_secondary_hover, hover_step(color, dark));
-            set(
-                &mut colors.button_secondary_active,
-                active_step(color, dark),
-            );
+            colors.secondary = color;
+            colors.button_secondary = color;
+            colors.secondary_hover = hover_step(color, dark);
+            colors.secondary_active = active_step(color, dark);
+            colors.button_secondary_hover = hover_step(color, dark);
+            colors.button_secondary_active = active_step(color, dark);
         }
         if let Some(color) = self.secondary_foreground {
-            set(&mut colors.secondary_foreground, color);
-            set(&mut colors.button_secondary_foreground, color);
+            colors.secondary_foreground = color;
+            colors.button_secondary_foreground = color;
         }
         if let Some(color) = self.muted {
-            set(&mut colors.muted, color);
-            set(&mut colors.skeleton, color);
-            set(&mut colors.slider_bar, color);
-            set(&mut colors.tab_bar_segmented, color);
+            colors.muted = color;
+            colors.skeleton = color;
+            colors.slider_bar = color;
+            colors.tab_bar_segmented = color;
         }
         if let Some(color) = self.muted_foreground {
-            set(&mut colors.muted_foreground, color);
-            set(&mut colors.tab_foreground, color);
-            set(&mut colors.table_head_foreground, color);
+            colors.muted_foreground = color;
+            colors.tab_foreground = color;
+            colors.table_head_foreground = color;
         }
         if let Some(color) = self.accent {
-            set(&mut colors.accent, color);
-            set(&mut colors.list_hover, color);
-            set(&mut colors.table_hover, color);
-            set(&mut colors.sidebar_accent, color);
-            set(&mut colors.button_hover, color);
+            colors.accent = color;
+            colors.list_hover = color;
+            colors.table_hover = color;
+            colors.sidebar_accent = color;
+            colors.button_hover = color;
         }
         if let Some(color) = self.accent_foreground {
-            set(&mut colors.accent_foreground, color);
-            set(&mut colors.sidebar_accent_foreground, color);
+            colors.accent_foreground = color;
+            colors.sidebar_accent_foreground = color;
         }
 
         if let Some(color) = self.destructive {
-            set_status(
-                [
-                    &mut colors.danger,
-                    &mut colors.button_danger,
-                    &mut colors.danger_hover,
-                    &mut colors.button_danger_hover,
-                    &mut colors.danger_active,
-                    &mut colors.button_danger_active,
-                ],
-                color,
-                dark,
-            );
+            let (base, hover, active, foreground) = status_steps(color, dark);
+            colors.danger = base;
+            colors.button_danger = base;
+            colors.danger_hover = hover;
+            colors.button_danger_hover = hover;
+            colors.danger_active = active;
+            colors.button_danger_active = active;
+            // The foreground follows the CSS: white in light, near-black in
+            // dark — unless the config sets it explicitly below.
+            if self.destructive_foreground.is_none() {
+                colors.danger_foreground = foreground;
+                colors.button_danger_foreground = foreground;
+            }
         }
         if let Some(color) = self.success {
-            set_status(
-                [
-                    &mut colors.success,
-                    &mut colors.button_success,
-                    &mut colors.success_hover,
-                    &mut colors.button_success_hover,
-                    &mut colors.success_active,
-                    &mut colors.button_success_active,
-                ],
-                color,
-                dark,
-            );
+            let (base, hover, active, foreground) = status_steps(color, dark);
+            colors.success = base;
+            colors.button_success = base;
+            colors.success_hover = hover;
+            colors.button_success_hover = hover;
+            colors.success_active = active;
+            colors.button_success_active = active;
+            if self.success_foreground.is_none() {
+                colors.success_foreground = foreground;
+                colors.button_success_foreground = foreground;
+            }
         }
         if let Some(color) = self.warning {
-            set_status(
-                [
-                    &mut colors.warning,
-                    &mut colors.button_warning,
-                    &mut colors.warning_hover,
-                    &mut colors.button_warning_hover,
-                    &mut colors.warning_active,
-                    &mut colors.button_warning_active,
-                ],
-                color,
-                dark,
-            );
+            let (base, hover, active, foreground) = status_steps(color, dark);
+            colors.warning = base;
+            colors.button_warning = base;
+            colors.warning_hover = hover;
+            colors.button_warning_hover = hover;
+            colors.warning_active = active;
+            colors.button_warning_active = active;
+            if self.warning_foreground.is_none() {
+                colors.warning_foreground = foreground;
+                colors.button_warning_foreground = foreground;
+            }
         }
         if let Some(color) = self.info {
-            set_status(
-                [
-                    &mut colors.info,
-                    &mut colors.button_info,
-                    &mut colors.info_hover,
-                    &mut colors.button_info_hover,
-                    &mut colors.info_active,
-                    &mut colors.button_info_active,
-                ],
-                color,
-                dark,
-            );
+            let (base, hover, active, foreground) = status_steps(color, dark);
+            colors.info = base;
+            colors.button_info = base;
+            colors.info_hover = hover;
+            colors.button_info_hover = hover;
+            colors.info_active = active;
+            colors.button_info_active = active;
+            if self.info_foreground.is_none() {
+                colors.info_foreground = foreground;
+                colors.button_info_foreground = foreground;
+            }
         }
         if let Some(color) = self.destructive_foreground {
-            set(&mut colors.danger_foreground, color);
-            set(&mut colors.button_danger_foreground, color);
+            colors.danger_foreground = color;
+            colors.button_danger_foreground = color;
         }
         if let Some(color) = self.success_foreground {
-            set(&mut colors.success_foreground, color);
-            set(&mut colors.button_success_foreground, color);
+            colors.success_foreground = color;
+            colors.button_success_foreground = color;
         }
         if let Some(color) = self.warning_foreground {
-            set(&mut colors.warning_foreground, color);
-            set(&mut colors.button_warning_foreground, color);
+            colors.warning_foreground = color;
+            colors.button_warning_foreground = color;
         }
         if let Some(color) = self.info_foreground {
-            set(&mut colors.info_foreground, color);
-            set(&mut colors.button_info_foreground, color);
+            colors.info_foreground = color;
+            colors.button_info_foreground = color;
         }
 
         if let Some(color) = self.border {
-            set(&mut colors.border, color);
-            set(&mut colors.title_bar_border, color);
-            set(&mut colors.status_bar_border, color);
-            set(&mut colors.sidebar_border, color);
+            colors.border = color;
+            colors.title_bar_border = color;
+            colors.status_bar_border = color;
+            colors.sidebar_border = color;
         }
         if let Some(color) = self.input {
-            set(&mut colors.input, color);
+            colors.input = color;
         }
         // The ring defaults to the primary hue; an explicit ring wins.
         if let Some(color) = self.ring {
-            set(&mut colors.ring, color);
-            set(&mut colors.caret, color);
+            colors.ring = color;
+            colors.caret = color;
         }
 
         if let Some(color) = self.sidebar {
-            set(&mut colors.sidebar, color);
+            colors.sidebar = color;
         }
         if let Some(color) = self.sidebar_foreground {
-            set(&mut colors.sidebar_foreground, color);
+            colors.sidebar_foreground = color;
         }
         if let Some(color) = self.sidebar_border {
-            set(&mut colors.sidebar_border, color);
+            colors.sidebar_border = color;
         }
         if let Some(color) = self.sidebar_primary {
-            set(&mut colors.sidebar_primary, color);
+            colors.sidebar_primary = color;
         }
         if let Some(color) = self.sidebar_primary_foreground {
-            set(&mut colors.sidebar_primary_foreground, color);
+            colors.sidebar_primary_foreground = color;
         }
         if let Some(color) = self.sidebar_accent {
-            set(&mut colors.sidebar_accent, color);
+            colors.sidebar_accent = color;
         }
         if let Some(color) = self.sidebar_accent_foreground {
-            set(&mut colors.sidebar_accent_foreground, color);
+            colors.sidebar_accent_foreground = color;
         }
     }
 }
 
-/// One status family (danger / success / warning / info): `[base, button,
-/// hover, button_hover, active, button_active]` all derive from the single
-/// token.
-fn set_status(fields: [&mut Option<SharedString>; 6], color: Hsla, dark: bool) {
-    let hover = hover_step(color, dark);
-    let active = active_step(color, dark);
-    let values = [color, color, hover, hover, active, active];
-    for (field, value) in fields.into_iter().zip(values) {
-        *field = Some(SharedString::from(hex_string(value)));
-    }
-}
-
-/// `Hsla` → `#rrggbb` (opaque) / `#rrggbbaa` (alpha-carrying) — the form
-/// `theme.json` uses. The `#` is required: the background-token parser
-/// rejects bare hex.
-fn hex_string(color: Hsla) -> String {
-    let rgba = Rgba::from(color);
-    let channel = |v: f32| format!("{:02x}", (v * 255.0).round() as u32);
-    let rgb = format!("#{}{}{}", channel(rgba.r), channel(rgba.g), channel(rgba.b));
-    if rgba.a >= 0.999 {
-        rgb
-    } else {
-        format!("{rgb}{}", channel(rgba.a))
-    }
-}
-
-/// `#rrggbb` / `#rrggbbaa` → `Hsla`, the reverse of [`hex_string`].
-fn parse_hex(value: &str) -> Option<Hsla> {
-    let value = value.strip_prefix('#')?;
-    let (rgb_part, alpha) = match value.len() {
-        6 => (value, 1.0),
-        8 => (
-            value.get(..6)?,
-            u8::from_str_radix(value.get(6..)?, 16).ok()? as f32 / 255.0,
-        ),
-        _ => return None,
-    };
-    let code = u32::from_str_radix(rgb_part, 16).ok()?;
-    let [r, g, b] = [(code >> 16) & 0xff, (code >> 8) & 0xff, code & 0xff];
-    Some(
-        Rgba {
-            r: r as f32 / 255.0,
-            g: g as f32 / 255.0,
-            b: b as f32 / 255.0,
-            a: alpha,
-        }
-        .into(),
+/// One status family step set: `[base, hover, active, foreground]` derived
+/// from the single token. The foreground follows the CSS: white in light
+/// mode, near-black (#171717) in dark.
+fn status_steps(color: Hsla, dark: bool) -> (Hsla, Hsla, Hsla, Hsla) {
+    (
+        color,
+        hover_step(color, dark),
+        active_step(color, dark),
+        if dark {
+            hex(0x171717)
+        } else {
+            hex(0xffffff)
+        },
     )
 }
 
-/// Composite `over` at `alpha` on top of `base` (premultiplied-over sRGB).
-fn tint_over(over: Hsla, base: Hsla, alpha: f32) -> Hsla {
-    let over = Rgba::from(over);
-    let base = Rgba::from(base);
-    let mix = |o: f32, b: f32| o * alpha + b * (1.0 - alpha);
-    Rgba {
-        r: mix(over.r, base.r),
-        g: mix(over.g, base.g),
-        b: mix(over.b, base.b),
-        a: 1.0,
-    }
-    .into()
-}
-
 fn with_alpha(color: Hsla, alpha: u32) -> Hsla {
-    let mut hsla = color;
-    hsla.a = alpha as f32 / 255.0;
-    hsla
+    color.alpha(alpha as f32 / 255.0)
 }
 
 /// One hover step: light darkens the base, dark lightens toward white — the
-/// derivation documented in `theme.rs`.
+/// derivation documented in the module docs.
 fn hover_step(color: Hsla, dark: bool) -> Hsla {
     if dark {
         lighten(color, 0.20)
@@ -578,11 +502,28 @@ fn lighten(color: Hsla, amount: f32) -> Hsla {
     .into()
 }
 
+/// Composite `over` at `alpha` on top of `base` (premultiplied-over sRGB).
+fn tint_over(over: Hsla, base: Hsla, alpha: f32) -> Hsla {
+    let over = Rgba::from(over);
+    let base = Rgba::from(base);
+    let mix = |o: f32, b: f32| o * alpha + b * (1.0 - alpha);
+    Rgba {
+        r: mix(over.r, base.r),
+        g: mix(over.g, base.g),
+        b: mix(over.b, base.b),
+        a: 1.0,
+    }
+    .into()
+}
+
 #[cfg(test)]
 mod tests {
-    use gpui::TestAppContext;
-    use gpui_component::{ActiveTheme, Theme, ThemeMode};
+    use gpui::{Rgba, TestAppContext, px};
+    use gpui::AppContext as _;
 
+    use super::super::ActiveTheme as _;
+    use super::super::Theme;
+    use super::super::ThemeMode;
     use super::*;
 
     /// RGB part of a color as `0xrrggbb` (the theme.rs test idiom).
@@ -593,26 +534,17 @@ mod tests {
     }
 
     #[test]
-    fn hex_string_and_parse_round_trip() {
-        let opaque = hex(0xd40c1a);
-        assert_eq!(hex_string(opaque), "#d40c1a");
-        assert_eq!(code(parse_hex("#d40c1a").unwrap()), 0xd40c1a);
-
-        let washed = with_alpha(opaque, 0x38);
-        let parsed = parse_hex(&hex_string(washed)).unwrap();
-        assert_eq!(code(parsed), 0xd40c1a);
-        assert_eq!((Rgba::from(parsed).a * 255.0).round() as u32, 0x38);
-        assert_eq!(parse_hex("#nope"), None);
+    fn hex_converts_to_srgb_channels() {
+        assert_eq!(Rgba::from(hex(0xd40c1a)).r * 255.0, 212.0);
     }
 
     #[gpui::test]
     fn default_apply_reasserts_the_celestia_defaults(cx: &mut TestAppContext) {
         cx.update(|cx| {
-            gpui_component::init(cx);
             crate::theme::install(cx);
             AppTheme::default().apply(cx);
 
-            Theme::change(ThemeMode::Light, None, cx);
+            Theme::change(ThemeMode::Light, cx);
             assert_eq!(code(cx.theme().background), 0xffffff);
             assert_eq!(code(cx.theme().primary), 0xd40c1a);
             assert_eq!(code(cx.theme().border), 0xe5e5e5);
@@ -620,7 +552,7 @@ mod tests {
             assert_eq!(f32::from(cx.theme().radius), 8.0);
             assert_eq!(f32::from(cx.theme().radius_lg), 12.0);
 
-            Theme::change(ThemeMode::Dark, None, cx);
+            Theme::change(ThemeMode::Dark, cx);
             assert_eq!(code(cx.theme().background), 0x0a0a0a);
             assert_eq!(code(cx.theme().primary), 0xff4d46);
             assert_eq!(f32::from(cx.theme().radius), 8.0);
@@ -630,7 +562,6 @@ mod tests {
     #[gpui::test]
     fn radius_applies_to_both_modes(cx: &mut TestAppContext) {
         cx.update(|cx| {
-            gpui_component::init(cx);
             crate::theme::install(cx);
             AppTheme {
                 radius: px(12.),
@@ -638,10 +569,10 @@ mod tests {
             }
             .apply(cx);
 
-            Theme::change(ThemeMode::Light, None, cx);
+            Theme::change(ThemeMode::Light, cx);
             assert_eq!(f32::from(cx.theme().radius), 12.0);
             assert_eq!(f32::from(cx.theme().radius_lg), 16.0);
-            Theme::change(ThemeMode::Dark, None, cx);
+            Theme::change(ThemeMode::Dark, cx);
             assert_eq!(f32::from(cx.theme().radius), 12.0);
         });
     }
@@ -651,7 +582,6 @@ mod tests {
     #[gpui::test]
     fn light_primary_override_fans_out_light_only(cx: &mut TestAppContext) {
         cx.update(|cx| {
-            gpui_component::init(cx);
             crate::theme::install(cx);
 
             let blue = hex(0x2563eb);
@@ -664,7 +594,7 @@ mod tests {
             }
             .apply(cx);
 
-            Theme::change(ThemeMode::Light, None, cx);
+            Theme::change(ThemeMode::Light, cx);
             assert_eq!(code(cx.theme().primary), 0x2563eb);
             assert_eq!(code(cx.theme().ring), 0x2563eb);
             assert_eq!(code(cx.theme().link), 0x2563eb);
@@ -685,13 +615,9 @@ mod tests {
             assert_eq!((selection.a * 255.0).round() as u32, 0x38, "at 22% alpha");
 
             // Primary-tinted surface: 10% of #2563eb over the white background.
-            let theme = Theme::global(cx);
-            assert_eq!(
-                theme.light_theme.colors.list_active.as_deref(),
-                Some("#e9effd")
-            );
+            assert_eq!(code(cx.theme().list_active), 0xe9effd);
 
-            Theme::change(ThemeMode::Dark, None, cx);
+            Theme::change(ThemeMode::Dark, cx);
             assert_eq!(code(cx.theme().primary), 0xff4d46, "dark mode untouched");
             assert_eq!(code(cx.theme().ring), 0xff4d46);
         });
@@ -700,7 +626,6 @@ mod tests {
     #[gpui::test]
     fn dark_destructive_override_leaves_light_alone(cx: &mut TestAppContext) {
         cx.update(|cx| {
-            gpui_component::init(cx);
             crate::theme::install(cx);
 
             AppTheme {
@@ -713,7 +638,7 @@ mod tests {
             }
             .apply(cx);
 
-            Theme::change(ThemeMode::Dark, None, cx);
+            Theme::change(ThemeMode::Dark, cx);
             assert_eq!(code(cx.theme().danger), 0x38bdf8);
             assert_eq!(code(cx.theme().danger_foreground), 0x0a0a0a);
             assert_eq!(
@@ -722,7 +647,7 @@ mod tests {
                 "hover derives lighter in dark mode"
             );
 
-            Theme::change(ThemeMode::Light, None, cx);
+            Theme::change(ThemeMode::Light, cx);
             assert_eq!(code(cx.theme().danger), 0xe7000b);
             assert_eq!(code(cx.theme().danger_foreground), 0xffffff);
         });

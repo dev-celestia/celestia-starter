@@ -84,7 +84,7 @@ impl RenderOnce for Empty {
             .justify_center()
             .gap(px(16.0))
             .p(px(24.0))
-            .rounded(theme.radius_tokens().xl)
+            .rounded(theme.radius_xl())
             .border_1()
             .border_dashed()
             .border_color(theme.border)
@@ -241,7 +241,7 @@ impl RenderOnce for EmptyMedia {
             .mb(px(8.0))
             .when(self.variant == EmptyMediaVariant::Icon, |this| {
                 this.size(px(32.0))
-                    .rounded(theme.radius_tokens().lg)
+                    .rounded(theme.radius_lg)
                     .bg(theme.muted)
                     .text_color(theme.foreground)
                     // A glyph inherits one rem unless it sets an explicit size.

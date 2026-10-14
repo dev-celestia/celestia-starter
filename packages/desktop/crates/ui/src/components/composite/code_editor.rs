@@ -98,6 +98,76 @@ impl Render for CodeEditor {
                             .child(format!("{lines} lines")),
                     ),
             )
-            .child(div().h(px(280.)).w_full().child(Editor::new(&self.editor)))
+            // The height must land on the Editor itself: the input renders its
+            // own box with `h_auto`, so a sized wrapper div never propagates in
+            // and the editor collapses to a single line.
+            .child(Editor::new(&self.editor).h(px(280.)))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::cell::RefCell;
+    use std::rc::Rc;
+
+    use super::*;
+    use gpui::{Context, Pixels, Render, TestAppContext};
+    use gpui_base::ElementExt as _;
+
+    struct EditorHeights {
+        fixed: Entity<EditorState>,
+        bare: Entity<EditorState>,
+        fixed_height: Rc<RefCell<Pixels>>,
+        bare_height: Rc<RefCell<Pixels>>,
+    }
+
+    impl Render for EditorHeights {
+        fn render(&mut self, _: &mut Window, _: &mut Context<Self>) -> impl IntoElement {
+            let fixed_height = self.fixed_height.clone();
+            let bare_height = self.bare_height.clone();
+            // The auto-sized wrapper hugs its editor child, so the canvas
+            // bounds report exactly the height the editor laid out with.
+            v_flex()
+                .child(
+                    div()
+                        .on_prepaint(move |bounds, _, _| *fixed_height.borrow_mut() = bounds.size.height)
+                        .child(Editor::new(&self.fixed).h(px(280.))),
+                )
+                .child(
+                    div()
+                        .on_prepaint(move |bounds, _, _| *bare_height.borrow_mut() = bounds.size.height)
+                        .child(Editor::new(&self.bare)),
+                )
+        }
+    }
+
+    #[gpui::test]
+    fn editor_height_reaches_the_input(cx: &mut TestAppContext) {
+        cx.update(|cx| crate::init(cx));
+
+        let fixed_height = Rc::new(RefCell::new(px(0.)));
+        let bare_height = Rc::new(RefCell::new(px(0.)));
+
+        let (_, cx) = cx.add_window_view(|window, cx| {
+            let sample = "fn main() {\n    println!(\"hello\");\n}\n\n// five lines total\n";
+            let fixed = cx.new(|cx| EditorState::new(window, cx).default_value(sample));
+            let bare = cx.new(|cx| EditorState::new(window, cx).default_value(sample));
+            EditorHeights {
+                fixed,
+                bare,
+                fixed_height: fixed_height.clone(),
+                bare_height: bare_height.clone(),
+            }
+        });
+
+        cx.update(|window, cx| window.draw(cx).clear(cx));
+
+        let fixed = *fixed_height.borrow();
+        let bare = *bare_height.borrow();
+        // An explicit height must survive to the input element itself...
+        assert_eq!(fixed, px(280.), "editor with .h() must fill it exactly");
+        // ...otherwise the input lays out at its one-line minimum — the
+        // "1 cm tall editor" regression this guards against.
+        assert!(bare < px(40.), "bare editor must not collapse, got {bare:?}");
     }
 }

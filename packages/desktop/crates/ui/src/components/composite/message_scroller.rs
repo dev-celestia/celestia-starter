@@ -56,7 +56,7 @@ use gpui::{
     StyleRefinement, Styled, Window, div, linear_color_stop, linear_gradient, list, point, px,
     relative, rems,
 };
-use gpui_base::motion::{Transition, transition};
+use crate::motion::{Transition, transition};
 
 use crate::components::primitive::button::{Button, ButtonVariant};
 use crate::components::primitive::icon::PhosphorIcon;

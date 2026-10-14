@@ -8,10 +8,8 @@
 //!
 //! and is enforced on the web by `scripts/ui-audit/focus-rings.mjs`. `gpui-component`'s
 //! own [`ThemeStyled::focus_ring_style`](gpui_component::ThemeStyled::focus_ring_style)
-//! draws a **3px ring at 50% opacity** — deliberately softer, and therefore the
-//! opposite of the Celestia rule. Components in this crate that show a focus
-//! ring call [`focus_ring`] here instead, so the desktop ring is the same 2px
-//! at full strength as the web one.
+//! Components in this crate that show a focus ring call [`focus_ring`], so the
+//! desktop ring is the same 2px at full strength as the web one.
 //!
 //! Geometry follows `gpui-component`'s helper: the ring is a child painted *outside* the
 //! element's border box, so an ancestor that clips its content will cut it off.
@@ -26,8 +24,9 @@
 //! };
 //! ```
 
-use gpui::{App, Corners, Edges, ParentElement, Pixels, StyleRefinement, Styled, Window, div, px};
-use gpui_component::{ActiveTheme as _, StyledExt as _};
+use gpui::{App, Corners, Edges, ParentElement, Pixels, Refineable as _, StyleRefinement, Styled, Window, div, px};
+
+use crate::theme::ActiveTheme as _;
 
 /// Ring thickness — Tailwind's `ring-2`, and the value the web audit gate
 /// requires.
@@ -66,19 +65,18 @@ pub fn focus_ring<T: Styled + ParentElement>(mut element: T, window: &Window, cx
     ring_style.corner_radii.bottom_right = Some(radius.bottom_right.into());
 
     let inset = FOCUS_RING_OFFSET;
-    element.child(
-        div()
-            .flex_none()
-            .absolute()
-            .top(-(inset + border_widths.top))
-            .left(-(inset + border_widths.left))
-            .right(-(inset + border_widths.right))
-            .bottom(-(inset + border_widths.bottom))
-            .border(FOCUS_RING_WIDTH)
-            // Full strength: no `alpha()` — see the module docs.
-            .border_color(cx.theme().ring)
-            .refine_style(&ring_style),
-    )
+    let mut ring = div()
+        .flex_none()
+        .absolute()
+        .top(-(inset + border_widths.top))
+        .left(-(inset + border_widths.left))
+        .right(-(inset + border_widths.right))
+        .bottom(-(inset + border_widths.bottom))
+        .border(FOCUS_RING_WIDTH)
+        // Full strength: no `alpha()` — see the module docs.
+        .border_color(cx.theme().ring);
+    ring.style().refine(&ring_style);
+    element.child(ring)
 }
 
 fn resolve(value: Option<gpui::AbsoluteLength>, rem_size: Pixels) -> Pixels {

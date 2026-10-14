@@ -64,8 +64,9 @@ use gpui::{
     FontWeight, InteractiveElement, IntoElement, ParentElement, Pixels, RenderOnce, SharedString,
     StatefulInteractiveElement as _, Styled, Window, div, point, px,
 };
-use gpui_base::motion::transition;
-use gpui_base::{ElementExt as _, spring};
+use crate::motion::transition;
+use crate::motion::spring;
+use gpui_base::ElementExt as _;
 
 use crate::components::primitive::icon::{Phosphor, PhosphorIcon};
 use crate::focus_ring::focus_ring;
@@ -347,7 +348,7 @@ impl RenderOnce for TabsList {
         let (left, width) = if indicator_ready {
             // `duration-normal` on `--ease-out`, as a spring so a mid-flight
             // retarget carries the velocity it already has.
-            let policy = cx.theme().motion_tokens().spring_move;
+            let policy = motion::indicator_spring();
             (
                 spring(
                     (self.id.clone(), "indicator-left"),

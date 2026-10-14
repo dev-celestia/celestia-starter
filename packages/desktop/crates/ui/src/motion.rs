@@ -23,15 +23,13 @@
 //! element for the oneshot entrances.
 
 use std::collections::HashMap;
+use std::rc::Rc;
 use std::time::{Duration, Instant};
 
 use gpui::{
     Animation, AnimationElement, AnimationExt, App, ElementId, EntityId, Global, Hsla, IntoElement,
-    Rgba, Styled, px, rems,
+    Pixels, Rgba, SharedString, SpringConfig, SpringState, SpringTarget, Styled, Window, px,
 };
-use gpui_base::motion::Transition;
-use gpui_base::{Easing, Spring};
-use gpui_component::theme::MotionTokens;
 
 // ---------------------------------------------------------------------------
 // Cubic bezier
@@ -270,6 +268,15 @@ pub const POPUP_IN: MotionSpec = MotionSpec::new(150, EASE_OUT_TOKEN);
 /// Overlay scrim and sheets — `duration-slow` with `--ease-drawer`.
 pub const OVERLAY: MotionSpec = MotionSpec::new(320, EASE_DRAWER_TOKEN);
 
+/// The tabs indicator's spring: `duration-normal` on the signature curve,
+/// slightly under-damped so a mid-flight retarget carries its velocity, with
+/// the pixel-scale settle tolerance.
+pub fn indicator_spring() -> Spring {
+    Spring::new(DURATION_NORMAL)
+        .with_damping(0.85)
+        .with_epsilon(0.1)
+}
+
 /// Standard entrance: opacity 0→1 + translateY 4→0 over [`FADE_IN`].
 pub fn fade_in<E>(id: impl Into<ElementId>, element: E) -> AnimationElement<E>
 where
@@ -346,10 +353,10 @@ where
 //
 // `with_animation` above replays a fixed timeline; it cannot express
 // `transition-colors duration-fast ease-out`, because the target changes with
-// interaction. `gpui_base::motion::transition` can: it samples a value toward a
-// target and reverses from wherever it currently is. These helpers hand a
-// component the policy for one of the design system's steps, so a hover fade is
-// named the way the web names it.
+// interaction. A value transition can: it samples a value toward a target and
+// reverses from wherever it currently is. These helpers hand a component the
+// policy for one of the design system's steps, so a hover fade is named the
+// way the web names it.
 //
 // Call them while rendering, and key them per element:
 //
@@ -358,6 +365,271 @@ where
 //                    motion::hover_transition(), window, cx);
 // let bg = motion::mix(rest, hover, t);
 // ```
+
+/// A CSS-like timing policy for a target-value transition: duration plus an
+/// easing curve. A value transition never chooses a visual property for the
+/// caller — the component blends its own colors and positions with the sample.
+#[derive(Clone)]
+pub struct Transition {
+    duration: Duration,
+    easing: Rc<dyn Fn(f32) -> f32>,
+}
+
+/// Sampling status of a [`transition`] value.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum MotionStatus {
+    /// No state has been adopted yet (the first frame).
+    Idle,
+    /// Inside the (positive) delay window.
+    Delayed,
+    /// Between the delay and the finish.
+    Running,
+    /// Past the end of the timeline.
+    Finished,
+}
+
+/// A sampled value transition: the interpolated value plus its status.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct MotionValue<T> {
+    pub value: T,
+    pub status: MotionStatus,
+}
+
+/// A value that can be interpolated between two application-owned targets.
+pub trait Interpolate: Clone + 'static {
+    fn interpolate(&self, target: &Self, progress: f32) -> Self;
+}
+
+impl Interpolate for f32 {
+    fn interpolate(&self, target: &Self, progress: f32) -> Self {
+        lerp(*self, *target, progress)
+    }
+}
+
+impl Interpolate for Pixels {
+    fn interpolate(&self, target: &Self, progress: f32) -> Self {
+        px(lerp(self.as_f32(), target.as_f32(), progress))
+    }
+}
+
+impl Interpolate for Hsla {
+    fn interpolate(&self, target: &Self, progress: f32) -> Self {
+        mix(*self, *target, progress)
+    }
+}
+
+/// Identifies one independently transitioning value. A plain id names the
+/// element; a `(id, channel)` tuple disambiguates several values on one
+/// element.
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+pub struct TransitionId(ElementId);
+
+impl From<ElementId> for TransitionId {
+    fn from(id: ElementId) -> Self {
+        Self(id)
+    }
+}
+
+impl From<&'static str> for TransitionId {
+    fn from(id: &'static str) -> Self {
+        Self(id.into())
+    }
+}
+
+impl From<String> for TransitionId {
+    fn from(id: String) -> Self {
+        Self(id.into())
+    }
+}
+
+impl From<SharedString> for TransitionId {
+    fn from(id: SharedString) -> Self {
+        Self(id.into())
+    }
+}
+
+impl From<usize> for TransitionId {
+    fn from(id: usize) -> Self {
+        Self(ElementId::Integer(id as u64))
+    }
+}
+
+impl From<i32> for TransitionId {
+    fn from(id: i32) -> Self {
+        Self(ElementId::Integer(id.max(0) as u64))
+    }
+}
+
+impl<I, C> From<(I, C)> for TransitionId
+where
+    I: Into<ElementId>,
+    C: Into<SharedString>,
+{
+    fn from((id, channel): (I, C)) -> Self {
+        Self(ElementId::NamedChild(
+            std::sync::Arc::new(id.into()),
+            channel.into(),
+        ))
+    }
+}
+
+impl From<TransitionId> for ElementId {
+    fn from(id: TransitionId) -> Self {
+        ElementId::NamedChild(std::sync::Arc::new(id.0), "celestia-transition-state".into())
+    }
+}
+
+#[derive(Clone)]
+struct ValueTransition<T: 'static> {
+    from: T,
+    target: T,
+    started_at: Instant,
+    reversing_factor: f32,
+    duration: Duration,
+}
+
+impl Transition {
+    /// A transition that reaches its target in `duration`, easing
+    /// `ease_out_cubic` — the same default a CSS transition without an
+    /// explicit timing function approximates.
+    pub fn new(duration: Duration) -> Self {
+        Self {
+            duration,
+            easing: Rc::new(ease_out_cubic),
+        }
+    }
+
+    /// Sets the easing curve — one of the catalog's [`CubicBezier`]s via
+    /// [`CubicBezier::easing`], usually through [`spec_transition`].
+    pub fn ease(mut self, easing: impl Fn(f32) -> f32 + 'static) -> Self {
+        self.easing = Rc::new(easing);
+        self
+    }
+
+    /// Eased output for input progress `x ∈ [0,1]` (clamped).
+    fn sample(&self, progress: f32) -> f32 {
+        (self.easing)(progress).clamp(0.0, 1.0)
+    }
+
+    /// Linear progress and status for the elapsed time.
+    fn progress(&self, elapsed: Duration) -> (f32, MotionStatus) {
+        if self.duration.is_zero() || elapsed >= self.duration {
+            return (1.0, MotionStatus::Finished);
+        }
+        (
+            elapsed.as_secs_f32() / self.duration.as_secs_f32(),
+            MotionStatus::Running,
+        )
+    }
+}
+
+/// The ease-out-cubic default curve (a pure function; boxed as the fallback
+/// easing).
+fn ease_out_cubic(x: f32) -> f32 {
+    1.0 - (1.0 - x).powi(3)
+}
+
+/// Returns the current value for a CSS-like transition toward `target`.
+///
+/// State is keyed by `id`. The first value is adopted immediately; later
+/// target changes transition from the value sampled at that instant.
+/// Call this while rendering an element, where gpui keyed element state is
+/// available.
+pub fn transition<T>(
+    id: impl Into<TransitionId>,
+    target: T,
+    policy: Transition,
+    window: &mut Window,
+    cx: &mut App,
+) -> T
+where
+    T: Interpolate + PartialEq,
+{
+    transition_with_status(id, target, policy, window, cx).value
+}
+
+/// [`transition`] with the sampling status, for callers that skip work when
+/// the transition has finished.
+pub fn transition_with_status<T>(
+    id: impl Into<TransitionId>,
+    target: T,
+    policy: Transition,
+    window: &mut Window,
+    cx: &mut App,
+) -> MotionValue<T>
+where
+    T: Interpolate + PartialEq,
+{
+    let id: ElementId = id.into().into();
+    let now = cx.background_executor().now();
+    let state = window.use_keyed_state(id, cx, |_, _| ValueTransition {
+        from: target.clone(),
+        target: target.clone(),
+        started_at: now,
+        reversing_factor: 1.0,
+        duration: policy.duration,
+    });
+
+    let snapshot = state.read(cx).clone();
+
+    if cx.reduce_motion() || policy.duration.is_zero() {
+        if snapshot.from != target || snapshot.target != target {
+            state.update(cx, |state, _| {
+                state.from = target.clone();
+                state.target = target.clone();
+                state.started_at = now;
+                state.reversing_factor = 1.0;
+                state.duration = policy.duration;
+            });
+        }
+        return MotionValue {
+            value: target,
+            status: MotionStatus::Finished,
+        };
+    }
+
+    let elapsed = now.saturating_duration_since(snapshot.started_at);
+    let (progress, status) = policy.progress(elapsed);
+    let sampled = snapshot
+        .from
+        .interpolate(&snapshot.target, policy.sample(progress));
+
+    let (value, status) = if snapshot.target != target {
+        let reversing = target == snapshot.from;
+        let reversing_factor = if reversing {
+            (policy.sample(progress) * snapshot.reversing_factor + (1.0 - snapshot.reversing_factor))
+                .clamp(0.0, 1.0)
+        } else {
+            1.0
+        };
+        let duration = policy.duration.mul_f32(reversing_factor);
+        state.update(cx, |state, _| {
+            state.from = sampled.clone();
+            state.target = target.clone();
+            state.started_at = now;
+            state.reversing_factor = reversing_factor;
+            state.duration = duration;
+        });
+        let (initial_progress, initial_status) = policy.progress(Duration::ZERO);
+        (
+            sampled.interpolate(&target, policy.sample(initial_progress)),
+            initial_status,
+        )
+    } else {
+        (
+            sampled,
+            if snapshot.from == snapshot.target {
+                MotionStatus::Idle
+            } else {
+                status
+            },
+        )
+    };
+    if matches!(status, MotionStatus::Delayed | MotionStatus::Running) {
+        window.request_animation_frame();
+    }
+    MotionValue { value, status }
+}
 
 /// `transition-colors duration-fast ease-out` — a hover colour or background
 /// fade between two states.
@@ -384,54 +656,152 @@ pub fn spec_transition(spec: MotionSpec) -> Transition {
 }
 
 // ---------------------------------------------------------------------------
-// The design system as `gpui-component`'s MotionTokens
+// Springs — value transitions with velocity
 // ---------------------------------------------------------------------------
 
-/// The Celestia motion policy as `gpui-component`'s [`MotionTokens`].
+/// A spring policy: the period one full oscillation would take without
+/// damping (the scale the motion is felt at), a damping ratio, and a settling
+/// tolerance in the target's own units.
 ///
-/// `theme.json` cannot carry this: `Theme::motion` is `#[serde(skip)]`, so the
-/// scale is assigned directly in [`crate::theme::install`]. Without it every
-/// re-exported `gpui-component` component — switch, checkbox, slider, accordion,
-/// collapsible, progress, carousel, `TabBar` — animates on `gpui-component`'s own scale
-/// (instant 0 / fast 120 / normal 180 / slow 280ms) rather than the web design
-/// system's (80 / 150 / 220 / 320ms).
-///
-/// Mapping, web token → gpui slot:
-///
-/// | gpui slot | Celestia value | Because |
-/// | --- | --- | --- |
-/// | `duration_instant` | `DURATION_INSTANT` (80ms) | `active:duration-instant` |
-/// | `duration_fast` | `DURATION_FAST` (150ms) | `duration-fast` hovers |
-/// | `duration_normal` | `DURATION_NORMAL` (220ms) | indicator + entrances |
-/// | `duration_slow` | `DURATION_SLOW` (320ms) | sheets, navigation-menu |
-/// | `easing_enter` | `--ease-out` | `data-open:animate-in … ease-out` |
-/// | `easing_exit` | `--ease-drawer` | sheet / drawer / overlay exit |
-/// | `easing_move` | `--ease-out` | the tabs indicator's own curve |
-/// | `spring_control` | 150ms | switch / checkbox thumbs are `duration-fast` |
-/// | `spring_move` | 220ms | the tabs indicator is `duration-normal` |
-pub fn motion_tokens() -> MotionTokens {
-    MotionTokens {
-        duration_instant: DURATION_INSTANT,
-        duration_fast: DURATION_FAST,
-        duration_normal: DURATION_NORMAL,
-        duration_slow: DURATION_SLOW,
-        easing_enter: easing(EASE_OUT_TOKEN),
-        easing_exit: easing(EASE_DRAWER_TOKEN),
-        easing_move: easing(EASE_OUT_TOKEN),
-        spring_control: Spring::new(DURATION_FAST),
-        spring_move: Spring::new(DURATION_NORMAL)
-            .with_damping(0.85)
-            .with_epsilon(0.1),
-        distance_short: rems(0.25),
-        distance_medium: rems(0.5),
+/// Damping `1.0` — no overshoot — is the default. Below `1.0` the spring
+/// passes its target and comes back; above `1.0` it approaches slowly.
+#[derive(Clone, Copy, Debug)]
+pub struct Spring {
+    response: Duration,
+    damping: f32,
+    epsilon: f32,
+    travel: bool,
+}
+
+impl Spring {
+    /// Builds a spring that reaches its target in about `response` without
+    /// overshooting it. A zero response adopts the target on the spot.
+    pub const fn new(response: Duration) -> Self {
+        Self {
+            response,
+            damping: 1.0,
+            epsilon: 0.001,
+            travel: true,
+        }
+    }
+
+    /// Sets the damping ratio ζ (`1.0` = critically damped, no overshoot).
+    /// Below `1.0` the spring passes its target and comes back; above `1.0`
+    /// it approaches slowly. Overshoot suits a value with room to pass its
+    /// target and nothing to collide with — an opacity, or a thumb with room
+    /// to slide.
+    pub const fn with_damping(self, ratio: f32) -> Self {
+        Self {
+            damping: ratio,
+            ..self
+        }
+    }
+
+    /// Sets the settling tolerance, in the target's own units. The default
+    /// suits normalized `0..1` targets; a spring over pixels settles
+    /// perceptibly sooner with a coarser tolerance, which also ends the
+    /// animation frames that the remaining sub-pixel motion would otherwise
+    /// request.
+    pub const fn with_epsilon(self, epsilon: f32) -> Self {
+        Self { epsilon, ..self }
+    }
+
+    /// Says whether the spring travels to its target or adopts it on the
+    /// spot — a value the pointer is already moving must not lag behind it,
+    /// so a drag suspends travel without disturbing the policy's other knobs.
+    pub const fn with_travel(self, travel: bool) -> Self {
+        Self { travel, ..self }
+    }
+
+    /// The physical parameters gpui's spring propagator steps: the response
+    /// becomes the natural frequency ω₀, the damping ratio becomes the
+    /// coefficient c = 2ζω₀, and the mass is unit.
+    fn config(&self) -> SpringConfig {
+        let frequency = std::f32::consts::TAU / self.response.as_secs_f32();
+        SpringConfig::new(frequency * frequency, 2.0 * self.damping * frequency, 1.0)
     }
 }
 
-/// A [`CubicBezier`] as a gpui-base [`Easing`]. The control points are compile-
-/// time constants, so an invalid curve is a bug, not a runtime condition.
-fn easing(curve: CubicBezier) -> Easing {
-    Easing::cubic_bezier(curve.x1, curve.y1, curve.x2, curve.y2)
-        .expect("celestia motion curves are valid CSS beziers")
+#[derive(Clone, Copy)]
+struct SpringTransition {
+    state: SpringState,
+    target: f32,
+    updated_at: Instant,
+}
+
+/// Returns the current value for a spring travelling toward `target`.
+///
+/// State is keyed by `id` exactly as [`transition`] keys its own. The first
+/// value is adopted immediately; later target changes preserve both the
+/// current position and the current velocity, so an interrupted spring is
+/// redirected rather than restarted.
+pub fn spring<T>(
+    id: impl Into<TransitionId>,
+    target: T,
+    policy: Spring,
+    window: &mut Window,
+    cx: &mut App,
+) -> T::Output
+where
+    T: SpringTarget,
+{
+    let id: ElementId = id.into().into();
+    let now = cx.background_executor().now();
+    let target_position = target.target();
+    let state = window.use_keyed_state(id, cx, |_, _| SpringTransition {
+        state: SpringState {
+            position: target_position,
+            velocity: 0.0,
+        },
+        target: target_position,
+        updated_at: now,
+    });
+
+    let snapshot = *state.read(cx);
+    let at_rest_on_target =
+        snapshot.state.position == target_position && snapshot.state.velocity == 0.0;
+
+    // The overwhelmingly common case: a spring nothing is currently moving. It
+    // has no state to advance and no frame to ask for, so it never builds a
+    // config or steps one — a settled spring costs a read and two comparisons.
+    if at_rest_on_target {
+        return target.resolve(target_position);
+    }
+
+    let settle = |state: &mut SpringTransition| {
+        state.state = SpringState {
+            position: target_position,
+            velocity: 0.0,
+        };
+        state.target = target_position;
+        state.updated_at = now;
+    };
+
+    if cx.reduce_motion() || !policy.travel || policy.response.as_secs_f32() == 0.0 {
+        state.update(cx, |state, _| settle(state));
+        return target.resolve(target_position);
+    }
+
+    // Advance over the frame that just elapsed, which the previous target
+    // governed, before adopting the new one for the frame to come.
+    let elapsed = now
+        .saturating_duration_since(snapshot.updated_at)
+        .as_secs_f32();
+    let config = policy.config();
+    let stepped = config.step(snapshot.state, snapshot.target, elapsed);
+
+    if config.is_settled(stepped, target_position, policy.epsilon) {
+        state.update(cx, |state, _| settle(state));
+        return target.resolve(target_position);
+    }
+
+    state.update(cx, |state, _| {
+        state.state = stepped;
+        state.target = target_position;
+        state.updated_at = now;
+    });
+    window.request_animation_frame();
+    target.resolve(stepped.position)
 }
 
 // ---------------------------------------------------------------------------
@@ -917,43 +1287,50 @@ mod tests {
         let _ = spec_transition(OVERLAY);
     }
 
-    /// `motion_tokens()` is what re-times the 55 re-exported `gpui-component`
-    /// components, so pin it against `gpui-component`'s defaults it replaces.
+    /// The value-transition policy samples its curve: the SLIDE spec's
+    /// signature curve must come through `spec_transition` unbroken, and the
+    /// default easing is ease-out-cubic.
     #[test]
-    fn motion_tokens_replace_the_gpui_default_scale() {
-        let tokens = motion_tokens();
-        let kit = MotionTokens::default();
-
-        assert_eq!(tokens.duration_instant, DURATION_INSTANT);
-        assert_eq!(tokens.duration_fast, DURATION_FAST);
-        assert_eq!(tokens.duration_normal, DURATION_NORMAL);
-        assert_eq!(tokens.duration_slow, DURATION_SLOW);
-
-        // Every duration actually moved off the kit default.
-        assert_ne!(tokens.duration_instant, kit.duration_instant);
-        assert_ne!(tokens.duration_fast, kit.duration_fast);
-        assert_ne!(tokens.duration_normal, kit.duration_normal);
-        assert_ne!(tokens.duration_slow, kit.duration_slow);
-
-        // Curves sample like their source tokens.
-        for (slot, curve) in [
-            (tokens.easing_enter.clone(), EASE_OUT_TOKEN),
-            (tokens.easing_exit.clone(), EASE_DRAWER_TOKEN),
-            (tokens.easing_move.clone(), EASE_OUT_TOKEN),
-        ] {
-            for x in [0.0, 0.25, 0.5, 0.75, 1.0] {
-                assert!(
-                    (slot.sample(x) - curve.eval(x)).abs() < 1e-4,
-                    "easing sample at {x}"
-                );
-            }
+    fn transition_policy_samples_the_spec_curve() {
+        let policy = slide_transition();
+        for x in [0.0, 0.25, 0.5, 0.75, 1.0] {
+            assert!(
+                (policy.sample(x) - EASE_OUT_TOKEN.eval(x)).abs() < 1e-5,
+                "SLIDE policy at {x}"
+            );
         }
-        // …and differ from the kit's own curves.
-        assert!((tokens.easing_enter.sample(0.5) - kit.easing_enter.sample(0.5)).abs() > 1e-3);
-        assert!((tokens.easing_move.sample(0.5) - kit.easing_move.sample(0.5)).abs() > 1e-3);
 
-        // The move spring keeps the kit's settle tolerance (it is a pixel
-        // spring — the tabs indicator travels in pixels).
-        assert_eq!(tokens.spring_move.epsilon(), 0.1);
+        let default_policy = Transition::new(Duration::from_millis(100));
+        // ease-out-cubic: 1 - (1-x)³.
+        assert!((default_policy.sample(0.5) - 0.875).abs() < 1e-5);
+        assert_eq!(default_policy.sample(0.0), 0.0);
+        assert_eq!(default_policy.sample(1.0), 1.0);
+    }
+
+    /// A transition's linear progress reports Finished past its duration.
+    #[test]
+    fn transition_progress_finishes_after_the_duration() {
+        let policy = spec_transition(HOVER);
+        assert_eq!(policy.progress(Duration::ZERO).1, MotionStatus::Running);
+        assert_eq!(
+            policy.progress(Duration::from_millis(74)).1,
+            MotionStatus::Running
+        );
+        assert_eq!(
+            policy.progress(Duration::from_millis(150)).1,
+            MotionStatus::Finished
+        );
+    }
+
+    /// The spring policy converts response + damping ratio into the physical
+    /// parameters gpui steps: ω₀ = 2π/response and the damping ratio ζ.
+    #[test]
+    fn spring_policy_maps_response_and_damping_to_physics() {
+        let spring = Spring::new(Duration::from_millis(220)).with_damping(0.85);
+        let config = spring.config();
+        let frequency = std::f32::consts::TAU / 0.22;
+        let (natural_frequency, damping_ratio) = config.canonical();
+        assert!((natural_frequency - frequency).abs() < 1e-4);
+        assert!((damping_ratio - 0.85).abs() < 1e-4);
     }
 }

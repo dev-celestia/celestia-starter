@@ -341,7 +341,7 @@ impl RenderOnce for DescriptionList {
                                     })
                                     .when(!horizontal, |this| this.border_b_1())
                                     .border_color(theme.border)
-                                    .bg(theme.tokens.description_list_label)
+                                    .bg(theme.description_list_label)
                                 })
                                 .when_some(label_width, |this, width| {
                                     this.w(width).flex_shrink_0()
@@ -367,7 +367,7 @@ impl RenderOnce for DescriptionList {
                         }
                         DescriptionItem::Separator => {
                             div().h(px(8.0)).w_full().when(bordered, |this| {
-                                this.bg(theme.tokens.description_list_label)
+                                this.bg(theme.description_list_label)
                             })
                         }
                     }),

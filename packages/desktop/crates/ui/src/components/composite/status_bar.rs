@@ -96,7 +96,7 @@ impl RenderOnce for StatusBar {
             .px(px(8.0))
             .border_t_1()
             .border_color(theme.status_bar_border)
-            .bg(theme.tokens.status_bar)
+            .bg(theme.status_bar)
             .text_size(px(12.0))
             .text_color(theme.muted_foreground);
         // The caller's `Styled` chain wins over the defaults above.

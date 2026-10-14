@@ -157,7 +157,7 @@ impl RenderOnce for GroupBox {
         let theme = cx.theme();
         let (bg, border, padded): (Option<Background>, _, bool) = match self.variant {
             GroupBoxVariant::Normal => (None, None, false),
-            GroupBoxVariant::Fill => (Some(theme.tokens.group_box.into()), None, true),
+            GroupBoxVariant::Fill => (Some(theme.group_box.into()), None, true),
             GroupBoxVariant::Outline => (None, Some(theme.border), true),
         };
 

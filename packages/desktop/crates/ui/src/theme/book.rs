@@ -1,28 +1,26 @@
-//! The theme book — multi-theme support on top of `gpui-component`'s two-mode
-//! `Theme` global.
+//! The theme book — multi-theme support on top of the two-mode [`Theme`]
+//! global.
 //!
-//! `gpui-component`'s `Theme` holds exactly one light and one dark [`ThemeConfig`]
-//! and `Theme::change` flips between them. That covers "light and dark";
-//! this module adds the third axis — **named custom themes** — without
-//! replacing either mechanism:
+//! [`Theme`] holds exactly one light and one dark [`ThemeConfig`] and
+//! [`Theme::change`] flips between them. That covers "light and dark"; this
+//! module adds the third axis — **named custom themes** — without replacing
+//! either mechanism:
 //!
 //! - A **family** is a named `(light, dark)` config pair. The `Celestia`
 //!   family (the `theme.json` palettes) is seeded by [`install`] and is
 //!   always the default.
-//! - [`AppTheme::register`] builds a new family from semantic tokens (over
-//!   the Celestia base) and activates it; [`select`] switches between
-//!   registered families; [`active`] / [`families`] read the book.
+//! - [`AppTheme::register`](super::AppTheme::register) builds a new family
+//!   from semantic tokens (over the Celestia base) and activates it;
+//!   [`select`] switches between registered families; [`active`] /
+//!   [`families`] read the book.
 //! - `AppTheme::apply` stays an *overlay on the active family*, so radius and
 //!   token tweaks compose with whichever family is selected.
 //!
-//! Families live in a private [`ThemeBook`] global rather than the `gpui-component`
-//! `ThemeRegistry`: the registry has no public replace/remove, and its change
-//! observer re-pulls configs by name — families it does not know are simply
-//! left alone, so custom themes survive registry churn untouched. Selecting
-//! or applying a family assigns the pair straight onto `Theme::global_mut`
-//! and re-applies the current mode, exactly like `install` does — so
-//! `Theme::change` and system-appearance sync keep working within the
-//! selected family.
+//! Families live in a private [`ThemeBook`] global, separate from the [`Theme`]
+//! global: selecting or applying a family assigns the pair onto
+//! `Theme::global_mut` and re-applies the current mode, exactly like
+//! [`install`] does — so `Theme::change` and system-appearance sync keep
+//! working within the selected family.
 //!
 //! ```ignore
 //! use celestia_ui::theme::{active, families, select, AppTheme, hex, Scheme};
@@ -46,7 +44,8 @@
 use std::collections::HashMap;
 
 use gpui::{App, Global, SharedString};
-use gpui_component::{Theme, ThemeConfig, ThemeRegistry};
+
+use super::{Theme, ThemeConfig};
 
 /// The default family name — seeded from `theme.json` by [`install`].
 pub(crate) const CELESTIA: &str = "Celestia";
@@ -67,24 +66,15 @@ struct ThemeBook {
 
 impl Global for ThemeBook {}
 
-/// Seed the book with the `Celestia` family from the registry and make it
-/// active. Called by [`super::install`]; must run after it has loaded the
-/// registry entries.
-pub(crate) fn install(cx: &mut App) {
-    let registry = ThemeRegistry::global(cx);
-    let (Some(light), Some(dark)) = (
-        registry.themes().get(super::LIGHT).cloned(),
-        registry.themes().get(super::DARK).cloned(),
-    ) else {
-        panic!("Celestia Light/Dark themes missing from the registry");
-    };
-
+/// Seed the book with the `Celestia` family and make it active. Called by
+/// [`super::install`].
+pub(crate) fn install(cx: &mut App, light: &ThemeConfig, dark: &ThemeConfig) {
     let mut book = ThemeBook::default();
     book.families.insert(
         SharedString::from(CELESTIA),
         Family {
-            light: light.as_ref().clone(),
-            dark: dark.as_ref().clone(),
+            light: light.clone(),
+            dark: dark.clone(),
         },
     );
     book.active = Some(SharedString::from(CELESTIA));
@@ -176,8 +166,8 @@ pub(crate) fn insert_and_activate(
     mut light: ThemeConfig,
     mut dark: ThemeConfig,
 ) {
-    // Registry-style names, so Theme::theme_name() and the registry observer
-    // (which looks the active names up and skips unknown ones) stay coherent.
+    // Registry-style names, so Theme::theme_name() stays coherent with the
+    // active family.
     light.name = format!("{name} Light").into();
     dark.name = format!("{name} Dark").into();
 
@@ -195,17 +185,16 @@ pub(crate) fn insert_and_activate(
     activate(cx, light, dark);
 }
 
-/// Push a pair onto the `Theme` global and re-apply the current mode — the
-/// same hand-off `install` performs, so mode switches keep using the pair.
+/// Push a pair onto the [`Theme`] global and re-apply the current mode — the
+/// same hand-off [`install`] performs, so mode switches keep using the pair.
 pub(crate) fn activate(cx: &mut App, light: ThemeConfig, dark: ThemeConfig) {
     let mode = {
-        let theme = Theme::global_mut(cx);
+        let theme = cx.global_mut::<Theme>();
         theme.light_theme = std::rc::Rc::new(light);
         theme.dark_theme = std::rc::Rc::new(dark);
         theme.mode
     };
-    Theme::change(mode, None, cx);
-    cx.refresh_windows();
+    Theme::change(mode, cx);
 }
 
 fn book(cx: &App) -> Option<&ThemeBook> {
@@ -214,11 +203,11 @@ fn book(cx: &App) -> Option<&ThemeBook> {
 
 #[cfg(test)]
 mod tests {
-    use gpui::Rgba;
-    use gpui::TestAppContext;
-    use gpui_component::{ActiveTheme, ThemeMode};
+    use gpui::{Rgba, TestAppContext};
+    use gpui::AppContext as _;
 
     use super::super::config::{AppTheme, Scheme, hex};
+    use super::super::{ActiveTheme as _, Theme, ThemeMode};
     use super::*;
 
     /// RGB part of a color as `0xrrggbb` (the theme.rs test idiom).
@@ -231,7 +220,6 @@ mod tests {
     #[gpui::test]
     fn register_activates_and_select_switches_back(cx: &mut TestAppContext) {
         cx.update(|cx| {
-            gpui_component::init(cx);
             crate::theme::install(cx);
             assert_eq!(active(cx), CELESTIA);
             assert_eq!(families(cx), vec![SharedString::from(CELESTIA)]);
@@ -253,19 +241,19 @@ mod tests {
 
             // The custom family's dark background is live, and the configs
             // carry registry-style names.
-            Theme::change(ThemeMode::Dark, None, cx);
+            Theme::change(ThemeMode::Dark, cx);
             assert_eq!(code(cx.theme().background), 0x0b1120);
             assert_eq!(Theme::global(cx).dark_theme.name, "Nocturne Dark");
 
             // Switching back restores Celestia…
             assert!(select(CELESTIA, cx));
             assert_eq!(active(cx), CELESTIA);
-            Theme::change(ThemeMode::Dark, None, cx);
+            Theme::change(ThemeMode::Dark, cx);
             assert_eq!(code(cx.theme().background), 0x0a0a0a);
 
             // …and switching to the custom family preserves its tokens.
             assert!(select("Nocturne", cx));
-            Theme::change(ThemeMode::Dark, None, cx);
+            Theme::change(ThemeMode::Dark, cx);
             assert_eq!(code(cx.theme().background), 0x0b1120);
 
             // Unknown names are a no-op.
@@ -277,7 +265,6 @@ mod tests {
     #[gpui::test]
     fn apply_overlays_whichever_family_is_active(cx: &mut TestAppContext) {
         cx.update(|cx| {
-            gpui_component::init(cx);
             crate::theme::install(cx);
 
             AppTheme {
@@ -300,17 +287,38 @@ mod tests {
             }
             .apply(cx);
 
-            Theme::change(ThemeMode::Light, None, cx);
+            Theme::change(ThemeMode::Light, cx);
             assert_eq!(code(cx.theme().primary), 0x2563eb);
-            Theme::change(ThemeMode::Dark, None, cx);
+            Theme::change(ThemeMode::Dark, cx);
             assert_eq!(code(cx.theme().background), 0x0b1120);
 
             // The tweak is stored on the family, not just the live theme:
             // switch away and back, the blue light accent persists.
             assert!(select(CELESTIA, cx));
             assert!(select("Nocturne", cx));
-            Theme::change(ThemeMode::Light, None, cx);
+            Theme::change(ThemeMode::Light, cx);
             assert_eq!(code(cx.theme().primary), 0x2563eb);
+        });
+    }
+
+    /// A registered family carries its own radius knobs: `AppTheme` overlays
+    /// them onto both sides.
+    #[gpui::test]
+    fn register_applies_radius_to_both_modes(cx: &mut TestAppContext) {
+        cx.update(|cx| {
+            crate::theme::install(cx);
+
+            AppTheme {
+                radius: gpui::px(12.),
+                ..Default::default()
+            }
+            .register("Chunky", cx);
+
+            Theme::change(ThemeMode::Light, cx);
+            assert_eq!(f32::from(cx.theme().radius), 12.0);
+            assert_eq!(f32::from(cx.theme().radius_lg), 16.0);
+            Theme::change(ThemeMode::Dark, cx);
+            assert_eq!(f32::from(cx.theme().radius), 12.0);
         });
     }
 }

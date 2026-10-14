@@ -20,7 +20,7 @@ use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
 use crate::theme::ActiveTheme as _;
-use gpui_base::motion::transition;
+use crate::motion::transition;
 // Re-exported for advanced use (custom delegates, sorting, virtualization).
 use gpui::{
     App, AppContext as _, Context, ElementId, Entity, InteractiveElement, IntoElement,

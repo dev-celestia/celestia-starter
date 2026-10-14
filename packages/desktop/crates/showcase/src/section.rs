@@ -111,7 +111,9 @@ impl Section {
                 "message groups, bubbles with reactions, avatars, and file attachments."
             }
             Section::Editors => "markdown editor with toolbar + tree-sitter code mode.",
-            Section::Charts => "bar charts and data plotting with semantic chart ramp.",
+            Section::Charts => {
+                "bar, line, pie and donut charts with the semantic chart ramp, hover tooltips, and leader-line labels."
+            }
             Section::Icons => {
                 "icon.rs wrapper — the vendored Phosphor Core 2.1.1 catalog (regular, bold, fill) with live search."
             }
@@ -544,9 +546,10 @@ demo_code.update(cx, |e, cx| {
 });"####;
 
 const CHARTS_CODE: &str = r#"use celestia_ui::components::composite::charts::chart::BarChart;
+use celestia_ui::components::composite::charts::{ChartDonut, ChartLine, ChartPie};
 use gpui::*;
 
-// Categorical band bar chart with semantic color ramp
+// Categorical band bar chart with semantic color ramp (raw plot)
 BarChart::new(vec![
     ("Mon", 42.0),
     ("Tue", 68.0),
@@ -557,7 +560,24 @@ BarChart::new(vec![
     ("Sun", 30.0),
 ])
 .band(|(day, _)| *day)
-.value(|(_, count)| *count)"#;
+.value(|(_, count)| *count)
+
+// Prefabs — house chart ramp, sized containers, and the id opts into the
+// interactive hover tooltip.
+// Single-series trend line: smoothed by default, y values are f64.
+ChartLine::new("chart-line-weekly", vec![("Mon", 420.0), ("Tue", 510.0)])
+    .name("Sessions")
+    .dots(true)
+
+// Pie with leader-line labels; slice colors cycle the chart ramp.
+// Slice values are f32.
+ChartPie::new("chart-pie-sources", [("Direct", 300.0f32), ("Organic", 220.0)])
+    .name("Visitors")
+
+// Donut — punched-out centre with padded slices; children land in the hole.
+ChartDonut::new("chart-donut-storage", [("Media", 320.0f32), ("Apps", 64.0)])
+    .name("Storage")
+    .child("512 GB")"#;
 
 const PALETTE_CODE: &str = r#"use celestia_ui::palette;
 use celestia_ui::theme::{hex, AppTheme, Scheme};

@@ -18,11 +18,11 @@ celestia-ui = { path = "crates/ui" }
 # between, and each import names the layer it actually comes from. Components
 # are being rewritten onto `gpui` alone, family by family — see
 # crates/ui/src/components/mod.rs.
-gpui = { package = "gpui-pre", version = "=0.3.6" }
-gpui-base = "0.6.6"
+gpui = { package = "gpui-pre", version = "=0.3.8" }
+gpui-base = "0.7.1"
 # tree-sitter features power the code editor's syntax highlighting
 # (code_editor.rs).
-gpui-component = { version = "0.6.6", features = [
+gpui-component = { version = "0.7.1", features = [
     "tree-sitter",
     "tree-sitter-rust",
     "tree-sitter-markdown",
@@ -30,7 +30,7 @@ gpui-component = { version = "0.6.6", features = [
 ] }
 # The windowing backend. `gpui` does not depend on it; an application names it
 # to open its first window (`application().run(..)`).
-gpui-platform = { package = "gpui-pre-platform", version = "=0.3.6", features = [
+gpui-platform = { package = "gpui-pre-platform", version = "=0.3.8", features = [
     "font-kit",
     "x11",
     "wayland",

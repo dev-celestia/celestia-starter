@@ -1,8 +1,8 @@
 # Celestia Desktop (GPUI)
 
 Native Rust desktop UI for the celestia-starter monorepo, built directly on
-[GPUI](https://github.com/zed-industries/zed) (`gpui-pre` 0.3.6) plus the two
-widget layers it wraps — `gpui-base` and `gpui-component` 0.6.6. There is no
+[GPUI](https://github.com/zed-industries/zed) (`gpui-pre` 0.3.8) plus the two
+widget layers it wraps — `gpui-base` and `gpui-component` 0.7.1. There is no
 facade crate in between: every import names the crate it actually comes from.
 Modeled on the GetCat reference in `reference/GetCat/`.
 
@@ -24,7 +24,7 @@ crates/
 │        ├─ sidebar_layout.rs       # app shell: SidebarLayout + header/nav/item/footer
 │        ├─ h_stack.rs, v_stack.rs, z_stack.rs, spacer.rs, scroll_view.rs,
 │        │   v_grid.rs, frame.rs, alignment.rs   # SwiftUI-style layout vocabulary
-│        ├─ charts.rs               # chart + plot (generic API)
+│        ├─ charts.rs               # ChartLine / ChartPie / ChartDonut prefabs + chart/plot re-exports
 │        └─ section_heading.rs / text_editor.rs / code_editor.rs / …
 └─ celestia-desktop  # The app binary (sidebar gallery window — uses SidebarLayout itself)
 ```

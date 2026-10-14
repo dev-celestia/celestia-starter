@@ -32,7 +32,7 @@ use gpui::{
     InspectorElementId, IntoElement, LayoutId, ParentElement, Pixels, Refineable as _, RenderOnce,
     Style, StyleRefinement, Styled, Window, div, px, relative, size,
 };
-use gpui_base::motion::transition;
+use crate::motion::transition;
 
 use crate::motion;
 

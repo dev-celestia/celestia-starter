@@ -980,7 +980,7 @@ impl Showcase {
             .gap_2()
             .items_start()
             .rounded_sm()
-            .bg(cx.theme().tokens.tab_bar)
+            .bg(cx.theme().tab_bar)
             .border_1()
             .border_color(cx.theme().border)
             .px_2()
@@ -1059,7 +1059,7 @@ impl Showcase {
                                             div()
                                                 .p_3()
                                                 .rounded_md()
-                                                .bg(cx.theme().tokens.tab_bar)
+                                                .bg(cx.theme().tab_bar)
                                                 .border_1()
                                                 .border_color(border_col)
                                                 .child(
@@ -1084,7 +1084,7 @@ impl Showcase {
                                             div()
                                                 .p_3()
                                                 .rounded_md()
-                                                .bg(cx.theme().tokens.tab_bar)
+                                                .bg(cx.theme().tab_bar)
                                                 .border_1()
                                                 .border_color(border_col)
                                                 .child(
@@ -1109,7 +1109,7 @@ impl Showcase {
                                             div()
                                                 .p_3()
                                                 .rounded_md()
-                                                .bg(cx.theme().tokens.tab_bar)
+                                                .bg(cx.theme().tab_bar)
                                                 .border_1()
                                                 .border_color(border_col)
                                                 .child(
