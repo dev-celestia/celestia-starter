@@ -87,6 +87,7 @@ export * from "./components/composite/sidebar"
 export * from "./components/composite/tab-bar"
 export * from "./components/composite/text-editor"
 export * from "./components/composite/toggle-group"
+export * from "./components/composite/toolbar-menu"
 
 export * from "./components/ai"
 export * from "./hooks/use-mobile"

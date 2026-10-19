@@ -50,6 +50,7 @@ pub mod status_bar;
 pub mod stepper;
 pub mod text_editor;
 pub mod title_bar;
+pub mod toolbar_menu;
 pub mod tree;
 pub mod v_grid;
 pub mod v_stack;

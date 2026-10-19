@@ -6,11 +6,16 @@ use celestia_ui::components::composite::empty::{
     Empty as EmptyState, EmptyDescription, EmptyHeader, EmptyTitle,
 };
 use celestia_ui::components::composite::pagination::Pagination;
+use celestia_ui::components::composite::toolbar_menu::{ToolbarMenu, ToolbarMenuItem};
 use celestia_ui::components::composite::virtual_list::{VirtualListScrollHandle, v_virtual_list};
 use celestia_ui::components::primitive::breadcrumb::{Breadcrumb, BreadcrumbItem};
 use celestia_ui::components::primitive::button::{Button, ButtonSize, ButtonVariant};
+use celestia_ui::components::primitive::icon::PhosphorIcon;
+use celestia_ui::components::primitive::table::{DataTable, TableColumn};
+use celestia_ui::components::primitive::toast::{Notification, WindowExt as _};
 use gpui::*;
-use gpui_component::{ActiveTheme, h_flex, v_flex};
+use celestia_ui::theme::ActiveTheme as _;
+use gpui_component::{h_flex, v_flex};
 
 use crate::showcase::Showcase;
 
@@ -22,9 +27,101 @@ impl Showcase {
                 Card::new()
                     .title("Data Table")
                     .description(
-                        "Structured tabular data presentation with columns, borders, and rows.",
+                        "Structured tabular data with a ToolbarMenu of row actions above it.",
                     )
-                    .child(self.demo_table.clone()),
+                    .child(
+                        v_flex()
+                            .gap_3()
+                            .child(
+                                ToolbarMenu::new("table-toolbar")
+                                    .item(
+                                        ToolbarMenuItem::new(
+                                            "tm-refresh",
+                                            PhosphorIcon::ArrowClockwise,
+                                        )
+                                        .label("Refresh")
+                                        .on_click(|_, window, cx| {
+                                            window.push_notification(
+                                                Notification::success("Table refreshed"),
+                                                cx,
+                                            );
+                                        }),
+                                    )
+                                    .item(
+                                        ToolbarMenuItem::new("tm-filter", PhosphorIcon::Funnel)
+                                            .label("Filter")
+                                            .on_click(|_, window, cx| {
+                                                window.push_notification(
+                                                    Notification::success("Filter opened"),
+                                                    cx,
+                                                );
+                                            }),
+                                    )
+                                    .separator()
+                                    .item(
+                                        ToolbarMenuItem::new("tm-export", PhosphorIcon::Export)
+                                            .label("Export")
+                                            .on_click(|_, window, cx| {
+                                                window.push_notification(
+                                                    Notification::success("Exported CSV"),
+                                                    cx,
+                                                );
+                                            }),
+                                    )
+                                    .item(
+                                        ToolbarMenuItem::new("tm-edit", PhosphorIcon::Pencil)
+                                            .label("Edit")
+                                            .on_click(|_, window, cx| {
+                                                window.push_notification(
+                                                    Notification::success("Edit mode"),
+                                                    cx,
+                                                );
+                                            }),
+                                    )
+                                    .item(
+                                        ToolbarMenuItem::new("tm-trash", PhosphorIcon::Trash)
+                                            .label("Delete")
+                                            .on_click(|_, window, cx| {
+                                                window.push_notification(
+                                                    Notification::error("Row deleted"),
+                                                    cx,
+                                                );
+                                            }),
+                                    ),
+                            )
+                            .child(
+                                DataTable::new(
+                                    [
+                                        TableColumn::new("Invoice").width(220.),
+                                        TableColumn::new("Status").width(100.),
+                                        TableColumn::new("Amount"),
+                                    ],
+                                    vec![
+                                        vec![
+                                            "INV-001 — Acme Corp".into(),
+                                            "Paid".into(),
+                                            "$1,200.00".into(),
+                                        ],
+                                        vec![
+                                            "INV-002 — Globex Inc".into(),
+                                            "Pending".into(),
+                                            "$850.00".into(),
+                                        ],
+                                        vec![
+                                            "INV-003 — Soylent LLC".into(),
+                                            "Paid".into(),
+                                            "$340.00".into(),
+                                        ],
+                                        vec![
+                                            "INV-004 — Initech".into(),
+                                            "Overdue".into(),
+                                            "$920.00".into(),
+                                        ],
+                                    ],
+                                )
+                                .caption("A list of recent invoices."),
+                            ),
+                    ),
             )
             .child(
                 Card::new()

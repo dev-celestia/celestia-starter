@@ -89,7 +89,8 @@ impl Section {
                 "badge.rs wrapper — variant chips, count/dot badges, markers, and avatars."
             }
             Section::Inputs => {
-                "input, textarea, otp, select, slider, stepper, switch, checkbox, radio, rating, label."
+                "input, textarea, otp, select, slider, stepper, switch, checkbox, radio, rating, \
+                 label, toolbar_menu."
             }
             Section::Pickers => "date_picker, calendar, color_picker, and number input.",
             Section::Feedback => {
@@ -205,7 +206,11 @@ GpuiBadge::new().count(8)
 GpuiBadge::new().dot()"#;
 
 const INPUTS_CODE: &str = r#"use celestia_ui::components::Card;
+use celestia_ui::components::composite::toolbar_menu::{
+    ToolbarMenu, ToolbarMenuAppearance, ToolbarMenuItem,
+};
 use celestia_ui::components::primitive::checkbox::Checkbox;
+use celestia_ui::components::primitive::icon::PhosphorIcon;
 use celestia_ui::components::primitive::input::{Input, InputState};
 use celestia_ui::components::primitive::input_otp::{OtpInput, OtpState};
 use celestia_ui::components::primitive::label::Label;
@@ -219,6 +224,24 @@ use gpui::*;
 
 // Single-line text input with clear button
 Input::new(&self.demo_input).cleanable(true)
+
+// Icon toolbar beside the input (paste / copy / clear)
+ToolbarMenu::new("input-actions")
+    .icon_only()
+    .horizontal()
+    .item(ToolbarMenuItem::new("paste", PhosphorIcon::ClipboardText).label("Paste").on_click(|_, _, _| {}))
+    .item(ToolbarMenuItem::new("copy", PhosphorIcon::Copy).label("Copy").on_click(|_, _, _| {}))
+    .separator()
+    .item(ToolbarMenuItem::new("clear", PhosphorIcon::X).label("Clear").on_click(|_, _, _| {}))
+
+// Labeled vertical toolbar
+ToolbarMenu::new("input-toolbar-labeled")
+    .appearance(ToolbarMenuAppearance::Labeled)
+    .vertical()
+    .item(ToolbarMenuItem::new("search", PhosphorIcon::MagnifyingGlass).label("Search"))
+    .item(ToolbarMenuItem::new("filter", PhosphorIcon::Funnel).label("Filter"))
+    .separator()
+    .item(ToolbarMenuItem::new("export", PhosphorIcon::Export).label("Export"))
 
 // Multi-line text area
 Textarea::new(&self.demo_textarea)
@@ -358,19 +381,40 @@ use celestia_ui::components::composite::empty::{
     Empty as EmptyState, EmptyDescription, EmptyHeader, EmptyTitle,
 };
 use celestia_ui::components::composite::pagination::Pagination;
-use celestia_ui::components::primitive::table::DataTable;
+use celestia_ui::components::composite::toolbar_menu::{ToolbarMenu, ToolbarMenuItem};
+use celestia_ui::components::primitive::icon::PhosphorIcon;
+use celestia_ui::components::primitive::table::{DataTable, TableColumn};
+use celestia_ui::components::primitive::toast::{Notification, WindowExt};
 use celestia_ui::components::composite::virtual_list::{VirtualListScrollHandle, v_virtual_list};
 use gpui::*;
 
-// Structured tabular data table
-DataTable::from_key_value(
+// Icon action strip above a data table — clicks push toasts
+ToolbarMenu::new("table-toolbar")
+    .item(
+        ToolbarMenuItem::new("refresh", PhosphorIcon::ArrowClockwise)
+            .label("Refresh")
+            .on_click(|_, window, cx| {
+                window.push_notification(Notification::success("Table refreshed"), cx);
+            }),
+    )
+    .item(ToolbarMenuItem::new("filter", PhosphorIcon::Funnel).label("Filter"))
+    .separator()
+    .item(ToolbarMenuItem::new("export", PhosphorIcon::Export).label("Export"))
+    .item(ToolbarMenuItem::new("trash", PhosphorIcon::Trash).label("Delete"))
+
+// Structured tabular data — pure GPUI composition table
+DataTable::new(
     [
-        ("INV-001 (Acme Corp)", "$1,200.00"),
-        ("INV-002 (Globex Inc)", "$850.00"),
+        TableColumn::new("Invoice").width(220.),
+        TableColumn::new("Status").width(100.),
+        TableColumn::new("Amount"),
     ],
-    window,
-    cx,
+    vec![
+        vec!["INV-001 — Acme Corp".into(), "Paid".into(), "$1,200.00".into()],
+        vec!["INV-002 — Globex Inc".into(), "Pending".into(), "$850.00".into()],
+    ],
 )
+.caption("A list of recent invoices.")
 
 // Virtualized event stream — 2,000 uneven rows, only the visible range renders
 v_virtual_list(
@@ -580,8 +624,7 @@ ChartDonut::new("chart-donut-storage", [("Media", 320.0f32), ("Apps", 64.0)])
     .child("512 GB")"#;
 
 const PALETTE_CODE: &str = r#"use celestia_ui::palette;
-use celestia_ui::theme::{hex, AppTheme, Scheme};
-use gpui_component::ActiveTheme;
+use celestia_ui::theme::{hex, ActiveTheme as _, AppTheme, Scheme};
 use gpui::*;
 
 // Semantic theme color tokens
@@ -675,8 +718,14 @@ Phosphor::new(PhosphorIcon::Star)
 // Phosphor Core 2.1.1 (regular, bold, fill). Register the asset source
 // once in main: application().with_assets(CelestiaAssets).run(…)"#;
 
-const THEMING_CODE: &str = r#"use celestia_ui::theme::{active, families, hex, select, AppTheme, Scheme};
+const THEMING_CODE: &str = r#"use celestia_ui::theme::{
+    active, families, hex, select, ActiveTheme as _, AppTheme, Scheme, Theme, ThemeMode,
+};
 use gpui::px;
+
+// Light ↔ dark — one call. Prefer this over reading is_dark() yourself.
+Theme::toggle(cx);
+Theme::change(ThemeMode::Dark, cx); // or set explicitly
 
 // One config for the whole library — the desktop equivalent of the shadcn
 // `:root` / `.dark` blocks in globals.css. Unset fields keep the Celestia

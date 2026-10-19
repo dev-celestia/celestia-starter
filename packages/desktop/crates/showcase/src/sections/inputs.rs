@@ -1,5 +1,9 @@
 use celestia_ui::components::Card;
+use celestia_ui::components::composite::toolbar_menu::{
+    ToolbarMenu, ToolbarMenuAppearance, ToolbarMenuItem,
+};
 use celestia_ui::components::primitive::checkbox::Checkbox;
+use celestia_ui::components::primitive::icon::PhosphorIcon;
 use celestia_ui::components::primitive::input::Input;
 use celestia_ui::components::primitive::input_otp::OtpInput;
 use celestia_ui::components::primitive::label::Label;
@@ -9,6 +13,7 @@ use celestia_ui::components::primitive::select::Select;
 use celestia_ui::components::primitive::slider::Slider;
 use celestia_ui::components::primitive::switch::Switch;
 use celestia_ui::components::primitive::textarea::Textarea;
+use celestia_ui::components::primitive::toast::{Notification, WindowExt as _};
 use gpui::*;
 use gpui_component::{h_flex, v_flex};
 
@@ -18,7 +23,10 @@ impl Showcase {
     pub(crate) fn render_inputs(&self, cx: &mut Context<Self>) -> impl IntoElement {
         Card::new()
             .title("Inputs & Selection")
-            .description("input, textarea, otp_input, select, slider, switch, checkbox, radio, rating, label.")
+            .description(
+                "input, textarea, otp_input, select, slider, switch, checkbox, radio, \
+                 rating, label, toolbar_menu.",
+            )
             .child(
                 v_flex()
                     .gap_4()
@@ -26,7 +34,107 @@ impl Showcase {
                         v_flex()
                             .gap_1p5()
                             .child(Label::new("Single-line Text Input"))
-                            .child(Input::new(&self.demo_input).cleanable(true)),
+                            .child(
+                                h_flex()
+                                    .gap_2()
+                                    .items_center()
+                                    .w_full()
+                                    .child(
+                                        div()
+                                            .flex_1()
+                                            .min_w_0()
+                                            .child(Input::new(&self.demo_input).cleanable(true)),
+                                    )
+                                    .child(
+                                        ToolbarMenu::new("input-actions")
+                                            .icon_only()
+                                            .horizontal()
+                                            .item(
+                                                ToolbarMenuItem::new(
+                                                    "input-paste",
+                                                    PhosphorIcon::ClipboardText,
+                                                )
+                                                .label("Paste")
+                                                .on_click(|_, window, cx| {
+                                                    window.push_notification(
+                                                        Notification::success("Paste"),
+                                                        cx,
+                                                    );
+                                                }),
+                                            )
+                                            .item(
+                                                ToolbarMenuItem::new(
+                                                    "input-copy",
+                                                    PhosphorIcon::Copy,
+                                                )
+                                                .label("Copy")
+                                                .on_click(|_, window, cx| {
+                                                    window.push_notification(
+                                                        Notification::success("Copy"),
+                                                        cx,
+                                                    );
+                                                }),
+                                            )
+                                            .separator()
+                                            .item(
+                                                ToolbarMenuItem::new(
+                                                    "input-clear",
+                                                    PhosphorIcon::X,
+                                                )
+                                                .label("Clear")
+                                                .on_click(|_, window, cx| {
+                                                    window.push_notification(
+                                                        Notification::success("Clear"),
+                                                        cx,
+                                                    );
+                                                }),
+                                            ),
+                                    ),
+                            ),
+                    )
+                    .child(
+                        v_flex()
+                            .gap_1p5()
+                            .child(Label::new("Toolbar Menu (labeled · vertical)"))
+                            .child(
+                                ToolbarMenu::new("input-toolbar-labeled")
+                                    .appearance(ToolbarMenuAppearance::Labeled)
+                                    .vertical()
+                                    .item(
+                                        ToolbarMenuItem::new(
+                                            "tm-search",
+                                            PhosphorIcon::MagnifyingGlass,
+                                        )
+                                        .label("Search")
+                                        .on_click(|_, window, cx| {
+                                            window.push_notification(
+                                                Notification::success("Search"),
+                                                cx,
+                                            );
+                                        }),
+                                    )
+                                    .item(
+                                        ToolbarMenuItem::new("tm-filter", PhosphorIcon::Funnel)
+                                            .label("Filter")
+                                            .on_click(|_, window, cx| {
+                                                window.push_notification(
+                                                    Notification::success("Filter"),
+                                                    cx,
+                                                );
+                                            }),
+                                    )
+                                    .separator()
+                                    .item(
+                                        ToolbarMenuItem::new("tm-export", PhosphorIcon::Export)
+                                            .label("Export")
+                                            .on_click(|_, window, cx| {
+                                                window.push_notification(
+                                                    Notification::success("Export"),
+                                                    cx,
+                                                );
+                                            }),
+                                    ),
+                            ),
                     )
                     .child(
                         v_flex()

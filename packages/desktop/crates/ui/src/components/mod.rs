@@ -42,10 +42,13 @@
 //!   `message_scroller` (composite, one tolerated `gpui_base::motion`
 //!   value-transition).
 //! - **Controls** — `button`, `checkbox`, `switch`, `radio`, `slider`
-//!   (primitive); `stepper`, `pagination`, `collapsible` (composite/primitive).
-//!   `button` keeps two deliberate upstreams: the dropdown menu still rides
-//!   `gpui-component`'s `PopupMenu` (menu family pending) and the value
-//!   transition is `gpui_base::motion::transition` (motion stack pending).
+//!   (primitive); `stepper`, `pagination`, `toolbar_menu`, `collapsible`
+//!   (composite/primitive). `button` keeps two deliberate upstreams: the
+//!   dropdown menu still rides `gpui-component`'s `PopupMenu` (menu family
+//!   pending) and the value transition is `gpui_base::motion::transition`
+//!   (motion stack pending).
+//! - **Data display** — `table` (primitive; composition + declarative
+//!   `DataTable`, no widget-layer table).
 //! - **Content** — `attachment` (composite).
 //!
 //! Pick the next family by **transitive cost, not file size**, measured on two
@@ -95,10 +98,9 @@
 //!
 //! What a raw-gpui file looks like:
 //!
-//! - `use crate::theme::ActiveTheme as _;` for `cx.theme()`. The theme service
-//!   is gpui-component's and is the **last** thing scheduled to move; it is
-//!   re-exported from [`crate::theme`] so component files never name
-//!   `gpui_component` just to read a colour.
+//! - `use crate::theme::ActiveTheme as _;` for `cx.theme()`. Always take
+//!   [`ActiveTheme`](crate::theme::ActiveTheme) from [`crate::theme`] — never
+//!   from `gpui_component` — so light/dark stays on one global.
 //! - `use crate::components::primitive::icon::{Phosphor, PhosphorIcon}` for
 //!   glyphs — Phosphor is the only icon catalog in the crate.
 //! - `el.style().refine(&self.style)` — core gpui — rather than gpui-base's
@@ -143,6 +145,7 @@ pub use composite::sidebar_layout::*;
 pub use composite::spacer::*;
 pub use composite::text_editor::*;
 pub use composite::title_bar::*;
+pub use composite::toolbar_menu::*;
 pub use composite::v_grid::*;
 pub use composite::v_stack::*;
 pub use composite::virtual_list::*;

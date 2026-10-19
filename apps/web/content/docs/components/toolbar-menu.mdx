@@ -1,0 +1,130 @@
+---
+title: "Toolbar Menu"
+description: "A compact icon toolbar that lays out actions horizontally or vertically, with optional labels and click handlers."
+---
+
+A compact action strip for toolbars and side rails. Items can be icon-only or icon + label, arranged horizontally or vertically.
+
+<ToolbarMenuPreview />
+
+## Usage
+
+### Icon-only (horizontal)
+
+```tsx
+import {
+  ToolbarMenu,
+  ToolbarMenuItem,
+  ToolbarMenuSeparator,
+} from "@celestia-project/ui/composite/toolbar-menu"
+import {
+  TextBolderIcon,
+  TextItalicIcon,
+  TextUnderlineIcon,
+} from "@phosphor-icons/react"
+
+export function FormattingToolbar() {
+  return (
+    <ToolbarMenu orientation="horizontal" appearance="icon" aria-label="Formatting">
+      <ToolbarMenuItem
+        icon={<TextBolderIcon />}
+        label="Bold"
+        onClick={() => console.log("bold")}
+      />
+      <ToolbarMenuItem
+        icon={<TextItalicIcon />}
+        label="Italic"
+        onClick={() => console.log("italic")}
+      />
+      <ToolbarMenuSeparator />
+      <ToolbarMenuItem
+        icon={<TextUnderlineIcon />}
+        label="Underline"
+        onClick={() => console.log("underline")}
+      />
+    </ToolbarMenu>
+  )
+}
+```
+
+### Labeled (vertical)
+
+```tsx
+import { ToolbarMenu, ToolbarMenuItem } from "@celestia-project/ui/composite/toolbar-menu"
+import { HouseIcon, GearIcon, UserIcon } from "@phosphor-icons/react"
+
+export function SideRail() {
+  return (
+    <ToolbarMenu orientation="vertical" appearance="labeled" aria-label="Navigation">
+      <ToolbarMenuItem
+        icon={<HouseIcon />}
+        label="Home"
+        onClick={() => console.log("home")}
+      />
+      <ToolbarMenuItem
+        icon={<UserIcon />}
+        label="Profile"
+        onClick={() => console.log("profile")}
+      />
+      <ToolbarMenuItem
+        icon={<GearIcon />}
+        label="Settings"
+        onClick={() => console.log("settings")}
+      />
+    </ToolbarMenu>
+  )
+}
+```
+
+### Items API
+
+```tsx
+import { ToolbarMenu } from "@celestia-project/ui/composite/toolbar-menu"
+import { FloppyDiskIcon, CopyIcon, TrashIcon } from "@phosphor-icons/react"
+
+export function ActionsToolbar() {
+  return (
+    <ToolbarMenu
+      appearance="icon"
+      orientation="horizontal"
+      aria-label="Document actions"
+      onItemClick={(item) => console.log(item.id)}
+      items={[
+        {
+          id: "save",
+          icon: <FloppyDiskIcon />,
+          label: "Save",
+          onClick: () => console.log("save"),
+        },
+        {
+          id: "copy",
+          icon: <CopyIcon />,
+          label: "Copy",
+          onClick: () => console.log("copy"),
+        },
+        {
+          id: "delete",
+          icon: <TrashIcon />,
+          label: "Delete",
+          onClick: () => console.log("delete"),
+        },
+      ]}
+    />
+  )
+}
+```
+
+## Props
+
+| Component | Prop | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `ToolbarMenu` | `orientation` | `"horizontal" \| "vertical"` | `"horizontal"` | Layout axis. |
+| `ToolbarMenu` | `appearance` | `"icon" \| "labeled"` | `"icon"` | Icon-only, or icon + visible label. |
+| `ToolbarMenu` | `size` | `"sm" \| "default" \| "lg"` | `"default"` | Control size. |
+| `ToolbarMenu` | `items` | `ToolbarMenuItemData[]` | — | Declarative item list. |
+| `ToolbarMenu` | `onItemClick` | `(item, event) => void` | — | Shared click handler for `items`. |
+| `ToolbarMenuItem` | `icon` | `ReactNode` | — | Leading icon. |
+| `ToolbarMenuItem` | `label` | `ReactNode` | — | Visible when `appearance="labeled"`; otherwise used as `aria-label` / `title`. |
+| `ToolbarMenuItem` | `active` | `boolean` | `false` | Pressed / selected look. |
+| `ToolbarMenuItem` | `onClick` | `(event) => void` | — | Item click handler. |
+| `ToolbarMenuSeparator` | `orientation` | `"horizontal" \| "vertical"` | auto | Defaults to the axis perpendicular to the menu. |

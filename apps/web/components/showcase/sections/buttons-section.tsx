@@ -15,6 +15,11 @@ import {
   TrashIcon,
   PlusIcon,
   CaretDownIcon,
+  FloppyDiskIcon,
+  CopyIcon,
+  HouseIcon,
+  UserIcon,
+  GearSixIcon,
 } from "@phosphor-icons/react"
 import {
   Button,
@@ -24,6 +29,9 @@ import {
   Toggle,
   ToggleGroup,
   ToggleGroupItem,
+  ToolbarMenu,
+  ToolbarMenuItem,
+  ToolbarMenuSeparator,
   Spinner,
   useRipple,
   RippleContainer,
@@ -97,6 +105,52 @@ export function ButtonGroupDemo() {
         <Button variant="outline" size="xs">Active</Button>
         <Button variant="secondary" size="xs">Pending</Button>
       </ButtonGroup>
+    </div>
+  )
+}`
+
+const TOOLBAR_MENU_CODE = `import * as React from "react"
+import {
+  ToolbarMenu,
+  ToolbarMenuItem,
+  ToolbarMenuSeparator,
+} from "@celestia-project/ui"
+import {
+  FloppyDiskIcon,
+  CopyIcon,
+  TrashIcon,
+  HouseIcon,
+  UserIcon,
+  GearSixIcon,
+} from "@phosphor-icons/react"
+
+export function ToolbarMenuDemo() {
+  return (
+    <div className="flex flex-wrap items-start gap-6">
+      <ToolbarMenu appearance="icon" orientation="horizontal" aria-label="Actions">
+        <ToolbarMenuItem
+          icon={<FloppyDiskIcon />}
+          label="Save"
+          onClick={() => console.log("save")}
+        />
+        <ToolbarMenuItem
+          icon={<CopyIcon />}
+          label="Copy"
+          onClick={() => console.log("copy")}
+        />
+        <ToolbarMenuSeparator />
+        <ToolbarMenuItem
+          icon={<TrashIcon />}
+          label="Delete"
+          onClick={() => console.log("delete")}
+        />
+      </ToolbarMenu>
+
+      <ToolbarMenu appearance="labeled" orientation="vertical" aria-label="Navigation">
+        <ToolbarMenuItem icon={<HouseIcon />} label="Home" onClick={() => {}} />
+        <ToolbarMenuItem icon={<UserIcon />} label="Profile" onClick={() => {}} />
+        <ToolbarMenuItem icon={<GearSixIcon />} label="Settings" onClick={() => {}} />
+      </ToolbarMenu>
     </div>
   )
 }`
@@ -297,7 +351,49 @@ export function ButtonsSection() {
           </div>
         </ShowcaseCard>
 
-        {/* 3. Toggle */}
+        {/* 3. Toolbar Menu */}
+        <ShowcaseCard
+          id="toolbar-menu"
+          title="Toolbar Menu"
+          category="Buttons"
+          description="Icon or labeled action strip that lays out horizontally or vertically, with per-item onClick handlers."
+          docsSlug="toolbar-menu"
+          importSnippet={`import { ToolbarMenu, ToolbarMenuItem, ToolbarMenuSeparator } from "@celestia-project/ui"`}
+          codeExample={TOOLBAR_MENU_CODE}
+        >
+          <div className="flex flex-wrap items-start justify-center gap-6">
+            <div className="flex flex-col items-center gap-1.5">
+              <span className="text-[11px] text-muted-foreground">Icon · horizontal</span>
+              <ToolbarMenu appearance="icon" orientation="horizontal" aria-label="Actions">
+                <ToolbarMenuItem icon={<FloppyDiskIcon />} label="Save" />
+                <ToolbarMenuItem icon={<CopyIcon />} label="Copy" />
+                <ToolbarMenuItem icon={<DownloadSimpleIcon />} label="Download" />
+                <ToolbarMenuSeparator />
+                <ToolbarMenuItem icon={<TrashIcon />} label="Delete" />
+              </ToolbarMenu>
+            </div>
+
+            <div className="flex flex-col items-center gap-1.5">
+              <span className="text-[11px] text-muted-foreground">Labeled · vertical</span>
+              <ToolbarMenu appearance="labeled" orientation="vertical" aria-label="Navigation">
+                <ToolbarMenuItem icon={<HouseIcon />} label="Home" />
+                <ToolbarMenuItem icon={<UserIcon />} label="Profile" />
+                <ToolbarMenuItem icon={<GearSixIcon />} label="Settings" />
+              </ToolbarMenu>
+            </div>
+
+            <div className="flex flex-col items-center gap-1.5">
+              <span className="text-[11px] text-muted-foreground">Labeled · horizontal</span>
+              <ToolbarMenu appearance="labeled" orientation="horizontal" aria-label="Quick actions">
+                <ToolbarMenuItem icon={<PlusIcon />} label="New" />
+                <ToolbarMenuItem icon={<DownloadSimpleIcon />} label="Export" />
+                <ToolbarMenuItem icon={<SparkleIcon />} label="Improve" />
+              </ToolbarMenu>
+            </div>
+          </div>
+        </ShowcaseCard>
+
+        {/* 4. Toggle */}
         <ShowcaseCard
           id="toggle"
           title="Toggle"
@@ -329,7 +425,7 @@ export function ButtonsSection() {
           </div>
         </ShowcaseCard>
 
-        {/* 4. Toggle Group */}
+        {/* 5. Toggle Group */}
         <ShowcaseCard
           id="toggle-group"
           title="Toggle Group"
@@ -387,7 +483,7 @@ export function ButtonsSection() {
           </div>
         </ShowcaseCard>
 
-        {/* 5. Ripple Effect */}
+        {/* 6. Ripple Effect */}
         <ShowcaseCard
           id="ripple"
           title="Ripple Effect"

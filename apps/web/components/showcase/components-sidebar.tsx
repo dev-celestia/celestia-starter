@@ -27,10 +27,11 @@ export const CATEGORIES: CategoryItem[] = [
     id: "buttons",
     name: "Buttons & Actions",
     icon: CursorClickIcon,
-    count: 5,
+    count: 6,
     items: [
       { id: "button", name: "Button" },
       { id: "button-group", name: "Button Group" },
+      { id: "toolbar-menu", name: "Toolbar Menu" },
       { id: "toggle", name: "Toggle" },
       { id: "toggle-group", name: "Toggle Group" },
       { id: "ripple", name: "Ripple Effect" },
