@@ -689,7 +689,8 @@ const COMPOSITES_CODE: &str = r#"use celestia_ui::components::composite::app_hea
 use celestia_ui::components::composite::button_group::ButtonGroup;
 use celestia_ui::components::composite::command_palette::{CommandPalette, CommandPaletteItem};
 use celestia_ui::components::composite::window::{
-    MacAppMenu, MacWindow, MacWindowKind, MacWindowTab, MinimizeWindow, open_mac_window,
+    MacAppMenu, MacWindow, MacWindowKind, MacWindowTab, MinimizeWindow, bind_mac_window_keys,
+    open_mac_window,
 };
 use celestia_ui::components::composite::panel::Panel;
 use celestia_ui::components::composite::start_bar::{StartBar, StartBarItem};
@@ -705,16 +706,21 @@ Toolbar::new("tb").title("main.rs")
 
 TrafficLights::new("lights").edited(true).on_close(|_, _| {})
 
+// In-view preview
 MacWindow::new("notes", "Notes")
     .kind(MacWindowKind::Unified)
     .sidebar(/* sidebar */)
     .tab(MacWindowTab::new("a", "Notes"))
 
+// Real OS root + menu
 MacAppMenu::standard("Celestia")
     .menu(Menu::new("Window").items([MenuItem::action("Minimize", MinimizeWindow)]))
     .without("Help")
     .install(cx);
-open_mac_window("Untitled", cx, |window, cx| /* root view */);
+bind_mac_window_keys(cx);
+open_mac_window("Untitled", cx, |window, cx| {
+    // Root::new(MacWindow::new(...).chrome(MacWindowChrome::Window), …)
+});
 
 StartBar::new("taskbar")
     .start(Button::icon("start", PhosphorIcon::WindowsLogo).variant(ButtonVariant::Ghost))

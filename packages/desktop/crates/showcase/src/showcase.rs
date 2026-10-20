@@ -365,7 +365,7 @@ impl Render for Showcase {
             .on_action(|_: &ShowHelp, window, cx| {
                 window.push_notification(
                     Notification::info(
-                        "Help — use File, Window, and View menus, or open Window in the gallery.",
+                        "Help — use File / Window / View, or open the Window gallery section.",
                     ),
                     cx,
                 );

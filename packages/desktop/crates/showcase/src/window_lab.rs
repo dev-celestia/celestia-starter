@@ -69,7 +69,7 @@ impl Render for WindowLab {
                                 div()
                                     .text_lg()
                                     .font_weight(FontWeight::SEMIBOLD)
-                                    .child("Mac window"),
+                                    .child("composite/window"),
                             )
                             .child(
                                 div()
@@ -77,7 +77,9 @@ impl Render for WindowLab {
                                     .text_sm()
                                     .text_color(theme.muted_foreground)
                                     .child(
-                                        "This is a real OS sub-window rooted in composite/window                                          (MacWindowChrome::Window). Use the native traffic lights,                                          the buttons below, or the menu bar (File / Window / View).                                          In fullscreen, move the pointer to the top of the screen to                                          reveal Celestia · File · Edit · View · Window · Help.",
+                                        "Real OS sub-window via open_mac_window + MacWindowChrome::Window. \
+                                         Use the native traffic lights, the buttons below, or File / Window / View. \
+                                         In fullscreen, move the pointer to the top edge to reveal the installed MacAppMenu.",
                                     ),
                             )
                             .child(

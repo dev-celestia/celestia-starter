@@ -1382,62 +1382,89 @@ impl Showcase {
                         gpui::MenuItem::action("Minimize", MinimizeWindow),
                         gpui::MenuItem::action("Zoom", ZoomWindow),
                     ]));
+                let muted = cx.theme().muted_foreground;
                 Card::new()
                     .title("Window")
                     .description(
-                        "composite/window — Mac chrome (Embedded previews / Window OS roots), sub-windows, and the app menu. Try it opens a real lab window.",
+                        "composite/window — Embedded previews, Window OS chrome, open_mac_window, and MacAppMenu.",
                     )
                     .child(
                         v_flex()
-                            .gap_4()
+                            .gap_5()
                             .child(window_try_it(cx))
-                            .child(MacMenuBarPreview::new(&preview))
                             .child(
-                                MacWindow::new("notes", "Notes")
-                                    .subtitle("iCloud")
-                                    .kind(MacWindowKind::Unified)
-                                    .h(px(200.))
-                                    .on_close(|_, _| {})
-                                    .on_minimize(|window, _| window.minimize_window())
-                                    .on_zoom(|window, _| window.zoom_window())
-                                    .sidebar(
-                                        div()
-                                            .px(px(12.))
-                                            .py(px(8.))
-                                            .flex()
-                                            .flex_col()
-                                            .gap(px(6.))
-                                            .text_xs()
-                                            .child("All Notes")
-                                            .child("Today"),
-                                    )
+                                v_flex()
+                                    .gap_2()
+                                    .child(window_caption("App menu", muted))
                                     .child(
                                         div()
-                                            .p(px(12.))
-                                            .text_sm()
-                                            .text_color(cx.theme().muted_foreground)
+                                            .text_xs()
+                                            .text_color(muted)
                                             .child(
-                                                "Drawn lights on this preview: yellow minimizes this gallery, green zooms it.",
+                                                "MacAppMenu::standard → install. In fullscreen, move the pointer to the top edge to reveal Celestia · File · Edit · View · Window · Help.",
+                                            ),
+                                    )
+                                    .child(MacMenuBarPreview::new(&preview)),
+                            )
+                            .child(
+                                v_flex()
+                                    .gap_2()
+                                    .child(window_caption("Embedded · Unified", muted))
+                                    .child(
+                                        MacWindow::new("notes", "Notes")
+                                            .subtitle("iCloud")
+                                            .kind(MacWindowKind::Unified)
+                                            .h(px(200.))
+                                            .on_close(|_, _| {})
+                                            .on_minimize(|window, _| window.minimize_window())
+                                            .on_zoom(|window, _| window.zoom_window())
+                                            .sidebar(
+                                                div()
+                                                    .px(px(12.))
+                                                    .py(px(8.))
+                                                    .flex()
+                                                    .flex_col()
+                                                    .gap(px(6.))
+                                                    .text_xs()
+                                                    .child("All Notes")
+                                                    .child("Today"),
+                                            )
+                                            .child(
+                                                div()
+                                                    .p(px(12.))
+                                                    .text_sm()
+                                                    .text_color(muted)
+                                                    .child(
+                                                        "Sidebar runs under the lights. Yellow minimizes this gallery; green zooms it.",
+                                                    ),
                                             ),
                                     ),
                             )
                             .child(
-                                MacWindow::new("docs", "Docs")
-                                    .h(px(160.))
-                                    .tab(MacWindowTab::new("notes", "Notes"))
-                                    .tab(MacWindowTab::new("todo", "Todo"))
-                                    .active_tab("notes")
-                                    .toolbar_item(
-                                        div()
-                                            .text_xs()
-                                            .text_color(cx.theme().muted_foreground)
-                                            .child("Share"),
-                                    )
+                                v_flex()
+                                    .gap_2()
+                                    .child(window_caption("Embedded · Tabs", muted))
                                     .child(
-                                        div()
-                                            .p(px(12.))
-                                            .text_sm()
-                                            .child("Title-bar tabs replace the centered title."),
+                                        MacWindow::new("docs", "Docs")
+                                            .h(px(160.))
+                                            .tab(MacWindowTab::new("notes", "Notes"))
+                                            .tab(MacWindowTab::new("todo", "Todo"))
+                                            .active_tab("notes")
+                                            .toolbar_item(
+                                                div()
+                                                    .text_xs()
+                                                    .text_color(muted)
+                                                    .child("Share"),
+                                            )
+                                            .child(
+                                                div()
+                                                    .p(px(12.))
+                                                    .text_sm()
+                                                    .text_color(muted)
+                                                    .child(
+                                                        "Title-bar tabs replace the centered title.",
+                                                    ),
+                                            ),
                                     ),
                             ),
                     )
@@ -1465,17 +1492,27 @@ fn labeled_lights(cx: &App, label: &str, lights: TrafficLights) -> impl IntoElem
         )
 }
 
+fn window_caption(label: &str, muted: Hsla) -> impl IntoElement {
+    div()
+        .text_xs()
+        .font_weight(FontWeight::SEMIBOLD)
+        .text_color(muted)
+        .child(label.to_string())
+}
+
 /// Buttons that drive the live gallery window and open the Window Lab.
 fn window_try_it(cx: &App) -> impl IntoElement {
     let muted = cx.theme().muted_foreground;
     v_flex()
         .gap_2()
+        .child(window_caption("OS window · open_mac_window", muted))
         .child(
             div()
                 .text_xs()
-                .font_weight(FontWeight::SEMIBOLD)
                 .text_color(muted)
-                .child("Try it — live window"),
+                .child(
+                    "New Window opens a real MacWindowChrome::Window lab. File → New Window (⌘N), Window → Minimize / Zoom, View → Enter Full Screen (⌃⌘F).",
+                ),
         )
         .child(
             div()
@@ -1505,14 +1542,6 @@ fn window_try_it(cx: &App) -> impl IntoElement {
                         .variant(ButtonVariant::Outline)
                         .label("Full Screen")
                         .on_click(|_, window, _| window.toggle_fullscreen()),
-                ),
-        )
-        .child(
-            div()
-                .text_xs()
-                .text_color(muted)
-                .child(
-                    "Also: File → New Window (⌘N), Window → Minimize / Zoom, View → Enter Full Screen (⌃⌘F). Resize from any edge.",
                 ),
         )
 }
