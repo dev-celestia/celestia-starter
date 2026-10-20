@@ -9,6 +9,7 @@
 pub mod assets;
 pub mod components;
 pub mod focus_ring;
+mod fonts;
 pub mod motion;
 pub mod palette;
 pub mod state;
@@ -22,7 +23,20 @@ pub use gpui;
 
 /// Install the `gpui-component` runtime and the Celestia theme. Call from the
 /// app's `application().run(|cx| ...)` closure before opening any windows.
+///
+/// After this, light/dark is one API:
+///
+/// ```ignore
+/// use celestia_ui::theme::{ActiveTheme as _, Theme, ThemeMode};
+///
+/// Theme::toggle(cx);                 // flip light ↔ dark
+/// Theme::change(ThemeMode::Dark, cx); // or set explicitly
+/// let dark = cx.theme().is_dark();   // read the active mode / colors
+/// ```
 pub fn init(cx: &mut gpui::App) {
     gpui_component::init(cx);
     theme::install(cx);
 }
+
+pub use fonts::DEFAULT_FONT_FAMILY;
+pub use theme::{ActiveTheme, AppFont, AppTheme, Scheme, Theme, ThemeMode, hex};

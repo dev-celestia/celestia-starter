@@ -9,12 +9,11 @@ use celestia_ui::components::composite::button_group::{ButtonGroup, ButtonGroupT
 use celestia_ui::components::composite::chat_composer::ChatComposer;
 use celestia_ui::components::composite::checklist::{Checklist, ChecklistItem};
 use celestia_ui::components::composite::code_block::CodeBlock;
+use celestia_ui::components::composite::command_palette::{CommandPalette, CommandPaletteItem};
 use celestia_ui::components::composite::comment_thread::{CommentItem, CommentThread};
 use celestia_ui::components::composite::commit_row::CommitRow;
-use celestia_ui::components::composite::command_palette::{CommandPalette, CommandPaletteItem};
 use celestia_ui::components::composite::conversation_list::{ConversationItem, ConversationList};
 use celestia_ui::components::composite::data_table_toolbar::DataTableToolbar;
-use celestia_ui::components::composite::drop_zone::{DropZone, DropZoneState};
 use celestia_ui::components::composite::file_browser::{FileBrowser, FileBrowserRow};
 use celestia_ui::components::composite::file_tree::{FileTree, FileTreeFile, FileTreeFolder};
 use celestia_ui::components::composite::filter_bar::{FilterBar, FilterChip};
@@ -23,11 +22,17 @@ use celestia_ui::components::composite::form_field::FormField;
 use celestia_ui::components::composite::input_group::{InputGroup, InputGroupAddon};
 use celestia_ui::components::composite::inspector_panel::{InspectorPanel, InspectorRow};
 use celestia_ui::components::composite::issue_card::{IssueCard, IssueTone};
-use celestia_ui::components::composite::kanban_board::{KanbanBoard, KanbanCard, KanbanColumn};
+use celestia_ui::components::composite::kanban_board::{
+    KanbanBoard, KanbanCard, KanbanColumn, KanbanDrop, apply_kanban_drop,
+};
 use celestia_ui::components::composite::keybinding_recorder::{
     KeybindingRecorder, KeybindingState,
 };
 use celestia_ui::components::composite::log_viewer::{LogLevel, LogRow, LogViewer};
+use celestia_ui::components::composite::window::{MacWindow, MacWindowKind, MacWindowTab};
+use celestia_ui::components::composite::windowing::{
+    MacAppMenu, MacMenuBarPreview, MinimizeWindow, ZoomWindow,
+};
 use celestia_ui::components::composite::media_object::MediaObject;
 use celestia_ui::components::composite::notification_center::NotificationCenter;
 use celestia_ui::components::composite::onboarding_tip::OnboardingTip;
@@ -40,7 +45,12 @@ use celestia_ui::components::composite::search_field::SearchField;
 use celestia_ui::components::composite::settings_page::{SettingsPage, SettingsSection};
 use celestia_ui::components::composite::side_nav::{SideNav, SideNavItem};
 use celestia_ui::components::composite::split_pane::SplitPane;
+use celestia_ui::components::composite::start_bar::{StartBar, StartBarItem};
+use celestia_ui::components::composite::start_menu::{StartMenu, StartMenuItem, StartMenuPin};
 use celestia_ui::components::composite::stat_card::{StatCard, StatCardGroup, StatDeltaTone};
+use celestia_ui::components::composite::system_tray::{
+    SystemTray, SystemTrayClock, SystemTrayItem,
+};
 use celestia_ui::components::composite::tab_bar::{TabBar, TabBarItem};
 use celestia_ui::components::composite::tag_input::TagInput;
 use celestia_ui::components::composite::task_list::{TaskItem, TaskList};
@@ -48,6 +58,7 @@ use celestia_ui::components::composite::terminal_panel::TerminalPanel;
 use celestia_ui::components::composite::timeline::{Timeline, TimelineItem};
 use celestia_ui::components::composite::toast_stack::{ToastItem, ToastPlacement, ToastStack};
 use celestia_ui::components::composite::toolbar::Toolbar;
+use celestia_ui::components::composite::traffic_lights::TrafficLights;
 use celestia_ui::components::composite::user_menu::UserMenu;
 use celestia_ui::components::composite::wizard::Wizard;
 use celestia_ui::components::composite::workspace_switcher::{WorkspaceItem, WorkspaceSwitcher};
@@ -55,10 +66,11 @@ use celestia_ui::components::primitive::button::{Button, ButtonVariant};
 use celestia_ui::components::primitive::chip::Chip;
 use celestia_ui::components::primitive::icon::{Phosphor, PhosphorIcon};
 use celestia_ui::components::primitive::initials::Initials;
+use celestia_ui::components::primitive::input::Input;
 use celestia_ui::components::primitive::switch::Switch;
 use celestia_ui::theme::ActiveTheme as _;
 use gpui::*;
-use gpui_component::{h_flex, v_flex};
+use gpui_component::v_flex;
 
 use crate::catalog::Demo;
 use crate::showcase::Showcase;
@@ -365,6 +377,150 @@ impl Showcase {
                                     )
                 )
                 .into_any_element(),
+            Demo::StartBar => Card::new()
+                .title("StartBar")
+                .description("Windows-style taskbar / start bar.")
+                .child(
+                    StartBar::new("demo-start-bar")
+                        .start(
+                            Button::icon("sb-start", PhosphorIcon::WindowsLogo)
+                                .variant(ButtonVariant::Ghost),
+                        )
+                        .search(
+                            div()
+                                .h(px(32.0))
+                                .px(px(10.0))
+                                .rounded(cx.theme().radius)
+                                .border_1()
+                                .border_color(cx.theme().border)
+                                .bg(cx.theme().input)
+                                .flex()
+                                .flex_row()
+                                .items_center()
+                                .gap(px(6.0))
+                                .child(
+                                    Phosphor::new(PhosphorIcon::MagnifyingGlass)
+                                        .size(px(14.0))
+                                        .color(cx.theme().muted_foreground),
+                                )
+                                .child(
+                                    div()
+                                        .text_xs()
+                                        .text_color(cx.theme().muted_foreground)
+                                        .child("Search"),
+                                ),
+                        )
+                        .item(
+                            StartBarItem::new("sb-term", "Terminal")
+                                .icon(PhosphorIcon::Terminal)
+                                .active(true)
+                                .running(true),
+                        )
+                        .item(
+                            StartBarItem::new("sb-code", "Editor")
+                                .icon(PhosphorIcon::Code)
+                                .running(true),
+                        )
+                        .item(
+                            StartBarItem::new("sb-files", "Files")
+                                .icon(PhosphorIcon::Folder)
+                                .badge("2"),
+                        )
+                        .tray(
+                            SystemTray::new("sb-tray")
+                                .chevron(true)
+                                .item(SystemTrayItem::new("net", PhosphorIcon::WifiHigh))
+                                .item(SystemTrayItem::new("vol", PhosphorIcon::SpeakerHigh))
+                                .item(
+                                    SystemTrayItem::new("bell", PhosphorIcon::Bell).badge(true),
+                                )
+                                .clock(
+                                    SystemTrayClock::new("clock", "3:34 PM").date("Tue 20 Oct"),
+                                ),
+                        ),
+                )
+                .into_any_element(),
+            Demo::SystemTray => Card::new()
+                .title("SystemTray")
+                .description("Notification area + clock.")
+                .child(
+                    SystemTray::new("demo-tray")
+                        .chevron(true)
+                        .item(SystemTrayItem::new("tray-wifi", PhosphorIcon::WifiHigh))
+                        .item(SystemTrayItem::new("tray-vol", PhosphorIcon::SpeakerHigh))
+                        .item(
+                            SystemTrayItem::new("tray-bell", PhosphorIcon::Bell)
+                                .badge(true)
+                                .active(true),
+                        )
+                        .clock(
+                            SystemTrayClock::new("tray-clock", "3:34 PM").date("Tue 20 Oct"),
+                        ),
+                )
+                .into_any_element(),
+            Demo::StartMenu => Card::new()
+                .title("StartMenu")
+                .description("Start menu flyout.")
+                .child(
+                    StartMenu::new("demo-start-menu")
+                        .search(
+                            div()
+                                .h(px(36.0))
+                                .px(px(12.0))
+                                .rounded(cx.theme().radius)
+                                .border_1()
+                                .border_color(cx.theme().border)
+                                .bg(cx.theme().input)
+                                .flex()
+                                .flex_row()
+                                .items_center()
+                                .gap(px(8.0))
+                                .child(
+                                    Phosphor::new(PhosphorIcon::MagnifyingGlass)
+                                        .size(px(14.0))
+                                        .color(cx.theme().muted_foreground),
+                                )
+                                .child(
+                                    div()
+                                        .text_sm()
+                                        .text_color(cx.theme().muted_foreground)
+                                        .child("Type here to search"),
+                                ),
+                        )
+                        .pin(StartMenuPin::new("pin-term", "Terminal", PhosphorIcon::Terminal))
+                        .pin(StartMenuPin::new("pin-code", "Editor", PhosphorIcon::Code))
+                        .pin(StartMenuPin::new("pin-files", "Files", PhosphorIcon::Folder))
+                        .pin(StartMenuPin::new("pin-set", "Settings", PhosphorIcon::Gear))
+                        .recommended(
+                            StartMenuItem::new("rec-readme", "README.md")
+                                .icon(PhosphorIcon::FileText)
+                                .hint("Recently opened"),
+                        )
+                        .recommended(
+                            StartMenuItem::new("rec-proj", "celestia-starter")
+                                .icon(PhosphorIcon::FolderOpen)
+                                .hint("Yesterday"),
+                        )
+                        .footer_leading(
+                            div()
+                                .flex()
+                                .flex_row()
+                                .items_center()
+                                .gap(px(8.0))
+                                .child(Initials::new("sm-user", "Ada Lovelace"))
+                                .child(
+                                    div()
+                                        .text_sm()
+                                        .text_color(cx.theme().foreground)
+                                        .child("Ada"),
+                                ),
+                        )
+                        .footer_action(
+                            Button::icon("sm-power", PhosphorIcon::Power)
+                                .variant(ButtonVariant::Ghost),
+                        ),
+                )
+                .into_any_element(),
             Demo::ActionBar => Card::new()
                 .title("ActionBar")
                 .description("Sticky footer actions.")
@@ -481,29 +637,140 @@ impl Showcase {
                                     .send_label("Send")
                 )
                 .into_any_element(),
-            Demo::CommandPalette => Card::new()
-                .title("Command palette")
-                .description("Spotlight command palette.")
-                .child(
-                        CommandPalette::new("demo-cmd")
-                            .selected_index(Some(0))
-                            .item(
-                                CommandPaletteItem::new("new", "New file")
-                                    .icon(PhosphorIcon::File)
-                                    .hint("Create an empty buffer"),
-                            )
-                            .item(
-                                CommandPaletteItem::new("theme", "Toggle theme")
-                                    .icon(PhosphorIcon::Moon)
-                                    .hint("Switch light / dark"),
-                            )
-                            .item(
-                                CommandPaletteItem::new("quit", "Quit")
-                                    .icon(PhosphorIcon::SignOut)
-                                    .disabled(true),
-                            )
-                )
-                .into_any_element(),
+            Demo::CommandPalette => {
+                let query = self
+                    .demo_command_palette
+                    .read(cx)
+                    .value()
+                    .to_string()
+                    .to_lowercase();
+                let all = [
+                    (
+                        "new",
+                        "New file",
+                        "Create an empty buffer",
+                        PhosphorIcon::File,
+                        false,
+                    ),
+                    (
+                        "theme",
+                        "Toggle theme",
+                        "Switch light / dark",
+                        PhosphorIcon::Moon,
+                        false,
+                    ),
+                    (
+                        "palette",
+                        "Focus search",
+                        "Jump back to the filter field",
+                        PhosphorIcon::MagnifyingGlass,
+                        false,
+                    ),
+                    (
+                        "quit",
+                        "Quit",
+                        "Disabled in the gallery",
+                        PhosphorIcon::SignOut,
+                        true,
+                    ),
+                ];
+                let filtered: Vec<_> = all
+                    .into_iter()
+                    .filter(|(_, label, hint, _, _)| {
+                        query.is_empty()
+                            || label.to_lowercase().contains(&query)
+                            || hint.to_lowercase().contains(&query)
+                    })
+                    .collect();
+                let selected = self
+                    .demo_command_selected
+                    .filter(|&ix| ix < filtered.len())
+                    .or(if filtered.is_empty() {
+                        None
+                    } else {
+                        Some(0)
+                    });
+
+                let mut palette = CommandPalette::new("demo-cmd")
+                    .selected_index(selected)
+                    .empty_label("No matching commands")
+                    .search(
+                        Input::new(&self.demo_command_palette)
+                            .cleanable(true)
+                            .appearance(false),
+                    )
+                    .on_select(cx.listener(|this, id: &SharedString, window, cx| {
+                        let filtered_ids: Vec<&str> = {
+                            let query = this
+                                .demo_command_palette
+                                .read(cx)
+                                .value()
+                                .to_string()
+                                .to_lowercase();
+                            [
+                                ("new", "New file", "Create an empty buffer"),
+                                ("theme", "Toggle theme", "Switch light / dark"),
+                                ("palette", "Focus search", "Jump back to the filter field"),
+                                ("quit", "Quit", "Disabled in the gallery"),
+                            ]
+                            .into_iter()
+                            .filter(|(_, label, hint)| {
+                                query.is_empty()
+                                    || label.to_lowercase().contains(&query)
+                                    || hint.to_lowercase().contains(&query)
+                            })
+                            .map(|(id, _, _)| id)
+                            .collect()
+                        };
+                        this.demo_command_selected =
+                            filtered_ids.iter().position(|fid| *fid == id.as_ref());
+                        match id.as_ref() {
+                            "theme" => {
+                                Showcase::toggle_theme(cx);
+                                this.demo_command_status = "Ran Toggle theme.".into();
+                            }
+                            "new" => {
+                                this.demo_command_status = "Ran New file (demo).".into();
+                            }
+                            "palette" => {
+                                this.demo_command_palette.update(cx, |state, cx| {
+                                    state.set_value("", window, cx);
+                                });
+                                this.demo_command_status =
+                                    "Cleared filter — type to search again.".into();
+                            }
+                            other => {
+                                this.demo_command_status = format!("Selected “{other}”.").into();
+                            }
+                        }
+                        cx.notify();
+                    }));
+
+                for (id, label, hint, icon, disabled) in filtered {
+                    palette = palette.item(
+                        CommandPaletteItem::new(id, label)
+                            .icon(icon)
+                            .hint(hint)
+                            .disabled(disabled),
+                    );
+                }
+
+                Card::new()
+                    .title("Command palette")
+                    .description("Type to filter, then click a command.")
+                    .child(
+                        v_flex()
+                            .gap_2()
+                            .child(palette)
+                            .child(
+                                div()
+                                    .text_xs()
+                                    .text_color(cx.theme().muted_foreground)
+                                    .child(self.demo_command_status.clone()),
+                            ),
+                    )
+                    .into_any_element()
+            }
             Demo::TabBar => Card::new()
                 .title("TabBar")
                 .description("Document tab bar.")
@@ -686,7 +953,7 @@ impl Showcase {
                 .into_any_element(),
             Demo::FileBrowser => Card::new()
                 .title("FileBrowser")
-                .description("File browser list.")
+                .description("Dual-pane breadcrumb + tree + list chrome.")
                 .child(
                         FileBrowser::new("demo-fb")
                             .breadcrumb(
@@ -725,34 +992,95 @@ impl Showcase {
                             )
                 )
                 .into_any_element(),
-            Demo::KanbanBoard => Card::new()
-                .title("KanbanBoard")
-                .description("Kanban columns.")
+            Demo::FileTree => Card::new()
+                .title("FileTree")
+                .description(
+                    "Workspace directory hierarchy (web ai/file-tree.tsx). Host owns expand/select.",
+                )
                 .child(
-                        KanbanBoard::new("demo-kanban")
-                            .column(
-                                KanbanColumn::new("todo", "To do")
-                                    .card(
-                                        KanbanCard::new("k1", "Ship composites")
-                                            .body("Twenty new surfaces")
-                                            .meta("P0"),
+                    FileTree::new("demo-file-tree").w(px(320.0)).child(
+                        FileTreeFolder::new("apps", "apps")
+                            .expanded(true)
+                            .child(
+                                FileTreeFolder::new("apps/api", "api")
+                                    .expanded(true)
+                                    .child(
+                                        FileTreeFile::new("apps/api/src/index.ts", "index.ts")
+                                            .selected(true),
                                     )
-                                    .card(KanbanCard::new("k2", "Update docs")),
+                                    .child(FileTreeFile::new(
+                                        "apps/api/src/auth.ts",
+                                        "auth.ts",
+                                    )),
                             )
-                            .column(
-                                KanbanColumn::new("doing", "Doing")
-                                    .card(
-                                        KanbanCard::new("k3", "Showcase section")
-                                            .selected(true)
-                                            .meta("In review"),
-                                    ),
-                            )
-                            .column(
-                                KanbanColumn::new("done", "Done")
-                                    .card(KanbanCard::new("k4", "Toolbar menu")),
-                            )
+                            .child(
+                                FileTreeFolder::new("apps/web", "web").child(
+                                    FileTreeFile::new("apps/web/app/page.tsx", "page.tsx"),
+                                ),
+                            ),
+                    )
+                    .child(
+                        FileTreeFolder::new("packages", "packages")
+                            .expanded(true)
+                            .child(FileTreeFile::new(
+                                "packages/ui/src/index.ts",
+                                "ui/index.ts",
+                            )),
+                    ),
                 )
                 .into_any_element(),
+            Demo::KanbanBoard => {
+                const BOARD: &str = "showcase-board";
+                let mut board = KanbanBoard::new("demo-kanban");
+                for (col_id, col_title, cards) in &self.demo_kanban {
+                    let mut column = KanbanColumn::new(col_id.clone(), col_title.clone())
+                        .column_id(col_id.clone())
+                        .board_id(BOARD)
+                        .count(cards.len())
+                        .on_card_drop(cx.listener(|this, drop: &KanbanDrop, _, cx| {
+                            let mut cols: Vec<(SharedString, Vec<_>)> = this
+                                .demo_kanban
+                                .iter()
+                                .map(|(id, _, cards)| (id.clone(), cards.clone()))
+                                .collect();
+                            apply_kanban_drop(&mut cols, drop, |c| c.id.clone());
+                            for (i, (_, cards)) in cols.into_iter().enumerate() {
+                                this.demo_kanban[i].2 = cards;
+                            }
+                            cx.notify();
+                        }));
+                    for (index, card) in cards.iter().enumerate() {
+                        let mut kcard = KanbanCard::new(card.id.clone(), card.title.clone())
+                            .selected(card.selected)
+                            .draggable(BOARD, col_id.clone(), card.id.clone(), index)
+                            .on_card_drop(cx.listener(|this, drop: &KanbanDrop, _, cx| {
+                                let mut cols: Vec<(SharedString, Vec<_>)> = this
+                                    .demo_kanban
+                                    .iter()
+                                    .map(|(id, _, cards)| (id.clone(), cards.clone()))
+                                    .collect();
+                                apply_kanban_drop(&mut cols, drop, |c| c.id.clone());
+                                for (i, (_, cards)) in cols.into_iter().enumerate() {
+                                    this.demo_kanban[i].2 = cards;
+                                }
+                                cx.notify();
+                            }));
+                        if let Some(body) = &card.body {
+                            kcard = kcard.body(body.clone());
+                        }
+                        if let Some(meta) = &card.meta {
+                            kcard = kcard.meta(meta.clone());
+                        }
+                        column = column.card(kcard);
+                    }
+                    board = board.column(column);
+                }
+                Card::new()
+                    .title("KanbanBoard")
+                    .description("Drag a card. The column washes accent, a line appears above the destination, and empty columns say “Drop here” before you release.")
+                    .child(board)
+                    .into_any_element()
+            }
             Demo::Timeline => Card::new()
                 .title("Timeline")
                 .description("Event timeline.")
@@ -847,43 +1175,73 @@ impl Showcase {
                             )
                 )
                 .into_any_element(),
-            Demo::OnboardingTip => Card::new()
-                .title("OnboardingTip")
-                .description("Onboarding tip callout.")
-                .child(
-                                OnboardingTip::new("tip-1", "Meet the inspector")
-                                    .body("Select any element to edit its properties live.")
-                                    .step(2, 4)
-                                    .next_label("Continue")
-                )
-                .into_any_element(),
-            Demo::DropZone => Card::new()
-                .title("DropZone")
-                .description("File drop zone.")
-                .child(
-                                h_flex()
-                                    .gap_3()
-                                    .child(
-                                        DropZone::new("dz-idle")
-                                            .w(px(220.0))
-                                            .state(DropZoneState::Idle),
-                                    )
-                                    .child(
-                                        DropZone::new("dz-active")
-                                            .w(px(220.0))
-                                            .state(DropZoneState::Active)
-                                            .title("Drop to upload")
-                                            .description("Release to start"),
-                                    )
-                                    .child(
-                                        DropZone::new("dz-err")
-                                            .w(px(220.0))
-                                            .state(DropZoneState::Error)
-                                            .title("File too large")
-                                            .description("Max 10 MB"),
-                                    )
-                )
-                .into_any_element(),
+            Demo::OnboardingTip => {
+                const TIPS: &[(&str, &str)] = &[
+                    (
+                        "Meet the inspector",
+                        "Select any element to edit its properties live.",
+                    ),
+                    (
+                        "Try the command palette",
+                        "Press ⌘K to jump to any action without leaving the keyboard.",
+                    ),
+                    (
+                        "Pin your workspace",
+                        "Star projects in the switcher so they stay one click away.",
+                    ),
+                    (
+                        "You’re ready",
+                        "That’s the tour — open Docs anytime for deeper component notes.",
+                    ),
+                ];
+                const TOTAL: usize = TIPS.len();
+                let step = self.demo_onboarding_step;
+                let dismissed = step == 0 || step > TOTAL;
+
+                let content = if dismissed {
+                    v_flex()
+                        .gap_2()
+                        .child(
+                            div()
+                                .text_sm()
+                                .text_color(cx.theme().muted_foreground)
+                                .child("Tour finished — restart to walk it again."),
+                        )
+                        .child(
+                            Button::new("tip-restart")
+                                .variant(ButtonVariant::Outline)
+                                .label("Restart tour")
+                                .on_click(cx.listener(|this, _, _, cx| {
+                                    this.demo_onboarding_step = 1;
+                                    cx.notify();
+                                })),
+                        )
+                        .into_any_element()
+                } else {
+                    let (title, body) = TIPS[step - 1];
+                    let is_last = step == TOTAL;
+                    OnboardingTip::new("tip-1", title)
+                        .body(body)
+                        .step(step, TOTAL)
+                        .next_label(if is_last { "Done" } else { "Continue" })
+                        .skip_label("Skip tour")
+                        .on_next(cx.listener(move |this, _, _, cx| {
+                            this.demo_onboarding_step = if is_last { 0 } else { step + 1 };
+                            cx.notify();
+                        }))
+                        .on_skip(cx.listener(|this, _, _, cx| {
+                            this.demo_onboarding_step = 0;
+                            cx.notify();
+                        }))
+                        .into_any_element()
+                };
+
+                Card::new()
+                    .title("OnboardingTip")
+                    .description("Click Continue / Skip to walk the coachmark.")
+                    .child(content)
+                    .into_any_element()
+            }
 
             Demo::Panel => {
                 let muted = cx.theme().muted;
@@ -996,9 +1354,176 @@ impl Showcase {
                     )
                     .into_any_element()
             }
+            Demo::TrafficLights => Card::new()
+                .title("TrafficLights")
+                .description("Close, minimize, zoom. Inactive grays them. Edited draws the unsaved dot.")
+                .child(
+                    div()
+                        .flex()
+                        .flex_row()
+                        .items_center()
+                        .gap(px(24.))
+                        .child(labeled_lights(cx, "Active", TrafficLights::new("tl-active")))
+                        .child(labeled_lights(
+                            cx,
+                            "Inactive",
+                            TrafficLights::new("tl-inactive").active(false),
+                        ))
+                        .child(labeled_lights(
+                            cx,
+                            "Edited",
+                            TrafficLights::new("tl-edited").edited(true),
+                        )),
+                )
+                .into_any_element(),
+            Demo::Window => Card::new()
+                .title("Window")
+                .description(
+                    "composite/window — Embedded previews and Window OS chrome (Mac-first). Try it opens a real lab window.",
+                )
+                .child(
+                    v_flex()
+                        .gap_4()
+                        .child(windowing_try_it(cx))
+                        .child(
+                            MacWindow::new("notes", "Notes")
+                                .subtitle("iCloud")
+                                .kind(MacWindowKind::Unified)
+                                .h(px(200.))
+                                .on_close(|_, _| {})
+                                .on_minimize(|window, _| window.minimize_window())
+                                .on_zoom(|window, _| window.zoom_window())
+                                .sidebar(
+                                    div()
+                                        .px(px(12.))
+                                        .py(px(8.))
+                                        .flex()
+                                        .flex_col()
+                                        .gap(px(6.))
+                                        .text_xs()
+                                        .child("All Notes")
+                                        .child("Today"),
+                                )
+                                .child(
+                                    div()
+                                        .p(px(12.))
+                                        .text_sm()
+                                        .text_color(cx.theme().muted_foreground)
+                                        .child(
+                                            "Drawn lights on this preview: yellow minimizes this gallery, green zooms it.",
+                                        ),
+                                ),
+                        )
+                        .child(
+                            MacWindow::new("docs", "Docs")
+                                .h(px(160.))
+                                .tab(MacWindowTab::new("notes", "Notes"))
+                                .tab(MacWindowTab::new("todo", "Todo"))
+                                .active_tab("notes")
+                                .toolbar_item(
+                                    div()
+                                        .text_xs()
+                                        .text_color(cx.theme().muted_foreground)
+                                        .child("Share"),
+                                )
+                                .child(
+                                    div()
+                                        .p(px(12.))
+                                        .text_sm()
+                                        .child("Title-bar tabs replace the centered title."),
+                                ),
+                        ),
+                )
+                .into_any_element(),
+            Demo::AppMenu => {
+                let preview = MacAppMenu::standard("Celestia")
+                    .menu(gpui::Menu::new("Window").items([
+                        gpui::MenuItem::action("Minimize", MinimizeWindow),
+                        gpui::MenuItem::action("Zoom", ZoomWindow),
+                    ]));
+                Card::new()
+                    .title("Windowing")
+                    .description(
+                        "composite/windowing — installed menu: Celestia · File · Edit · View · Window · Help. Enter fullscreen, then move the pointer to the top of the screen to reveal it.",
+                    )
+                    .child(
+                        v_flex()
+                            .gap_3()
+                            .child(MacMenuBarPreview::new(&preview))
+                            .child(windowing_try_it(cx)),
+                    )
+                    .into_any_element()
+            }
             _ => v_flex()
                 .child(div().text_sm().child("Not a composites demo."))
                 .into_any_element(),
         }
     }
+}
+
+fn labeled_lights(cx: &App, label: &str, lights: TrafficLights) -> impl IntoElement {
+    div()
+        .flex()
+        .flex_col()
+        .items_center()
+        .gap(px(8.))
+        .child(lights)
+        .child(
+            div()
+                .text_xs()
+                .text_color(cx.theme().muted_foreground)
+                .child(label.to_string()),
+        )
+}
+
+/// Buttons that drive the live gallery window and open the Windowing Lab.
+fn windowing_try_it(cx: &App) -> impl IntoElement {
+    let muted = cx.theme().muted_foreground;
+    v_flex()
+        .gap_2()
+        .child(
+            div()
+                .text_xs()
+                .font_weight(FontWeight::SEMIBOLD)
+                .text_color(muted)
+                .child("Try it — live window"),
+        )
+        .child(
+            div()
+                .flex()
+                .flex_row()
+                .flex_wrap()
+                .gap(px(8.))
+                .child(
+                    Button::new("win-new-window")
+                        .label("New Window")
+                        .on_click(|_, _, cx| Showcase::open_sub_window(cx)),
+                )
+                .child(
+                    Button::new("win-minimize")
+                        .variant(ButtonVariant::Outline)
+                        .label("Minimize")
+                        .on_click(|_, window, _| window.minimize_window()),
+                )
+                .child(
+                    Button::new("win-zoom")
+                        .variant(ButtonVariant::Outline)
+                        .label("Zoom")
+                        .on_click(|_, window, _| window.zoom_window()),
+                )
+                .child(
+                    Button::new("win-fullscreen")
+                        .variant(ButtonVariant::Outline)
+                        .label("Full Screen")
+                        .on_click(|_, window, _| window.toggle_fullscreen()),
+                ),
+        )
+        .child(
+            div()
+                .text_xs()
+                .text_color(muted)
+                .child(
+                    "Also: File → New Window (⌘N), Window → Minimize / Zoom, View → Enter Full Screen (⌃⌘F). Resize from any edge.",
+                ),
+        )
 }

@@ -4,7 +4,7 @@
 //! family docs (usage / props / notes) and re-exports the catalog types the
 //! showcase shell needs.
 
-pub use crate::catalog::{Category, Demo, Family, SECTION_COUNT, Section};
+pub use crate::catalog::{Category, Family, SECTION_COUNT, Section};
 
 impl Section {
     pub fn code(self) -> &'static str {
@@ -26,6 +26,7 @@ impl Family {
     pub fn code(self) -> &'static str {
         match self {
             Family::Buttons => BUTTONS_CODE,
+            Family::Typography => TYPOGRAPHY_CODE,
             Family::TagsBadges => TAGS_BADGES_CODE,
             Family::Inputs => INPUTS_CODE,
             Family::Pickers => PICKERS_CODE,
@@ -38,6 +39,7 @@ impl Family {
             Family::Editors => EDITORS_CODE,
             Family::Charts => CHARTS_CODE,
             Family::Composites => COMPOSITES_CODE,
+            Family::DragDrop => DRAG_DROP_CODE,
             Family::Icons => ICONS_CODE,
             Family::Palette => PALETTE_CODE,
             Family::State => STATE_CODE,
@@ -48,6 +50,7 @@ impl Family {
     fn props(self) -> &'static [DocProp] {
         match self {
             Family::Buttons => BUTTONS_PROPS,
+            Family::Typography => TYPOGRAPHY_PROPS,
             Family::TagsBadges => TAGS_BADGES_PROPS,
             Family::Inputs => INPUTS_PROPS,
             Family::Pickers => PICKERS_PROPS,
@@ -60,6 +63,7 @@ impl Family {
             Family::Editors => EDITORS_PROPS,
             Family::Charts => CHARTS_PROPS,
             Family::Composites => COMPOSITES_PROPS,
+            Family::DragDrop => DRAG_DROP_PROPS,
             Family::Icons => ICONS_PROPS,
             Family::Palette => PALETTE_PROPS,
             Family::Theming => THEMING_PROPS,
@@ -70,6 +74,7 @@ impl Family {
     fn notes(self) -> &'static [&'static str] {
         match self {
             Family::Buttons => BUTTONS_NOTES,
+            Family::Typography => TYPOGRAPHY_NOTES,
             Family::TagsBadges => TAGS_BADGES_NOTES,
             Family::Inputs => INPUTS_NOTES,
             Family::Pickers => PICKERS_NOTES,
@@ -82,6 +87,7 @@ impl Family {
             Family::Editors => EDITORS_NOTES,
             Family::Charts => CHARTS_NOTES,
             Family::Composites => COMPOSITES_NOTES,
+            Family::DragDrop => DRAG_DROP_NOTES,
             Family::Icons => ICONS_NOTES,
             Family::Palette => PALETTE_NOTES,
             Family::Theming => THEMING_NOTES,
@@ -142,6 +148,25 @@ Link::new("link-gpui")
     .href("https://gpui.rs")
     .child("gpui.rs")"#;
 
+const TYPOGRAPHY_CODE: &str = r#"use celestia_ui::components::primitive::typography::{
+    Heading, Typography, TypographyTone, TypographyVariant,
+};
+
+// Prefer role constructors over ad-hoc text_sm + FontWeight
+Heading::h1("Page title")
+Heading::h2("Section")
+Typography::lead("Supporting intro under a title.")
+Typography::body("Default reading size for product copy.")
+Typography::muted("Secondary helper line.")
+Typography::caption("Footnote / meta")
+Typography::overline("SECTION") // pass already uppercased
+Typography::code("pnpm desktop")
+
+// Or pick a variant + tone explicitly
+Typography::new("Accent body")
+    .variant(TypographyVariant::Body)
+    .tone(TypographyTone::Accent)"#;
+
 const TAGS_BADGES_CODE: &str = r#"use celestia_ui::components::Card;
 use celestia_ui::components::primitive::badge::{Badge, BadgeVariant, GpuiBadge};
 use gpui_component::h_flex;
@@ -161,7 +186,22 @@ GpuiBadge::new()
     .child(Badge::new("Brand").variant(BadgeVariant::Brand))
 GpuiBadge::new()
     .dot()
-    .child(Badge::new("Inbox").variant(BadgeVariant::Secondary))"#;
+    .child(Badge::new("Inbox").variant(BadgeVariant::Secondary))
+
+// Image or icon mark — with or without a label
+use celestia_ui::components::primitive::image_icon::{
+    ImageIcon, ImageIconLayout, ImageIconSize,
+};
+use celestia_ui::components::primitive::icon::PhosphorIcon;
+
+ImageIcon::icon("file", PhosphorIcon::File)                    // mark only
+ImageIcon::icon("main", PhosphorIcon::FileCode)
+    .label("main.rs")
+    .description("2.4 KB")
+ImageIcon::icon("tile", PhosphorIcon::MusicNotes)
+    .size(ImageIconSize::Xl)
+    .label("Playlist")
+    .layout(ImageIconLayout::Vertical)"#;
 
 const INPUTS_CODE: &str = r#"use celestia_ui::components::primitive::aspect_ratio::AspectRatio;
 use celestia_ui::components::primitive::checkbox::Checkbox;
@@ -250,7 +290,8 @@ progress_ring(65, 40.0, foreground)
 notice_chip(false, "Command failed", "Build exited with status 101", NoticeChipIcon::Tile, cx)
 context_badge("badge-id", &badge_info, cx)"#;
 
-const OVERLAYS_CODE: &str = r#"use celestia_ui::components::primitive::button::{Button, ButtonVariant};
+const OVERLAYS_CODE: &str = r#"use celestia_ui::components::composite::modal::{Modal, ModalSize};
+use celestia_ui::components::primitive::button::{Button, ButtonVariant};
 use celestia_ui::components::primitive::popover::Popover;
 use celestia_ui::components::primitive::toast::{Notification, WindowExt};
 use gpui::*;
@@ -268,6 +309,14 @@ Popover::new("pop-1")
             .text_sm()
             .child("Renders above everything in the Root layer.")
     })
+
+// Presentational centered modal (pair with window.open_dialog for a live host)
+Modal::new("edit-profile")
+    .title("Edit profile")
+    .description("Update how your name appears across Celestia.")
+    .size(ModalSize::Medium)
+    .child(div().text_sm().child("Body content"))
+    .footer(Button::new("save").variant(ButtonVariant::Primary).label("Save"))
 
 // Button tooltip on hover
 Button::new("tt-1")
@@ -334,7 +383,6 @@ div().context_menu(|menu, _, _| {
 })"#;
 
 const DATA_DISPLAY_CODE: &str = r#"use celestia_ui::components::primitive::breadcrumb::{Breadcrumb, BreadcrumbItem};
-use celestia_ui::components::composite::description_list::DescriptionList;
 use celestia_ui::components::composite::empty::{
     Empty as EmptyState, EmptyDescription, EmptyHeader, EmptyTitle,
 };
@@ -369,12 +417,6 @@ v_virtual_list(
 
 // Programmatic jump; the same handle drives attached scrollbars
 scroll_handle.scroll_to_bottom();
-
-// Metadata description list
-DescriptionList::new()
-    .item("Framework", "Celestia Desktop", 1)
-    .item("Platform Engine", "GPUI (Metal / Vulkan)", 1)
-    .item("Design System", "Celestia Semantic Tokens", 1)
 
 // Hierarchical breadcrumbs & pagination controls
 Breadcrumb::new()
@@ -464,7 +506,21 @@ Accordion::new("acc")
 Collapsible::new().open(true).content(div().p_3().child("Revealed with layout animation."))
 Separator::horizontal()
 GroupBox::new().child(div().p_3().child("Grouped content"))
-StatusBar::new().left("Git: main* (clean)").right("UTF-8  •  Rust")"#;
+StatusBar::new().left("Git: main* (clean)").right("UTF-8  •  Rust")
+
+// Resizable panels — drag handles between panes (web resizable.tsx)
+use celestia_ui::components::primitive::resizable::{ResizablePanelGroup, resizable_panel};
+use celestia_ui::components::composite::resizable_split::ResizableSplit;
+
+ResizablePanelGroup::horizontal("shell")
+    .with_handle(true)
+    .child(resizable_panel().size(px(220.)).child(sidebar))
+    .child(resizable_panel().child(main))
+
+ResizableSplit::horizontal("editor")
+    .leading_size(px(240.))
+    .leading(sidebar)
+    .trailing(editor)"#;
 
 const CHAT_AI_CODE: &str = r#"use celestia_ui::components::ai::prompt_input::{PromptInput, PromptStatus};
 use celestia_ui::components::ai::reasoning::Reasoning;
@@ -632,13 +688,44 @@ session.update(cx, |s| s.user = "celeste".into());"#;
 const COMPOSITES_CODE: &str = r#"use celestia_ui::components::composite::app_header::AppHeader;
 use celestia_ui::components::composite::button_group::ButtonGroup;
 use celestia_ui::components::composite::command_palette::{CommandPalette, CommandPaletteItem};
+use celestia_ui::components::composite::window::{MacWindow, MacWindowKind, MacWindowTab};
+use celestia_ui::components::composite::windowing::{
+    MacAppMenu, MinimizeWindow, open_mac_window,
+};
 use celestia_ui::components::composite::panel::Panel;
+use celestia_ui::components::composite::start_bar::{StartBar, StartBarItem};
+use celestia_ui::components::composite::traffic_lights::TrafficLights;
+use celestia_ui::components::composite::system_tray::{SystemTray, SystemTrayClock, SystemTrayItem};
 use celestia_ui::components::composite::toolbar::Toolbar;
 use celestia_ui::components::primitive::button::{Button, ButtonVariant};
 use celestia_ui::components::primitive::icon::PhosphorIcon;
+use gpui::{Menu, MenuItem};
 
 AppHeader::new("header").brand("Celestia").title("Desktop")
 Toolbar::new("tb").title("main.rs")
+
+TrafficLights::new("lights").edited(true).on_close(|_, _| {})
+
+MacWindow::new("notes", "Notes")
+    .kind(MacWindowKind::Unified)
+    .sidebar(/* sidebar */)
+    .tab(MacWindowTab::new("a", "Notes"))
+
+MacAppMenu::standard("Celestia")
+    .menu(Menu::new("Window").items([MenuItem::action("Minimize", MinimizeWindow)]))
+    .without("Help")
+    .install(cx);
+open_mac_window("Untitled", cx, |window, cx| /* root view */);
+
+StartBar::new("taskbar")
+    .start(Button::icon("start", PhosphorIcon::WindowsLogo).variant(ButtonVariant::Ghost))
+    .item(StartBarItem::new("term", "Terminal").icon(PhosphorIcon::Terminal).active(true))
+    .tray(
+        SystemTray::new("tray")
+            .item(SystemTrayItem::new("wifi", PhosphorIcon::WifiHigh))
+            .clock(SystemTrayClock::new("clock", "3:34 PM").date("Tue 20 Oct")),
+    )
+
 ButtonGroup::new("edit")
     .child(Button::new("cut").variant(ButtonVariant::Ghost).label("Cut"))
     .child(Button::new("copy").variant(ButtonVariant::Ghost).label("Copy"))
@@ -675,7 +762,7 @@ Phosphor::new(PhosphorIcon::Star)
 // once in main: application().with_assets(CelestiaAssets).run(…)"#;
 
 const THEMING_CODE: &str = r#"use celestia_ui::theme::{
-    active, families, hex, select, ActiveTheme as _, AppTheme, Scheme, Theme, ThemeMode,
+    active, families, hex, select, ActiveTheme as _, AppFont, AppTheme, Scheme, Theme, ThemeMode,
 };
 use gpui::px;
 
@@ -685,9 +772,14 @@ Theme::change(ThemeMode::Dark, cx); // or set explicitly
 
 // One config for the whole library — the desktop equivalent of the shadcn
 // `:root` / `.dark` blocks in globals.css. Unset fields keep the Celestia
-// defaults from theme.json.
+// defaults from theme.json. Unset font fields keep Geist and the platform mono face.
 let config = AppTheme {
     radius: px(10.),
+    font: AppFont {
+        family: Some("Georgia".into()),
+        size: Some(px(18.)),
+        ..Default::default()
+    },
     light: Scheme {
         primary: Some(hex(0x2563eb)),
         ..Default::default()
@@ -757,6 +849,41 @@ const BUTTONS_NOTES: &[&str] = &[
     "dropdown_menu still rides gpui-component's PopupMenu until the menu family is rewritten.",
 ];
 
+const TYPOGRAPHY_PROPS: &[DocProp] = &[
+    DocProp {
+        name: "Typography::body / h1… / muted…",
+        ty: "SharedString",
+        description: "Role constructors. Prefer these over div().text_sm().",
+    },
+    DocProp {
+        name: "variant",
+        ty: "TypographyVariant",
+        description: "Display, H1–H4, Lead, Body, BodySm, Muted, Caption, Overline, Code.",
+    },
+    DocProp {
+        name: "tone",
+        ty: "TypographyTone",
+        description: "Default, Muted, Accent, Destructive, Success, Warning, Inherit.",
+    },
+    DocProp {
+        name: "Heading::h1…h4 / display",
+        ty: "SharedString",
+        description: "Semantic heading wrappers over the same scale.",
+    },
+    DocProp {
+        name: "truncate / align / center",
+        ty: "bool / TypographyAlign",
+        description: "Single-line ellipsis and horizontal alignment.",
+    },
+];
+
+const TYPOGRAPHY_NOTES: &[&str] = &[
+    "One type scale: Display 36 → Caption 12. Line-height is unitless so it scales with size.",
+    "Overline expects already-uppercased copy — GPUI has no text-transform.",
+    "Muted / Caption / Overline default to TypographyTone::Muted; override with .tone(...).",
+    "Prefer Typography / Heading for product copy; keep Caption for media-adjacent helper rows.",
+];
+
 const TAGS_BADGES_PROPS: &[DocProp] = &[
     DocProp {
         name: "Badge::new",
@@ -778,11 +905,17 @@ const TAGS_BADGES_PROPS: &[DocProp] = &[
         ty: "text / count / size",
         description: "Muted helper text, count/dot badges, and identity avatars.",
     },
+    DocProp {
+        name: "ImageIcon::icon / src / custom",
+        ty: "id + mark",
+        description: "Image or icon mark. Omit .label() for mark-only; add .layout(Vertical) for tiles.",
+    },
 ];
 
 const TAGS_BADGES_NOTES: &[&str] = &[
     "Badge is labeled semantics; Chip is selectable/dismissible; StatusDot is presence.",
     "Use GpuiBadge for unread counts overlaid on another element.",
+    "ImageIcon is a mark (image/icon/custom) with an optional label — prefer IconLabel for a simple icon+text row.",
 ];
 
 const INPUTS_PROPS: &[DocProp] = &[
@@ -886,7 +1019,12 @@ const OVERLAYS_PROPS: &[DocProp] = &[
     DocProp {
         name: "window.push_notification",
         ty: "Notification + cx",
-        description: "Toast via WindowExt. Use Notification::success / error / info.",
+        description: "Toast via WindowExt — always-visible close. Use Notification::success / error / info.",
+    },
+    DocProp {
+        name: "Modal",
+        ty: "title + body + footer",
+        description: "Presentational centered modal chrome (web dialog.tsx). ModalHeader / Title / Description / Body / Footer for composition.",
     },
     DocProp {
         name: "SheetPanel / Drawer",
@@ -901,8 +1039,8 @@ const OVERLAYS_PROPS: &[DocProp] = &[
 ];
 
 const OVERLAYS_NOTES: &[&str] = &[
-    "SheetPanel / Drawer are presentational — pair with window.open_sheet for a live overlay host.",
-    "Drawer defaults to bottom with a swipe handle; SheetPanel defaults to the right edge.",
+    "Modal / SheetPanel / Drawer are presentational — pair with window.open_dialog / open_sheet for a live overlay host.",
+    "Modal centers on a scrim; Drawer defaults to bottom with a swipe handle; SheetPanel defaults to the right edge.",
     "Overlays mount through gpui_component::init — do not re-render dialog/sheet/toast layers yourself in Root.",
 ];
 
@@ -952,9 +1090,9 @@ const DATA_DISPLAY_PROPS: &[DocProp] = &[
         description: "Virtualized list — only the visible range mounts. Track with VirtualListScrollHandle.",
     },
     DocProp {
-        name: "DescriptionList / Breadcrumb / Pagination",
+        name: "Breadcrumb / Pagination",
         ty: "items / pages",
-        description: "Metadata lists, hierarchy crumbs, and page controls.",
+        description: "Hierarchy crumbs and page controls.",
     },
     DocProp {
         name: "Empty",
@@ -990,12 +1128,24 @@ const LAYOUT_PROPS: &[DocProp] = &[
         ty: "variant + items",
         description: "Segmented or line tabs, expandable sections, and bordered groups.",
     },
+    DocProp {
+        name: "ResizablePanelGroup / resizable_panel",
+        ty: "axis + size + size_range",
+        description: "Drag-resizable panels. with_handle(true) keeps a grip visible while idle.",
+    },
+    DocProp {
+        name: "ResizableSplit",
+        ty: "leading_size + leading/trailing",
+        description: "Two-pane interactive split — prefer over fixed-ratio SplitPane when users drag.",
+    },
 ];
 
 const LAYOUT_NOTES: &[&str] = &[
     "Spacer floors BOTH min-width and min-height via min_length — it never shrinks below that.",
     "ZStack fills its parent; compose an inner HStack to pin content to independent edges.",
     "VGrid grows vertically from child order — put long grids inside a ScrollView.",
+    "Nest ResizablePanelGroup inside resizable_panel().child(...) for IDE-style side+stack layouts.",
+    "SplitPane is fixed-ratio only; use Resizable / ResizableSplit for drag handles.",
 ];
 
 const CHAT_AI_PROPS: &[DocProp] = &[
@@ -1095,6 +1245,21 @@ const COMPOSITES_PROPS: &[DocProp] = &[
         description: "Chrome strips — brand/nav header, mid-content toolbar, sticky footer actions.",
     },
     DocProp {
+        name: "StartBar / StartBarItem / SystemTray / StartMenu",
+        ty: "id + slots",
+        description: "Windows-style taskbar: start trigger, pinned apps, tray + clock, start menu flyout.",
+    },
+    DocProp {
+        name: "TrafficLights / MacWindow",
+        ty: "composite/window",
+        description: "Mac-first chrome. Embedded previews or Window OS roots. Lights, unified sidebar, title-bar tabs.",
+    },
+    DocProp {
+        name: "MacAppMenu / open_mac_window",
+        ty: "composite/windowing",
+        description: "Customizable app menu (standard, menu, item, without, install) and a real sub-window. Fullscreen reveals the installed bar on top-edge hover.",
+    },
+    DocProp {
         name: "ButtonGroup / InputGroup / Panel",
         ty: "builder",
         description: "Joined buttons, addon input shells (web twins), and titled content panels.",
@@ -1107,7 +1272,7 @@ const COMPOSITES_PROPS: &[DocProp] = &[
     DocProp {
         name: "CommandPalette / TabBar / FormField / KanbanBoard / …",
         ty: "builder",
-        description: "Earlier app composites — palette, tabs, forms, boards, confirm, toasts, drop zone.",
+        description: "Earlier app composites — palette, tabs, forms, boards, confirm, toasts.",
     },
     DocProp {
         name: "FileTree / FileTreeFolder / FileTreeFile",
@@ -1118,10 +1283,71 @@ const COMPOSITES_PROPS: &[DocProp] = &[
 
 const COMPOSITES_NOTES: &[&str] = &[
     "Composites are presentational shells — the host owns Entity state (inputs, open/close, selection).",
-    "Prefer SplitPane for fixed ratios; use primitive::resizable for interactive drag handles.",
+    "composite/window — Embedded for in-view frames; Window chrome for real OS roots via open_mac_window (AppKit lights on macOS).",
+    "composite/windowing — MacAppMenu::standard is the starting bar. menu replaces by name, item appends, without drops a menu, and the app-name menu stays first. install sends it to cx.set_menus.",
+    "Prefer SplitPane for fixed ratios; use ResizableSplit / ResizablePanelGroup for drag handles.",
+    "KanbanBoard ships its own KanbanCardDrag session. While a card is dragged, the column washes accent and an insert line appears before release — see the Drag & Drop family.",
     "ToastStack is an in-view host; window.push_notification still drives the Root notification layer.",
     "ButtonGroup joins borders; for exclusive pressed states use ToggleGroup instead.",
     "FileTree is presentational chrome; pair with FileBrowser.tree(…) or embed standalone.",
+];
+
+const DRAG_DROP_CODE: &str = r#"use celestia_ui::components::composite::dnd::{
+    reorder_vec, DropTarget, Draggable, ItemDrag,
+};
+use celestia_ui::components::composite::drop_zone::DropZone;
+use celestia_ui::components::composite::sortable_list::{SortableItem, SortableList};
+use celestia_ui::components::primitive::drag_handle::DragHandle;
+use celestia_ui::components::primitive::drop_indicator::DropIndicator;
+
+Draggable::new("src", ItemDrag::new("list", "a", 0, "Alpha"))
+    .child(/* label */);
+
+DropTarget::new("sink")
+    .on_item_drop(|drag, _, _| { /* accept */ });
+
+DropZone::new("uploads")
+    .on_files(|paths, _, _| { /* Vec<PathBuf> */ });
+
+SortableItem::new("row", "tasks", "a", 0, "Inbox")
+    .on_reorder(|&(from, to), _, _| {
+        // reorder_vec(&mut items, from, to);
+    });"#;
+
+const DRAG_DROP_PROPS: &[DocProp] = &[
+    DocProp {
+        name: "DragHandle",
+        ty: "id + disabled",
+        description: "Six-dot grip. Visual only — attach on_drag on a parent Draggable / SortableItem.",
+    },
+    DocProp {
+        name: "DropIndicator",
+        ty: "axis + visible",
+        description: "Accent insert line. Axis::Vertical = horizontal rule (vertical lists).",
+    },
+    DocProp {
+        name: "ItemDrag / Draggable / DropTarget",
+        ty: "list_id + item_id + index + label",
+        description: "Typed payload and drop surface. The source stays as-is; a valid hover paints an accent wash, an insertion line, and “Release to drop”.",
+    },
+    DocProp {
+        name: "DropZone",
+        ty: "on_files / on_item_drop / state",
+        description: "Dashed file zone. Live ExternalPaths highlight with “Release to drop”; force_state pins gallery / error chrome.",
+    },
+    DocProp {
+        name: "SortableList / SortableItem",
+        ty: "on_reorder(from, to)",
+        description: "Reorderable rows. A valid hover draws an insertion line and accent wash before on_reorder.",
+    },
+];
+
+const DRAG_DROP_NOTES: &[&str] = &[
+    "GPUI drag sessions are type-keyed — sources use on_drag(T) and targets listen with on_drop::<T>.",
+    "Valid destinations highlight before release. The insertion gap animates open over the resize motion (200ms) so the list actually grows before you release.",
+    "Use the same list_id on every SortableItem in a group so cross-list drops can be rejected.",
+    "KanbanBoard uses KanbanCardDrag (see composite/kanban_board) rather than ItemDrag. Empty columns show “Drop here”; cards show the insert line.",
+    "Web twins: @celestia-project/ui/composite/drop-zone and sortable-list (dnd-kit).",
 ];
 
 const ICONS_PROPS: &[DocProp] = &[

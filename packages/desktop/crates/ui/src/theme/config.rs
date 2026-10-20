@@ -5,11 +5,13 @@
 //! CSS variables (`--background`, `--primary`, `--border`, …) per mode plus a
 //! single `--radius`, and every component reads `var(--…)`. [`AppTheme`] is
 //! that single place for the desktop library: a set of semantic color tokens
-//! per mode ([`Scheme`]) and one [`radius`](AppTheme::radius), with an
-//! [`apply`](AppTheme::apply) that pushes the whole configuration onto the
-//! crate's [`Theme`](super::Theme) global — the same global every component
-//! already reads through `cx.theme()`, so nothing in `components/` changes
-//! when the config does.
+//! per mode ([`Scheme`]), one [`radius`](AppTheme::radius), and one
+//! [`font`](AppTheme::font) ([`AppFont`]), with an [`apply`](AppTheme::apply)
+//! that pushes the whole configuration onto the crate's [`Theme`](super::Theme)
+//! global — the same global every component already reads through `cx.theme()`,
+//! so nothing in `components/` changes when the config does. The font is also
+//! written onto `gpui-component`'s theme, which is what the window root uses
+//! for the UI family and the rem size.
 //!
 //! Overlay semantics: every [`Scheme`] field is optional and `None` (the
 //! default) keeps the Celestia value from `theme.json`. A set token expands
@@ -23,11 +25,16 @@
 //! # Example
 //!
 //! ```ignore
-//! use celestia_ui::theme::{hex, AppTheme, Scheme};
+//! use celestia_ui::theme::{hex, AppFont, AppTheme, Scheme};
 //! use gpui::px;
 //!
 //! let config = AppTheme {
 //!     radius: px(10.),
+//!     font: AppFont {
+//!         family: Some("Georgia".into()),
+//!         size: Some(px(18.)),
+//!         ..Default::default()
+//!     },
 //!     light: Scheme { primary: Some(hex(0x2563eb)), ..Default::default() },
 //!     dark: Scheme { primary: Some(hex(0x6aa5ff)), ..Default::default() },
 //! };
@@ -57,18 +64,24 @@ pub fn hex(code: u32) -> Hsla {
     rgb(code).into()
 }
 
-/// The global theme configuration: one radius plus a color scheme per mode.
+/// The global theme configuration: one radius, one font, and a color scheme
+/// per mode.
 ///
 /// [`AppTheme::default`] is the Celestia theme itself (all [`Scheme`] fields
-/// unset, radius 8px) — applying it is a re-assert of `theme.json`, not a
-/// change.
-#[derive(Clone, Copy, Debug)]
+/// unset, radius 8px, Geist at 16px) — applying it is a
+/// re-assert of `theme.json`, not a change.
+///
+/// `AppFont` holds a [`SharedString`], so this type is [`Clone`] but not
+/// [`Copy`].
+#[derive(Clone, Debug)]
 pub struct AppTheme {
     /// The single corner radius (shadcn's `--radius`): `theme.radius` for
     /// every element. The large-element radius (`radius_lg` — dialogs,
     /// notifications) derives as `radius + 4px`, the shadcn `--radius-xl`
     /// step.
     pub radius: Pixels,
+    /// UI and monospace faces. Unset fields are the platform defaults.
+    pub font: AppFont,
     /// Tokens applied in light mode (`:root`).
     pub light: Scheme,
     /// Tokens applied in dark mode (`.dark`).
@@ -80,6 +93,7 @@ impl Default for AppTheme {
     fn default() -> Self {
         Self {
             radius: px(8.),
+            font: AppFont::default(),
             light: Scheme::default(),
             dark: Scheme::default(),
         }
@@ -108,6 +122,7 @@ impl AppTheme {
         let (light, dark) = self.overlaid(light, dark);
         book::store_active_pair(cx, light.clone(), dark.clone());
         book::activate(cx, light, dark);
+        self.font.write(cx);
     }
 
     /// Register this configuration as a named, selectable theme family —
@@ -126,6 +141,7 @@ impl AppTheme {
         let (light, dark) = book::celestia_pair(cx);
         let (light, dark) = self.overlaid(light, dark);
         book::insert_and_activate(cx, name, light, dark);
+        self.font.write(cx);
     }
 
     /// Expand the tokens onto a base config pair: overlay both schemes and
@@ -135,8 +151,7 @@ impl AppTheme {
         mut light: super::ThemeConfig,
         mut dark: super::ThemeConfig,
     ) -> (super::ThemeConfig, super::ThemeConfig) {
-        self.light
-            .overlay(ThemeMode::Light, &mut light.colors);
+        self.light.overlay(ThemeMode::Light, &mut light.colors);
         self.dark.overlay(ThemeMode::Dark, &mut dark.colors);
 
         for config in [&mut light, &mut dark] {
@@ -144,6 +159,83 @@ impl AppTheme {
             config.radius_lg = self.radius + px(4.);
         }
         (light, dark)
+    }
+}
+
+/// The UI and monospace faces — shadcn's `--font-sans` / `--font-mono`, plus
+/// their sizes.
+///
+/// Every field is optional. `None` (the default) is the Celestia face:
+/// [Geist](https://fonts.google.com/specimen/Geist) at 16px, and the platform
+/// monospace face (Menlo on macOS, Consolas on Windows, DejaVu Sans Mono
+/// elsewhere) at 13px. [`AppFont::write`] always installs that resolved pair,
+/// so [`AppTheme::default`] puts Geist back.
+///
+/// `family` is the face the window root cascades onto every element that does
+/// not name its own. `size` is also the window rem size, so `text_sm()` and
+/// the rest of the rem scale follow it. `mono_family` / `mono_size` are what
+/// code, terminals, and [`crate::components::primitive::typography`] code
+/// read from `cx.theme()`.
+///
+/// Name a family that is installed, or one the app embedded with `add_fonts`.
+/// An unknown family is stored as given; GPUI panics when it first lays out
+/// text in a face it cannot find.
+#[derive(Clone, Debug, Default)]
+pub struct AppFont {
+    /// UI family. `None` is [`super::DEFAULT_FONT_FAMILY`] (Geist).
+    pub family: Option<SharedString>,
+    /// Base size, and the window rem size. `None` is 16px.
+    pub size: Option<Pixels>,
+    /// Monospace family. `None` is the platform default.
+    pub mono_family: Option<SharedString>,
+    /// Monospace size. `None` is 13px.
+    pub mono_size: Option<Pixels>,
+}
+
+impl AppFont {
+    /// The Celestia defaults: Geist at 16px, platform mono at 13px.
+    pub fn system() -> Self {
+        Self::default()
+    }
+
+    /// Install this face on both theme globals.
+    ///
+    /// Celestia components read [`super::Theme`]. The window root
+    /// (`gpui-component`'s root plugin) reads that crate's `Theme` for
+    /// `font_family` and `set_rem_size`, so the same values are written there
+    /// when it is installed. A later [`super::Theme::change`] leaves both
+    /// alone: the widget theme file has no font keys, and Celestia's mode
+    /// switch only replaces colors and radii.
+    pub(crate) fn write(&self, cx: &mut App) {
+        let family = self
+            .family
+            .clone()
+            .unwrap_or_else(|| super::DEFAULT_FONT_FAMILY.into());
+        let size = self.size.unwrap_or(px(16.));
+        let mono_family = self
+            .mono_family
+            .clone()
+            .unwrap_or_else(super::default_mono_font_family);
+        let mono_size = self.mono_size.unwrap_or(px(13.));
+
+        {
+            let theme = super::Theme::global_mut(cx);
+            theme.font_family = family.clone();
+            theme.font_size = size;
+            theme.mono_font_family = mono_family.clone();
+            theme.mono_font_size = mono_size;
+        }
+
+        if cx.has_global::<gpui_component::Theme>() {
+            gpui_component::Theme::update(cx, |theme| {
+                theme.font_family = family;
+                theme.font_size = size;
+                theme.mono_font_family = mono_family;
+                theme.mono_font_size = mono_size;
+            });
+        } else {
+            cx.refresh_windows();
+        }
     }
 }
 
@@ -448,11 +540,7 @@ fn status_steps(color: Hsla, dark: bool) -> (Hsla, Hsla, Hsla, Hsla) {
         color,
         hover_step(color, dark),
         active_step(color, dark),
-        if dark {
-            hex(0x171717)
-        } else {
-            hex(0xffffff)
-        },
+        if dark { hex(0x171717) } else { hex(0xffffff) },
     )
 }
 
@@ -518,8 +606,8 @@ fn tint_over(over: Hsla, base: Hsla, alpha: f32) -> Hsla {
 
 #[cfg(test)]
 mod tests {
-    use gpui::{Rgba, TestAppContext, px};
     use gpui::AppContext as _;
+    use gpui::{Rgba, TestAppContext, px};
 
     use super::super::ActiveTheme as _;
     use super::super::Theme;
@@ -650,6 +738,56 @@ mod tests {
             Theme::change(ThemeMode::Light, cx);
             assert_eq!(code(cx.theme().danger), 0xe7000b);
             assert_eq!(code(cx.theme().danger_foreground), 0xffffff);
+        });
+    }
+
+    #[gpui::test]
+    fn font_apply_sets_both_themes_and_default_resets(cx: &mut TestAppContext) {
+        cx.update(|cx| {
+            gpui_component::init(cx);
+            crate::theme::install(cx);
+
+            AppTheme {
+                font: AppFont {
+                    family: Some("Georgia".into()),
+                    size: Some(px(18.)),
+                    mono_family: Some("Courier New".into()),
+                    mono_size: Some(px(15.)),
+                },
+                ..Default::default()
+            }
+            .apply(cx);
+
+            assert_eq!(&*cx.theme().font_family, "Georgia");
+            assert_eq!(f32::from(cx.theme().font_size), 18.0);
+            assert_eq!(&*cx.theme().mono_font_family, "Courier New");
+            assert_eq!(f32::from(cx.theme().mono_font_size), 15.0);
+
+            let widget = gpui_component::Theme::global(cx);
+            assert_eq!(&*widget.font_family, "Georgia");
+            assert_eq!(f32::from(widget.font_size), 18.0);
+            assert_eq!(&*widget.mono_font_family, "Courier New");
+            assert_eq!(f32::from(widget.mono_font_size), 15.0);
+
+            // Mode switches replace colors, not the face.
+            Theme::toggle(cx);
+            assert_eq!(&*cx.theme().font_family, "Georgia");
+            assert_eq!(f32::from(cx.theme().font_size), 18.0);
+            assert_eq!(&*gpui_component::Theme::global(cx).font_family, "Georgia");
+            assert_eq!(f32::from(gpui_component::Theme::global(cx).font_size), 18.0);
+            assert_eq!(
+                &*gpui_component::Theme::global(cx).mono_font_family,
+                "Courier New"
+            );
+
+            AppTheme::default().apply(cx);
+            assert_eq!(&*cx.theme().font_family, super::super::DEFAULT_FONT_FAMILY);
+            assert_eq!(f32::from(cx.theme().font_size), 16.0);
+            assert_eq!(f32::from(cx.theme().mono_font_size), 13.0);
+            assert_eq!(
+                &*cx.theme().mono_font_family,
+                &*super::super::default_mono_font_family()
+            );
         });
     }
 }

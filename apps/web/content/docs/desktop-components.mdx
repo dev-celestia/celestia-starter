@@ -1,0 +1,479 @@
+---
+title: Desktop Components
+description: GPUI primitives (Toggle, Chip, Meter, …) and app-level composites for Celestia Desktop — APIs, file map, and gallery sections
+icon: component
+---
+
+# Desktop Components
+
+Focused guide for the recent `celestia-ui` additions. For crates, theming, and the
+full web→desktop map, see **[Desktop (GPUI)](/docs/desktop)**. For stores and
+ambient context, see **[Desktop State](/docs/desktop-state)**.
+
+Run the gallery:
+
+```bash
+pnpm desktop
+```
+
+The showcase sidebar is **one component per row** (search above the nav). Open
+**Button** for the dedicated button gallery; other primitives and composites each
+have their own page under categories like Inputs, Badges, Menus, and Composites.
+
+---
+
+## File overview
+
+| Path | Purpose |
+| ---- | ------- |
+| `packages/desktop/crates/ui/src/components/primitive/toggle.rs` | `Toggle`, `ToggleGroup`, `ToggleVariant` |
+| `packages/desktop/crates/ui/src/components/primitive/aspect_ratio.rs` | `AspectRatio` |
+| `packages/desktop/crates/ui/src/components/primitive/item.rs` | `Item`, slots, `ItemGroup`, `ItemSeparator` |
+| `packages/desktop/crates/ui/src/components/primitive/chip.rs` | `Chip`, `ChipVariant` |
+| `packages/desktop/crates/ui/src/components/primitive/status_dot.rs` | `StatusDot`, `StatusDotTone` |
+| `packages/desktop/crates/ui/src/components/primitive/caption.rs` | `Caption` |
+| `packages/desktop/crates/ui/src/components/primitive/typography.rs` | `Typography`, `Heading`, type scale + tones |
+| `packages/desktop/crates/ui/src/components/primitive/image_icon.rs` | `ImageIcon`, sizes / shapes / layout (label optional) |
+| `packages/desktop/crates/ui/src/components/primitive/meter.rs` | `Meter`, `MeterTone` |
+| `packages/desktop/crates/ui/src/components/primitive/menubar.rs` | `Menubar`, `MenubarMenu` |
+| `packages/desktop/crates/ui/src/components/primitive/navigation_menu.rs` | `NavigationMenu`, `NavigationMenuItem` |
+| `packages/desktop/crates/ui/src/components/composite/{app_header,toolbar,panel,…}.rs` | App composites (see below) |
+| `packages/desktop/crates/showcase/src/catalog.rs` | Individual component catalog (sidebar + search) |
+| `packages/desktop/crates/showcase/src/sections/demo.rs` | Per-component demo dispatch |
+| `packages/desktop/crates/showcase/src/sections/buttons.rs` | Dedicated Button / Kbd / Link demos |
+| `packages/desktop/crates/showcase/src/sections/{inputs,tags,menus,composites,…}.rs` | Focused demos for each catalog entry |
+
+Flat imports work for most types (`use celestia_ui::components::Toggle`). Document
+tabs stay module-path only: `components::composite::tab_bar::TabBar` (name clash
+with `primitive::tabs::TabBar`).
+
+---
+
+## Typography
+
+Standard type scale for product copy. Prefer `Typography` / `Heading` over
+ad-hoc `div().text_sm().font_weight(...)`.
+
+```rust
+use celestia_ui::components::primitive::typography::{
+    Heading, Typography, TypographyTone, TypographyVariant,
+};
+
+Heading::h1("Page title");
+Heading::h2("Section");
+Typography::lead("Supporting intro under a title.");
+Typography::body("Default reading size.");
+Typography::muted("Secondary helper line.");
+Typography::caption("Footnote / meta");
+Typography::overline("SECTION"); // already uppercased — GPUI has no text-transform
+Typography::code("pnpm desktop");
+
+Typography::new("Accent body")
+    .variant(TypographyVariant::Body)
+    .tone(TypographyTone::Accent);
+```
+
+| Variant | Size | Weight | Default tone |
+| ------- | ---- | ------ | ------------ |
+| Display | 36 | Bold | Default |
+| H1–H4 | 30→16 | Semibold | Default |
+| Lead | 18 | Regular | Default |
+| Body / BodySm | 14 / 13 | Regular | Default |
+| Muted / Caption / Overline | 14 / 12 / 11 | Regular / Semibold | Muted |
+| Code | 13 mono | Regular | Default |
+
+Tones: `Default`, `Muted`, `Accent`, `Destructive`, `Success`, `Warning`, `Inherit`.
+Gallery: **Typography** category → Typography / Heading.
+
+---
+
+## Toggle & ToggleGroup
+
+Web: `toggle.tsx`. A **pressed on/off button** — not a
+[`Switch`](/docs/desktop) track. Controlled: `on_click` reports the *requested*
+next value; the host writes state and notifies.
+
+```rust
+use celestia_ui::components::primitive::toggle::{Toggle, ToggleGroup};
+use celestia_ui::components::primitive::icon::{Phosphor, PhosphorIcon};
+use gpui::px;
+
+// Outline chip toggles
+Toggle::new("bold")
+    .outline()
+    .label("Bold")
+    .checked(bold)
+    .on_click(|next, _, cx| { /* set bold = *next; cx.notify() */ });
+
+// Segmented exclusive group (toolbar align)
+ToggleGroup::new("align")
+    .outline()
+    .segmented()
+    .exclusive()
+    .child(Toggle::new("l").checked(align == 0).child(
+        Phosphor::new(PhosphorIcon::TextAlignLeft).size(px(14.0)),
+    ))
+    .child(Toggle::new("c").checked(align == 1).child(
+        Phosphor::new(PhosphorIcon::TextAlignCenter).size(px(14.0)),
+    ))
+    .child(Toggle::new("r").checked(align == 2).child(
+        Phosphor::new(PhosphorIcon::TextAlignRight).size(px(14.0)),
+    ))
+    .on_click(|checks, _, cx| {
+        // checks[i] is the new pressed state of child i
+    });
+```
+
+| Builder | Notes |
+| ------- | ----- |
+| `ToggleVariant::Default` / `Outline` | Web `default` / `outline` |
+| `ToggleGroup::segmented` | Joins borders into one control |
+| `ToggleGroup::exclusive` | Radio behavior — one on at a time |
+| `Sizable` / `Disableable` | Same trait surface as Switch / Checkbox |
+
+---
+
+## AspectRatio
+
+Web: `aspect-ratio.tsx`. Uses GPUI's `Styled::aspect_ratio` so the box keeps
+`width ÷ height` as it flexes.
+
+```rust
+use celestia_ui::components::primitive::aspect_ratio::AspectRatio;
+use gpui::{div, relative};
+
+AspectRatio::widescreen() // 16 / 9
+    .child(
+        div()
+            .size_full()
+            .bg(/* theme.muted */),
+    );
+
+AspectRatio::square();      // 1 / 1
+AspectRatio::new(4.0 / 3.0);
+```
+
+Children are absolutely inset to fill the ratio box. Put a width (or flex
+basis) on a parent when you need a concrete size.
+
+---
+
+## Item
+
+Web: `item.tsx`. List-row atom with named slots. Distinct from the
+delegate-based `composite::list` re-export.
+
+```rust
+use celestia_ui::components::primitive::item::{
+    Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle,
+};
+use celestia_ui::components::primitive::button::{Button, ButtonVariant};
+use celestia_ui::components::primitive::icon::{Phosphor, PhosphorIcon};
+use gpui::px;
+
+ItemGroup::new()
+    .child(
+        Item::new()
+            .id("readme")
+            .outline()
+            .child(
+                ItemMedia::new().icon().child(
+                    Phosphor::new(PhosphorIcon::File).size(px(16.0)),
+                ),
+            )
+            .child(
+                ItemContent::new()
+                    .child(ItemTitle::new("README.md"))
+                    .child(ItemDescription::new("Project overview")),
+            )
+            .child(
+                ItemActions::new().child(
+                    Button::new("open")
+                        .variant(ButtonVariant::Ghost)
+                        .label("Open"),
+                ),
+            ),
+    );
+```
+
+| Type | Role |
+| ---- | ---- |
+| `ItemVariant` | `Default`, `Outline`, `Muted` |
+| `ItemSize` | `Default`, `Sm`, `Xs` |
+| `ItemMedia` | Leading icon / image slot (`icon()`, `image()`) |
+| `ItemHeader` / `ItemFooter` | Full-width rows inside an item |
+| `ItemSeparator` | Horizontal rule between rows |
+
+---
+
+## Menubar
+
+Web: `menubar.tsx`. Top-of-window File / Edit / View strip. Each
+`MenubarMenu` is a ghost trigger that opens a `PopupMenu` via
+`Button::dropdown_menu`.
+
+```rust
+use celestia_ui::components::primitive::menubar::{Menubar, MenubarMenu};
+use celestia_ui::components::composite::menu::PopupMenuItem;
+
+Menubar::new("app-menubar")
+    .menu(MenubarMenu::new("file", "File", |menu, _, _| {
+        menu.item(PopupMenuItem::new("New").on_click(|_, _, _| {}))
+            .item(PopupMenuItem::new("Open…").on_click(|_, _, _| {}))
+            .separator()
+            .item(PopupMenuItem::new("Quit").on_click(|_, _, _| {}))
+    }))
+    .menu(MenubarMenu::new("edit", "Edit", |menu, _, _| {
+        menu.item(PopupMenuItem::new("Undo").on_click(|_, _, _| {}))
+    }));
+```
+
+Prefer **Menubar** for app chrome, **ToolbarMenu** for icon strips, and
+**Button::dropdown_menu** for one-off menus.
+
+---
+
+## NavigationMenu
+
+Web: `navigation-menu.tsx`. Horizontal in-content nav with immediate links and
+flyout dropdowns (same `PopupMenu` family as Menubar).
+
+```rust
+use celestia_ui::components::primitive::navigation_menu::{
+    NavigationMenu, NavigationMenuItem,
+};
+use celestia_ui::components::composite::menu::PopupMenuItem;
+
+NavigationMenu::new("site-nav")
+    .item(NavigationMenuItem::link("home", "Home").active(true))
+    .item(NavigationMenuItem::flyout("product", "Product", |menu, _, _| {
+        menu.item(PopupMenuItem::new("Features").on_click(|_, _, _| {}))
+            .item(PopupMenuItem::new("Pricing").on_click(|_, _, _| {}))
+    }))
+    .item(NavigationMenuItem::link("docs", "Docs"));
+```
+
+| Constructor | Behavior |
+| ----------- | -------- |
+| `NavigationMenuItem::link` | Immediate action / route — optional `.active(true)` / `.on_click` |
+| `NavigationMenuItem::flyout` | Trigger + dropdown built with `PopupMenuItem`s |
+
+---
+
+## New primitives (batch)
+
+Gallery: **Badges & Avatars** / **Feedback**.
+
+| Primitive | Role |
+| --------- | ---- |
+| `Chip` / `Pill` / `CountLabel` | Tags, filter pills, numeric counts |
+| `StatusDot` / `Pin` / `Disclosure` | Presence, pin, expand chevron |
+| `Initials` / `ColorSwatch` / `FileGlyph` | Identity / colour / file-type tiles |
+| `InlineCode` / `Quote` / `Truncate` / `Caption` | Text atoms |
+| `RelativeTime` / `IconLabel` / `HotkeyHint` | Meta labels |
+| `Meter` / `Scrubber` / `SignalBars` / `Battery` | Level indicators |
+| `NumberStepper` / `Fab` / `AccentRail` / `Scrim` | Controls / chrome atoms |
+
+```rust
+use celestia_ui::components::primitive::chip::Chip;
+use celestia_ui::components::primitive::initials::Initials;
+use celestia_ui::components::primitive::number_stepper::NumberStepper;
+use celestia_ui::components::primitive::meter::Meter;
+
+Chip::new("lang", "Rust").outline().selected(true);
+Initials::new("av", "Ada Lovelace");
+NumberStepper::new("qty", 3).range(0, 10);
+Meter::new("disk").label("Disk").value(0.75);
+```
+
+---
+
+## App composites
+
+Presentational shells under `components/composite/`. The host owns `Entity`
+state; builders take callbacks and element slots.
+
+| Composite | Use for |
+| --------- | ------- |
+| `AppHeader` / `Toolbar` / `ActionBar` / `PageHeader` | Chrome strips |
+| `StartBar` / `StartBarItem` / `SystemTray` / `StartMenu` | Windows-style taskbar (start · apps · tray · menu) |
+| `TrafficLights` / `MacWindow` / `MacWindowTab` | Window chrome via `composite/window` — `Embedded` previews and `Window` OS roots (Mac-first) |
+| `MacAppMenu` / `open_mac_window` | Real sub-windows and the app menu via `composite/windowing` |
+| `Wizard` / `SideNav` / `WorkspaceSwitcher` / `UserMenu` | Flows & nav |
+| `ButtonGroup` / `InputGroup` / `TagInput` / `FindReplaceBar` | Grouped controls |
+| `Panel` / `PropertyList` / `ProjectCard` / `IssueCard` | Content cards |
+| `TaskList` / `Checklist` / `ConversationList` / `NotificationCenter` | Lists |
+| `ActivityFeed` / `CommentThread` / `MediaObject` | Social / activity |
+| `TerminalPanel` / `LogViewer` / `OutlineView` / `CodeBlock` | Dev surfaces |
+| `CommitRow` / `BulkActionBar` / `ChatComposer` | VCS / compose |
+| `CommandPalette` | Spotlight-style searchable actions |
+| `BreadcrumbBar` | Path trail with overflow ellipsis |
+| `TabBar` | Document tabs (module path only — see above) |
+| `SplitPane` | Fixed-ratio dual pane |
+| `ResizablePanelGroup` / `resizable_panel` | Drag-resizable panels (`primitive/resizable`) |
+| `ResizableSplit` | Two-pane drag split (`composite/resizable_split`) |
+| `InspectorPanel` | Property sheet rows |
+| `FormField` | Label + control + hint/error |
+| `SettingsPage` / `SettingsSection` | Sectioned settings surface |
+| `SearchField` | Search chrome + clear + chips |
+| `FilterBar` / `FilterChip` | Toolbar filter chips |
+| `KeybindingRecorder` | Shortcut capture + conflict |
+| `DataTableToolbar` | Search + selection + bulk actions |
+| `FileBrowser` | Breadcrumb + tree + list chrome |
+| `FileTree` / `FileTreeFolder` / `FileTreeFile` | Workspace directory hierarchy (web `ai/file-tree.tsx`) |
+| `KanbanBoard` / `KanbanColumn` / `KanbanCard` | Columns of cards with `KanbanCardDrag` DnD; accent wash and insert line before release |
+| `Timeline` | Vertical event stream |
+| `StatCard` / `StatCardGroup` | Metric tiles (+ sparkline) |
+| `Modal` / `ModalHeader` / `ModalTitle` / `ModalDescription` / `ModalBody` / `ModalFooter` | Centered modal chrome (web `dialog.tsx`) |
+| `SheetPanel` / `SheetHeader` / `SheetFooter` | Side sheet chrome (web `sheet.tsx`) |
+| `Drawer` / `DrawerHandle` | Edge drawer + swipe handle (web `drawer.tsx`) |
+| `ConfirmDialog` | Cancel / confirm panel |
+| `ToastStack` / `ToastItem` | In-view toast host |
+| `Banner` | Persistent callout strip |
+| `OnboardingTip` | Coachmark with step progress |
+| `DragHandle` / `DropIndicator` | Grip affordance + insert line (`primitive/`) |
+| `ItemDrag` / `ItemDragPreview` / `Draggable` / `DropTarget` | Typed drag payload, ghost, and a target that highlights before release (`composite/dnd`) |
+| `SortableList` / `SortableItem` | Reorderable rows; insertion line and accent wash before `on_reorder` |
+| `DropZone` | File / item zone — live `ExternalPaths` with a “Release to drop” hint, optional forced states |
+
+```rust
+use celestia_ui::components::composite::drawer::Drawer;
+use celestia_ui::components::composite::file_tree::{FileTree, FileTreeFile, FileTreeFolder};
+use celestia_ui::components::composite::modal::{Modal, ModalSize};
+use celestia_ui::components::composite::sheet_panel::{SheetPanel, SheetSide};
+
+Modal::new("edit-profile")
+    .title("Edit profile")
+    .description("Update how your name appears across Celestia.")
+    .size(ModalSize::Medium)
+    .child(/* body */)
+    .footer(/* actions */)
+    .on_close(|_, _, _| { /* close */ });
+
+SheetPanel::new("inspector")
+    .side(SheetSide::Right)
+    .title("Inspector")
+    .description("Edit the selection.")
+    .child(/* body */)
+    .on_close(|_, _, _| { /* close */ });
+
+Drawer::new("share")
+    .title("Share")
+    .child(/* body */)
+    .footer(/* actions */);
+
+FileTree::new("workspace")
+    .child(
+        FileTreeFolder::new("apps", "apps")
+            .expanded(true)
+            .child(
+                FileTreeFolder::new("apps/api", "api")
+                    .expanded(true)
+                    .child(FileTreeFile::new("apps/api/src/index.ts", "index.ts").selected(true)),
+            ),
+    );
+```
+
+### Mac windows
+
+`MacWindow` is both the in-view preview (`MacWindowChrome::Embedded`) and the
+root chrome for a real OS window (`MacWindowChrome::Window`). In `Window`
+mode on macOS, AppKit draws the traffic lights and resizes from the edges —
+do not stack a second set of lights. `open_mac_window` opens another OS window
+with those options. `bind_mac_window_keys` maps New (⌘N), Close (⌘W), Minimize
+(⌘M), and Enter Full Screen (⌃⌘F).
+
+`MacAppMenu::standard(app_name)` starts with the app name, File, Edit, View,
+and Help. `menu` adds or replaces a menu by name, `item` appends an item, and
+`without` drops a menu. The app-name menu stays first. `install(cx)` sends the
+list to `cx.set_menus`. In fullscreen, macOS hides that bar and shows it again
+when the pointer hits the top of the screen.
+
+```rust
+use celestia_ui::components::composite::windowing::{
+    MacAppMenu, MinimizeWindow, ShowHelp, bind_mac_window_keys, open_mac_window,
+};
+use gpui::{Menu, MenuItem};
+
+MacAppMenu::standard("Celestia")
+    .item("File", MenuItem::action("Open…", ShowHelp))
+    .menu(Menu::new("Window").items([MenuItem::action("Minimize", MinimizeWindow)]))
+    .without("Help")
+    .install(cx);
+bind_mac_window_keys(cx);
+
+open_mac_window("Untitled", cx, |window, cx| {
+    // Root::new(view, window, cx)
+});
+```
+
+`Modal` / `SheetPanel` / `Drawer` are presentational. For a live window overlay,
+use `window.open_dialog` (`primitive::dialog`) or `window.open_sheet`
+(`primitive::sheet`) — gpui-component hosts.
+`FileTree` is presentational — pass `expanded` / `selected` and `on_toggle` /
+`on_select` from host state (web `ai/file-tree.tsx` twin).
+`ToastStack` is an in-view host; `window.push_notification` drives the Root
+notification layer and attaches an always-visible close button — see
+[Desktop (GPUI)](/docs/desktop).
+
+### Drag and drop
+
+GPUI drag sessions are type-keyed. Use [`ItemDrag`] for list transfers,
+[`KanbanCardDrag`] for boards, and `ExternalPaths` (via `DropZone::on_files`) for
+OS file drops. A valid hover highlights the destination before release: an
+accent wash (`paint_drop_over`), an insertion line (`drag_insertion_line`), and
+a “Release to drop” or “Drop here” caption (`drop_release_hint`). Web twins
+live at `@celestia-project/ui/composite/drop-zone` and
+`@celestia-project/ui/composite/sortable-list` (dnd-kit).
+
+```rust
+use celestia_ui::components::composite::dnd::{
+    reorder_vec, DropTarget, Draggable, ItemDrag,
+};
+use celestia_ui::components::composite::drop_zone::DropZone;
+use celestia_ui::components::composite::kanban_board::{
+    apply_kanban_drop, KanbanCard, KanbanColumn, KanbanDrop,
+};
+use celestia_ui::components::composite::sortable_list::{SortableItem, SortableList};
+
+DropZone::new("uploads")
+    .on_files(|paths, _, _| { /* Vec<PathBuf> */ });
+
+Draggable::new("src", ItemDrag::new("board", "card-1", 0, "Ship it"))
+    .child(/* label */);
+
+DropTarget::new("lane")
+    .on_item_drop(|drag, _, _| { /* accept ItemDrag */ });
+
+SortableItem::new("row-0", "tasks", "a", 0, "Inbox")
+    .on_reorder(|&(from, to), _, cx| {
+        // host: reorder_vec(&mut items, from, to); cx.notify();
+    });
+
+KanbanColumn::new("todo", "To do")
+    .board_id("sprint")
+    .on_card_drop(|drop: &KanbanDrop, _, _| {
+        // apply_kanban_drop(&mut columns, drop, |c| c.id.clone());
+    })
+    .card(
+        KanbanCard::new("c1", "Ship it")
+            .draggable("sprint", "todo", "c1", 0)
+            .on_card_drop(|drop, _, _| { /* insert before */ }),
+    );
+```
+
+---
+
+## Environment variables
+
+None. Theme tokens are compile-time embedded (`theme.json`). Secrets stay in
+`apps/api/.env` for the web stack — desktop showcase needs no API keys.
+
+---
+
+## Related
+
+- [Desktop (GPUI)](/docs/desktop) — architecture, theming, full component map
+- [Desktop State](/docs/desktop-state) — `StoreHandle` / `StoreContext`
+- [Desktop Bridge](/docs/desktop-bridge) — HTTP client from GPUI to `apps/api`
+- Gallery Visual toolbar — click-to-copy `primitive/…` / `composite/…` package chips beside the Visual/Docs toggle; Docs tab still has props and usage snippets

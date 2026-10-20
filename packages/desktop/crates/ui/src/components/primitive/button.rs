@@ -27,13 +27,14 @@
 use std::cell::Cell;
 use std::rc::Rc;
 
+use crate::motion::transition;
+use gpui::prelude::FluentBuilder as _;
 use gpui::{
     AnimationExt as _, AnyElement, App, BoxShadow, ClickEvent, Context, Div, ElementId,
     FocusHandle, FontWeight, Hsla, InteractiveElement, Interactivity, IntoElement, MouseButton,
     ParentElement, Pixels, RenderOnce, Role, SharedString, SpringAnimation, SpringConfig, Stateful,
     StatefulInteractiveElement as _, StyleRefinement, Styled, Window, div, point, px,
 };
-use crate::motion::transition;
 // The menu family has not moved to raw gpui yet; until it does, the dropdown
 // trigger keeps gpui-component's `Selectable` bound alongside the crate's own.
 use gpui_component::Selectable as GpuiSelectable;
@@ -251,6 +252,9 @@ type ClickHandler = Rc<dyn Fn(&ClickEvent, &mut Window, &mut App)>;
 pub struct Button {
     id: ElementId,
     label: Option<SharedString>,
+    /// Accessible name override — required for icon-only buttons; falls back to
+    /// [`Self::label`] then [`Self::tooltip`] when unset.
+    accessibility_label: Option<SharedString>,
     variant: ButtonVariant,
     size: ButtonSize,
     mono: bool,
@@ -273,6 +277,7 @@ impl Button {
         Self {
             id: id.into(),
             label: None,
+            accessibility_label: None,
             variant: ButtonVariant::default(),
             size: ButtonSize::default(),
             mono: false,
@@ -301,6 +306,13 @@ impl Button {
 
     pub fn label(mut self, label: impl Into<SharedString>) -> Self {
         self.label = Some(label.into());
+        self
+    }
+
+    /// Accessible name for assistive technology. Prefer this on icon-only
+    /// buttons; labeled buttons already announce their visible text.
+    pub fn accessibility_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.accessibility_label = Some(label.into());
         self
     }
 
@@ -579,17 +591,27 @@ impl RenderOnce for Button {
                     color: elevation_edge,
                 };
                 if is_dark {
+                    // Web `dark:bg-input/30` / `hover:bg-input/50` + `border-input`.
+                    // `--input` is already white-at-15%, so `opacity(0.30)` would
+                    // multiply that alpha away, and GPUI stacking two translucent
+                    // whites under the border paints a darker top rim. Bake the
+                    // washes into opaque faces over the page background instead.
+                    let input_solid = cx.theme().input.alpha(1.0);
+                    let page = cx.theme().background;
+                    let border = motion::mix(page, input_solid, cx.theme().input.a);
+                    let bg = motion::mix(page, input_solid, 0.30);
+                    let hover_bg = motion::mix(page, input_solid, 0.50);
                     VariantStyle {
-                        bg: cx.theme().input.opacity(0.30),
-                        border: cx.theme().input,
+                        bg,
+                        border,
                         text: cx.theme().foreground,
                         shadow: Some(shadow),
-                        hover_bg: cx.theme().input.opacity(0.50),
-                        hover_border: cx.theme().input,
+                        hover_bg,
+                        hover_border: border,
                         hover_text: cx.theme().foreground,
                         hover_underline: false,
-                        active_bg: cx.theme().input.opacity(0.50),
-                        active_border: cx.theme().input,
+                        active_bg: hover_bg,
+                        active_border: border,
                         active_text: cx.theme().foreground,
                         has_3d_press: true,
                     }
@@ -770,12 +792,19 @@ impl RenderOnce for Button {
             el = el.font_family(cx.theme().mono_font_family.clone());
         }
 
+        let corner = cx.theme().radius_sm();
+        let accessible_name = self
+            .accessibility_label
+            .clone()
+            .or_else(|| self.label.clone())
+            .or_else(|| self.tooltip.clone());
+
         if self.variant == ButtonVariant::Link {
             el = el.cursor_pointer();
         } else if is_icon_only {
-            el = el.size(h).rounded(px(4.));
+            el = el.size(h).rounded(corner);
         } else {
-            el = el.h(h).px(px_pad).gap(gap).rounded(px(4.));
+            el = el.h(h).px(px_pad).gap(gap).rounded(corner);
         }
 
         if matches!(
@@ -788,6 +817,10 @@ impl RenderOnce for Button {
         }
 
         let normal_shadows: Vec<BoxShadow> = shadow.clone().into_iter().collect();
+
+        el = el
+            .role(Role::Button)
+            .when_some(accessible_name, |this, name| this.aria_label(name));
 
         if self.disabled {
             el = el
@@ -821,7 +854,9 @@ impl RenderOnce for Button {
                 .bg(bg)
                 .border_color(border)
                 .text_color(text)
-                .track_focus(&focus_handle);
+                // `FocusHandle` defaults to `tab_stop: false`; without this,
+                // Tab skips every Button and keyboard users never activate it.
+                .track_focus(&focus_handle.clone().tab_index(0).tab_stop(true));
 
             if self.selected {
                 el = el
@@ -953,23 +988,11 @@ impl RenderOnce for Button {
             let shadow_color = shadow.as_ref().map(|s| s.color);
             let target_pos = if is_pressed { px(2.0) } else { px(0.0) };
 
-            let mut spring_anim = SpringAnimation::new(BUTTON_SPRING)
-                .to(target_pos)
-                .with_epsilon(0.02);
-
-            if is_quick_tap {
-                spring_anim = spring_anim.from(px(2.0));
-            }
-
-            let spring_id = ElementId::NamedInteger(
-                SharedString::from(format!("{}-spring", self.id)),
-                impulse_id as u64,
-            );
-
-            el.with_spring(spring_id, spring_anim, move |this, y: Pixels| {
-                let offset_y = y.clamp(px(0.0), px(2.5));
+            // Honor `prefers-reduced-motion`: snap to the pressed/rest pose
+            // instead of running the press spring.
+            if cx.reduce_motion() {
+                let offset_y = target_pos;
                 let shadow_y = (px(2.0) - offset_y).max(px(0.0));
-
                 let mut shadows = Vec::with_capacity(1);
                 if let Some(color) = shadow_color
                     && shadow_y > px(0.05)
@@ -982,10 +1005,45 @@ impl RenderOnce for Button {
                         color,
                     });
                 }
+                el.relative()
+                    .top(offset_y)
+                    .shadow(shadows)
+                    .into_any_element()
+            } else {
+                let mut spring_anim = SpringAnimation::new(BUTTON_SPRING)
+                    .to(target_pos)
+                    .with_epsilon(0.02);
 
-                this.relative().top(offset_y).shadow(shadows)
-            })
-            .into_any_element()
+                if is_quick_tap {
+                    spring_anim = spring_anim.from(px(2.0));
+                }
+
+                let spring_id = ElementId::NamedInteger(
+                    SharedString::from(format!("{}-spring", self.id)),
+                    impulse_id as u64,
+                );
+
+                el.with_spring(spring_id, spring_anim, move |this, y: Pixels| {
+                    let offset_y = y.clamp(px(0.0), px(2.5));
+                    let shadow_y = (px(2.0) - offset_y).max(px(0.0));
+
+                    let mut shadows = Vec::with_capacity(1);
+                    if let Some(color) = shadow_color
+                        && shadow_y > px(0.05)
+                    {
+                        shadows.push(BoxShadow {
+                            offset: point(px(0.), shadow_y),
+                            blur_radius: px(0.),
+                            spread_radius: px(0.),
+                            inset: false,
+                            color,
+                        });
+                    }
+
+                    this.relative().top(offset_y).shadow(shadows)
+                })
+                .into_any_element()
+            }
         } else {
             el.into_any_element()
         };

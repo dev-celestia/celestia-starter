@@ -5,7 +5,7 @@ use celestia_ui::components::composite::search_field::SearchField;
 use celestia_ui::components::composite::sidebar_layout::{
     SidebarFooter, SidebarHeader, SidebarLayout, SidebarNav, SidebarNavItem, SidebarSection,
 };
-use celestia_ui::components::composite::title_bar::TitleBar;
+use celestia_ui::components::composite::window::{MacWindow, MacWindowChrome};
 use celestia_ui::components::composite::virtual_list::VirtualListScrollHandle;
 use celestia_ui::components::primitive::button::{Button, ButtonSize, ButtonVariant};
 use celestia_ui::components::primitive::calendar::CalendarState;
@@ -32,12 +32,27 @@ use crate::section::{Category, DocProp, SECTION_COUNT, Section};
 use crate::sections::data_display::VirtualListDemo;
 use crate::sections::layout::PlaygroundAxis;
 use crate::sections::state::GalleryState;
+use celestia_ui::components::composite::windowing::{
+    CloseWindow, MinimizeWindow, NewWindow, ShowHelp, ToggleFullScreen, ZoomWindow,
+    open_mac_window,
+};
+use crate::windowing_lab::WindowingLab;
 
 #[derive(Clone, Copy, PartialEq, Eq, Default, Debug)]
 pub enum ShowcaseTab {
     #[default]
     View,
     Docs,
+}
+
+/// Card model for the interactive KanbanBoard gallery demo.
+#[derive(Clone, Debug)]
+pub struct DemoKanbanCard {
+    pub id: SharedString,
+    pub title: SharedString,
+    pub body: Option<SharedString>,
+    pub meta: Option<SharedString>,
+    pub selected: bool,
 }
 
 pub struct Showcase {
@@ -56,6 +71,20 @@ pub struct Showcase {
     pub(crate) demo_composite_tab: SharedString,
     /// Active filter chip index in the App Composites demo (0 = All).
     pub(crate) demo_composite_filter: usize,
+    /// Labels for the SortableList gallery demo (drag to reorder).
+    pub(crate) demo_sortable_items: Vec<SharedString>,
+    /// Last drop summary shown in the DropTarget / DropZone demos.
+    pub(crate) demo_drop_status: SharedString,
+    /// 1-based OnboardingTip step (gallery demo). `0` means dismissed.
+    pub(crate) demo_onboarding_step: usize,
+    /// Interactive KanbanBoard gallery: `(column_id, column_title, cards)`.
+    pub(crate) demo_kanban: Vec<(SharedString, SharedString, Vec<DemoKanbanCard>)>,
+    /// Command palette search field (gallery demo).
+    pub(crate) demo_command_palette: Entity<InputState>,
+    /// Highlighted command row index after click / filter.
+    pub(crate) demo_command_selected: Option<usize>,
+    /// Last run command status line.
+    pub(crate) demo_command_status: SharedString,
     pub(crate) demo_rating: usize,
     pub(crate) demo_tab_segmented: usize,
     pub(crate) demo_tab_line: usize,
@@ -168,6 +197,19 @@ impl Showcase {
         })
         .detach();
 
+        let demo_command_palette =
+            cx.new(|cx| InputState::new(window, cx).placeholder("Type a command…"));
+        cx.subscribe(
+            &demo_command_palette,
+            move |this, _, event: &InputEvent, cx| {
+                if matches!(event, InputEvent::Change) {
+                    this.demo_command_selected = Some(0);
+                    cx.notify();
+                }
+            },
+        )
+        .detach();
+
         Self {
             focus_handle: cx.focus_handle(),
             selected: Section::BUTTON,
@@ -180,7 +222,62 @@ impl Showcase {
             demo_toggle_italic: false,
             demo_toggle_align: 0,
             demo_composite_tab: "main".into(),
+            demo_sortable_items: vec![
+                "Inbox triage".into(),
+                "Write release notes".into(),
+                "Ship desktop showcase".into(),
+                "Polish drop targets".into(),
+            ],
+            demo_drop_status: "Drag onto a target — it highlights before you release.".into(),
+            demo_onboarding_step: 1,
+            demo_kanban: vec![
+                (
+                    "todo".into(),
+                    "To do".into(),
+                    vec![
+                        DemoKanbanCard {
+                            id: "k1".into(),
+                            title: "Ship composites".into(),
+                            body: Some("Twenty new surfaces".into()),
+                            meta: Some("P0".into()),
+                            selected: false,
+                        },
+                        DemoKanbanCard {
+                            id: "k2".into(),
+                            title: "Update docs".into(),
+                            body: None,
+                            meta: None,
+                            selected: false,
+                        },
+                    ],
+                ),
+                (
+                    "doing".into(),
+                    "Doing".into(),
+                    vec![DemoKanbanCard {
+                        id: "k3".into(),
+                        title: "Showcase section".into(),
+                        body: None,
+                        meta: Some("In review".into()),
+                        selected: true,
+                    }],
+                ),
+                (
+                    "done".into(),
+                    "Done".into(),
+                    vec![DemoKanbanCard {
+                        id: "k4".into(),
+                        title: "Toolbar menu".into(),
+                        body: None,
+                        meta: None,
+                        selected: false,
+                    }],
+                ),
+            ],
             demo_composite_filter: 0,
+            demo_command_palette,
+            demo_command_selected: Some(0),
+            demo_command_status: "Click a command or type to filter.".into(),
             demo_rating: 4,
             demo_tab_segmented: 0,
             demo_tab_line: 0,
@@ -225,6 +322,15 @@ impl Showcase {
         Theme::toggle(cx);
     }
 
+    /// Open the Windowing Lab sub-window. File → New Window and the Window /
+    /// Windowing gallery demos both call this.
+    pub fn open_sub_window(cx: &mut App) {
+        let _ = open_mac_window("Windowing Lab", cx, |window, cx| {
+            let view = cx.new(|cx| WindowingLab::new(window, cx));
+            cx.new(|cx| gpui_component::Root::new(view, window, cx))
+        });
+    }
+
     pub fn switch_tab(&mut self, tab: ShowcaseTab, window: &mut Window, cx: &mut Context<Self>) {
         if self.active_tab != tab {
             self.active_tab = tab;
@@ -252,13 +358,32 @@ impl Render for Showcase {
             .key_context("Showcase")
             .track_focus(&self.focus_handle)
             .on_action(cx.listener(|_, _: &ToggleTheme, _, cx| Self::toggle_theme(cx)))
+            .on_action(|_: &NewWindow, _, cx| Self::open_sub_window(cx))
+            .on_action(|_: &CloseWindow, window, _| window.remove_window())
+            .on_action(|_: &MinimizeWindow, window, _| window.minimize_window())
+            .on_action(|_: &ZoomWindow, window, _| window.zoom_window())
+            .on_action(|_: &ToggleFullScreen, window, _| window.toggle_fullscreen())
+            .on_action(|_: &ShowHelp, window, cx| {
+                window.push_notification(
+                    Notification::info(
+                        "Help — use File, Window, and View menus, or open Window / Windowing in the gallery.",
+                    ),
+                    cx,
+                );
+            })
             .size_full()
-            .flex()
-            .flex_col()
-            .bg(cx.theme().background)
-            .text_color(cx.theme().foreground)
-            .child(title_bar(cx))
-            .child(self.render_shell(window, cx))
+            .child(
+                MacWindow::new("showcase", "Celestia Desktop")
+                    .chrome(MacWindowChrome::Window)
+                    .toolbar_item(
+                        Button::new("title-new-window")
+                            .variant(ButtonVariant::Ghost)
+                            .size(ButtonSize::Small)
+                            .label("New Window")
+                            .on_click(|_, _, cx| Showcase::open_sub_window(cx)),
+                    )
+                    .child(self.render_shell(window, cx)),
+            )
     }
 }
 
@@ -349,7 +474,11 @@ impl Showcase {
                                 });
                                 cx.notify();
                             }))
-                            .input(Input::new(&self.nav_search).cleanable(false)),
+                            .input(
+                                Input::new(&self.nav_search)
+                                    .cleanable(false)
+                                    .appearance(false),
+                            ),
                     ),
             )
             .sidebar(SidebarNav::new("nav").children(nav_children))
@@ -367,14 +496,7 @@ impl Showcase {
                         Keystroke::parse("cmd-d").expect("valid keystroke"),
                     )),
             )
-            .content(
-                div()
-                    .id("content")
-                    .overflow_y_scroll()
-                    .h_full()
-                    .p_8()
-                    .child(self.render_section(window, cx)),
-            )
+            .content(self.render_content_pane(window, cx))
     }
 
     fn render_toggle_button(
@@ -412,8 +534,14 @@ impl Showcase {
             )
         };
 
-        // 76px segment width + 2.5px track padding + 2px gap = 80.5px offset for tab 1.
-        let to_left = if is_view { px(2.5) } else { px(80.5) };
+        // Equal flex segments sized to content (min width) so longer labels
+        // don't clip; indicator tracks the active half via spring.
+        let segment_w = px(88.);
+        let to_left = if is_view {
+            px(2.5)
+        } else {
+            px(2.5) + segment_w + px(2.)
+        };
         let left = spring(
             (ElementId::from("view-docs-toggle"), "indicator-left"),
             to_left,
@@ -437,7 +565,8 @@ impl Showcase {
             let mut el = h_flex()
                 .id(id)
                 .relative()
-                .w(px(76.))
+                .min_w(segment_w)
+                .px(px(10.))
                 .h(px(26.))
                 .items_center()
                 .justify_center()
@@ -480,7 +609,7 @@ impl Showcase {
                     .top(px(2.5))
                     .bottom(px(2.5))
                     .left(left)
-                    .w(px(76.))
+                    .w(segment_w)
                     .rounded(px(5.))
                     .bg(primary_bg),
             )
@@ -502,18 +631,21 @@ impl Showcase {
             ))
     }
 
-    fn render_section(&self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+    /// Sticky section chrome above a scrollable demo/docs body so View/Docs
+    /// stays reachable while content scrolls.
+    fn render_content_pane(&self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let heading = SectionHeading::new(self.selected.label())
             .eyebrow("CELESTIA DESKTOP")
             .description(self.selected.description());
 
         let header = h_flex()
             .w_full()
+            .flex_none()
             .justify_between()
             .items_start()
             .gap_4()
             .child(heading)
-            .child(self.render_toolbar_card(window, cx));
+            .child(self.render_toggle_button(window, cx));
 
         let body: AnyElement = match self.active_tab {
             ShowcaseTab::View => self.render_demo(self.selected.demo(), window, cx),
@@ -534,61 +666,67 @@ impl Showcase {
             })
             .child(body);
 
-        v_flex().gap_6().child(header).child(animated_body)
+        v_flex()
+            .id("content")
+            .h_full()
+            .p_8()
+            .gap_6()
+            .child(
+                v_flex()
+                    .w_full()
+                    .flex_none()
+                    .gap_2()
+                    .pb_4()
+                    .child(header)
+                    .child(self.render_package_copy(cx)),
+            )
+            .child(
+                div()
+                    .id("content-scroll")
+                    .flex_1()
+                    .min_h_0()
+                    .w_full()
+                    .overflow_y_scroll()
+                    .child(animated_body),
+            )
     }
 
-    /// Right-side toolbar on Visual/Docs: package chip + view toggle.
-    fn render_toolbar_card(
-        &self,
-        window: &mut Window,
-        cx: &mut Context<Self>,
-    ) -> impl IntoElement {
+    /// Compact package path chip — click to copy for AI / import prompts.
+    fn render_package_copy(&self, cx: &mut Context<Self>) -> impl IntoElement {
         let package = self.selected.package();
+        let mono = cx.theme().mono_font_family.clone();
         let muted = cx.theme().muted_foreground;
         let fg = cx.theme().foreground;
         let border = cx.theme().border;
         let tab_bar = cx.theme().tab_bar;
         let radius = cx.theme().radius;
 
-        Card::new()
-            .size(celestia_ui::components::CardSize::Small)
-            .title("Package")
-            .description("Click to copy — paste into AI to pick this component.")
-            .action(self.render_toggle_button(window, cx))
+        div()
+            .id("toolbar-package")
+            .w_full()
+            .px_2()
+            .py_0p5()
+            .rounded(radius)
+            .bg(tab_bar)
+            .border_1()
+            .border_color(border)
+            .hover(|style| style.bg(cx.theme().accent.opacity(0.15)))
+            .cursor_pointer()
+            .on_click(move |_, window, cx| {
+                cx.write_to_clipboard(gpui::ClipboardItem::new_string(package.to_string()));
+                window.push_notification(Notification::success(format!("Copied {package}")), cx);
+            })
             .child(
-                div()
-                    .id("toolbar-package")
-                    .px_2()
-                    .py_0p5()
-                    .rounded(radius)
-                    .bg(tab_bar)
-                    .border_1()
-                    .border_color(border)
-                    .hover(|style| style.bg(cx.theme().accent.opacity(0.15)))
-                    .cursor_pointer()
-                    .on_click(move |_, window, cx| {
-                        cx.write_to_clipboard(gpui::ClipboardItem::new_string(package.to_string()));
-                        window.push_notification(
-                            Notification::success(format!("Copied {package}")),
-                            cx,
-                        );
-                    })
+                h_flex()
+                    .gap_1()
+                    .items_center()
+                    .child(Phosphor::new(PhosphorIcon::Copy).size(px(10.)).color(muted))
                     .child(
-                        h_flex()
-                            .gap_1()
-                            .items_center()
-                            .child(
-                                Phosphor::new(PhosphorIcon::Copy)
-                                    .size(px(10.))
-                                    .color(muted),
-                            )
-                            .child(
-                                div()
-                                    .text_xs()
-                                    .font_family("monospace")
-                                    .text_color(fg)
-                                    .child(package),
-                            ),
+                        div()
+                            .text_xs()
+                            .font_family(mono)
+                            .text_color(fg)
+                            .child(package),
                     ),
             )
     }
@@ -615,54 +753,57 @@ impl Showcase {
         let border = cx.theme().border;
         let tab_bar = cx.theme().tab_bar;
         let radius = cx.theme().radius;
+        let mono = cx.theme().mono_font_family.clone();
 
         Card::new()
             .title("Props")
             .description("Builder methods and types for this section.")
             .child(
-                v_flex().gap_2().children(props.iter().enumerate().map(|(ix, prop)| {
-                    let name = prop.name;
-                    let ty = prop.ty;
-                    let description = prop.description;
-                    h_flex()
-                        .id(ElementId::Name(format!("doc-prop-{ix}").into()))
-                        .w_full()
-                        .gap_3()
-                        .items_start()
-                        .px_3()
-                        .py_2()
-                        .rounded(radius)
-                        .bg(tab_bar)
-                        .border_1()
-                        .border_color(border)
-                        .child(
-                            v_flex()
-                                .gap_0p5()
-                                .min_w(px(200.))
-                                .max_w(px(260.))
-                                .child(
-                                    div()
-                                        .text_xs()
-                                        .font_weight(FontWeight::SEMIBOLD)
-                                        .text_color(fg)
-                                        .child(name),
-                                )
-                                .child(
-                                    div()
-                                        .text_xs()
-                                        .font_family("monospace")
-                                        .text_color(muted)
-                                        .child(ty),
-                                ),
-                        )
-                        .child(
-                            div()
-                                .flex_1()
-                                .text_xs()
-                                .text_color(muted)
-                                .child(description),
-                        )
-                })),
+                v_flex()
+                    .gap_2()
+                    .children(props.iter().enumerate().map(|(ix, prop)| {
+                        let name = prop.name;
+                        let ty = prop.ty;
+                        let description = prop.description;
+                        h_flex()
+                            .id(ElementId::Name(format!("doc-prop-{ix}").into()))
+                            .w_full()
+                            .gap_3()
+                            .items_start()
+                            .px_3()
+                            .py_2()
+                            .rounded(radius)
+                            .bg(tab_bar)
+                            .border_1()
+                            .border_color(border)
+                            .child(
+                                v_flex()
+                                    .gap_0p5()
+                                    .min_w(px(200.))
+                                    .max_w(px(260.))
+                                    .child(
+                                        div()
+                                            .text_xs()
+                                            .font_weight(FontWeight::SEMIBOLD)
+                                            .text_color(fg)
+                                            .child(name),
+                                    )
+                                    .child(
+                                        div()
+                                            .text_xs()
+                                            .font_family(mono.clone())
+                                            .text_color(muted)
+                                            .child(ty),
+                                    ),
+                            )
+                            .child(
+                                div()
+                                    .flex_1()
+                                    .text_xs()
+                                    .text_color(muted)
+                                    .child(description),
+                            )
+                    })),
             )
     }
 
@@ -791,41 +932,23 @@ impl Showcase {
             .title("Notes")
             .description("Gotchas and tips that help when wiring these components.")
             .child(
-                v_flex().gap_2().children(notes.iter().enumerate().map(|(ix, note)| {
-                    let note = *note;
-                    h_flex()
-                        .id(ElementId::Name(format!("doc-note-{ix}").into()))
-                        .w_full()
-                        .gap_2()
-                        .items_start()
-                        .px_3()
-                        .py_2()
-                        .rounded(radius)
-                        .bg(accent.opacity(0.12))
-                        .child(
-                            Phosphor::new(PhosphorIcon::Info)
-                                .size(px(14.))
-                                .color(fg),
-                        )
-                        .child(
-                            div()
-                                .flex_1()
-                                .text_xs()
-                                .text_color(muted)
-                                .child(note),
-                        )
-                })),
+                v_flex()
+                    .gap_2()
+                    .children(notes.iter().enumerate().map(|(ix, note)| {
+                        let note = *note;
+                        h_flex()
+                            .id(ElementId::Name(format!("doc-note-{ix}").into()))
+                            .w_full()
+                            .gap_2()
+                            .items_start()
+                            .px_3()
+                            .py_2()
+                            .rounded(radius)
+                            .bg(accent.opacity(0.12))
+                            .child(Phosphor::new(PhosphorIcon::Info).size(px(14.)).color(fg))
+                            .child(div().flex_1().text_xs().text_color(muted).child(note))
+                    })),
             )
     }
 }
 
-fn title_bar(cx: &App) -> impl IntoElement {
-    TitleBar::new().child(
-        div().w_full().flex().justify_center().child(
-            div()
-                .text_sm()
-                .text_color(cx.theme().muted_foreground)
-                .child("Celestia Desktop"),
-        ),
-    )
-}

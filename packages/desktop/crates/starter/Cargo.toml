@@ -1,0 +1,18 @@
+[package]
+name = "celestia-desktop-starter"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+description = "Minimal Celestia Desktop boilerplate — copy this crate to start a new GPUI app"
+
+[[bin]]
+name = "celestia-desktop-starter"
+path = "src/main.rs"
+
+[dependencies]
+celestia-bridge.workspace = true
+celestia-ui.workspace = true
+gpui.workspace = true
+gpui-component.workspace = true
+gpui-platform.workspace = true

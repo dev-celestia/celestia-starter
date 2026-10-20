@@ -31,7 +31,7 @@ use crate::theme::ActiveTheme as _;
 
 /// Height of the bar itself. Also the width of a single caption button, which
 /// upstream expresses by passing this constant to `.w()`.
-pub const TITLE_BAR_HEIGHT: Pixels = px(34.);
+pub const TITLE_BAR_HEIGHT: Pixels = px(32.);
 
 /// Reserved leading space. macOS keeps the traffic lights off our content;
 /// every other platform leaves room for its own left-most chrome.
@@ -546,8 +546,8 @@ mod tests {
 
     #[test]
     fn title_bar_metrics_are_the_platform_values() {
-        assert_eq!(TITLE_BAR_HEIGHT, px(34.0));
-        assert_eq!(WINDOW_CONTROL_WIDTH, px(34.0));
+        assert_eq!(TITLE_BAR_HEIGHT, px(32.0));
+        assert_eq!(WINDOW_CONTROL_WIDTH, px(32.0));
 
         #[cfg(target_os = "macos")]
         assert_eq!(TITLE_BAR_LEFT_PADDING, px(80.0));

@@ -7,6 +7,7 @@ use celestia_ui::components::ai::prompt_input::{PromptInput, PromptStatus};
 use celestia_ui::components::ai::reasoning::Reasoning;
 use celestia_ui::components::ai::suggestion::{Suggestion, Suggestions};
 use celestia_ui::components::ai::terminal::AiTerminal;
+use celestia_ui::components::ai::thinking_text::{ThinkingShimmer, ThinkingText};
 use celestia_ui::components::ai::tool::{Tool, ToolState};
 use celestia_ui::components::composite::attachment::{
     Attachment, AttachmentContent, AttachmentDescription, AttachmentTitle,
@@ -16,6 +17,7 @@ use celestia_ui::components::composite::message::{
 };
 use celestia_ui::components::primitive::avatar::Avatar;
 use celestia_ui::components::primitive::bubble::{Bubble, BubbleVariant};
+use celestia_ui::components::primitive::shimmer::ShimmerText;
 use celestia_ui::theme::ActiveTheme as _;
 use gpui::*;
 use gpui_component::v_flex;
@@ -84,10 +86,23 @@ impl Showcase {
                 .child(
                     Reasoning::new("reason")
                         .open(true)
-                        .duration_secs(4)
+                        .streaming(true)
                         .body(
                             "Comparing MessageGroup spacing with the web ai/message.tsx metrics…",
                         ),
+                )
+                .into_any_element(),
+            Demo::ThinkingText => Card::new()
+                .title("ThinkingText")
+                .description("Wave shimmer + cycling dots for in-flight AI status.")
+                .child(
+                    v_flex()
+                        .gap_4()
+                        .child(ThinkingText::new("think-1"))
+                        .child(ThinkingText::new("think-2").label("Searching"))
+                        .child(ThinkingText::new("think-3").label("Planning").show_icon(false))
+                        .child(ThinkingShimmer::new("Generating a response…"))
+                        .child(ShimmerText::wave("Travelling highlight across glyphs")),
                 )
                 .into_any_element(),
             Demo::Tool => Card::new()

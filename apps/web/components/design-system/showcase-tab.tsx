@@ -63,7 +63,7 @@ export function ShowcaseTab() {
             <ButtonsSection />
           )}
 
-          {(!normalizedQuery || "inputs input textarea checkbox radio switch slider select combobox otp field form url native-select".includes(normalizedQuery)) && (
+          {(!normalizedQuery || "inputs input textarea checkbox radio switch slider select combobox otp field form url native-select filter facet chip token menu".includes(normalizedQuery)) && (
             <InputsSection />
           )}
 

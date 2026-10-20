@@ -16,9 +16,13 @@ mod catalog;
 mod section;
 mod sections;
 mod showcase;
+mod windowing_lab;
 
 use actions::ToggleTheme;
-use celestia_ui::components::composite::title_bar::TitleBar;
+use celestia_ui::components::composite::windowing::{
+    MacAppMenu, MinimizeWindow, ZoomWindow, bind_mac_window_keys,
+};
+use celestia_ui::components::composite::window::MacWindow;
 use celestia_ui::state::StoreContext;
 use gpui::*;
 use gpui_component::Root;
@@ -44,6 +48,16 @@ fn main() {
             StoreContext::<Session>::provide(Session::default(), cx);
 
             cx.bind_keys([KeyBinding::new(&primary("d"), ToggleTheme, None)]);
+            bind_mac_window_keys(cx);
+            // Live menu bar: File (New / Close), Edit, View (Full Screen),
+            // Window (Minimize / Zoom), Help. Fullscreen hides it; top-edge
+            // hover reveals it again.
+            MacAppMenu::standard("Celestia")
+                .menu(Menu::new("Window").items([
+                    MenuItem::action("Minimize", MinimizeWindow),
+                    MenuItem::action("Zoom", ZoomWindow),
+                ]))
+                .install(cx);
 
             let options = WindowOptions {
                 window_bounds: Some(WindowBounds::centered(size(px(1280.), px(820.)), cx)),
@@ -52,7 +66,7 @@ fn main() {
                 window_background: WindowBackgroundAppearance::Transparent,
                 #[cfg(target_os = "linux")]
                 window_decorations: Some(WindowDecorations::Client),
-                ..TitleBar::window_options()
+                ..MacWindow::window_options()
             };
 
             cx.open_window(options, |window, cx| {

@@ -11,6 +11,8 @@ use celestia_ui::components::primitive::shimmer::ShimmerText;
 use celestia_ui::components::primitive::signal_bars::SignalBars;
 use celestia_ui::components::primitive::skeleton::Skeleton;
 use celestia_ui::components::primitive::spinner::Spinner;
+use celestia_ui::components::primitive::toast::{Notification, WindowExt};
+use celestia_ui::theme::ActiveTheme as _;
 use gpui::*;
 use gpui_component::{h_flex, v_flex};
 
@@ -18,7 +20,7 @@ use crate::catalog::Demo;
 use crate::showcase::Showcase;
 
 impl Showcase {
-    pub(crate) fn render_feedback_demo(&self, demo: Demo, _cx: &mut Context<Self>) -> AnyElement {
+    pub(crate) fn render_feedback_demo(&self, demo: Demo, cx: &mut Context<Self>) -> AnyElement {
         match demo {
             Demo::Alert => Card::new()
                 .title("Alert")
@@ -84,7 +86,14 @@ impl Showcase {
             Demo::Fab => Card::new()
                 .title("Fab")
                 .description("Floating action button.")
-                .child(Fab::new("fab-1", PhosphorIcon::Plus))
+                .child(
+                    Fab::new("fab-1", PhosphorIcon::Plus)
+                        .accessibility_label("Create new item")
+                        .on_click(|_, window, cx| {
+                            window
+                                .push_notification(Notification::success("FAB action fired."), cx);
+                        }),
+                )
                 .into_any_element(),
             Demo::Spinner => Card::new()
                 .title("Spinner")
@@ -103,8 +112,33 @@ impl Showcase {
                 .into_any_element(),
             Demo::Shimmer => Card::new()
                 .title("Shimmer")
-                .description("Shimmer loading effect.")
-                .child(ShimmerText::new("Thinking…"))
+                .description("Pulse and travelling-wave shimmer text.")
+                .child(
+                    v_flex()
+                        .gap_4()
+                        .child(
+                            v_flex()
+                                .gap_1()
+                                .child(
+                                    div()
+                                        .text_xs()
+                                        .text_color(cx.theme().muted_foreground)
+                                        .child("Pulse"),
+                                )
+                                .child(ShimmerText::new("Thinking…")),
+                        )
+                        .child(
+                            v_flex()
+                                .gap_1()
+                                .child(
+                                    div()
+                                        .text_xs()
+                                        .text_color(cx.theme().muted_foreground)
+                                        .child("Wave"),
+                                )
+                                .child(ShimmerText::wave("Shimmering text across glyphs")),
+                        ),
+                )
                 .into_any_element(),
             _ => v_flex()
                 .child(div().text_sm().child("Not a feedback demo."))

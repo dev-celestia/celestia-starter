@@ -418,6 +418,7 @@ All three tiers are also re-exported from the barrel `@celestia-project/ui`.
 | `ButtonGroup`, `ButtonGroupText`                                 | `composite/button-group` |
 | `Combobox` (+ parts)                                             | `composite/combobox` |
 | `Field`, `FieldLabel`, `FieldDescription`, `FieldError`          | `composite/field` |
+| `FilterBar`, `FilterChip`, `FilterMenu`, `FilterToken`           | `composite/filter` |
 | `Form` (+ parts)                                                 | `composite/form` |
 | `InputGroup`                                                     | `composite/input-group` |
 | `NativeSelect`                                                   | `composite/native-select` |
@@ -567,7 +568,7 @@ utility is shorter and is what the components use.
 `--font-sans-family` and `--font-mono-family` are the public override hooks. Point `next/font` (or any CSS) at those names:
 
 ```tsx
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans-family" })
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans-family" })
 ```
 
 Do **not** set `--font-sans` — it is the theme token itself, and `--font-sans: var(--font-sans)` is a CSS dependency cycle that resolves to nothing.

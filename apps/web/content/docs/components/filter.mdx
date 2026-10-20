@@ -1,0 +1,104 @@
+---
+title: Filter
+description: Segmented filter chips, a faceted filter menu, and removable tokens for the current selection.
+---
+
+Filter controls for toolbars and list screens. The caller owns the selection — these components only render it and report changes.
+
+<FilterPreview />
+
+## Segmented bar
+
+`FilterBar` is a single-choice track, the same shape as a segmented tab list. Arrow keys move the selection.
+
+```tsx
+import { FilterBar, FilterChip } from "@celestia-project/ui/composite/filter"
+
+export function ScopeFilter({
+  scope,
+  onScopeChange,
+}: {
+  scope: string
+  onScopeChange: (scope: string) => void
+}) {
+  return (
+    <FilterBar aria-label="Issue scope">
+      <FilterChip selected={scope === "all"} onClick={() => onScopeChange("all")}>
+        All
+      </FilterChip>
+      <FilterChip selected={scope === "open"} onClick={() => onScopeChange("open")}>
+        Open
+      </FilterChip>
+      <FilterChip selected={scope === "done"} onClick={() => onScopeChange("done")}>
+        Done
+      </FilterChip>
+    </FilterBar>
+  )
+}
+```
+
+A `FilterChip` used outside a bar is a toggle pill (`aria-pressed`) rather than a segment.
+
+## Faceted menu
+
+`FilterMenu` is the "Status" control on a list toolbar. `multiple` toggles options and stays open. `single` keeps one value and closes.
+
+```tsx
+import { useState } from "react"
+import { FilterMenu } from "@celestia-project/ui/composite/filter"
+
+const STATUS = [
+  { value: "live", label: "Live", count: 12 },
+  { value: "building", label: "Building", count: 4 },
+  { value: "draft", label: "Draft", count: 3 },
+]
+
+export function StatusFilter() {
+  const [status, setStatus] = useState<string[]>([])
+
+  return (
+    <FilterMenu
+      label="Status"
+      options={STATUS}
+      selected={status}
+      onSelectedChange={setStatus}
+    />
+  )
+}
+```
+
+Search appears on its own once there are more than eight options. Set `searchable` to force it on or off.
+
+## Active tokens
+
+`FilterToken` restates a choice next to the menu. `FilterClear` drops every choice at once.
+
+```tsx
+import { FilterClear, FilterToken } from "@celestia-project/ui/composite/filter"
+
+export function ActiveStatus({
+  status,
+  onRemove,
+  onClear,
+}: {
+  status: { value: string; label: string }[]
+  onRemove: (value: string) => void
+  onClear: () => void
+}) {
+  if (status.length === 0) return null
+
+  return (
+    <>
+      {status.map((option) => (
+        <FilterToken
+          key={option.value}
+          label="Status"
+          value={option.label}
+          onRemove={() => onRemove(option.value)}
+        />
+      ))}
+      <FilterClear onClick={onClear} />
+    </>
+  )
+}
+```

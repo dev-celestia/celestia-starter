@@ -24,14 +24,17 @@
 //!   (#171717) in dark.
 //!
 //! Theme is not patched after mode switches: the two configs replace the
-//! light/dark pair wholesale, so [`Theme::change`] and system appearance sync
-//! keep using them afterwards.
+//! light/dark pair wholesale, so [`Theme::change`] / [`Theme::toggle`] and
+//! system appearance sync keep using them afterwards. Each mode change also
+//! mirrors the Celestia light/dark pair onto `gpui-component`'s widget theme
+//! so re-exported controls stay in step.
 
 pub mod book;
 pub mod config;
 
+pub use crate::fonts::DEFAULT_FONT_FAMILY;
 pub use book::{active, families, select};
-pub use config::{AppTheme, Scheme, hex};
+pub use config::{AppFont, AppTheme, Scheme, hex};
 
 use std::rc::Rc;
 
@@ -333,10 +336,6 @@ pub struct ThemeColor {
     pub button_info_active: Hsla,
     /// Text on [`ThemeColor::button_info`].
     pub button_info_foreground: Hsla,
-    /// Label surface of a description list row.
-    pub description_list_label: Hsla,
-    /// Text on [`ThemeColor::description_list_label`].
-    pub description_list_label_foreground: Hsla,
     /// Chart ramp — five categorical series colors.
     pub chart_1: Hsla,
     pub chart_2: Hsla,
@@ -486,8 +485,6 @@ impl Default for ThemeColor {
             button_info_hover: hex(0x0058b5),
             button_info_active: hex(0x004ea1),
             button_info_foreground: hex(0xffffff),
-            description_list_label: hex(0xf5f5f5),
-            description_list_label_foreground: hex(0x6f6f6f),
             chart_1: hex(0x3b82f6),
             chart_2: hex(0xef4444),
             chart_3: hex(0xeab308),
@@ -541,7 +538,8 @@ pub struct Theme {
     pub dark_theme: Rc<ThemeConfig>,
     /// The active mode.
     pub mode: ThemeMode,
-    /// The font family for the application, default is `.SystemUIFont`.
+    /// The font family for the application. Default is [`DEFAULT_FONT_FAMILY`]
+    /// (Geist), embedded at startup.
     pub font_family: SharedString,
     /// The base font size for the application, default is 16px.
     pub font_size: Pixels,
@@ -626,6 +624,10 @@ impl Theme {
 
     /// Switch to the given mode within the active family: re-resolves the
     /// colors and radii from that family's config and repaints every window.
+    ///
+    /// Also keeps the `gpui-component` widget theme on the same mode (and the
+    /// Celestia light/dark pair), so re-exported controls stay in step with
+    /// every Celestia component that reads `cx.theme()`.
     pub fn change(mode: ThemeMode, cx: &mut App) {
         let (colors, radius, radius_lg) = {
             let theme = cx.global_mut::<Theme>();
@@ -642,7 +644,22 @@ impl Theme {
         theme.colors = colors;
         theme.radius = radius;
         theme.radius_lg = radius_lg;
+        sync_widget_theme(mode, cx);
         cx.refresh_windows();
+    }
+
+    /// Flip between light and dark within the active family.
+    ///
+    /// This is the one-liner apps should bind to a key (⌘D in the showcase)
+    /// or a settings toggle — prefer it over reading `is_dark` and calling
+    /// [`Self::change`] by hand.
+    pub fn toggle(cx: &mut App) {
+        let next = if Self::global(cx).is_dark() {
+            ThemeMode::Light
+        } else {
+            ThemeMode::Dark
+        };
+        Self::change(next, cx);
     }
 
     /// Sync the theme with the system appearance, when a window is available.
@@ -651,10 +668,10 @@ impl Theme {
             return;
         };
         let mode = match window.appearance() {
-            gpui::WindowAppearance::Dark
-            | gpui::WindowAppearance::VibrantDark => ThemeMode::Dark,
-            gpui::WindowAppearance::Light
-            | gpui::WindowAppearance::VibrantLight => ThemeMode::Light,
+            gpui::WindowAppearance::Dark | gpui::WindowAppearance::VibrantDark => ThemeMode::Dark,
+            gpui::WindowAppearance::Light | gpui::WindowAppearance::VibrantLight => {
+                ThemeMode::Light
+            }
         };
         Self::change(mode, cx);
     }
@@ -712,6 +729,8 @@ impl Theme {
 /// pinned by the tests below, so a failure here is a bug and panics rather
 /// than silently falling back to a default gray.
 pub fn install(cx: &mut App) {
+    crate::fonts::install(cx);
+
     let (light, dark) =
         parse_theme_json(THEME_JSON).expect("celestia theme.json must parse and resolve");
 
@@ -724,7 +743,7 @@ pub fn install(cx: &mut App) {
         light_theme: Rc::new(light.clone()),
         dark_theme: Rc::new(dark.clone()),
         mode: ThemeMode::default(),
-        font_family: ".SystemUIFont".into(),
+        font_family: DEFAULT_FONT_FAMILY.into(),
         font_size: px(16.),
         mono_font_family: default_mono_font_family(),
         mono_font_size: px(13.),
@@ -738,11 +757,77 @@ pub fn install(cx: &mut App) {
     // Seed the theme book with the Celestia family (the multi-theme layer).
     book::install(cx, &light, &dark);
     book::activate(cx, light, dark);
+
+    // The window root reads gpui-component's theme for the cascading family.
+    // Theme files have no font keys, so this survives later mode switches.
+    if cx.has_global::<gpui_component::Theme>() {
+        gpui_component::Theme::update(cx, |theme| {
+            theme.font_family = DEFAULT_FONT_FAMILY.into();
+        });
+    }
+}
+
+/// Keep `gpui-component`'s separate `Theme` global on the Celestia light/dark
+/// pair and the same mode. Celestia owns theming; re-exported widgets still
+/// read `gpui_component::ActiveTheme`, so mode (and base palette) must move
+/// together or the shell splits — light sidebar, dark content — the way the
+/// gallery did before this bridge.
+///
+/// Also swaps the syntax [`HighlightTheme`](gpui_component::highlighter::HighlightTheme):
+/// `theme.json` carries colors only, so without this the `CodeEditor` kept the
+/// previous mode's `editor.background` (white pane in dark mode).
+fn sync_widget_theme(mode: ThemeMode, cx: &mut App) {
+    use gpui_component::highlighter::HighlightTheme;
+    use gpui_component::{Theme as WidgetTheme, ThemeMode as WidgetMode, ThemeRegistry};
+
+    if !cx.has_global::<ThemeRegistry>() {
+        return;
+    }
+
+    // Register Celestia Light/Dark once; subsequent calls are no-ops for
+    // names that are already present.
+    let _ = ThemeRegistry::global_mut(cx).load_themes_from_str(THEME_JSON);
+
+    let (light, dark) = {
+        let registry = ThemeRegistry::global(cx);
+        (
+            registry.themes().get(LIGHT).cloned(),
+            registry.themes().get(DARK).cloned(),
+        )
+    };
+
+    if let (Some(light), Some(dark)) = (light, dark) {
+        WidgetTheme::update(cx, |theme| {
+            theme.light_theme = light;
+            theme.dark_theme = dark;
+        });
+    }
+
+    let widget_mode = match mode {
+        ThemeMode::Light => WidgetMode::Light,
+        ThemeMode::Dark => WidgetMode::Dark,
+    };
+    WidgetTheme::change(widget_mode, None, cx);
+
+    // Celestia configs have no `highlight` block, so `apply_config` leaves the
+    // previous syntax theme in place — force the matching default.
+    WidgetTheme::update(cx, |theme| {
+        theme.highlight_theme = match mode {
+            ThemeMode::Dark => HighlightTheme::default_dark(),
+            ThemeMode::Light => HighlightTheme::default_light(),
+        };
+        // Outer outline ring off — Celestia Button/Input have no focus ring
+        // (web: `outline-none`, no `focus-visible:ring-*` / `border-ring`).
+        theme.focus_ring = false;
+        // Slightly tighter than gpui-component's 382px default so toasts read
+        // as compact notices rather than wide banners.
+        theme.notification.width = px(300.);
+    });
 }
 
 /// The framework's platform monospace default — `gpui-base` keeps the same
 /// ladder private, so it is repeated here for the seed above.
-fn default_mono_font_family() -> SharedString {
+pub(crate) fn default_mono_font_family() -> SharedString {
     if cfg!(target_os = "macos") {
         "Menlo".into()
     } else if cfg!(target_os = "windows") {
@@ -1026,6 +1111,50 @@ mod tests {
             Theme::change(ThemeMode::Light, cx);
             assert_eq!(f32::from(cx.theme().radius), 8.0);
             assert_eq!(f32::from(cx.theme().radius_lg), 12.0);
+        });
+    }
+
+    /// Mode flips must move both Theme globals together — otherwise the
+    /// gallery shell (Celestia) and re-exported widgets (gpui-component) drift
+    /// apart (light sidebar on a dark content pane).
+    #[gpui::test]
+    fn toggle_keeps_widget_theme_in_sync(cx: &mut gpui::TestAppContext) {
+        cx.update(|cx| {
+            gpui_component::init(cx);
+            install(cx);
+
+            assert!(!Theme::global(cx).is_dark());
+            assert!(!gpui_component::Theme::global(cx).is_dark());
+
+            Theme::toggle(cx);
+            assert!(Theme::global(cx).is_dark());
+            assert!(gpui_component::Theme::global(cx).is_dark());
+            assert_eq!(
+                gpui_component::Theme::global(cx).theme_name().as_ref(),
+                DARK
+            );
+            assert!(
+                gpui_component::Theme::global(cx)
+                    .highlight_theme
+                    .appearance
+                    .is_dark(),
+                "CodeEditor highlight theme must follow dark mode"
+            );
+
+            Theme::toggle(cx);
+            assert!(!Theme::global(cx).is_dark());
+            assert!(!gpui_component::Theme::global(cx).is_dark());
+            assert_eq!(
+                gpui_component::Theme::global(cx).theme_name().as_ref(),
+                LIGHT
+            );
+            assert!(
+                !gpui_component::Theme::global(cx)
+                    .highlight_theme
+                    .appearance
+                    .is_dark(),
+                "CodeEditor highlight theme must follow light mode"
+            );
         });
     }
 }

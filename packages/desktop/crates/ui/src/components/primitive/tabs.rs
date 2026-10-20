@@ -57,19 +57,18 @@ use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
 use crate::components::traits::{Disableable, Selectable, h_flex, v_flex};
+use crate::motion::spring;
+use crate::motion::transition;
 use crate::theme::ActiveTheme as _;
 use gpui::prelude::FluentBuilder as _;
 use gpui::{
     AnimationExt as _, AnyElement, App, Bounds, BoxShadow, ClickEvent, ElementId, FocusHandle,
-    FontWeight, InteractiveElement, IntoElement, ParentElement, Pixels, RenderOnce, SharedString,
-    StatefulInteractiveElement as _, Styled, Window, div, point, px,
+    FontWeight, InteractiveElement, IntoElement, ParentElement, Pixels, RenderOnce, Role,
+    SharedString, StatefulInteractiveElement as _, Styled, Window, div, point, px,
 };
-use crate::motion::transition;
-use crate::motion::spring;
 use gpui_base::ElementExt as _;
 
 use crate::components::primitive::icon::{Phosphor, PhosphorIcon};
-use crate::focus_ring::focus_ring;
 use crate::motion;
 
 pub use gpui_component::tab::{Tab, TabBar};
@@ -432,6 +431,7 @@ impl RenderOnce for TabsList {
         match variant {
             TabsVariant::Default => h_flex()
                 .id(self.id)
+                .role(Role::TabList)
                 .h(height)
                 .p(px(3.))
                 .gap(px(2.))
@@ -442,6 +442,7 @@ impl RenderOnce for TabsList {
                 .children(rendered),
             TabsVariant::Line => h_flex()
                 .id(self.id)
+                .role(Role::TabList)
                 .h(height)
                 .gap(px(4.))
                 .items_end()
@@ -455,8 +456,8 @@ impl RenderOnce for TabsList {
 
 type ClickHandler = Rc<dyn Fn(&ClickEvent, &mut Window, &mut App)>;
 
-/// Persistent per-trigger state: the focus handle behind the house focus ring,
-/// and the hover flag the colour fade reads.
+/// Persistent per-trigger state: the focus handle for keyboard focus, and the
+/// hover flag the colour fade reads.
 struct TriggerState {
     focus_handle: FocusHandle,
     hovered: Cell<bool>,
@@ -621,13 +622,18 @@ impl RenderOnce for TabsTrigger {
             .whitespace_nowrap()
             .text_size(font_size);
 
+        el = el
+            .role(Role::Tab)
+            .aria_selected(self.selected)
+            .when_some(self.label.clone(), |this, label| this.aria_label(label));
+
         if self.disabled {
             el = el.opacity(0.5).cursor_not_allowed();
         } else {
             let state_hover = state.clone();
             el = el
                 .cursor_pointer()
-                .track_focus(&focus_handle)
+                .track_focus(&focus_handle.clone().tab_index(0).tab_stop(true))
                 .on_hover(move |hovered, _, cx| {
                     if state_hover.read(cx).hovered.get() == *hovered {
                         return;
@@ -710,17 +716,11 @@ impl RenderOnce for TabsTrigger {
             el = el.child(Phosphor::new(icon).size(icon_size));
         }
 
-        if let Some(label) = self.label {
+        if let Some(label) = self.label.clone() {
             el = el.child(label);
         }
 
         el = el.children(self.children);
-
-        // `focus-visible:ring-2 focus-visible:ring-ring` — the Celestia house
-        // ring, not `gpui-component`'s 3px-at-50% helper.
-        if !self.disabled && focus_handle.is_focused(window) {
-            el = focus_ring(el, window, cx);
-        }
 
         el
     }

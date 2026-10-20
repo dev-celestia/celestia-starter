@@ -21,13 +21,14 @@ use crate::components::primitive::separator::Separator;
 use crate::components::traits::{Sizable, Size, h_flex, v_flex};
 use crate::theme::ActiveTheme as _;
 
-/// Icon-only strip, or icon + visible label.
+/// How items expose their label relative to an optional icon.
 #[derive(Clone, Copy, Default, PartialEq, Eq, Debug)]
 pub enum ToolbarMenuAppearance {
-    /// Square icon buttons; labels become tooltips / accessible names.
+    /// Show icons only; labels become tooltips / accessible names.
+    /// Items without an icon fall back to a text button.
     #[default]
     Icon,
-    /// Icon beside a visible text label.
+    /// Show the text label. Icons render beside the label when present.
     Labeled,
 }
 
@@ -35,7 +36,7 @@ pub enum ToolbarMenuAppearance {
 #[derive(IntoElement)]
 pub struct ToolbarMenuItem {
     id: ElementId,
-    icon: PhosphorIcon,
+    icon: Option<PhosphorIcon>,
     label: Option<SharedString>,
     tooltip: Option<SharedString>,
     active: bool,
@@ -48,10 +49,20 @@ pub struct ToolbarMenuItem {
 }
 
 impl ToolbarMenuItem {
+    /// An icon action. Pair with [`Self::label`] for tooltips or labeled menus.
     pub fn new(id: impl Into<ElementId>, icon: PhosphorIcon) -> Self {
+        Self::blank(id).icon(icon)
+    }
+
+    /// A text-only action (no icon).
+    pub fn text(id: impl Into<ElementId>, label: impl Into<SharedString>) -> Self {
+        Self::blank(id).label(label)
+    }
+
+    fn blank(id: impl Into<ElementId>) -> Self {
         Self {
             id: id.into(),
-            icon,
+            icon: None,
             label: None,
             tooltip: None,
             active: false,
@@ -63,8 +74,13 @@ impl ToolbarMenuItem {
         }
     }
 
-    /// Visible when the menu uses [`ToolbarMenuAppearance::Labeled`];
-    /// otherwise used as the tooltip / aria name.
+    pub fn icon(mut self, icon: PhosphorIcon) -> Self {
+        self.icon = Some(icon);
+        self
+    }
+
+    /// Visible when the menu uses [`ToolbarMenuAppearance::Labeled`], or when
+    /// the item has no icon. Otherwise used as the tooltip / aria name.
     pub fn label(mut self, label: impl Into<SharedString>) -> Self {
         self.label = Some(label.into());
         self
@@ -109,31 +125,35 @@ impl ToolbarMenuItem {
 
 impl RenderOnce for ToolbarMenuItem {
     fn render(self, _: &mut Window, _: &mut App) -> impl IntoElement {
-        let show_label = self.appearance == ToolbarMenuAppearance::Labeled && self.label.is_some();
+        let show_label = self.label.is_some()
+            && (self.appearance == ToolbarMenuAppearance::Labeled || self.icon.is_none());
+        let show_icon =
+            self.icon.is_some() && (self.appearance == ToolbarMenuAppearance::Icon || show_label);
         let tip = self
             .tooltip
             .clone()
             .or_else(|| self.label.clone())
             .unwrap_or_default();
-
-        let mut button = if show_label {
-            Button::new(self.id)
-                .leading_icon(self.icon)
-                .label(self.label.clone().unwrap_or_default())
-                .variant(if self.active {
-                    ButtonVariant::Secondary
-                } else {
-                    ButtonVariant::Ghost
-                })
-                .with_size(self.size)
+        let variant = if self.active {
+            ButtonVariant::Secondary
         } else {
-            Button::icon(self.id, self.icon)
+            ButtonVariant::Ghost
+        };
+
+        let icon = if show_icon { self.icon } else { None };
+        let mut button = match (icon, show_label) {
+            (Some(icon), true) => Button::new(self.id)
+                .leading_icon(icon)
+                .label(self.label.clone().unwrap_or_default())
+                .variant(variant)
+                .with_size(self.size),
+            (Some(icon), false) => Button::icon(self.id, icon)
                 .size(icon_step(self.size))
-                .variant(if self.active {
-                    ButtonVariant::Secondary
-                } else {
-                    ButtonVariant::Ghost
-                })
+                .variant(variant),
+            (None, _) => Button::new(self.id)
+                .label(self.label.clone().unwrap_or_default())
+                .variant(variant)
+                .with_size(self.size),
         };
 
         button = button.disabled(self.disabled);
@@ -144,7 +164,7 @@ impl RenderOnce for ToolbarMenuItem {
             button = button.on_click(move |ev, window, cx| on_click(ev, window, cx));
         }
 
-        // Vertical labeled strips stretch full width; icon-only stays centered.
+        // Vertical text / labeled strips stretch full width; icon-only stays centered.
         if self.orientation == Axis::Vertical && show_label {
             div().w_full().child(button).into_any_element()
         } else {
@@ -301,9 +321,9 @@ impl RenderOnce for ToolbarMenu {
                 ToolbarChild::Item(item) => item
                     .with_menu_context(appearance, orientation, size)
                     .into_any_element(),
-                ToolbarChild::Separator(sep) => sep
-                    .with_menu_orientation(orientation)
-                    .into_any_element(),
+                ToolbarChild::Separator(sep) => {
+                    sep.with_menu_orientation(orientation).into_any_element()
+                }
             })
             .collect();
 
@@ -375,12 +395,8 @@ mod tests {
                     ToolbarMenu::new("tm-labeled")
                         .labeled()
                         .vertical()
-                        .item(
-                            ToolbarMenuItem::new("filter", PhosphorIcon::Funnel).label("Filter"),
-                        )
-                        .item(
-                            ToolbarMenuItem::new("export", PhosphorIcon::Export).label("Export"),
-                        ),
+                        .item(ToolbarMenuItem::new("filter", PhosphorIcon::Funnel).label("Filter"))
+                        .item(ToolbarMenuItem::new("export", PhosphorIcon::Export).label("Export")),
                 )
         }
     }

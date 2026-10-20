@@ -24,13 +24,15 @@ Celestia uses a **decoupled architecture**. The backend (`apps/api`) owns the da
 │   apps/web (UI)    │  ─────────────────────────▶  │   apps/api (Hono)  │
 │  Next.js, no DB    │   same-origin via rewrites   │  auth + data + DB  │
 └────────────────────┘                              └─────────┬──────────┘
-                                                              │ Drizzle
-                                                    ┌─────────▼──────────┐
+┌────────────────────┐         HTTP (direct)                   │
+│ packages/desktop   │  ─────────────────────────▶             │
+│ celestia-bridge    │   CELESTIA_API_URL                      │ Drizzle
+└────────────────────┘                              ┌─────────▼──────────┐
                                                     │     PostgreSQL     │
                                                     └────────────────────┘
 ```
 
-The browser only ever talks to the frontend origin. Next.js rewrites proxy every `/api/*` request to the backend, so session cookies work without any cross-origin configuration.
+The browser only ever talks to the frontend origin. Next.js rewrites proxy every `/api/*` request to the backend, so session cookies work without any cross-origin configuration. Native desktop apps use [`celestia-bridge`](/docs/desktop-bridge) and call the same Hono routes over HTTP (no proxy, no CORS).
 
 ## Project Structure
 

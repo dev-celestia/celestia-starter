@@ -10,12 +10,13 @@
 //! Like [`super::text_editor::TextEditor`], this is an entity so the footer
 //! refreshes while typing.
 
+use crate::theme::ActiveTheme as _;
 use gpui::{
     App, AppContext as _, Context, Entity, IntoElement, ParentElement, Render, SharedString,
     Styled, Subscription, Window, div, px,
 };
 use gpui_component::input::{Editor, EditorState, InputEvent, RopeExt};
-use gpui_component::{ActiveTheme, h_flex, v_flex};
+use gpui_component::{h_flex, v_flex};
 
 /// A syntax-highlighted code editor for one language.
 pub struct CodeEditor {
@@ -130,12 +131,16 @@ mod tests {
             v_flex()
                 .child(
                     div()
-                        .on_prepaint(move |bounds, _, _| *fixed_height.borrow_mut() = bounds.size.height)
+                        .on_prepaint(move |bounds, _, _| {
+                            *fixed_height.borrow_mut() = bounds.size.height
+                        })
                         .child(Editor::new(&self.fixed).h(px(280.))),
                 )
                 .child(
                     div()
-                        .on_prepaint(move |bounds, _, _| *bare_height.borrow_mut() = bounds.size.height)
+                        .on_prepaint(move |bounds, _, _| {
+                            *bare_height.borrow_mut() = bounds.size.height
+                        })
                         .child(Editor::new(&self.bare)),
                 )
         }
@@ -168,6 +173,9 @@ mod tests {
         assert_eq!(fixed, px(280.), "editor with .h() must fill it exactly");
         // ...otherwise the input lays out at its one-line minimum — the
         // "1 cm tall editor" regression this guards against.
-        assert!(bare < px(40.), "bare editor must not collapse, got {bare:?}");
+        assert!(
+            bare < px(40.),
+            "bare editor must not collapse, got {bare:?}"
+        );
     }
 }

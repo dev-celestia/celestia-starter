@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["crates/ui", "crates/showcase"]
+members = ["crates/ui", "crates/showcase", "crates/starter", "crates/bridge"]
 
 [workspace.package]
 version = "0.1.0"
@@ -10,6 +10,7 @@ publish = false
 
 [workspace.dependencies]
 celestia-ui = { path = "crates/ui" }
+celestia-bridge = { path = "crates/bridge" }
 
 # GPUI and the layers the component library still builds on. `gpui` is the
 # framework itself. `gpui-base` (state machines, scroll, motion) and

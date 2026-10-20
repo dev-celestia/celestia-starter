@@ -93,7 +93,6 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
         "transition-colors duration-fast ease-out hover:text-foreground",
         "active:scale-[0.97] active:duration-instant motion-reduce:active:scale-100",
         "data-active:text-foreground",
-        "focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring",
         "disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50",
         "group-data-[orientation=vertical]/tabs:w-full group-data-[orientation=vertical]/tabs:justify-start group-data-[orientation=vertical]/tabs:py-[calc(--spacing(1.25))]",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",

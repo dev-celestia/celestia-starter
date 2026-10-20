@@ -9,6 +9,9 @@ use celestia_ui::components::primitive::file_glyph::{FileGlyph, FileGlyphKind};
 use celestia_ui::components::primitive::hotkey_hint::HotkeyHint;
 use celestia_ui::components::primitive::icon::PhosphorIcon;
 use celestia_ui::components::primitive::icon_label::IconLabel;
+use celestia_ui::components::primitive::image_icon::{
+    ImageIcon, ImageIconLayout, ImageIconShape, ImageIconSize,
+};
 use celestia_ui::components::primitive::initials::{Initials, InitialsSize};
 use celestia_ui::components::primitive::inline_code::InlineCode;
 use celestia_ui::components::primitive::pill::Pill;
@@ -123,7 +126,11 @@ impl Showcase {
                     h_flex()
                         .gap_3()
                         .items_center()
-                        .child(ColorSwatch::new("cs-1", accent).label("#accent").selected(true))
+                        .child(
+                            ColorSwatch::new("cs-1", accent)
+                                .label("#accent")
+                                .selected(true),
+                        )
                         .child(ColorSwatch::new("cs-2", cx.theme().primary).label("#primary")),
                 )
                 .into_any_element(),
@@ -181,11 +188,9 @@ impl Showcase {
             Demo::Truncate => Card::new()
                 .title("Truncate")
                 .description("Single-line ellipsis truncation.")
-                .child(
-                    div().w(px(280.0)).child(Truncate::new(
-                        "packages/desktop/crates/ui/src/components/primitive/very_long_path.rs",
-                    )),
-                )
+                .child(div().w(px(280.0)).child(Truncate::new(
+                    "packages/desktop/crates/ui/src/components/primitive/very_long_path.rs",
+                )))
                 .into_any_element(),
             Demo::RelativeTime => Card::new()
                 .title("RelativeTime")
@@ -209,6 +214,7 @@ impl Showcase {
                         .child(IconLabel::new(PhosphorIcon::File, "README.md")),
                 )
                 .into_any_element(),
+            Demo::ImageIcon => self.render_image_icon_demo(cx).into_any_element(),
             Demo::HotkeyHint => Card::new()
                 .title("HotkeyHint")
                 .description("Action label with keystroke.")
@@ -221,5 +227,100 @@ impl Showcase {
                 .child(div().text_sm().child("Not a tags/badges demo."))
                 .into_any_element(),
         }
+    }
+
+    fn render_image_icon_demo(&self, cx: &mut Context<Self>) -> impl IntoElement {
+        let muted = cx.theme().muted;
+        let accent = cx.theme().accent;
+        Card::new()
+            .title("ImageIcon")
+            .description(
+                "primitive/image_icon — image or icon mark, with or without a label. \
+                 Horizontal for rows; vertical for tiles.",
+            )
+            .child(
+                v_flex()
+                    .gap_5()
+                    .child(
+                        h_flex()
+                            .gap_3()
+                            .flex_wrap()
+                            .items_end()
+                            .child(
+                                ImageIcon::icon("ii-sm", PhosphorIcon::Image)
+                                    .size(ImageIconSize::Sm),
+                            )
+                            .child(
+                                ImageIcon::icon("ii-md", PhosphorIcon::Folder)
+                                    .size(ImageIconSize::Md),
+                            )
+                            .child(
+                                ImageIcon::icon("ii-lg", PhosphorIcon::AppWindow)
+                                    .size(ImageIconSize::Lg)
+                                    .shape(ImageIconShape::Rounded),
+                            )
+                            .child(
+                                ImageIcon::icon("ii-circle", PhosphorIcon::User)
+                                    .size(ImageIconSize::Lg)
+                                    .shape(ImageIconShape::Circle),
+                            )
+                            .child(
+                                ImageIcon::custom("ii-swatch", div().size_full().bg(accent))
+                                    .size(ImageIconSize::Md)
+                                    .shape(ImageIconShape::Square)
+                                    .bordered(false),
+                            ),
+                    )
+                    .child(
+                        h_flex()
+                            .gap_6()
+                            .flex_wrap()
+                            .items_center()
+                            .child(
+                                ImageIcon::icon("ii-row", PhosphorIcon::FileCode)
+                                    .label("main.rs")
+                                    .description("2.4 KB"),
+                            )
+                            .child(
+                                ImageIcon::icon("ii-muted", PhosphorIcon::Trash)
+                                    .label("Delete")
+                                    .muted(true),
+                            )
+                            .child(
+                                ImageIcon::custom("ii-thumb", div().size_full().bg(muted))
+                                    .size(ImageIconSize::Md)
+                                    .label("Preview")
+                                    .description("No file yet"),
+                            ),
+                    )
+                    .child(
+                        h_flex()
+                            .gap_6()
+                            .flex_wrap()
+                            .items_start()
+                            .child(
+                                ImageIcon::icon("ii-tile-1", PhosphorIcon::MusicNotes)
+                                    .size(ImageIconSize::Xl)
+                                    .label("Playlist")
+                                    .description("128 tracks")
+                                    .layout(ImageIconLayout::Vertical),
+                            )
+                            .child(
+                                ImageIcon::icon("ii-tile-2", PhosphorIcon::Camera)
+                                    .size(ImageIconSize::Xl)
+                                    .shape(ImageIconShape::Rounded)
+                                    .label("Camera")
+                                    .layout(ImageIconLayout::Vertical),
+                            )
+                            .child(
+                                ImageIcon::icon("ii-tile-3", PhosphorIcon::Gear)
+                                    .size(ImageIconSize::Lg)
+                                    .shape(ImageIconShape::Circle)
+                                    .label("Settings")
+                                    .layout(ImageIconLayout::Vertical)
+                                    .bordered(false),
+                            ),
+                    ),
+            )
     }
 }
