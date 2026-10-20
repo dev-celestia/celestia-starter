@@ -32,10 +32,9 @@ use crate::sections::data_display::VirtualListDemo;
 use crate::sections::layout::PlaygroundAxis;
 use crate::sections::state::GalleryState;
 use celestia_ui::components::composite::window::{
-    CloseWindow, MacWindow, MacWindowChrome, MinimizeWindow, NewWindow, ShowHelp,
-    ToggleFullScreen, ZoomWindow, open_mac_window,
+    CloseWindow, MacWindow, MacWindowChrome, MinimizeWindow, ShowHelp, ToggleFullScreen,
+    ZoomWindow,
 };
-use crate::window_lab::WindowLab;
 
 #[derive(Clone, Copy, PartialEq, Eq, Default, Debug)]
 pub enum ShowcaseTab {
@@ -321,15 +320,6 @@ impl Showcase {
         Theme::toggle(cx);
     }
 
-    /// Open the Window Lab sub-window. File → New Window and the Window
-    /// gallery demo both call this.
-    pub fn open_sub_window(cx: &mut App) {
-        let _ = open_mac_window("Window Lab", cx, |window, cx| {
-            let view = cx.new(|cx| WindowLab::new(window, cx));
-            cx.new(|cx| gpui_component::Root::new(view, window, cx))
-        });
-    }
-
     pub fn switch_tab(&mut self, tab: ShowcaseTab, window: &mut Window, cx: &mut Context<Self>) {
         if self.active_tab != tab {
             self.active_tab = tab;
@@ -357,7 +347,6 @@ impl Render for Showcase {
             .key_context("Showcase")
             .track_focus(&self.focus_handle)
             .on_action(cx.listener(|_, _: &ToggleTheme, _, cx| Self::toggle_theme(cx)))
-            .on_action(|_: &NewWindow, _, cx| Self::open_sub_window(cx))
             .on_action(|_: &CloseWindow, window, _| window.remove_window())
             .on_action(|_: &MinimizeWindow, window, _| window.minimize_window())
             .on_action(|_: &ZoomWindow, window, _| window.zoom_window())
@@ -374,13 +363,6 @@ impl Render for Showcase {
             .child(
                 MacWindow::new("showcase", "Celestia Desktop")
                     .chrome(MacWindowChrome::Window)
-                    .toolbar_item(
-                        Button::new("title-new-window")
-                            .variant(ButtonVariant::Ghost)
-                            .size(ButtonSize::Small)
-                            .label("New Window")
-                            .on_click(|_, _, cx| Showcase::open_sub_window(cx)),
-                    )
                     .child(self.render_shell(window, cx)),
             )
     }

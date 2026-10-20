@@ -1386,7 +1386,7 @@ impl Showcase {
                 Card::new()
                     .title("Window")
                     .description(
-                        "composite/window — Embedded previews, Window OS chrome, open_mac_window, and MacAppMenu.",
+                        "composite/window — Embedded previews, this window's OS chrome, and MacAppMenu.",
                     )
                     .child(
                         v_flex()
@@ -1401,7 +1401,7 @@ impl Showcase {
                                             .text_xs()
                                             .text_color(muted)
                                             .child(
-                                                "MacAppMenu::standard → install. In fullscreen, move the pointer to the top edge to reveal Celestia · File · Edit · View · Window · Help.",
+                                                "MacAppMenu::standard → install. In fullscreen, move the pointer to the top edge to reveal the menu bar.",
                                             ),
                                     )
                                     .child(MacMenuBarPreview::new(&preview)),
@@ -1500,18 +1500,18 @@ fn window_caption(label: &str, muted: Hsla) -> impl IntoElement {
         .child(label.to_string())
 }
 
-/// Buttons that drive the live gallery window and open the Window Lab.
+/// Buttons that drive this gallery window (minimize / zoom / fullscreen).
 fn window_try_it(cx: &App) -> impl IntoElement {
     let muted = cx.theme().muted_foreground;
     v_flex()
         .gap_2()
-        .child(window_caption("OS window · open_mac_window", muted))
+        .child(window_caption("This window", muted))
         .child(
             div()
                 .text_xs()
                 .text_color(muted)
                 .child(
-                    "New Window opens a real MacWindowChrome::Window lab. File → New Window (⌘N), Window → Minimize / Zoom, View → Enter Full Screen (⌃⌘F).",
+                    "Controls the gallery itself. Window → Minimize / Zoom, View → Enter Full Screen (⌃⌘F).",
                 ),
         )
         .child(
@@ -1520,11 +1520,6 @@ fn window_try_it(cx: &App) -> impl IntoElement {
                 .flex_row()
                 .flex_wrap()
                 .gap(px(8.))
-                .child(
-                    Button::new("win-new-window")
-                        .label("New Window")
-                        .on_click(|_, _, cx| Showcase::open_sub_window(cx)),
-                )
                 .child(
                     Button::new("win-minimize")
                         .variant(ButtonVariant::Outline)

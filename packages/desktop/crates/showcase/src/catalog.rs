@@ -1475,7 +1475,7 @@ pub const SECTIONS: &[SectionMeta] = &[
         family: Family::Composites,
         demo: Demo::Window,
         package: "composite/window",
-        description: "Embedded previews, OS chrome, open_mac_window, and MacAppMenu.",
+        description: "Embedded previews, OS chrome, and MacAppMenu.",
     },
     SectionMeta {
         id: "button-group",

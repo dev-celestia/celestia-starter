@@ -16,11 +16,10 @@ mod catalog;
 mod section;
 mod sections;
 mod showcase;
-mod window_lab;
 
 use actions::ToggleTheme;
 use celestia_ui::components::composite::window::{
-    MacAppMenu, MacWindow, MinimizeWindow, ZoomWindow, bind_mac_window_keys,
+    CloseWindow, MacAppMenu, MacWindow, MinimizeWindow, ToggleFullScreen, ZoomWindow,
 };
 use celestia_ui::state::StoreContext;
 use gpui::*;
@@ -46,12 +45,27 @@ fn main() {
             // the root, consumed anywhere via StoreContext::<Session>::require.
             StoreContext::<Session>::provide(Session::default(), cx);
 
-            cx.bind_keys([KeyBinding::new(&primary("d"), ToggleTheme, None)]);
-            bind_mac_window_keys(cx);
-            // Live menu bar: File (New / Close), Edit, View (Full Screen),
-            // Window (Minimize / Zoom), Help. Fullscreen hides it; top-edge
-            // hover reveals it again.
+            cx.bind_keys([
+                KeyBinding::new(&primary("d"), ToggleTheme, None),
+                #[cfg(target_os = "macos")]
+                KeyBinding::new("cmd-w", CloseWindow, None),
+                #[cfg(target_os = "macos")]
+                KeyBinding::new("cmd-m", MinimizeWindow, None),
+                #[cfg(target_os = "macos")]
+                KeyBinding::new("cmd-ctrl-f", ToggleFullScreen, None),
+                #[cfg(not(target_os = "macos"))]
+                KeyBinding::new("ctrl-w", CloseWindow, None),
+                #[cfg(not(target_os = "macos"))]
+                KeyBinding::new("ctrl-m", MinimizeWindow, None),
+                #[cfg(not(target_os = "macos"))]
+                KeyBinding::new("f11", ToggleFullScreen, None),
+            ]);
+            // Live menu bar: File (Close), Edit, View (Full Screen),
+            // Window (Minimize / Zoom), Help. No New Window — the gallery
+            // is a single window. Fullscreen hides the bar; top-edge hover
+            // reveals it again.
             MacAppMenu::standard("Celestia")
+                .menu(Menu::new("File").items([MenuItem::action("Close", CloseWindow)]))
                 .menu(Menu::new("Window").items([
                     MenuItem::action("Minimize", MinimizeWindow),
                     MenuItem::action("Zoom", ZoomWindow),
