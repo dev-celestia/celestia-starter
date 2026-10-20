@@ -5,7 +5,7 @@
 //! 2. Mutate with `cx.notify()` so GPUI re-renders.
 //! 3. Build the tree from `celestia_ui::components::*` and theme via `cx.theme()`.
 //! 4. Talk to `apps/api` through `celestia_bridge` (never import the DB).
-//! 5. Windowing via `composite/windowing` — `open_mac_window`, `MacAppMenu`, actions.
+//! 5. Window via `composite/window` — `open_mac_window`, `MacAppMenu`, actions.
 
 use crate::actions::ToggleTheme;
 use celestia_bridge::{BridgeClient, Health, brief};
@@ -17,11 +17,8 @@ use celestia_ui::components::composite::sidebar_layout::{
     SidebarFooter, SidebarHeader, SidebarLayout, SidebarNav, SidebarNavItem, SidebarSection,
 };
 use celestia_ui::components::composite::window::{
-    MacWindow, MacWindowChrome, MacWindowKind, MacWindowTab,
-};
-use celestia_ui::components::composite::windowing::{
-    CloseWindow, MinimizeWindow, NewWindow, ShowHelp, ToggleFullScreen, ZoomWindow,
-    open_mac_window,
+    CloseWindow, MacWindow, MacWindowChrome, MacWindowKind, MacWindowTab, MinimizeWindow,
+    NewWindow, ShowHelp, ToggleFullScreen, ZoomWindow, open_mac_window,
 };
 use celestia_ui::components::primitive::badge::{Badge, BadgeVariant};
 use celestia_ui::components::primitive::button::{Button, ButtonSize, ButtonVariant};
@@ -70,7 +67,7 @@ impl StarterApp {
     }
 
     /// Open another starter window. File → New Window and the Home controls
-    /// both call this (`composite/windowing::open_mac_window`).
+    /// both call this (`composite/window::open_mac_window`).
     pub fn open_sub_window(cx: &mut App) {
         let _ = open_mac_window("Celestia Starter", cx, |window, cx| {
             let view = cx.new(|cx| Self::new(window, cx));
@@ -269,9 +266,9 @@ impl StarterApp {
             )
             .child(
                 Card::new()
-                    .title("Windowing")
+                    .title("Window")
                     .description(
-                        "composite/window + composite/windowing — Mac-first today. \
+                        "composite/window — Mac-first today. \
                          New Window opens a real OS window; menu bar is installed in main.rs.",
                     )
                     .child(

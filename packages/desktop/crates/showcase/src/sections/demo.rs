@@ -168,7 +168,6 @@ impl Showcase {
             | Demo::StartMenu
             | Demo::TrafficLights
             | Demo::Window
-            | Demo::AppMenu
             | Demo::ButtonGroup
             | Demo::InputGroup
             | Demo::Panel

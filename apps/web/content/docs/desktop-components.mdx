@@ -297,8 +297,7 @@ state; builders take callbacks and element slots.
 | --------- | ------- |
 | `AppHeader` / `Toolbar` / `ActionBar` / `PageHeader` | Chrome strips |
 | `StartBar` / `StartBarItem` / `SystemTray` / `StartMenu` | Windows-style taskbar (start · apps · tray · menu) |
-| `TrafficLights` / `MacWindow` / `MacWindowTab` | Window chrome via `composite/window` — `Embedded` previews and `Window` OS roots (Mac-first) |
-| `MacAppMenu` / `open_mac_window` | Real sub-windows and the app menu via `composite/windowing` |
+| `TrafficLights` / `MacWindow` / `MacAppMenu` / `open_mac_window` | Window chrome, sub-windows, and app menu via `composite/window` — `Embedded` previews and `Window` OS roots (Mac-first) |
 | `Wizard` / `SideNav` / `WorkspaceSwitcher` / `UserMenu` | Flows & nav |
 | `ButtonGroup` / `InputGroup` / `TagInput` / `FindReplaceBar` | Grouped controls |
 | `Panel` / `PropertyList` / `ProjectCard` / `IssueCard` | Content cards |
@@ -390,7 +389,7 @@ list to `cx.set_menus`. In fullscreen, macOS hides that bar and shows it again
 when the pointer hits the top of the screen.
 
 ```rust
-use celestia_ui::components::composite::windowing::{
+use celestia_ui::components::composite::window::{
     MacAppMenu, MinimizeWindow, ShowHelp, bind_mac_window_keys, open_mac_window,
 };
 use gpui::{Menu, MenuItem};

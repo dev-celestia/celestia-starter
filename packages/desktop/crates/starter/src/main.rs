@@ -11,9 +11,9 @@
 //! 3. `MacAppMenu` + `bind_mac_window_keys` — app menu and window shortcuts
 //! 4. `open_mac_window(…, |window, cx| Root::new(view, window, cx))`
 //!
-//! Window chrome lives in `composite/window` (`MacWindowChrome::Window` for
-//! real roots, `Embedded` for previews) and `composite/windowing` (sub-windows,
-//! menu, actions). Mac-first today; other OS helpers join those modules later.
+//! Window chrome, sub-windows, menu, and actions live in `composite/window`
+//! (`MacWindowChrome::Window` for real roots, `Embedded` for previews).
+//! Mac-first today; other OS helpers join that module later.
 //!
 //! Talk to `apps/api` via `celestia-bridge` (see the Backend sidebar page).
 //!
@@ -32,7 +32,7 @@ mod app;
 use actions::ToggleTheme;
 use app::StarterApp;
 use celestia_ui::assets::CelestiaAssets;
-use celestia_ui::components::composite::windowing::{
+use celestia_ui::components::composite::window::{
     MacAppMenu, MinimizeWindow, ZoomWindow, bind_mac_window_keys, open_mac_window,
 };
 use gpui::*;

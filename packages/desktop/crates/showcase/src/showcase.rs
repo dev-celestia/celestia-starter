@@ -5,7 +5,6 @@ use celestia_ui::components::composite::search_field::SearchField;
 use celestia_ui::components::composite::sidebar_layout::{
     SidebarFooter, SidebarHeader, SidebarLayout, SidebarNav, SidebarNavItem, SidebarSection,
 };
-use celestia_ui::components::composite::window::{MacWindow, MacWindowChrome};
 use celestia_ui::components::composite::virtual_list::VirtualListScrollHandle;
 use celestia_ui::components::primitive::button::{Button, ButtonSize, ButtonVariant};
 use celestia_ui::components::primitive::calendar::CalendarState;
@@ -32,11 +31,11 @@ use crate::section::{Category, DocProp, SECTION_COUNT, Section};
 use crate::sections::data_display::VirtualListDemo;
 use crate::sections::layout::PlaygroundAxis;
 use crate::sections::state::GalleryState;
-use celestia_ui::components::composite::windowing::{
-    CloseWindow, MinimizeWindow, NewWindow, ShowHelp, ToggleFullScreen, ZoomWindow,
-    open_mac_window,
+use celestia_ui::components::composite::window::{
+    CloseWindow, MacWindow, MacWindowChrome, MinimizeWindow, NewWindow, ShowHelp,
+    ToggleFullScreen, ZoomWindow, open_mac_window,
 };
-use crate::windowing_lab::WindowingLab;
+use crate::window_lab::WindowLab;
 
 #[derive(Clone, Copy, PartialEq, Eq, Default, Debug)]
 pub enum ShowcaseTab {
@@ -322,11 +321,11 @@ impl Showcase {
         Theme::toggle(cx);
     }
 
-    /// Open the Windowing Lab sub-window. File → New Window and the Window /
-    /// Windowing gallery demos both call this.
+    /// Open the Window Lab sub-window. File → New Window and the Window
+    /// gallery demo both call this.
     pub fn open_sub_window(cx: &mut App) {
-        let _ = open_mac_window("Windowing Lab", cx, |window, cx| {
-            let view = cx.new(|cx| WindowingLab::new(window, cx));
+        let _ = open_mac_window("Window Lab", cx, |window, cx| {
+            let view = cx.new(|cx| WindowLab::new(window, cx));
             cx.new(|cx| gpui_component::Root::new(view, window, cx))
         });
     }
@@ -366,7 +365,7 @@ impl Render for Showcase {
             .on_action(|_: &ShowHelp, window, cx| {
                 window.push_notification(
                     Notification::info(
-                        "Help — use File, Window, and View menus, or open Window / Windowing in the gallery.",
+                        "Help — use File, Window, and View menus, or open Window in the gallery.",
                     ),
                     cx,
                 );

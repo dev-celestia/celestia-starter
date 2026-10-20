@@ -1,11 +1,11 @@
-//! Lightweight window used to exercise Mac windowing from the gallery.
+//! Lightweight window used to exercise Mac window chrome from the gallery.
 //!
-//! Opened by File → New Window and by the Window / Windowing gallery demos.
+//! Opened by File → New Window and by the Window gallery demo.
 //! Keep this small so a sub-window is obviously separate from the full showcase.
 
-use celestia_ui::components::composite::window::{MacWindow, MacWindowChrome};
-use celestia_ui::components::composite::windowing::{
-    CloseWindow, MinimizeWindow, NewWindow, ShowHelp, ToggleFullScreen, ZoomWindow,
+use celestia_ui::components::composite::window::{
+    CloseWindow, MacWindow, MacWindowChrome, MinimizeWindow, NewWindow, ShowHelp,
+    ToggleFullScreen, ZoomWindow,
 };
 use celestia_ui::components::primitive::button::{Button, ButtonVariant};
 use celestia_ui::components::primitive::toast::{Notification, WindowExt as _};
@@ -14,11 +14,11 @@ use gpui::*;
 use gpui_component::v_flex;
 
 /// A small Mac window for trying new, minimize, zoom, fullscreen, and close.
-pub struct WindowingLab {
+pub struct WindowLab {
     focus_handle: FocusHandle,
 }
 
-impl WindowingLab {
+impl WindowLab {
     pub fn new(_window: &mut Window, cx: &mut Context<Self>) -> Self {
         Self {
             focus_handle: cx.focus_handle(),
@@ -26,15 +26,15 @@ impl WindowingLab {
     }
 }
 
-impl Render for WindowingLab {
+impl Render for WindowLab {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let theme = cx.theme();
 
         div()
-            .id("windowing-lab")
+            .id("window-lab")
             .role(Role::Group)
-            .aria_label("Mac windowing lab")
-            .key_context("WindowingLab")
+            .aria_label("Mac window lab")
+            .key_context("WindowLab")
             .track_focus(&self.focus_handle)
             .on_action(|_: &NewWindow, _, cx| {
                 crate::showcase::Showcase::open_sub_window(cx);
@@ -51,7 +51,7 @@ impl Render for WindowingLab {
             })
             .size_full()
             .child(
-                MacWindow::new("windowing-lab", "Windowing Lab")
+                MacWindow::new("window-lab", "Window Lab")
                     .chrome(MacWindowChrome::Window)
                     .child(
                         div()
@@ -69,7 +69,7 @@ impl Render for WindowingLab {
                                 div()
                                     .text_lg()
                                     .font_weight(FontWeight::SEMIBOLD)
-                                    .child("Mac windowing"),
+                                    .child("Mac window"),
                             )
                             .child(
                                 div()

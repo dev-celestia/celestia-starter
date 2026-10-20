@@ -688,9 +688,8 @@ session.update(cx, |s| s.user = "celeste".into());"#;
 const COMPOSITES_CODE: &str = r#"use celestia_ui::components::composite::app_header::AppHeader;
 use celestia_ui::components::composite::button_group::ButtonGroup;
 use celestia_ui::components::composite::command_palette::{CommandPalette, CommandPaletteItem};
-use celestia_ui::components::composite::window::{MacWindow, MacWindowKind, MacWindowTab};
-use celestia_ui::components::composite::windowing::{
-    MacAppMenu, MinimizeWindow, open_mac_window,
+use celestia_ui::components::composite::window::{
+    MacAppMenu, MacWindow, MacWindowKind, MacWindowTab, MinimizeWindow, open_mac_window,
 };
 use celestia_ui::components::composite::panel::Panel;
 use celestia_ui::components::composite::start_bar::{StartBar, StartBarItem};
@@ -1250,14 +1249,9 @@ const COMPOSITES_PROPS: &[DocProp] = &[
         description: "Windows-style taskbar: start trigger, pinned apps, tray + clock, start menu flyout.",
     },
     DocProp {
-        name: "TrafficLights / MacWindow",
+        name: "TrafficLights / MacWindow / MacAppMenu",
         ty: "composite/window",
-        description: "Mac-first chrome. Embedded previews or Window OS roots. Lights, unified sidebar, title-bar tabs.",
-    },
-    DocProp {
-        name: "MacAppMenu / open_mac_window",
-        ty: "composite/windowing",
-        description: "Customizable app menu (standard, menu, item, without, install) and a real sub-window. Fullscreen reveals the installed bar on top-edge hover.",
+        description: "Mac-first chrome (Embedded previews or Window OS roots), open_mac_window, and the customizable app menu. Fullscreen reveals the installed bar on top-edge hover.",
     },
     DocProp {
         name: "ButtonGroup / InputGroup / Panel",
@@ -1283,8 +1277,7 @@ const COMPOSITES_PROPS: &[DocProp] = &[
 
 const COMPOSITES_NOTES: &[&str] = &[
     "Composites are presentational shells — the host owns Entity state (inputs, open/close, selection).",
-    "composite/window — Embedded for in-view frames; Window chrome for real OS roots via open_mac_window (AppKit lights on macOS).",
-    "composite/windowing — MacAppMenu::standard is the starting bar. menu replaces by name, item appends, without drops a menu, and the app-name menu stays first. install sends it to cx.set_menus.",
+    "composite/window — Embedded for in-view frames; Window chrome for real OS roots via open_mac_window (AppKit lights on macOS). MacAppMenu::standard is the starting bar; menu/item/without customize it; install sends it to cx.set_menus.",
     "Prefer SplitPane for fixed ratios; use ResizableSplit / ResizablePanelGroup for drag handles.",
     "KanbanBoard ships its own KanbanCardDrag session. While a card is dragged, the column washes accent and an insert line appears before release — see the Drag & Drop family.",
     "ToastStack is an in-view host; window.push_notification still drives the Root notification layer.",

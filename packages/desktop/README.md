@@ -26,7 +26,7 @@ crates/
 │        │   v_grid.rs, frame.rs, alignment.rs   # SwiftUI-style layout vocabulary
 │        ├─ charts.rs               # ChartLine / ChartPie / ChartDonut prefabs + chart/plot re-exports
 │        ├─ app_header / toolbar / start_bar / system_tray / start_menu / …  # app composites
-│        ├─ traffic_lights / window / windowing  # window chrome (Mac-first; other OS later)
+│        ├─ traffic_lights / window  # window chrome (Mac-first; other OS later)
 │        └─ section_heading.rs / text_editor.rs / code_editor.rs / …
 ├─ celestia-bridge           # HTTP bridge to apps/api (desktop twin of api-client.ts)
 ├─ celestia-desktop          # Component gallery (sidebar showcase window)
@@ -236,10 +236,10 @@ Source lives in `crates/starter/`:
 | `src/app.rs` | Root view — `SidebarLayout`, pages, theme toggle, New Window |
 | `src/actions.rs` | Keybinding actions (`ToggleTheme`) |
 
-Mac windowing lives in `celestia_ui`:
+Mac window chrome lives in `celestia_ui`:
 
 ```rust
-use celestia_ui::components::composite::windowing::{
+use celestia_ui::components::composite::window::{
     MacAppMenu, bind_mac_window_keys, open_mac_window,
 };
 

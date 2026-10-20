@@ -35,7 +35,7 @@
 //!   (composite).
 //! - **Structural** — `separator`, `kbd`, `link`, `breadcrumb` (primitive);
 //!   `group_box`, `status_bar`, `title_bar`, `traffic_lights`, `window`,
-//!   `windowing`, `empty` (composite).
+//!   `empty` (composite).
 //! - **Display** — `badge`, `label`, `rating`, `avatar` (+ its own
 //!   `AvatarGroup` and the OkLCH identity ring) (primitive).
 //! - **Layout** — `card` (primitive); `section_heading`, `sidebar_layout`, and
@@ -202,7 +202,6 @@ pub use composite::keybinding_recorder::*;
 pub use composite::loaders::*;
 pub use composite::log_viewer::*;
 pub use composite::window::*;
-pub use composite::windowing::*;
 pub use composite::media_object::*;
 pub use composite::menu::*;
 pub use composite::modal::*;

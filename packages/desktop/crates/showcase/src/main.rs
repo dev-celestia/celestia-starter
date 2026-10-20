@@ -16,13 +16,12 @@ mod catalog;
 mod section;
 mod sections;
 mod showcase;
-mod windowing_lab;
+mod window_lab;
 
 use actions::ToggleTheme;
-use celestia_ui::components::composite::windowing::{
-    MacAppMenu, MinimizeWindow, ZoomWindow, bind_mac_window_keys,
+use celestia_ui::components::composite::window::{
+    MacAppMenu, MacWindow, MinimizeWindow, ZoomWindow, bind_mac_window_keys,
 };
-use celestia_ui::components::composite::window::MacWindow;
 use celestia_ui::state::StoreContext;
 use gpui::*;
 use gpui_component::Root;

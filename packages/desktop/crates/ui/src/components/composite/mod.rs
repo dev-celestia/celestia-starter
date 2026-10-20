@@ -65,7 +65,6 @@ pub mod list;
 pub mod loaders;
 pub mod log_viewer;
 pub mod window;
-pub mod windowing;
 pub mod marker;
 pub mod media_object;
 pub mod menu;
