@@ -21,6 +21,7 @@
 
 pub mod alignment;
 pub mod attachment;
+pub mod button_group;
 pub mod charts;
 pub mod code_editor;
 pub mod color_picker;

@@ -24,7 +24,6 @@ import {
 import {
   Button,
   ButtonGroup,
-  ButtonGroupSeparator,
   ButtonGroupText,
   Toggle,
   ToggleGroup,
@@ -76,24 +75,22 @@ export function ButtonDemo() {
 }`
 
 const BUTTON_GROUP_CODE = `import * as React from "react"
-import { Button, ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from "@celestia-project/ui"
+import { Button, ButtonGroup, ButtonGroupText } from "@celestia-project/ui"
 import { PlusIcon, DownloadSimpleIcon, CaretDownIcon } from "@phosphor-icons/react"
 
 export function ButtonGroupDemo() {
   return (
     <div className="flex flex-col items-center gap-4">
-      {/* Horizontal Action Group */}
+      {/* Horizontal Action Group — outline segments fuse without separators */}
       <ButtonGroup orientation="horizontal">
         <Button variant="outline" size="sm">
           <PlusIcon className="size-3.5 me-1" />
           New File
         </Button>
-        <ButtonGroupSeparator />
         <Button variant="outline" size="sm">
           <DownloadSimpleIcon className="size-3.5 me-1" />
           Export
         </Button>
-        <ButtonGroupSeparator />
         <Button variant="outline" size="icon-sm">
           <CaretDownIcon className="size-3.5" />
         </Button>
@@ -321,9 +318,9 @@ export function ButtonsSection() {
           id="button-group"
           title="Button Group"
           category="Buttons"
-          description="Groups related buttons horizontally or vertically with joined borders and integrated separators."
+          description="Groups related buttons horizontally or vertically with joined borders."
           docsSlug="button-group"
-          importSnippet={`import { ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from "@celestia-project/ui"`}
+          importSnippet={`import { ButtonGroup, ButtonGroupText } from "@celestia-project/ui"`}
           codeExample={BUTTON_GROUP_CODE}
         >
           <div className="flex flex-col items-center gap-4">
@@ -332,12 +329,10 @@ export function ButtonsSection() {
                 <PlusIcon className="size-3.5" />
                 New File
               </Button>
-              <ButtonGroupSeparator />
               <Button variant="outline" size="sm">
                 <DownloadSimpleIcon className="size-3.5" />
                 Export
               </Button>
-              <ButtonGroupSeparator />
               <Button variant="outline" size="icon-sm">
                 <CaretDownIcon className="size-3.5" />
               </Button>
