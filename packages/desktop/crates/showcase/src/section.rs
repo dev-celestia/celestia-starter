@@ -689,7 +689,7 @@ const COMPOSITES_CODE: &str = r#"use celestia_ui::components::composite::app_hea
 use celestia_ui::components::composite::button_group::ButtonGroup;
 use celestia_ui::components::composite::command_palette::{CommandPalette, CommandPaletteItem};
 use celestia_ui::components::composite::window::{
-    MacAppMenu, MacWindow, MacWindowKind, MacWindowTab, MinimizeWindow,
+    MacAppMenu, MacWindow, MacWindowChrome, MinimizeWindow,
 };
 use celestia_ui::components::composite::panel::Panel;
 use celestia_ui::components::composite::start_bar::{StartBar, StartBarItem};
@@ -705,14 +705,10 @@ Toolbar::new("tb").title("main.rs")
 
 TrafficLights::new("lights").edited(true).on_close(|_, _| {})
 
-MacWindow::new("notes", "Notes")
-    .kind(MacWindowKind::Unified)
-    .sidebar(/* sidebar */)
-    .tab(MacWindowTab::new("a", "Notes"))
+MacWindow::new("app", "Celestia Desktop").chrome(MacWindowChrome::Window)
 
 MacAppMenu::standard("Celestia")
     .menu(Menu::new("Window").items([MenuItem::action("Minimize", MinimizeWindow)]))
-    .without("Help")
     .install(cx);
 
 StartBar::new("taskbar")
@@ -1250,7 +1246,7 @@ const COMPOSITES_PROPS: &[DocProp] = &[
     DocProp {
         name: "TrafficLights / MacWindow / MacAppMenu",
         ty: "composite/window",
-        description: "Mac-first chrome (Embedded previews or Window OS roots) and the customizable app menu. Fullscreen reveals the installed bar on top-edge hover.",
+        description: "Mac-first OS chrome for this window and the customizable app menu. Fullscreen reveals the installed bar on top-edge hover.",
     },
     DocProp {
         name: "ButtonGroup / InputGroup / Panel",
@@ -1276,7 +1272,7 @@ const COMPOSITES_PROPS: &[DocProp] = &[
 
 const COMPOSITES_NOTES: &[&str] = &[
     "Composites are presentational shells — the host owns Entity state (inputs, open/close, selection).",
-    "composite/window — Embedded for in-view frames; Window chrome for real OS roots (AppKit lights on macOS). MacAppMenu::standard is the starting bar; menu/item/without customize it; install sends it to cx.set_menus.",
+    "composite/window — this gallery uses MacWindowChrome::Window (AppKit lights on macOS). MacAppMenu::standard is the starting bar; menu/item/without customize it; install sends it to cx.set_menus.",
     "Prefer SplitPane for fixed ratios; use ResizableSplit / ResizablePanelGroup for drag handles.",
     "KanbanBoard ships its own KanbanCardDrag session. While a card is dragged, the column washes accent and an insert line appears before release — see the Drag & Drop family.",
     "ToastStack is an in-view host; window.push_notification still drives the Root notification layer.",

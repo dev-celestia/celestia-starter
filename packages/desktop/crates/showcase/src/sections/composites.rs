@@ -30,8 +30,7 @@ use celestia_ui::components::composite::keybinding_recorder::{
 };
 use celestia_ui::components::composite::log_viewer::{LogLevel, LogRow, LogViewer};
 use celestia_ui::components::composite::window::{
-    MacAppMenu, MacMenuBarPreview, MacWindow, MacWindowKind, MacWindowTab, MinimizeWindow,
-    ZoomWindow,
+    CloseWindow, MacAppMenu, MacMenuBarPreview, MinimizeWindow, ZoomWindow,
 };
 use celestia_ui::components::composite::media_object::MediaObject;
 use celestia_ui::components::composite::notification_center::NotificationCenter;
@@ -1378,15 +1377,16 @@ impl Showcase {
                 .into_any_element(),
             Demo::Window => {
                 let preview = MacAppMenu::standard("Celestia")
+                    .menu(gpui::Menu::new("File").items([MenuItem::action("Close", CloseWindow)]))
                     .menu(gpui::Menu::new("Window").items([
-                        gpui::MenuItem::action("Minimize", MinimizeWindow),
-                        gpui::MenuItem::action("Zoom", ZoomWindow),
+                        MenuItem::action("Minimize", MinimizeWindow),
+                        MenuItem::action("Zoom", ZoomWindow),
                     ]));
                 let muted = cx.theme().muted_foreground;
                 Card::new()
                     .title("Window")
                     .description(
-                        "composite/window — Embedded previews, this window's OS chrome, and MacAppMenu.",
+                        "composite/window — this gallery is a MacWindowChrome::Window root. Controls and menu below drive it.",
                     )
                     .child(
                         v_flex()
@@ -1401,71 +1401,10 @@ impl Showcase {
                                             .text_xs()
                                             .text_color(muted)
                                             .child(
-                                                "MacAppMenu::standard → install. In fullscreen, move the pointer to the top edge to reveal the menu bar.",
+                                                "Installed via MacAppMenu::install. In fullscreen, move the pointer to the top edge to reveal it.",
                                             ),
                                     )
                                     .child(MacMenuBarPreview::new(&preview)),
-                            )
-                            .child(
-                                v_flex()
-                                    .gap_2()
-                                    .child(window_caption("Embedded · Unified", muted))
-                                    .child(
-                                        MacWindow::new("notes", "Notes")
-                                            .subtitle("iCloud")
-                                            .kind(MacWindowKind::Unified)
-                                            .h(px(200.))
-                                            .on_close(|_, _| {})
-                                            .on_minimize(|window, _| window.minimize_window())
-                                            .on_zoom(|window, _| window.zoom_window())
-                                            .sidebar(
-                                                div()
-                                                    .px(px(12.))
-                                                    .py(px(8.))
-                                                    .flex()
-                                                    .flex_col()
-                                                    .gap(px(6.))
-                                                    .text_xs()
-                                                    .child("All Notes")
-                                                    .child("Today"),
-                                            )
-                                            .child(
-                                                div()
-                                                    .p(px(12.))
-                                                    .text_sm()
-                                                    .text_color(muted)
-                                                    .child(
-                                                        "Sidebar runs under the lights. Yellow minimizes this gallery; green zooms it.",
-                                                    ),
-                                            ),
-                                    ),
-                            )
-                            .child(
-                                v_flex()
-                                    .gap_2()
-                                    .child(window_caption("Embedded · Tabs", muted))
-                                    .child(
-                                        MacWindow::new("docs", "Docs")
-                                            .h(px(160.))
-                                            .tab(MacWindowTab::new("notes", "Notes"))
-                                            .tab(MacWindowTab::new("todo", "Todo"))
-                                            .active_tab("notes")
-                                            .toolbar_item(
-                                                div()
-                                                    .text_xs()
-                                                    .text_color(muted)
-                                                    .child("Share"),
-                                            )
-                                            .child(
-                                                div()
-                                                    .p(px(12.))
-                                                    .text_sm()
-                                                    .text_color(muted)
-                                                    .child(
-                                                        "Title-bar tabs replace the centered title.",
-                                                    ),
-                                            ),
-                                    ),
                             ),
                     )
                     .into_any_element()
