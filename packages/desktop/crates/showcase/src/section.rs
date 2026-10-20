@@ -4,7 +4,7 @@
 //! family docs (usage / props / notes) and re-exports the catalog types the
 //! showcase shell needs.
 
-pub use crate::catalog::{Category, Demo, Family, SECTION_COUNT, SECTIONS, Section, SectionMeta};
+pub use crate::catalog::{Category, Demo, Family, SECTION_COUNT, Section};
 
 impl Section {
     pub fn code(self) -> &'static str {
