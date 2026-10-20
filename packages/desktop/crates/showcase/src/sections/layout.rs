@@ -14,7 +14,6 @@ use celestia_ui::components::composite::alignment::{
 use celestia_ui::components::composite::group_box::GroupBox;
 use celestia_ui::components::composite::h_stack::HStack;
 use celestia_ui::components::composite::spacer::Spacer;
-use celestia_ui::components::composite::status_bar::StatusBar;
 use celestia_ui::components::composite::v_grid::{GridItem, VGrid};
 use celestia_ui::components::composite::v_stack::VStack;
 use celestia_ui::components::composite::z_stack::ZStack;
@@ -29,8 +28,10 @@ use celestia_ui::components::primitive::tabs::{
 };
 use celestia_ui::palette;
 use gpui::*;
-use gpui_component::{ActiveTheme, h_flex, v_flex};
+use celestia_ui::theme::ActiveTheme as _;
+use gpui_component::{h_flex, v_flex};
 
+use crate::catalog::Demo;
 use crate::showcase::Showcase;
 
 /// Axis selector for the interactive layout playground.
@@ -1248,26 +1249,71 @@ impl Showcase {
         let muted = cx.theme().muted_foreground;
 
         Card::new()
-            .title("Group Box & Status Bar")
-            .description("Surrounding content groups and window footer status bars.")
+            .title("GroupBox")
+            .description("Bordered grouped content.")
             .child(
-                v_flex()
-                    .gap_4()
-                    .child(
-                        GroupBox::new().child(
-                            h_flex().p_3().gap_4().child(
-                                div().text_sm().text_color(muted).child(
-                                    "Grouped content section inside a unified bordered box.",
-                                ),
-                            ),
+                GroupBox::new().child(
+                    h_flex().p_3().gap_4().child(
+                        div().text_sm().text_color(muted).child(
+                            "Grouped content section inside a unified bordered box.",
                         ),
-                    )
-                    .child(
-                        StatusBar::new()
-                            .left("Git: main* (clean)")
-                            .right("UTF-8  •  LF  •  Rust"),
                     ),
+                ),
             )
+    }
+
+    /// Focused per-component layout demos for the individual catalog.
+    pub(crate) fn render_layout_demo(&self, demo: Demo, cx: &mut Context<Self>) -> AnyElement {
+        match demo {
+            Demo::Hstack => self.render_hstack_card(cx).into_any_element(),
+            Demo::Vstack => self.render_vstack_card(cx).into_any_element(),
+            Demo::Zstack => self.render_zstack_card(cx).into_any_element(),
+            Demo::Spacer => self.render_spacer_card(cx).into_any_element(),
+            Demo::Vgrid => self.render_vgrid_card(cx).into_any_element(),
+            Demo::Tabs => self.render_tabs_card(cx).into_any_element(),
+            Demo::Accordion => Card::new()
+                .title("Accordion")
+                .description("Expandable accordion.")
+                .child(
+                    Accordion::new("acc-demo")
+                        .item(|item| {
+                            item.title("What is Celestia Desktop?")
+                                .open(true)
+                                .child(
+                                    div().text_sm().child(
+                                        "It is a high-performance native desktop UI library built on GPUI.",
+                                    ),
+                                )
+                        })
+                        .item(|item| {
+                            item.title("Does it use Chromium or WebViews?").child(
+                                div().text_sm().child(
+                                    "No! It is fully GPU-rendered without any webview overhead.",
+                                ),
+                            )
+                        }),
+                )
+                .into_any_element(),
+            Demo::Collapsible => Card::new()
+                .title("Collapsible")
+                .description("Single collapsible region.")
+                .child(
+                    Collapsible::new().open(true).content(
+                        div()
+                            .p_3()
+                            .rounded_md()
+                            .bg(cx.theme().muted)
+                            .text_sm()
+                            .child("Collapsible panel revealed with smooth layout transitions."),
+                    ),
+                )
+                .into_any_element(),
+            Demo::GroupBox => self.render_group_box_card(cx).into_any_element(),
+            Demo::LayoutPlayground => self.render_playground_card(cx).into_any_element(),
+            _ => v_flex()
+                .child(div().text_sm().child("Not a layout demo."))
+                .into_any_element(),
+        }
     }
 }
 

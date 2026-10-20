@@ -1,116 +1,114 @@
 use celestia_ui::components::Card;
-use celestia_ui::components::composite::context_badge::{BadgeDetail, MessageBadge, context_badge};
-use celestia_ui::components::composite::loaders::{
-    gradient_spinner, mini_mono_spinner, mini_spinner, progress_ring, pulse_loader,
-};
-use celestia_ui::components::composite::notice::{NoticeChipIcon, notice_chip};
 use celestia_ui::components::primitive::alert::Alert;
+use celestia_ui::components::primitive::battery::Battery;
+use celestia_ui::components::primitive::fab::Fab;
 use celestia_ui::components::primitive::icon::PhosphorIcon;
+use celestia_ui::components::primitive::meter::Meter;
+use celestia_ui::components::primitive::number_stepper::NumberStepper;
 use celestia_ui::components::primitive::progress::Progress;
+use celestia_ui::components::primitive::scrubber::Scrubber;
+use celestia_ui::components::primitive::shimmer::ShimmerText;
+use celestia_ui::components::primitive::signal_bars::SignalBars;
 use celestia_ui::components::primitive::skeleton::Skeleton;
 use celestia_ui::components::primitive::spinner::Spinner;
 use gpui::*;
-use gpui_component::{ActiveTheme, h_flex, v_flex};
+use gpui_component::{h_flex, v_flex};
 
+use crate::catalog::Demo;
 use crate::showcase::Showcase;
 
 impl Showcase {
-    pub(crate) fn render_feedback(&self, cx: &mut Context<Self>) -> impl IntoElement {
-        let view = cx.entity_id();
-        let foreground = cx.theme().foreground;
-        let muted = cx.theme().muted_foreground;
-        let primary = cx.theme().primary;
-        Card::new()
-            .title("Feedback")
-            .description(
-                "alert, progress, spinner, skeleton; zeron-port loaders, notice chips, context badges; toasts under Overlays.",
-            )
-            .child(
-                v_flex()
-                    .gap_3()
-                    .child(Alert::info("al-info", "This is an informational alert."))
-                    .child(Alert::success("al-ok", "Everything went well."))
-                    .child(Alert::warning("al-warn", "Watch out for this."))
-                    .child(Alert::error("al-err", "Something failed."))
-                    .child(Progress::new("pg-1").value(0.65))
-                    .child(
-                        h_flex()
-                            .gap_3()
-                            .items_center()
-                            .child(Spinner::new())
-                            .child(Skeleton::new().h_4().w(px(192.))),
-                    ),
-            )
-            // zeron-port loaders (components/loaders.rs) — all four run on the
-            // shared pulse clock in celestia_ui::motion.
-            .child(
-                v_flex()
-                    .gap_3()
-                    .child(
-                        h_flex()
-                            .gap_4()
-                            .items_center()
-                            .child(pulse_loader(8.0, view, cx))
-                            .child(gradient_spinner(6.0, view, cx))
-                            .child(mini_mono_spinner("fb-mini-mono", 4.0, muted))
-                            .child(mini_spinner(
-                                "fb-mini-accent",
-                                4.0,
-                                [primary, primary.opacity(0.6), primary.opacity(0.3)],
-                            )),
-                    )
-                    .child(
-                        h_flex()
-                            .gap_4()
-                            .items_center()
-                            .child(progress_ring(65, 40.0, foreground))
-                            .child(progress_ring(100, 40.0, primary)),
-                    ),
-            )
-            // Notice chips (components/notice.rs) — the tinted failure card.
-            .child(
-                v_flex()
-                    .gap_3()
-                    .child(notice_chip(
-                        false,
-                        "Command failed",
-                        "cargo build exited with status 101: unresolved import `celestia_ui::loaderz`",
-                        NoticeChipIcon::Tile,
-                        cx,
-                    ))
-                    .child(notice_chip(
-                        true,
-                        "Rate limited",
-                        "Retrying in 30s — the payload stays copyable while you wait.",
-                        NoticeChipIcon::Plain,
-                        cx,
-                    )),
-            )
-            // Context badges (components/context_badge.rs) — hover the first
-            // pill for the details card.
-            .child(
-                h_flex().gap_2().child(
-                    context_badge(
-                        "fb-badge-comments",
-                        &MessageBadge {
-                            icon: PhosphorIcon::FileCode,
-                            label: "2 comments".into(),
-                            details: vec![
-                                BadgeDetail {
-                                    location: "src/main.rs:42".into(),
-                                    tag: Some("R".into()),
-                                    body: "early-return here".into(),
-                                },
-                                BadgeDetail {
-                                    location: "src/lib.rs:7".into(),
-                                    tag: Some("L".into()),
-                                    body: "why was this dropped?".into(),
-                                },
-                            ],
-                        },
-                        cx,
-                    ),
-                ),
-            )
+    pub(crate) fn render_feedback_demo(&self, demo: Demo, _cx: &mut Context<Self>) -> AnyElement {
+        match demo {
+            Demo::Alert => Card::new()
+                .title("Alert")
+                .description("Status banners.")
+                .child(
+                    v_flex()
+                        .gap_3()
+                        .child(Alert::info("al-info", "This is an informational alert."))
+                        .child(Alert::success("al-ok", "Everything went well."))
+                        .child(Alert::warning("al-warn", "Watch out for this."))
+                        .child(Alert::error("al-err", "Something failed.")),
+                )
+                .into_any_element(),
+            Demo::Progress => Card::new()
+                .title("Progress")
+                .description("Linear progress bar.")
+                .child(Progress::new("pg-1").value(0.65))
+                .into_any_element(),
+            Demo::Meter => Card::new()
+                .title("Meter")
+                .description("Capacity meter with auto-tone.")
+                .child(
+                    Meter::new("meter-disk")
+                        .label("Disk")
+                        .value_label("48 GB / 64 GB")
+                        .value(0.75),
+                )
+                .into_any_element(),
+            Demo::Scrubber => Card::new()
+                .title("Scrubber")
+                .description("Media scrubber.")
+                .child(Scrubber::new("scrub-1", 0.42))
+                .into_any_element(),
+            Demo::SignalBars => Card::new()
+                .title("SignalBars")
+                .description("Signal strength bars.")
+                .child(
+                    h_flex()
+                        .gap_4()
+                        .items_center()
+                        .child(SignalBars::new("sig-1", 1))
+                        .child(SignalBars::new("sig-2", 2))
+                        .child(SignalBars::new("sig-3", 3))
+                        .child(SignalBars::new("sig-4", 4)),
+                )
+                .into_any_element(),
+            Demo::Battery => Card::new()
+                .title("Battery")
+                .description("Battery level indicator.")
+                .child(
+                    h_flex()
+                        .gap_4()
+                        .items_center()
+                        .child(Battery::new("bat", 0.55))
+                        .child(Battery::new("bat-low", 0.12).charging(true)),
+                )
+                .into_any_element(),
+            Demo::NumberStepper => Card::new()
+                .title("NumberStepper")
+                .description("Inline ± stepper.")
+                .child(NumberStepper::new("ns-1", 3).range(0, 10))
+                .into_any_element(),
+            Demo::Fab => Card::new()
+                .title("Fab")
+                .description("Floating action button.")
+                .child(Fab::new("fab-1", PhosphorIcon::Plus))
+                .into_any_element(),
+            Demo::Spinner => Card::new()
+                .title("Spinner")
+                .description("Indeterminate spinner.")
+                .child(h_flex().gap_4().items_center().child(Spinner::new()))
+                .into_any_element(),
+            Demo::Skeleton => Card::new()
+                .title("Skeleton")
+                .description("Placeholder skeleton.")
+                .child(
+                    v_flex()
+                        .gap_2()
+                        .child(Skeleton::new().h_4().w(px(192.)))
+                        .child(Skeleton::new().h_4().w(px(128.))),
+                )
+                .into_any_element(),
+            Demo::Shimmer => Card::new()
+                .title("Shimmer")
+                .description("Shimmer loading effect.")
+                .child(ShimmerText::new("Thinking…"))
+                .into_any_element(),
+            _ => v_flex()
+                .child(div().text_sm().child("Not a feedback demo."))
+                .into_any_element(),
+        }
     }
 }

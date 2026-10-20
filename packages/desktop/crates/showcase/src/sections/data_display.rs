@@ -6,186 +6,114 @@ use celestia_ui::components::composite::empty::{
     Empty as EmptyState, EmptyDescription, EmptyHeader, EmptyTitle,
 };
 use celestia_ui::components::composite::pagination::Pagination;
-use celestia_ui::components::composite::toolbar_menu::{ToolbarMenu, ToolbarMenuItem};
 use celestia_ui::components::composite::virtual_list::{VirtualListScrollHandle, v_virtual_list};
 use celestia_ui::components::primitive::breadcrumb::{Breadcrumb, BreadcrumbItem};
 use celestia_ui::components::primitive::button::{Button, ButtonSize, ButtonVariant};
-use celestia_ui::components::primitive::icon::PhosphorIcon;
 use celestia_ui::components::primitive::table::{DataTable, TableColumn};
-use celestia_ui::components::primitive::toast::{Notification, WindowExt as _};
-use gpui::*;
 use celestia_ui::theme::ActiveTheme as _;
+use gpui::*;
 use gpui_component::{h_flex, v_flex};
 
+use crate::catalog::Demo;
 use crate::showcase::Showcase;
 
 impl Showcase {
-    pub(crate) fn render_data_display(&self, _cx: &mut Context<Self>) -> impl IntoElement {
-        v_flex()
-            .gap_6()
-            .child(
-                Card::new()
-                    .title("Data Table")
-                    .description(
-                        "Structured tabular data with a ToolbarMenu of row actions above it.",
+    pub(crate) fn render_data_demo(&self, demo: Demo, _cx: &mut Context<Self>) -> AnyElement {
+        match demo {
+            Demo::DataTable => Card::new()
+                .title("DataTable")
+                .description("Declarative data table.")
+                .child(
+                    DataTable::new(
+                        [
+                            TableColumn::new("Invoice").width(220.),
+                            TableColumn::new("Status").width(100.),
+                            TableColumn::new("Amount"),
+                        ],
+                        vec![
+                            vec![
+                                "INV-001 — Acme Corp".into(),
+                                "Paid".into(),
+                                "$1,200.00".into(),
+                            ],
+                            vec![
+                                "INV-002 — Globex Inc".into(),
+                                "Pending".into(),
+                                "$850.00".into(),
+                            ],
+                            vec![
+                                "INV-003 — Soylent LLC".into(),
+                                "Paid".into(),
+                                "$340.00".into(),
+                            ],
+                            vec![
+                                "INV-004 — Initech".into(),
+                                "Overdue".into(),
+                                "$920.00".into(),
+                            ],
+                        ],
                     )
-                    .child(
-                        v_flex()
-                            .gap_3()
-                            .child(
-                                ToolbarMenu::new("table-toolbar")
-                                    .item(
-                                        ToolbarMenuItem::new(
-                                            "tm-refresh",
-                                            PhosphorIcon::ArrowClockwise,
-                                        )
-                                        .label("Refresh")
-                                        .on_click(|_, window, cx| {
-                                            window.push_notification(
-                                                Notification::success("Table refreshed"),
-                                                cx,
-                                            );
-                                        }),
-                                    )
-                                    .item(
-                                        ToolbarMenuItem::new("tm-filter", PhosphorIcon::Funnel)
-                                            .label("Filter")
-                                            .on_click(|_, window, cx| {
-                                                window.push_notification(
-                                                    Notification::success("Filter opened"),
-                                                    cx,
-                                                );
-                                            }),
-                                    )
-                                    .separator()
-                                    .item(
-                                        ToolbarMenuItem::new("tm-export", PhosphorIcon::Export)
-                                            .label("Export")
-                                            .on_click(|_, window, cx| {
-                                                window.push_notification(
-                                                    Notification::success("Exported CSV"),
-                                                    cx,
-                                                );
-                                            }),
-                                    )
-                                    .item(
-                                        ToolbarMenuItem::new("tm-edit", PhosphorIcon::Pencil)
-                                            .label("Edit")
-                                            .on_click(|_, window, cx| {
-                                                window.push_notification(
-                                                    Notification::success("Edit mode"),
-                                                    cx,
-                                                );
-                                            }),
-                                    )
-                                    .item(
-                                        ToolbarMenuItem::new("tm-trash", PhosphorIcon::Trash)
-                                            .label("Delete")
-                                            .on_click(|_, window, cx| {
-                                                window.push_notification(
-                                                    Notification::error("Row deleted"),
-                                                    cx,
-                                                );
-                                            }),
-                                    ),
-                            )
-                            .child(
-                                DataTable::new(
-                                    [
-                                        TableColumn::new("Invoice").width(220.),
-                                        TableColumn::new("Status").width(100.),
-                                        TableColumn::new("Amount"),
-                                    ],
-                                    vec![
-                                        vec![
-                                            "INV-001 — Acme Corp".into(),
-                                            "Paid".into(),
-                                            "$1,200.00".into(),
-                                        ],
-                                        vec![
-                                            "INV-002 — Globex Inc".into(),
-                                            "Pending".into(),
-                                            "$850.00".into(),
-                                        ],
-                                        vec![
-                                            "INV-003 — Soylent LLC".into(),
-                                            "Paid".into(),
-                                            "$340.00".into(),
-                                        ],
-                                        vec![
-                                            "INV-004 — Initech".into(),
-                                            "Overdue".into(),
-                                            "$920.00".into(),
-                                        ],
-                                    ],
-                                )
-                                .caption("A list of recent invoices."),
-                            ),
-                    ),
-            )
-            .child(
-                Card::new()
-                    .title("Virtual List")
-                    .description(
-                        "Virtualized scrolling for thousands of unevenly-sized rows — only the \
-                         visible range is laid out and painted.",
-                    )
-                    .child(self.demo_virtual_list.clone()),
-            )
-            .child(
-                Card::new()
-                    .title("Description List")
-                    .description("Key-value metadata lists for system and resource details.")
-                    .child(
-                        DescriptionList::new()
-                            .item("Framework", "Celestia Desktop", 1)
-                            .item("Platform Engine", "GPUI (Metal / Vulkan)", 1)
-                            .item("Architecture", "ARM64 / x86_64 Native", 1)
-                            .item("Design System", "Celestia Semantic Tokens", 1),
-                    ),
-            )
-            .child(
-                Card::new()
-                    .title("Navigation: Breadcrumbs & Pagination")
-                    .description("Hierarchical path trails and page index controls.")
-                    .child(
-                        v_flex()
-                            .gap_4()
-                            .child(
-                                Breadcrumb::new()
-                                    .child(BreadcrumbItem::new("Home"))
-                                    .child(BreadcrumbItem::new("Components"))
-                                    .child(BreadcrumbItem::new("Data Display")),
-                            )
-                            .child(
-                                h_flex().items_center().child(
-                                    Pagination::new("pg-demo").total_pages(8).current_page(3),
-                                ),
-                            ),
-                    ),
-            )
-            .child(
-                Card::new()
-                    .title("Empty State")
-                    .description(
-                        "Placeholder presentation when query results or datasets are empty.",
-                    )
-                    .child(
-                        EmptyState::new()
-                            .header(
-                                EmptyHeader::new()
-                                    .title(EmptyTitle::new().child("No records found"))
-                                    .description(EmptyDescription::new().child(
-                                        "There are no items matching the selected criteria.",
-                                    )),
-                            )
-                            .child(
-                                Button::new("empty-reset")
-                                    .variant(ButtonVariant::Outline)
-                                    .label("Reset Filters"),
-                            ),
-                    ),
-            )
+                    .caption("A list of recent invoices."),
+                )
+                .into_any_element(),
+            Demo::VirtualList => Card::new()
+                .title("VirtualList")
+                .description("Virtualized list.")
+                .child(self.demo_virtual_list.clone())
+                .into_any_element(),
+            Demo::DescriptionList => Card::new()
+                .title("DescriptionList")
+                .description("Metadata description list.")
+                .child(
+                    DescriptionList::new()
+                        .item("Framework", "Celestia Desktop", 1)
+                        .item("Platform Engine", "GPUI (Metal / Vulkan)", 1)
+                        .item("Architecture", "ARM64 / x86_64 Native", 1)
+                        .item("Design System", "Celestia Semantic Tokens", 1),
+                )
+                .into_any_element(),
+            Demo::Breadcrumb => Card::new()
+                .title("Breadcrumb")
+                .description("Hierarchical breadcrumbs.")
+                .child(
+                    Breadcrumb::new()
+                        .child(BreadcrumbItem::new("Home"))
+                        .child(BreadcrumbItem::new("Components"))
+                        .child(BreadcrumbItem::new("Data Display")),
+                )
+                .into_any_element(),
+            Demo::Pagination => Card::new()
+                .title("Pagination")
+                .description("Page controls.")
+                .child(
+                    h_flex()
+                        .items_center()
+                        .child(Pagination::new("pg-demo").total_pages(8).current_page(3)),
+                )
+                .into_any_element(),
+            Demo::Empty => Card::new()
+                .title("Empty")
+                .description("Empty-state placeholder.")
+                .child(
+                    EmptyState::new()
+                        .header(
+                            EmptyHeader::new()
+                                .title(EmptyTitle::new().child("No records found"))
+                                .description(EmptyDescription::new().child(
+                                    "There are no items matching the selected criteria.",
+                                )),
+                        )
+                        .child(
+                            Button::new("empty-reset")
+                                .variant(ButtonVariant::Outline)
+                                .label("Reset Filters"),
+                        ),
+                )
+                .into_any_element(),
+            _ => v_flex()
+                .child(div().text_sm().child("Not a data display demo."))
+                .into_any_element(),
+        }
     }
 }
 
@@ -274,8 +202,6 @@ impl VirtualListDemo {
             Level::Ok => cx.theme().success,
             Level::Warn => cx.theme().warning,
         };
-        // `list` the field name is taken by Theme's ListSettings — the zebra
-        // color tokens live under .colors.
         let zebra = if ix.is_multiple_of(2) {
             cx.theme().colors.list_even
         } else {

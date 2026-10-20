@@ -12,6 +12,7 @@
 
 mod actions;
 mod assets;
+mod catalog;
 mod section;
 mod sections;
 mod showcase;

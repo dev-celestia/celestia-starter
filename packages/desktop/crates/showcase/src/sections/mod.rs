@@ -1,7 +1,9 @@
 pub mod buttons;
 pub mod charts;
 pub mod chat;
+pub mod composites;
 pub mod data_display;
+pub mod demo;
 pub mod editors;
 pub mod feedback;
 pub mod icons;

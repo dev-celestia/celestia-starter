@@ -6,7 +6,8 @@ use celestia_ui::components::primitive::kbd::Kbd;
 use celestia_ui::components::primitive::link::Link;
 use celestia_ui::theme::{AppTheme, Scheme, active, families, hex, select};
 use gpui::*;
-use gpui_component::{ActiveTheme, h_flex, v_flex};
+use celestia_ui::theme::ActiveTheme as _;
+use gpui_component::{h_flex, v_flex};
 
 use crate::showcase::Showcase;
 
