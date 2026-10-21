@@ -1,0 +1,84 @@
+---
+title: "Bottom Sheet"
+description: "A swipeable panel that rises from the bottom edge. Opinionated Drawer defaults with a drag handle, snap points, and a scrollable body slot."
+---
+
+A swipeable panel that rises from the bottom edge. Built on the Base UI `Drawer` primitive via Celestia's `Drawer` wrapper, with bottom-sheet defaults: swipe-down dismiss and a visible drag handle.
+
+Use `BottomSheet` for mobile-style action panels and filters. Prefer [`Sheet`](/docs/components/sheet) for side panels without swipe, and [`Drawer`](/docs/components/drawer) when you need other edges or custom swipe directions.
+
+<BottomSheetPreview />
+
+```tsx
+import {
+  BottomSheet,
+  BottomSheetBody,
+  BottomSheetClose,
+  BottomSheetContent,
+  BottomSheetDescription,
+  BottomSheetFooter,
+  BottomSheetHeader,
+  BottomSheetTitle,
+  BottomSheetTrigger,
+} from "@celestia-project/ui/primitive/bottom-sheet"
+import { Button } from "@celestia-project/ui/primitive/button"
+
+<BottomSheet>
+  <BottomSheetTrigger render={<Button variant="outline" />}>
+    Open Bottom Sheet
+  </BottomSheetTrigger>
+  <BottomSheetContent>
+    <BottomSheetHeader>
+      <BottomSheetTitle>Share</BottomSheetTitle>
+      <BottomSheetDescription>
+        Choose where to send this link.
+      </BottomSheetDescription>
+    </BottomSheetHeader>
+    <BottomSheetBody>
+      {/* options */}
+    </BottomSheetBody>
+    <BottomSheetFooter>
+      <BottomSheetClose render={<Button variant="outline" />}>
+        Cancel
+      </BottomSheetClose>
+    </BottomSheetFooter>
+  </BottomSheetContent>
+</BottomSheet>
+```
+
+## Snap points
+
+Pass `snapPoints` on the root to rest at intermediate heights (Base UI Drawer snap points — fractions of the viewport or pixel heights):
+
+```tsx
+<BottomSheet snapPoints={[0.5, 1]}>
+  <BottomSheetTrigger render={<Button variant="outline" />}>
+    Half / full
+  </BottomSheetTrigger>
+  <BottomSheetContent>
+    <BottomSheetHeader>
+      <BottomSheetTitle>Filters</BottomSheetTitle>
+    </BottomSheetHeader>
+    <BottomSheetBody>{/* … */}</BottomSheetBody>
+  </BottomSheetContent>
+</BottomSheet>
+```
+
+## Props
+
+| Prop | Type | Default |
+|------|------|---------|
+| `showSwipeHandle` (on `BottomSheet`) | `boolean` | `true` |
+| `swipeDirection` (on `BottomSheet`) | `"up" \| "down" \| "left" \| "right"` | `"down"` |
+| `snapPoints` (on `BottomSheet`) | `Array<number \| string>` | `undefined` |
+| `open` / `onOpenChange` | controlled open state | uncontrolled |
+
+| Sub-component | Role |
+|---------------|------|
+| `BottomSheetTrigger` | Opens the sheet |
+| `BottomSheetContent` | Portal + overlay + swipeable panel |
+| `BottomSheetHeader` / `Title` / `Description` | Top chrome |
+| `BottomSheetBody` | Scrollable middle section |
+| `BottomSheetFooter` | Action row pinned to the bottom |
+| `BottomSheetClose` | Dismiss control |
+| `BottomSheetSwipeHandle` | Drag affordance (shown by default via `showSwipeHandle`) |

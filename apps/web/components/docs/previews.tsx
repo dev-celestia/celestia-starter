@@ -113,6 +113,17 @@ import {
   DialogTrigger,
 } from "@celestia-project/ui/primitive/dialog"
 import {
+  BottomSheet,
+  BottomSheetBody,
+  BottomSheetClose,
+  BottomSheetContent,
+  BottomSheetDescription,
+  BottomSheetFooter,
+  BottomSheetHeader,
+  BottomSheetTitle,
+  BottomSheetTrigger,
+} from "@celestia-project/ui/primitive/bottom-sheet"
+import {
   Drawer,
   DrawerClose,
   DrawerContent,
@@ -842,6 +853,40 @@ export function DialogPreview() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </PreviewShell>
+  )
+}
+
+export function BottomSheetPreview() {
+  return (
+    <PreviewShell>
+      <BottomSheet>
+        <BottomSheetTrigger render={<Button variant="outline" />}>
+          Open Bottom Sheet
+        </BottomSheetTrigger>
+        <BottomSheetContent>
+          <BottomSheetHeader>
+            <BottomSheetTitle>Share</BottomSheetTitle>
+            <BottomSheetDescription>
+              Choose where to send this link.
+            </BottomSheetDescription>
+          </BottomSheetHeader>
+          <BottomSheetBody>
+            <Label htmlFor="bottom-sheet-link">Link</Label>
+            <Input
+              id="bottom-sheet-link"
+              defaultValue="https://celestia.dev"
+              readOnly
+            />
+          </BottomSheetBody>
+          <BottomSheetFooter>
+            <Button>Copy link</Button>
+            <BottomSheetClose render={<Button variant="outline" />}>
+              Cancel
+            </BottomSheetClose>
+          </BottomSheetFooter>
+        </BottomSheetContent>
+      </BottomSheet>
     </PreviewShell>
   )
 }

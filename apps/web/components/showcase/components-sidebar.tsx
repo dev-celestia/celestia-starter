@@ -82,11 +82,12 @@ export const CATEGORIES: CategoryItem[] = [
     id: "feedback",
     name: "Feedback & Overlays",
     icon: BellSimpleRingingIcon,
-    count: 10,
+    count: 11,
     items: [
       { id: "alert", name: "Alert" },
       { id: "alert-dialog", name: "Alert Dialog" },
       { id: "dialog", name: "Dialog" },
+      { id: "bottom-sheet", name: "Bottom Sheet" },
       { id: "drawer", name: "Drawer / Sheet" },
       { id: "popover", name: "Popover" },
       { id: "tooltip", name: "Tooltip" },
