@@ -125,6 +125,16 @@ impl MinimapInteraction {
             self.repaint(cx);
         }
     }
+
+    /// Drop transient pointer state.
+    ///
+    /// Unmounting the strip swallows the `mouse_up` that would otherwise end a
+    /// drag, so a strip that is hidden mid-drag would come back still believing
+    /// it is being dragged — and the next hover would scroll the editor.
+    pub(super) fn reset(&self) {
+        self.dragging.set(false);
+        self.hovered.set(false);
+    }
 }
 
 /// Everything the strip needs to know about where things sit, resolved once

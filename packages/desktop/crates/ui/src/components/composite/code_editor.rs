@@ -117,6 +117,9 @@ impl CodeEditor {
         if enabled {
             let editor = self.editor.clone();
             self.schedule_minimap_rebuild(editor, cx);
+        } else {
+            // The strip is unmounted, so nothing will clear a drag in flight.
+            self.minimap_interaction.reset();
         }
         cx.notify();
     }
@@ -161,6 +164,27 @@ impl Render for CodeEditor {
         let lines = self.line_count(cx);
         let show_minimap = self.show_minimap;
 
+        // The strip is the editor's only chrome control, so it sits in the
+        // header rather than floating over the text: a hover-revealed affordance
+        // would be undiscoverable, and an always-on overlay would eat clicks
+        // meant for the code underneath.
+        let minimap_toggle = Button::icon(
+            ("code-editor-minimap-toggle", cx.entity().entity_id()),
+            Phosphor::new(PhosphorIcon::MapTrifold).size(px(14.0)),
+        )
+        .size(ButtonSize::IconSm)
+        .variant(ButtonVariant::Ghost)
+        .selected(show_minimap)
+        .accessibility_label("Toggle minimap")
+        .tooltip(if show_minimap {
+            "Hide minimap"
+        } else {
+            "Show minimap"
+        })
+        .on_click(cx.listener(|this, _, _, cx| {
+            this.set_minimap(!this.show_minimap, cx);
+        }));
+
         v_flex()
             .w_full()
             .border_1()
@@ -196,26 +220,7 @@ impl Render for CodeEditor {
                                     .text_color(cx.theme().muted_foreground)
                                     .child(format!("{lines} lines")),
                             )
-                            .child(
-                                Button::icon(
-                                    ("code-editor-minimap-toggle", cx.entity().entity_id()),
-                                    Phosphor::new(PhosphorIcon::MapTrifold).size(px(14.0)),
-                                )
-                                .size(ButtonSize::IconSm)
-                                .variant(ButtonVariant::Ghost)
-                                .selected(show_minimap)
-                                .accessibility_label("Toggle minimap")
-                                .tooltip(if show_minimap {
-                                    "Hide minimap"
-                                } else {
-                                    "Show minimap"
-                                })
-                                .on_click(cx.listener(
-                                    |this, _, _, cx| {
-                                        this.set_minimap(!this.show_minimap, cx);
-                                    },
-                                )),
-                            ),
+                            .child(minimap_toggle),
                     ),
             )
             // The height must land on the Editor itself: the input renders its
