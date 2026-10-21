@@ -3,7 +3,8 @@ use celestia_ui::components::primitive::button::{Button, ButtonSize, ButtonVaria
 use celestia_ui::components::primitive::toast::{Notification, WindowExt as _};
 use celestia_ui::state::StoreContext;
 use gpui::*;
-use gpui_component::{ActiveTheme, h_flex, v_flex};
+use celestia_ui::theme::ActiveTheme as _;
+use gpui_component::{h_flex, v_flex};
 
 use crate::showcase::Showcase;
 
@@ -237,7 +238,7 @@ fn value_chip(text: String, cx: &App) -> Div {
         .px_2()
         .py_0p5()
         .rounded(cx.theme().radius)
-        .bg(cx.theme().tokens.tab_bar)
+        .bg(cx.theme().tab_bar)
         .border_1()
         .border_color(cx.theme().border)
         .text_xs()
@@ -251,7 +252,7 @@ fn slice_row(slice: &'static str, value: String, notifications: usize, cx: &App)
         .px_3()
         .py_1p5()
         .rounded(cx.theme().radius)
-        .bg(cx.theme().tokens.tab_bar)
+        .bg(cx.theme().tab_bar)
         .border_1()
         .border_color(cx.theme().border)
         .child(

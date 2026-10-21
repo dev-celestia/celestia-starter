@@ -1,152 +1,109 @@
-#[derive(Clone, Copy, PartialEq, Eq)]
-pub enum Section {
-    Buttons,
-    TagsBadges,
-    Inputs,
-    Pickers,
-    Feedback,
-    Overlays,
-    MenusDialogs,
-    DataDisplay,
-    Layout,
-    ChatAI,
-    Editors,
-    Charts,
-    Icons,
-    Palette,
-    Theming,
-    State,
-}
+//! Gallery section metadata + docs snippets.
+//!
+//! Component identity lives in [`crate::catalog`]; this module attaches shared
+//! family docs (usage / props / notes) and re-exports the catalog types the
+//! showcase shell needs.
 
-pub const SECTIONS: [Section; 16] = [
-    Section::Buttons,
-    Section::TagsBadges,
-    Section::Inputs,
-    Section::Pickers,
-    Section::Feedback,
-    Section::Overlays,
-    Section::MenusDialogs,
-    Section::DataDisplay,
-    Section::Layout,
-    Section::ChatAI,
-    Section::Editors,
-    Section::Charts,
-    Section::Icons,
-    Section::Palette,
-    Section::Theming,
-    Section::State,
-];
+pub use crate::catalog::{Category, Demo, Family, SECTION_COUNT, Section};
 
 impl Section {
-    pub fn id(self) -> &'static str {
-        match self {
-            Section::Buttons => "nav-buttons",
-            Section::TagsBadges => "nav-tags",
-            Section::Inputs => "nav-inputs",
-            Section::Pickers => "nav-pickers",
-            Section::Feedback => "nav-feedback",
-            Section::Overlays => "nav-overlays",
-            Section::MenusDialogs => "nav-menus",
-            Section::DataDisplay => "nav-data-display",
-            Section::Layout => "nav-layout",
-            Section::ChatAI => "nav-chat-ai",
-            Section::Editors => "nav-editors",
-            Section::Charts => "nav-charts",
-            Section::Icons => "nav-icons",
-            Section::Palette => "nav-palette",
-            Section::Theming => "nav-theming",
-            Section::State => "nav-state",
-        }
+    pub fn code(self) -> &'static str {
+        self.family().code()
     }
 
-    pub fn label(self) -> &'static str {
-        match self {
-            Section::Buttons => "Buttons & Actions",
-            Section::TagsBadges => "Badges & Avatars",
-            Section::Inputs => "Inputs & Selection",
-            Section::Pickers => "Pickers & Calendar",
-            Section::Feedback => "Feedback",
-            Section::Overlays => "Overlays & Dialogs",
-            Section::MenusDialogs => "Menus",
-            Section::DataDisplay => "Data Display",
-            Section::Layout => "Layout",
-            Section::ChatAI => "Chat & AI",
-            Section::Editors => "Text Editors",
-            Section::Charts => "Charts & Plots",
-            Section::Icons => "Phosphor Icons",
-            Section::Palette => "Palette",
-            Section::Theming => "Theming & Config",
-            Section::State => "State & Stores",
+    /// Structured docs for the gallery Docs tab: packages, props, usage, tips.
+    pub fn docs(self) -> SectionDocs {
+        let family = self.family();
+        SectionDocs {
+            props: family.props(),
+            usage: family.code(),
+            notes: family.notes(),
         }
     }
+}
 
-    pub fn description(self) -> &'static str {
-        match self {
-            Section::Buttons => {
-                "button.rs wrapper — variants, sizes, kbd, link, and command palette."
-            }
-            Section::TagsBadges => {
-                "badge.rs wrapper — variant chips, count/dot badges, markers, and avatars."
-            }
-            Section::Inputs => {
-                "input, textarea, otp, select, slider, stepper, switch, checkbox, radio, rating, label."
-            }
-            Section::Pickers => "date_picker, calendar, color_picker, and number input.",
-            Section::Feedback => {
-                "alert, progress, progress_circle, spinner, skeleton, shimmer; zeron-port loaders, notice chips, context badges."
-            }
-            Section::Overlays => {
-                "popover, tooltip, hover_card, toast, dialog, alert_dialog, and sheet."
-            }
-            Section::MenusDialogs => "dropdown / context menus, PopupMenuItem via WindowExt.",
-            Section::DataDisplay => {
-                "table, virtual_list, description_list, breadcrumb, pagination, and empty states."
-            }
-            Section::Layout => {
-                "SwiftUI layout vocabulary — HStack, VStack, ZStack, Spacer, VGrid with every \
-                 alignment variant live, defaults and gotchas per card, an interactive \
-                 playground, plus tabs, accordion, collapsible, and group_box."
-            }
-            Section::ChatAI => {
-                "message groups, bubbles with reactions, avatars, and file attachments."
-            }
-            Section::Editors => "markdown editor with toolbar + tree-sitter code mode.",
-            Section::Charts => {
-                "bar, line, pie and donut charts with the semantic chart ramp, hover tooltips, and leader-line labels."
-            }
-            Section::Icons => {
-                "icon.rs wrapper — the vendored Phosphor Core 2.1.1 catalog (regular, bold, fill) with live search."
-            }
-            Section::Palette => "cx.theme() roles plus the brand pair and chart ramp.",
-            Section::Theming => {
-                "AppTheme — the globals.css equivalent: semantic tokens drive colors and radius, registered as named light/dark theme families and applied live."
-            }
-            Section::State => {
-                "store.rs + context.rs — zustand-style stores, selector-gated subscriptions, and ambient contexts."
-            }
-        }
-    }
-
+impl Family {
     pub fn code(self) -> &'static str {
         match self {
-            Section::Buttons => BUTTONS_CODE,
-            Section::TagsBadges => TAGS_BADGES_CODE,
-            Section::Inputs => INPUTS_CODE,
-            Section::Pickers => PICKERS_CODE,
-            Section::Feedback => FEEDBACK_CODE,
-            Section::Overlays => OVERLAYS_CODE,
-            Section::MenusDialogs => MENUS_DIALOGS_CODE,
-            Section::DataDisplay => DATA_DISPLAY_CODE,
-            Section::Layout => LAYOUT_CODE,
-            Section::ChatAI => CHAT_AI_CODE,
-            Section::Editors => EDITORS_CODE,
-            Section::Charts => CHARTS_CODE,
-            Section::Icons => ICONS_CODE,
-            Section::Palette => PALETTE_CODE,
-            Section::State => STATE_CODE,
-            Section::Theming => THEMING_CODE,
+            Family::Buttons => BUTTONS_CODE,
+            Family::TagsBadges => TAGS_BADGES_CODE,
+            Family::Inputs => INPUTS_CODE,
+            Family::Pickers => PICKERS_CODE,
+            Family::Feedback => FEEDBACK_CODE,
+            Family::Overlays => OVERLAYS_CODE,
+            Family::MenusDialogs => MENUS_DIALOGS_CODE,
+            Family::DataDisplay => DATA_DISPLAY_CODE,
+            Family::Layout => LAYOUT_CODE,
+            Family::ChatAI => CHAT_AI_CODE,
+            Family::Editors => EDITORS_CODE,
+            Family::Charts => CHARTS_CODE,
+            Family::Composites => COMPOSITES_CODE,
+            Family::Icons => ICONS_CODE,
+            Family::Palette => PALETTE_CODE,
+            Family::State => STATE_CODE,
+            Family::Theming => THEMING_CODE,
         }
     }
+
+    fn props(self) -> &'static [DocProp] {
+        match self {
+            Family::Buttons => BUTTONS_PROPS,
+            Family::TagsBadges => TAGS_BADGES_PROPS,
+            Family::Inputs => INPUTS_PROPS,
+            Family::Pickers => PICKERS_PROPS,
+            Family::Feedback => FEEDBACK_PROPS,
+            Family::Overlays => OVERLAYS_PROPS,
+            Family::MenusDialogs => MENUS_DIALOGS_PROPS,
+            Family::DataDisplay => DATA_DISPLAY_PROPS,
+            Family::Layout => LAYOUT_PROPS,
+            Family::ChatAI => CHAT_AI_PROPS,
+            Family::Editors => EDITORS_PROPS,
+            Family::Charts => CHARTS_PROPS,
+            Family::Composites => COMPOSITES_PROPS,
+            Family::Icons => ICONS_PROPS,
+            Family::Palette => PALETTE_PROPS,
+            Family::Theming => THEMING_PROPS,
+            Family::State => STATE_PROPS,
+        }
+    }
+
+    fn notes(self) -> &'static [&'static str] {
+        match self {
+            Family::Buttons => BUTTONS_NOTES,
+            Family::TagsBadges => TAGS_BADGES_NOTES,
+            Family::Inputs => INPUTS_NOTES,
+            Family::Pickers => PICKERS_NOTES,
+            Family::Feedback => FEEDBACK_NOTES,
+            Family::Overlays => OVERLAYS_NOTES,
+            Family::MenusDialogs => MENUS_DIALOGS_NOTES,
+            Family::DataDisplay => DATA_DISPLAY_NOTES,
+            Family::Layout => LAYOUT_NOTES,
+            Family::ChatAI => CHAT_AI_NOTES,
+            Family::Editors => EDITORS_NOTES,
+            Family::Charts => CHARTS_NOTES,
+            Family::Composites => COMPOSITES_NOTES,
+            Family::Icons => ICONS_NOTES,
+            Family::Palette => PALETTE_NOTES,
+            Family::Theming => THEMING_NOTES,
+            Family::State => STATE_NOTES,
+        }
+    }
+}
+
+/// One prop / builder method row in the Docs tab.
+#[derive(Clone, Copy)]
+pub struct DocProp {
+    pub name: &'static str,
+    pub ty: &'static str,
+    pub description: &'static str,
+}
+
+/// Props + usage + tips for a gallery component (package comes from [`Section::package`]).
+#[derive(Clone, Copy)]
+pub struct SectionDocs {
+    pub props: &'static [DocProp],
+    pub usage: &'static str,
+    pub notes: &'static [&'static str],
 }
 
 const BUTTONS_CODE: &str = r#"use celestia_ui::components::Card;
@@ -198,47 +155,50 @@ Badge::new("Warning").variant(BadgeVariant::Warning)
 Badge::new("Info").variant(BadgeVariant::Info)
 Badge::new("Destructive").variant(BadgeVariant::Destructive)
 Badge::new("Outline").variant(BadgeVariant::Outline)
-Badge::new("Brand").variant(BadgeVariant::Brand)
+// Notification counter & status dot — wrap the anchor they overlay
+GpuiBadge::new()
+    .count(8)
+    .child(Badge::new("Brand").variant(BadgeVariant::Brand))
+GpuiBadge::new()
+    .dot()
+    .child(Badge::new("Inbox").variant(BadgeVariant::Secondary))"#;
 
-// Notification counter & status dot badges
-GpuiBadge::new().count(8)
-GpuiBadge::new().dot()"#;
-
-const INPUTS_CODE: &str = r#"use celestia_ui::components::Card;
+const INPUTS_CODE: &str = r#"use celestia_ui::components::primitive::aspect_ratio::AspectRatio;
 use celestia_ui::components::primitive::checkbox::Checkbox;
+use celestia_ui::components::primitive::icon::PhosphorIcon;
 use celestia_ui::components::primitive::input::{Input, InputState};
-use celestia_ui::components::primitive::input_otp::{OtpInput, OtpState};
-use celestia_ui::components::primitive::label::Label;
+use celestia_ui::components::primitive::item::{Item, ItemContent, ItemGroup, ItemMedia, ItemTitle};
 use celestia_ui::components::primitive::radio::Radio;
 use celestia_ui::components::primitive::rating::Rating;
-use celestia_ui::components::primitive::select::{Select, SelectState};
-use celestia_ui::components::primitive::slider::{Slider, SliderState};
 use celestia_ui::components::primitive::switch::Switch;
-use celestia_ui::components::primitive::textarea::{Textarea, TextareaState};
+use celestia_ui::components::primitive::toggle::{Toggle, ToggleGroup};
 use gpui::*;
 
-// Single-line text input with clear button
+// Entity-backed text / select / slider
 Input::new(&self.demo_input).cleanable(true)
-
-// Multi-line text area
-Textarea::new(&self.demo_textarea)
-
-// 6-digit OTP code input
-OtpInput::new(&self.demo_otp)
-
-// Dropdown select
 Select::new(&self.demo_select)
-
-// Continuous slider range
 Slider::new(&self.demo_slider)
 
-// Toggles, checkboxes, and radio buttons
+// Boolean / choice — Switch is a track; Toggle is a pressed button
 Switch::new("sw-1").checked(true).label("Notifications")
 Checkbox::new("cb-1").checked(true).label("Include archived")
 Radio::new("rd-1").checked(true).label("Weekly")
+Rating::new("rating-1").value(4)
 
-// 5-star rating control
-Rating::new("rating-1").value(4)"#;
+// Pressed toggle + segmented exclusive group
+Toggle::new("tg-bold").outline().label("Bold").checked(true)
+ToggleGroup::new("tg-align").outline().segmented().exclusive()
+    .child(Toggle::new("align-l").checked(true))
+    .child(Toggle::new("align-c"))
+    .child(Toggle::new("align-r"))
+
+// List-row atom + fixed-ratio box
+ItemGroup::new().child(
+    Item::new().id("row").outline()
+        .child(ItemMedia::new().icon().child(PhosphorIcon::File))
+        .child(ItemContent::new().child(ItemTitle::new("README.md"))),
+)
+AspectRatio::widescreen().child(div().size_full().bg(cx.theme().muted))"#;
 
 const PICKERS_CODE: &str = r#"use celestia_ui::components::primitive::calendar::{Calendar, CalendarState};
 use celestia_ui::components::composite::color_picker::{ColorPicker, ColorPickerState};
@@ -326,31 +286,52 @@ Button::new("toast-1")
         );
     })"#;
 
-const MENUS_DIALOGS_CODE: &str = r#"use celestia_ui::components::primitive::button::{Button, ButtonVariant};
-use celestia_ui::components::composite::menu::{ContextMenuExt as _, PopupMenuItem};
+const MENUS_DIALOGS_CODE: &str = r#"use celestia_ui::components::composite::menu::{ContextMenuExt as _, PopupMenuItem};
+use celestia_ui::components::composite::toolbar_menu::{ToolbarMenu, ToolbarMenuItem};
+use celestia_ui::components::primitive::button::{Button, ButtonVariant};
+use celestia_ui::components::primitive::icon::PhosphorIcon;
+use celestia_ui::components::primitive::menubar::{Menubar, MenubarMenu};
+use celestia_ui::components::primitive::navigation_menu::{NavigationMenu, NavigationMenuItem};
 use gpui::*;
 
-// Button dropdown menu with items, accelerators, and separators
+// Button dropdown
 Button::new("dd-file")
     .variant(ButtonVariant::Outline)
     .label("File Menu")
     .dropdown_caret(true)
     .dropdown_menu(|menu, _, _| {
         menu.item(PopupMenuItem::new("New File").on_click(|_, _, _| {}))
-            .item(PopupMenuItem::new("Open…").on_click(|_, _, _| {}))
             .separator()
             .item(PopupMenuItem::new("Save").on_click(|_, _, _| {}))
-            .item(PopupMenuItem::new("Save As…").on_click(|_, _, _| {}))
     })
 
-// Context menu invoked via right-click gesture
-div()
-    .context_menu(|menu, _, _| {
-        menu.item(PopupMenuItem::new("Inspect Element").on_click(|_, _, _| {}))
-            .item(PopupMenuItem::new("Copy Selector").on_click(|_, _, _| {}))
-            .separator()
-            .item(PopupMenuItem::new("Reload Frame").on_click(|_, _, _| {}))
-    })"#;
+// Toolbar strip
+ToolbarMenu::new("tm-h-icon").icon_only().horizontal()
+    .item(ToolbarMenuItem::new("refresh", PhosphorIcon::ArrowClockwise).label("Refresh"))
+
+// Top-of-window menubar
+Menubar::new("menubar")
+    .menu(MenubarMenu::new("file", "File", |menu, _, _| {
+        menu.item(PopupMenuItem::new("New").on_click(|_, _, _| {}))
+            .item(PopupMenuItem::new("Quit").on_click(|_, _, _| {}))
+    }))
+    .menu(MenubarMenu::new("edit", "Edit", |menu, _, _| {
+        menu.item(PopupMenuItem::new("Undo").on_click(|_, _, _| {}))
+    }))
+
+// Horizontal nav with flyouts
+NavigationMenu::new("nav")
+    .item(NavigationMenuItem::link("home", "Home").active(true))
+    .item(NavigationMenuItem::flyout("product", "Product", |menu, _, _| {
+        menu.item(PopupMenuItem::new("Features").on_click(|_, _, _| {}))
+            .item(PopupMenuItem::new("Pricing").on_click(|_, _, _| {}))
+    }))
+    .item(NavigationMenuItem::link("docs", "Docs"))
+
+// Right-click context menu
+div().context_menu(|menu, _, _| {
+    menu.item(PopupMenuItem::new("Inspect Element").on_click(|_, _, _| {}))
+})"#;
 
 const DATA_DISPLAY_CODE: &str = r#"use celestia_ui::components::primitive::breadcrumb::{Breadcrumb, BreadcrumbItem};
 use celestia_ui::components::composite::description_list::DescriptionList;
@@ -358,19 +339,23 @@ use celestia_ui::components::composite::empty::{
     Empty as EmptyState, EmptyDescription, EmptyHeader, EmptyTitle,
 };
 use celestia_ui::components::composite::pagination::Pagination;
-use celestia_ui::components::primitive::table::DataTable;
+use celestia_ui::components::primitive::table::{DataTable, TableColumn};
 use celestia_ui::components::composite::virtual_list::{VirtualListScrollHandle, v_virtual_list};
 use gpui::*;
 
-// Structured tabular data table
-DataTable::from_key_value(
+// Structured tabular data — pure GPUI composition table
+DataTable::new(
     [
-        ("INV-001 (Acme Corp)", "$1,200.00"),
-        ("INV-002 (Globex Inc)", "$850.00"),
+        TableColumn::new("Invoice").width(220.),
+        TableColumn::new("Status").width(100.),
+        TableColumn::new("Amount"),
     ],
-    window,
-    cx,
+    vec![
+        vec!["INV-001 — Acme Corp".into(), "Paid".into(), "$1,200.00".into()],
+        vec!["INV-002 — Globex Inc".into(), "Pending".into(), "$850.00".into()],
+    ],
 )
+.caption("A list of recent invoices.")
 
 // Virtualized event stream — 2,000 uneven rows, only the visible range renders
 v_virtual_list(
@@ -481,45 +466,39 @@ Separator::horizontal()
 GroupBox::new().child(div().p_3().child("Grouped content"))
 StatusBar::new().left("Git: main* (clean)").right("UTF-8  •  Rust")"#;
 
-const CHAT_AI_CODE: &str = r#"use celestia_ui::components::composite::attachment::{
-    Attachment, AttachmentContent, AttachmentDescription, AttachmentTitle,
-};
-use celestia_ui::components::primitive::avatar::Avatar;
-use celestia_ui::components::primitive::bubble::{Bubble, BubbleVariant};
+const CHAT_AI_CODE: &str = r#"use celestia_ui::components::ai::prompt_input::{PromptInput, PromptStatus};
+use celestia_ui::components::ai::reasoning::Reasoning;
+use celestia_ui::components::ai::suggestion::{Suggestion, Suggestions};
+use celestia_ui::components::ai::tool::{Tool, ToolState};
 use celestia_ui::components::composite::message::{Message, MessageAlignment, MessageContent, MessageGroup};
+use celestia_ui::components::primitive::bubble::{Bubble, BubbleVariant};
 use gpui::*;
 
-// Threaded chat message group
-MessageGroup::new()
-    .child(
-        Message::new()
-            .alignment(MessageAlignment::Start)
-            .avatar(Avatar::new().name("Celestia AI"))
-            .content(
-                MessageContent::new().bubble(
-                    Bubble::new()
-                        .with_variant(BubbleVariant::Filled)
-                        .child("Hello! How can I help you build with Celestia desktop today?"),
-                ),
-            ),
-    )
-    .child(
-        Message::new()
-            .alignment(MessageAlignment::End)
-            .content(
-                MessageContent::new().bubble(
-                    Bubble::new()
-                        .with_variant(BubbleVariant::Secondary)
-                        .child("Show me the chat and AI primitive components!"),
-                ),
-            ),
-    )
+Suggestions::new("sugs")
+    .child(Suggestion::new("s1", "Explain this diff"))
+    .child(Suggestion::new("s2", "Write a unit test"));
 
-// Rich file attachment card
-Attachment::new().content(
-    AttachmentContent::new()
-        .title(AttachmentTitle::new("design-tokens-v2.json"))
-        .description(AttachmentDescription::new("JSON Configuration  •  14.2 KB")),
+PromptInput::new("prompt")
+    .placeholder("Ask Celestia…")
+    .status(PromptStatus::Ready);
+
+Reasoning::new("think")
+    .open(true)
+    .duration_secs(3)
+    .body("Comparing desktop and web message metrics…");
+
+Tool::new("read", "read_file").state(ToolState::Completed);
+
+MessageGroup::new().child(
+    Message::new()
+        .alignment(MessageAlignment::Start)
+        .content(
+            MessageContent::new().bubble(
+                Bubble::new()
+                    .with_variant(BubbleVariant::Filled)
+                    .child("Hello from Celestia AI"),
+            ),
+        ),
 )"#;
 
 const EDITORS_CODE: &str = r####"use celestia_ui::components::{CodeEditor, TextEditor};
@@ -580,8 +559,7 @@ ChartDonut::new("chart-donut-storage", [("Media", 320.0f32), ("Apps", 64.0)])
     .child("512 GB")"#;
 
 const PALETTE_CODE: &str = r#"use celestia_ui::palette;
-use celestia_ui::theme::{hex, AppTheme, Scheme};
-use gpui_component::ActiveTheme;
+use celestia_ui::theme::{hex, ActiveTheme as _, AppTheme, Scheme};
 use gpui::*;
 
 // Semantic theme color tokens
@@ -651,6 +629,27 @@ StoreContext::<Session>::provide(Session::default(), cx);
 let session = StoreContext::<Session>::require(cx);
 session.update(cx, |s| s.user = "celeste".into());"#;
 
+const COMPOSITES_CODE: &str = r#"use celestia_ui::components::composite::app_header::AppHeader;
+use celestia_ui::components::composite::button_group::ButtonGroup;
+use celestia_ui::components::composite::command_palette::{CommandPalette, CommandPaletteItem};
+use celestia_ui::components::composite::panel::Panel;
+use celestia_ui::components::composite::toolbar::Toolbar;
+use celestia_ui::components::primitive::button::{Button, ButtonVariant};
+use celestia_ui::components::primitive::icon::PhosphorIcon;
+
+AppHeader::new("header").brand("Celestia").title("Desktop")
+Toolbar::new("tb").title("main.rs")
+ButtonGroup::new("edit")
+    .child(Button::new("cut").variant(ButtonVariant::Ghost).label("Cut"))
+    .child(Button::new("copy").variant(ButtonVariant::Ghost).label("Copy"))
+
+Panel::new("checklist", "Release checklist")
+    .description("Ship blockers")
+    .child(/* content */)
+
+CommandPalette::new("palette")
+    .item(CommandPaletteItem::new("new", "New file").icon(PhosphorIcon::File))"#;
+
 const ICONS_CODE: &str = r#"use celestia_ui::components::primitive::icon::{Phosphor, PhosphorIcon, PhosphorWeight, PHOSPHOR_VERSION};
 use gpui::*;
 
@@ -675,8 +674,14 @@ Phosphor::new(PhosphorIcon::Star)
 // Phosphor Core 2.1.1 (regular, bold, fill). Register the asset source
 // once in main: application().with_assets(CelestiaAssets).run(…)"#;
 
-const THEMING_CODE: &str = r#"use celestia_ui::theme::{active, families, hex, select, AppTheme, Scheme};
+const THEMING_CODE: &str = r#"use celestia_ui::theme::{
+    active, families, hex, select, ActiveTheme as _, AppTheme, Scheme, Theme, ThemeMode,
+};
 use gpui::px;
+
+// Light ↔ dark — one call. Prefer this over reading is_dark() yourself.
+Theme::toggle(cx);
+Theme::change(ThemeMode::Dark, cx); // or set explicitly
 
 // One config for the whole library — the desktop equivalent of the shadcn
 // `:root` / `.dark` blocks in globals.css. Unset fields keep the Celestia
@@ -712,3 +717,514 @@ AppTheme { radius: px(12.), ..Default::default() }.apply(cx);
 
 // Back to the Celestia defaults:
 AppTheme::default().apply(cx);"#;
+
+const BUTTONS_PROPS: &[DocProp] = &[
+    DocProp {
+        name: "Button::new",
+        ty: "id: ElementId",
+        description: "Create a labeled button. Use Button::icon for icon-only.",
+    },
+    DocProp {
+        name: "variant",
+        ty: "ButtonVariant",
+        description: "Primary, Secondary, Destructive, Success, Warning, Info, Outline, Ghost, Quiet, Link.",
+    },
+    DocProp {
+        name: "size",
+        ty: "ButtonSize",
+        description: "XSmall → Large height steps, plus Icon / IconXs / IconSm / IconLg squares.",
+    },
+    DocProp {
+        name: "leading_icon / trailing_icon",
+        ty: "impl IntoElement",
+        description: "Typed icon slots (PhosphorIcon works). loading swaps the leading slot for a Spinner.",
+    },
+    DocProp {
+        name: "on_click / dropdown_menu",
+        ty: "callback / PopupMenu",
+        description: "Click handler, or attach a dropdown (dropdown_caret(true) shows the chevron).",
+    },
+    DocProp {
+        name: "Kbd / Link",
+        ty: "Keystroke / href",
+        description: "Keyboard shortcut badge and interactive hyperlink companions.",
+    },
+];
+
+const BUTTONS_NOTES: &[&str] = &[
+    "Success / Warning / Info are desktop-only status fills — web buttons only ship destructive.",
+    "Prefer Button::icon(id, icon) for square icon buttons instead of forcing an empty label.",
+    "dropdown_menu still rides gpui-component's PopupMenu until the menu family is rewritten.",
+];
+
+const TAGS_BADGES_PROPS: &[DocProp] = &[
+    DocProp {
+        name: "Badge::new",
+        ty: "label: SharedString",
+        description: "Semantic chip. Chain .variant(BadgeVariant::…).",
+    },
+    DocProp {
+        name: "Chip::new",
+        ty: "id + label",
+        description: "Interactive tag — .selected, .on_dismiss, .outline / .soft.",
+    },
+    DocProp {
+        name: "StatusDot::new",
+        ty: "id → tone",
+        description: "Presence pip — .online / .away / .busy / .offline, optional label.",
+    },
+    DocProp {
+        name: "Caption / GpuiBadge / Avatar",
+        ty: "text / count / size",
+        description: "Muted helper text, count/dot badges, and identity avatars.",
+    },
+];
+
+const TAGS_BADGES_NOTES: &[&str] = &[
+    "Badge is labeled semantics; Chip is selectable/dismissible; StatusDot is presence.",
+    "Use GpuiBadge for unread counts overlaid on another element.",
+];
+
+const INPUTS_PROPS: &[DocProp] = &[
+    DocProp {
+        name: "Input / Textarea / OtpInput",
+        ty: "&Entity<…State>",
+        description: "Bind to InputState, TextareaState, or OtpState created with cx.new.",
+    },
+    DocProp {
+        name: "Select / Slider",
+        ty: "&Entity<SelectState|SliderState>",
+        description: "Dropdown options and continuous range; state owns the value.",
+    },
+    DocProp {
+        name: "Switch / Checkbox / Radio / Rating",
+        ty: "id + checked / value",
+        description: "Boolean, single-choice, and star rating. Wire on_click to flip view state.",
+    },
+    DocProp {
+        name: "Toggle / ToggleGroup",
+        ty: "checked + outline + segmented",
+        description: "Pressed on/off button (not Switch). Group supports exclusive + segmented.",
+    },
+    DocProp {
+        name: "Item / ItemGroup / AspectRatio",
+        ty: "slots / ratio",
+        description: "List-row atom (media, content, actions) and fixed width÷height boxes.",
+    },
+];
+
+const INPUTS_NOTES: &[&str] = &[
+    "All text controls are entity-backed — create the State once in Showcase::new (or your view) and pass &entity.",
+    "Toggle is a pressed button; Switch is a track. Prefer Toggle for toolbars, Switch for settings.",
+    "ToggleGroup::exclusive().segmented() is the desktop twin of a toggle-group / segmented control.",
+    "OtpInput length is fixed at OtpState::new(n, …); re-create the state to change digit count.",
+];
+
+const PICKERS_PROPS: &[DocProp] = &[
+    DocProp {
+        name: "Calendar / DatePicker",
+        ty: "&Entity<CalendarState|DatePickerState>",
+        description: "Month grid or popover date field. Read selection from the state entity.",
+    },
+    DocProp {
+        name: "ColorPicker",
+        ty: "&Entity<ColorPickerState>",
+        description: "HSV/RGB palette popup; state holds the live color.",
+    },
+    DocProp {
+        name: "NumberInput",
+        ty: "&Entity<InputState>",
+        description: "Stepper numerical input over a shared InputState.",
+    },
+];
+
+const PICKERS_NOTES: &[&str] = &[
+    "Create picker states in your view constructor — they are not RenderOnce elements.",
+    "DatePicker wraps Calendar in a popover; use Calendar alone when the grid should stay inline.",
+];
+
+const FEEDBACK_PROPS: &[DocProp] = &[
+    DocProp {
+        name: "Alert::{info,success,warning,error}",
+        ty: "id + message",
+        description: "Status banners. Prefer the constructors over a bare Alert::new.",
+    },
+    DocProp {
+        name: "Progress / Meter / Spinner / Skeleton",
+        ty: "value 0..=1",
+        description: "Task progress vs capacity meter (disk/quota), spinner, placeholders.",
+    },
+    DocProp {
+        name: "pulse_loader / gradient_spinner / progress_ring",
+        ty: "size + view + cx",
+        description: "Zeron-port micro loaders sharing a pulse clock.",
+    },
+    DocProp {
+        name: "notice_chip / context_badge",
+        ty: "title + detail",
+        description: "Compact failure chips and contextual message badges.",
+    },
+];
+
+const FEEDBACK_NOTES: &[&str] = &[
+    "Alert / Progress / Meter / Spinner / Skeleton are raw-GPUI — no gpui-component dependency.",
+    "Meter auto-tones Warning ≥ 0.7 and Danger ≥ 0.9 unless .tone() is set.",
+    "Micro loaders need a view + cx so they can tick on the shared pulse clock.",
+];
+
+const OVERLAYS_PROPS: &[DocProp] = &[
+    DocProp {
+        name: "Popover::new",
+        ty: "id + trigger + content",
+        description: "Anchored overlay. Pass a Button (or other) as .trigger and a content builder.",
+    },
+    DocProp {
+        name: "Button::tooltip",
+        ty: "SharedString",
+        description: "Hover tooltip on any button without a separate Tooltip element.",
+    },
+    DocProp {
+        name: "window.push_notification",
+        ty: "Notification + cx",
+        description: "Toast via WindowExt. Use Notification::success / error / info.",
+    },
+    DocProp {
+        name: "SheetPanel / Drawer",
+        ty: "side + title + body",
+        description: "Presentational sheet/drawer chrome (web sheet.tsx / drawer.tsx). Embed or host in open_sheet.",
+    },
+    DocProp {
+        name: "Dialog / Sheet / AlertDialog",
+        ty: "WindowExt open_*",
+        description: "Modal hosts from the window root plugin layers.",
+    },
+];
+
+const OVERLAYS_NOTES: &[&str] = &[
+    "SheetPanel / Drawer are presentational — pair with window.open_sheet for a live overlay host.",
+    "Drawer defaults to bottom with a swipe handle; SheetPanel defaults to the right edge.",
+    "Overlays mount through gpui_component::init — do not re-render dialog/sheet/toast layers yourself in Root.",
+];
+
+const MENUS_DIALOGS_PROPS: &[DocProp] = &[
+    DocProp {
+        name: "Button::dropdown_menu",
+        ty: "|menu, window, cx|",
+        description: "Build PopupMenuItem rows, separators, and accelerators on the fly.",
+    },
+    DocProp {
+        name: "ToolbarMenu",
+        ty: "appearance + orientation + items",
+        description: "Horizontal/vertical strip. Icon-only, text-only (ToolbarMenuItem::text), or icon + label.",
+    },
+    DocProp {
+        name: "Menubar / MenubarMenu",
+        ty: "id + label + menu builder",
+        description: "Top-of-window File/Edit/View strip; each menu opens a PopupMenu.",
+    },
+    DocProp {
+        name: "NavigationMenu / NavigationMenuItem",
+        ty: "link | flyout",
+        description: "Horizontal nav. link() for immediate actions; flyout() for dropdown panels.",
+    },
+    DocProp {
+        name: "ContextMenuExt::context_menu",
+        ty: "|menu, window, cx|",
+        description: "Right-click menu on any element that implements the extension.",
+    },
+];
+
+const MENUS_DIALOGS_NOTES: &[&str] = &[
+    "Popup surfaces still come from gpui-component; Menubar, NavigationMenu, and ToolbarMenu are crate-owned.",
+    "Prefer Menubar for app chrome, NavigationMenu for in-content nav, dropdown_menu on buttons for one-off menus.",
+    "ToolbarMenu: icon_only()/labeled() × horizontal()/vertical(); use ToolbarMenuItem::text for no-icon rows.",
+];
+
+const DATA_DISPLAY_PROPS: &[DocProp] = &[
+    DocProp {
+        name: "DataTable::new",
+        ty: "columns + rows",
+        description: "Declarative table. TableColumn::new(label).width(px) sizes each column.",
+    },
+    DocProp {
+        name: "v_virtual_list",
+        ty: "view + id + sizes + render",
+        description: "Virtualized list — only the visible range mounts. Track with VirtualListScrollHandle.",
+    },
+    DocProp {
+        name: "DescriptionList / Breadcrumb / Pagination",
+        ty: "items / pages",
+        description: "Metadata lists, hierarchy crumbs, and page controls.",
+    },
+    DocProp {
+        name: "Empty",
+        ty: "EmptyHeader + title/description",
+        description: "Empty-state placeholder when a collection has no rows.",
+    },
+];
+
+const DATA_DISPLAY_NOTES: &[&str] = &[
+    "DataTable is pure GPUI composition — pass SharedString cells, not arbitrary elements.",
+    "Virtual lists need every row's Size up front (Rc<[Size]>); uneven heights are fine.",
+    "scroll_handle.scroll_to_item / scroll_to_bottom drive programmatic jumps and scrollbars.",
+];
+
+const LAYOUT_PROPS: &[DocProp] = &[
+    DocProp {
+        name: "HStack / VStack",
+        ty: "alignment + spacing",
+        description: "Flex row/column. Alignment is the CROSS axis; spacing becomes flex gap (default 8px).",
+    },
+    DocProp {
+        name: "ZStack",
+        ty: "ZAlignment",
+        description: "Depth stack — children are absolute full-bleed layers. Give it a bounded frame.",
+    },
+    DocProp {
+        name: "Spacer / VGrid",
+        ty: "min_length / GridItem rules",
+        description: "Main-axis expander, and LazyVGrid-style columns (Fixed / Flexible).",
+    },
+    DocProp {
+        name: "Tabs / Accordion / Collapsible / GroupBox",
+        ty: "variant + items",
+        description: "Segmented or line tabs, expandable sections, and bordered groups.",
+    },
+];
+
+const LAYOUT_NOTES: &[&str] = &[
+    "Spacer floors BOTH min-width and min-height via min_length — it never shrinks below that.",
+    "ZStack fills its parent; compose an inner HStack to pin content to independent edges.",
+    "VGrid grows vertically from child order — put long grids inside a ScrollView.",
+];
+
+const CHAT_AI_PROPS: &[DocProp] = &[
+    DocProp {
+        name: "MessageGroup / Message",
+        ty: "alignment + avatar + content",
+        description: "Threaded chat. MessageAlignment::Start/End flips side.",
+    },
+    DocProp {
+        name: "PromptInput",
+        ty: "placeholder + status",
+        description: "Composer with submit / stop. PromptStatus::Streaming swaps the action.",
+    },
+    DocProp {
+        name: "Reasoning / Tool / Sources",
+        ty: "open + state",
+        description: "Thinking block, tool-call card (ToolState), citation list.",
+    },
+    DocProp {
+        name: "Plan / Task / ChainOfThought",
+        ty: "steps + status",
+        description: "Multi-step agent progress. Status enums drive icon color.",
+    },
+    DocProp {
+        name: "Agent / Queue / AiConfirmation",
+        ty: "model + pending",
+        description: "Agent card, queued work, and approve/deny tool prompts.",
+    },
+    DocProp {
+        name: "AiCodeBlock / Snippet / AiTerminal",
+        ty: "code + output",
+        description: "Read-only code, one-line snippet, and terminal chrome.",
+    },
+    DocProp {
+        name: "ContextUsage / InlineCitation",
+        ty: "tokens / sources",
+        description: "Token budget meter and superscript citation chip.",
+    },
+];
+
+const CHAT_AI_NOTES: &[&str] = &[
+    "Build messages inside MessageGroup so spacing and avatar alignment stay consistent.",
+    "Use MessageAlignment::End for the local user; Start for assistants / peers.",
+    "New AI kit lives under components::ai — flat imports use AiCodeBlock / AiTerminal / AiConfirmation to avoid name clashes.",
+];
+
+const EDITORS_PROPS: &[DocProp] = &[
+    DocProp {
+        name: "TextEditor::new",
+        ty: "window + cx → Entity",
+        description: "Markdown editor with formatting toolbar. Call set_text to seed content.",
+    },
+    DocProp {
+        name: "CodeEditor::new",
+        ty: "language + window + cx → Entity",
+        description: "Tree-sitter highlighted editor. Language string selects the grammar (e.g. \"rust\").",
+    },
+    DocProp {
+        name: "set_text",
+        ty: "&str + window + cx",
+        description: "Replace buffer contents on either editor entity.",
+    },
+];
+
+const EDITORS_NOTES: &[&str] = &[
+    "Editors are Entities, not RenderOnce — create once and re-render the same handle.",
+    "Give the Editor a fixed height on the element itself or it lays out one line tall.",
+];
+
+const CHARTS_PROPS: &[DocProp] = &[
+    DocProp {
+        name: "BarChart::new",
+        ty: "data + band + value",
+        description: "Categorical bars. .band / .value pick the category and numeric accessors.",
+    },
+    DocProp {
+        name: "ChartLine",
+        ty: "id + [(label, f64)]",
+        description: "Single-series trend. Smoothed by default; .dots(true) marks points.",
+    },
+    DocProp {
+        name: "ChartPie / ChartDonut",
+        ty: "id + [(label, f32)]",
+        description: "Slices cycle the chart ramp. Donut accepts children in the hole.",
+    },
+];
+
+const CHARTS_NOTES: &[&str] = &[
+    "Prefabs (ChartLine / Pie / Donut) house the chart ramp and hover tooltips — prefer them over raw plots.",
+    "BarChart values are f64; pie/donut slice values are f32.",
+];
+
+const COMPOSITES_PROPS: &[DocProp] = &[
+    DocProp {
+        name: "AppHeader / Toolbar / ActionBar",
+        ty: "id + slots",
+        description: "Chrome strips — brand/nav header, mid-content toolbar, sticky footer actions.",
+    },
+    DocProp {
+        name: "ButtonGroup / InputGroup / Panel",
+        ty: "builder",
+        description: "Joined buttons, addon input shells (web twins), and titled content panels.",
+    },
+    DocProp {
+        name: "ActivityFeed / MediaObject / CodeBlock / ChatComposer",
+        ty: "builder",
+        description: "Notification lists, media rows, read-only snippets, and compose chrome.",
+    },
+    DocProp {
+        name: "CommandPalette / TabBar / FormField / KanbanBoard / …",
+        ty: "builder",
+        description: "Earlier app composites — palette, tabs, forms, boards, confirm, toasts, drop zone.",
+    },
+    DocProp {
+        name: "FileTree / FileTreeFolder / FileTreeFile",
+        ty: "path + name + expanded/selected",
+        description: "Workspace directory hierarchy (web ai/file-tree.tsx). Host owns expand/select state.",
+    },
+];
+
+const COMPOSITES_NOTES: &[&str] = &[
+    "Composites are presentational shells — the host owns Entity state (inputs, open/close, selection).",
+    "Prefer SplitPane for fixed ratios; use primitive::resizable for interactive drag handles.",
+    "ToastStack is an in-view host; window.push_notification still drives the Root notification layer.",
+    "ButtonGroup joins borders; for exclusive pressed states use ToggleGroup instead.",
+    "FileTree is presentational chrome; pair with FileBrowser.tree(…) or embed standalone.",
+];
+
+const ICONS_PROPS: &[DocProp] = &[
+    DocProp {
+        name: "PhosphorIcon",
+        ty: "enum variant",
+        description: "Bare child renders at the surrounding text style (regular weight).",
+    },
+    DocProp {
+        name: "Phosphor::new",
+        ty: "icon → builder",
+        description: "Weight / size / color / rotation overrides. Inherits text style otherwise.",
+    },
+    DocProp {
+        name: "weight",
+        ty: "PhosphorWeight",
+        description: "Regular, Bold, or Fill — must match a vendored assets/phosphor/<weight>/ tree.",
+    },
+    DocProp {
+        name: "PHOSPHOR_VERSION",
+        ty: "&str",
+        description: "Embedded Phosphor Core version string (currently 2.1.1).",
+    },
+];
+
+const ICONS_NOTES: &[&str] = &[
+    "Register CelestiaAssets once at app boot — without it every icon renders blank silently.",
+    "Duotone is skipped: GPUI paints every SVG path with one color.",
+    "Click a glyph in the gallery to copy PhosphorIcon::Name to the clipboard.",
+];
+
+const PALETTE_PROPS: &[DocProp] = &[
+    DocProp {
+        name: "cx.theme()",
+        ty: "Theme roles",
+        description: "primary, success, warning, info, danger, muted, border, background, …",
+    },
+    DocProp {
+        name: "palette(cx)",
+        ty: "brand + charts",
+        description: "brand() / brand_deep() plus chart(i) ramp colors Theme does not carry.",
+    },
+    DocProp {
+        name: "AppTheme / Scheme",
+        ty: "radius + light/dark",
+        description: "Runtime override of semantic tokens; unset fields keep theme.json defaults.",
+    },
+];
+
+const PALETTE_NOTES: &[&str] = &[
+    "Raw hex lives only in theme.json / palette.rs — call sites use cx.theme() or palette(cx).",
+    "AppTheme::apply(cx) rebuilds the active family so every component picking tokens updates next frame.",
+];
+
+const THEMING_PROPS: &[DocProp] = &[
+    DocProp {
+        name: "Theme::toggle / change",
+        ty: "cx / ThemeMode",
+        description: "Flip light ↔ dark, or set the mode explicitly. Prefer toggle over reading is_dark.",
+    },
+    DocProp {
+        name: "AppTheme::apply",
+        ty: "&AppTheme + cx",
+        description: "Overlay semantic colors + radius onto the active family (globals.css equivalent).",
+    },
+    DocProp {
+        name: "register / select / families / active",
+        ty: "name + cx",
+        description: "Multi-theme: add a named light+dark family and switch between them at runtime.",
+    },
+];
+
+const THEMING_NOTES: &[&str] = &[
+    "Mode toggles stay inside the active family — they do not switch to another registered theme.",
+    "radius_lg derives +4px from radius for dialogs and notifications.",
+    "⌘D / Ctrl+D toggles theme in the gallery.",
+];
+
+const STATE_PROPS: &[DocProp] = &[
+    DocProp {
+        name: "StoreHandle::new",
+        ty: "T + cx",
+        description: "Zustand-style store. Share the handle; call .set / .read.",
+    },
+    DocProp {
+        name: "set / read",
+        ty: "|s| … / &T",
+        description: "Mutate with an action or closure; read the current snapshot.",
+    },
+    DocProp {
+        name: "observe_slice",
+        ty: "selector + callback",
+        description: "Re-render only when the selected slice changes (useStore(selector)).",
+    },
+    DocProp {
+        name: "StoreContext::provide / require",
+        ty: "T + cx",
+        description: "Ambient React-context-style value — provide at the root, require anywhere.",
+    },
+];
+
+const STATE_NOTES: &[&str] = &[
+    "Detach observe_slice subscriptions so they live with the view.",
+    "Prefer slice observers over observing the whole store when only one field drives a subtree.",
+    "StoreContext avoids prop-drilling session / auth / workspace handles.",
+];

@@ -196,12 +196,12 @@ primitives, or that owns a layout region rather than a control, is a composite.
 | `primitive/button.rs` (wrapper: `ButtonVariant`, `ButtonSize`)                                                                                                                                                                                                       | `button.tsx`                                                                                                                      |
 | `primitive/badge.rs` (wrapper: `BadgeVariant` incl. `Brand`; `GpuiBadge` for count/dot)                                                                                                                                                                              | `badge.tsx`                                                                                                                       |
 | `primitive/input.rs`, `primitive/textarea.rs`, `primitive/input_otp.rs`, `primitive/select.rs`, `composite/combobox.rs`                                                                                                                                                                                      | `input.tsx`, `textarea.tsx`, `input-otp.tsx`, `select.tsx`, combobox composite                                                    |
-| `primitive/switch.rs`, `primitive/checkbox.rs`, `primitive/radio.rs`, `primitive/slider.rs`, `primitive/rating.rs`, `composite/stepper.rs`                                                                                                                                                                             | `switch.tsx`, `checkbox.tsx`, `radio-group.tsx`, `slider.tsx`, —, —                                                               |
+| `primitive/switch.rs`, `primitive/checkbox.rs`, `primitive/radio.rs`, `primitive/slider.rs`, `primitive/rating.rs`, `composite/stepper.rs`, `composite/toolbar_menu.rs`                                                                                                                                                                             | `switch.tsx`, `checkbox.tsx`, `radio-group.tsx`, `slider.tsx`, —, —, `toolbar-menu.tsx`                                                               |
 | `primitive/calendar.rs`, `composite/date_picker.rs`, `composite/color_picker.rs`, `primitive/label.rs`                                                                                                                                                                                             | `calendar.tsx`, —, —, `label.tsx`                                                                                                 |
 | `primitive/alert.rs`, `primitive/toast.rs` (toasts + `WindowExt`), `primitive/progress.rs`, `primitive/spinner.rs`, `primitive/skeleton.rs`, `primitive/shimmer.rs`                                                                                                                                                    | `alert.tsx`, `toast.tsx` / `sonner.tsx`, `progress.tsx`, `spinner.tsx`, `skeleton.tsx`, `ai/shimmer.tsx`                          |
 | `primitive/popover.rs`, `primitive/dialog.rs`, `primitive/sheet.rs`, `composite/menu.rs`, `primitive/hover_card.rs`, `primitive/tooltip.rs`, `primitive/command.rs`                                                                                                                                                              | `popover.tsx`, `dialog.tsx`, `drawer.tsx` / `sheet.tsx`, dropdown/context/menubar, `hover-card.tsx`, `tooltip.tsx`, `command.tsx` |
-| `primitive/avatar.rs` (wrapper: `AvatarSize` — web 24/32/40px), `primitive/breadcrumb.rs`, `composite/list.rs`, `composite/tree.rs`, `composite/pagination.rs`, `composite/marker.rs`, `composite/empty.rs`, `composite/description_list.rs`, `composite/virtual_list.rs`                                          | `avatar.tsx`, `breadcrumb.tsx`, `item.tsx`, `ai/file-tree.tsx`, `pagination.tsx`, `marker.tsx`, `empty.tsx`, —, —                 |
-| `primitive/table.rs` — two APIs: HTML-style primitives (`Table`, `TableHeader`, `TableBody`, `TableRow`, `TableHead`, `TableCell`, `TableCaption`) + `DataTable` entity (declarative columns/rows over the virtualized delegate table, `set_rows`, `from_key_value`) | `table.tsx` (primitives), the `data-table` composite; GetCat `kv_table.rs` inspired the Key/Value constructor                     |
+| `primitive/avatar.rs` (wrapper: `AvatarSize` — web 24/32/40px), `primitive/breadcrumb.rs`, `composite/list.rs`, `composite/tree.rs`, `composite/pagination.rs`, `composite/toolbar_menu.rs`, `composite/marker.rs`, `composite/empty.rs`, `composite/description_list.rs`, `composite/virtual_list.rs`                                          | `avatar.tsx`, `breadcrumb.tsx`, `item.tsx`, `ai/file-tree.tsx`, `pagination.tsx`, `toolbar-menu.tsx`, `marker.tsx`, `empty.tsx`, —, —                 |
+| `primitive/table.rs` — pure GPUI composition table (`Table`, `TableHeader`, `TableBody`, `TableFooter`, `TableRow`, `TableHead`, `TableCell`, `TableCaption`) + declarative `DataTable` (`from_key_value`, striped rows). Columns share width via `flex_basis(relative)` so cells align across rows | `table.tsx` (primitives), the `data-table` composite; GetCat `kv_table.rs` inspired the Key/Value constructor                     |
 | `primitive/separator.rs`, `primitive/tabs.rs`, `primitive/accordion.rs`, `primitive/collapsible.rs`, `primitive/carousel.rs`, `primitive/resizable.rs`, `primitive/scroll_area.rs`, `composite/group_box.rs`                                                                                                                               | `separator.tsx`, `tabs.tsx`, `accordion.tsx`, `collapsible.tsx`, `carousel.tsx`, `resizable.tsx`, `scroll-area.tsx`, —            |
 | `composite/sidebar.rs`, `composite/sidebar_layout.rs` (shell: `SidebarLayout` + header/nav/item/footer), `composite/dock.rs`, `composite/title_bar.rs`, `composite/status_bar.rs`                                                                                                                            | `sidebar.tsx` (composite); the layout shell, dock and window chrome are desktop-only                                              |
 | `primitive/bubble.rs`, `composite/message.rs`, `composite/message_scroller.rs`, `composite/marker.rs`, `composite/attachment.rs`                                                                                                                                                                                                                 | the web `ai/` family's bubble, chat-message + message-scroller, attachment                                                       |
@@ -568,9 +568,28 @@ media first, then falls through to `CelestiaAssets`.
 `crates/ui/src/theme.json` is the sRGB-hex port of
 `packages/ui/src/styles/globals.css` — the web CSS file stays the single source of truth, and the
 JSON is re-derived from it when tokens change (grays via OKLab → linear sRGB = L³, chromatic
-tokens through full OKLab → sRGB with gamut clamping, alpha tokens as 8-digit hex). `init()` loads
-the JSON into the `ThemeRegistry` and **replaces** `gpui-component`'s default light/dark configs, so
-`Theme::change` and system-appearance sync keep using the Celestia palettes with no re-patching.
+tokens through full OKLab → sRGB with gamut clamping, alpha tokens as 8-digit hex). `init()`
+installs Celestia's own `Theme` global from that JSON and mirrors the light/dark pair onto
+`gpui-component`'s widget theme, so one mode switch keeps the whole window consistent.
+
+### Light and dark (the only API you need)
+
+```rust
+use celestia_ui::theme::{ActiveTheme as _, Theme, ThemeMode};
+
+celestia_ui::init(cx); // once at bootstrap
+
+Theme::toggle(cx);                  // flip light ↔ dark (⌘D in the gallery)
+Theme::change(ThemeMode::Dark, cx); // or set explicitly
+Theme::sync_system_appearance(Some(window), cx);
+
+let dark = cx.theme().is_dark();
+let bg = cx.theme().background;     // every component already reads these
+```
+
+Always import `ActiveTheme` from `celestia_ui::theme` (or `celestia_ui`), never from
+`gpui_component` — the two crates each have a `Theme` global, and mixing them is what
+produced a light sidebar on a dark content pane.
 
 Key values are pinned by `cargo test --workspace`: light `primary` `#d40c1a`, dark `#ff4d46`
 (out-of-gamut `oklch(0.68 0.22 27)` clipped), the dark border as white-alpha, `selection` always
@@ -654,19 +673,19 @@ families(cx);           // ["Celestia", "Nocturne"]
 active(cx);             // "Celestia"
 ```
 
-The mechanics, all on top of `gpui-component`'s `Theme` / `ThemeColor` / `ActiveTheme` (re-exported at
-`celestia_ui::theme` so apps reach the whole story in one place):
+The mechanics live on Celestia's `Theme` / `ThemeColor` / `ActiveTheme` (also re-exported at
+`celestia_ui::{Theme, ThemeMode, ActiveTheme, …}`):
 
 - **Families are semantic-token overlays, not style forks.** `register` derives the pair from the
   Celestia base with the same fan-out as `apply`, names the configs `"<Family> Light/Dark"` and
   activates them. Re-registering a name replaces that family.
 - **`apply` is family-aware.** It overlays whichever family is active and stores the result on it,
   so token tweaks survive switching away and back.
-- **The book, not the registry.** Families live in a private global because `gpui-component`'s
-  `ThemeRegistry` has no public replace; its change observer skips names it does not know, so
-  custom themes are untouched by registry churn.
-- **Mode toggles stay inside the family.** `Theme::change` / system-appearance sync keep operating
-  on the active pair; ⌘D in the showcase flips light/dark within it.
+- **The book owns named families.** Custom themes stay out of `gpui-component`'s `ThemeRegistry`;
+  mode flips still sync that registry's Celestia light/dark pair so re-exported widgets match.
+- **Mode toggles stay inside the family.** `Theme::toggle` / `Theme::change` /
+  `sync_system_appearance` keep operating on the active pair; ⌘D in the showcase flips light/dark
+  within it.
 
 Pinned behavior lives in the `config.rs` tests (default apply is a no-op, the radius derivation,
 per-mode primary/destructive overrides and their fan-out) and the `book.rs` tests (register /

@@ -25,17 +25,15 @@ const ICON_STEPS: [(&str, ButtonSize); 4] = [
 ];
 
 impl Showcase {
-    pub(crate) fn render_buttons(&self, _cx: &mut Context<Self>) -> impl IntoElement {
+    /// Dedicated Button gallery — variants, sizes, icons, loading. No Kbd/Link.
+    pub(crate) fn render_button(&self, _cx: &mut Context<Self>) -> impl IntoElement {
         Card::new()
-            .title("Buttons, Kbd & Links")
-            .description("actions — button, kbd, link (menu surfaces under Menus & dialogs).")
+            .title("Button")
+            .description("primitive/button — variants, sizes, icon slots, loading, and caret.")
             .child(
                 v_flex()
                     .gap_4()
                     .child(
-                        // Variants. `success` / `warning` / `info` are
-                        // desktop-only: they complete the status set that
-                        // `alert` and `badge` already carry.
                         h_flex()
                             .gap_2()
                             .flex_wrap()
@@ -92,8 +90,6 @@ impl Showcase {
                             ),
                     )
                     .child(
-                        // The height ladder. `md` is web's h-7 — the step the
-                        // desktop was missing.
                         h_flex()
                             .gap_2()
                             .flex_wrap()
@@ -106,7 +102,6 @@ impl Showcase {
                             })),
                     )
                     .child(
-                        // Icon slots, and the icon-only ladder.
                         h_flex()
                             .gap_2()
                             .flex_wrap()
@@ -137,9 +132,6 @@ impl Showcase {
                             })),
                     )
                     .child(
-                        // Loading. The spinner takes the leading slot, so the
-                        // label and any trailing icon keep their positions and
-                        // the button does not reflow.
                         h_flex()
                             .gap_2()
                             .flex_wrap()
@@ -189,15 +181,49 @@ impl Showcase {
                                     .variant(ButtonVariant::Outline)
                                     .dropdown_caret(true)
                                     .label("Dropdown"),
-                            )
-                            .child(Kbd::new(
-                                Keystroke::parse("cmd-d").expect("valid keystroke"),
-                            ))
-                            .child(
-                                Link::new("link-gpui")
-                                    .href("https://gpui.rs")
-                                    .child("gpui.rs"),
                             ),
+                    ),
+            )
+    }
+
+    pub(crate) fn render_kbd(&self, _cx: &mut Context<Self>) -> impl IntoElement {
+        Card::new()
+            .title("Kbd")
+            .description("primitive/kbd — keyboard shortcut badge.")
+            .child(
+                h_flex()
+                    .gap_3()
+                    .items_center()
+                    .flex_wrap()
+                    .child(Kbd::new(
+                        Keystroke::parse("cmd-d").expect("valid keystroke"),
+                    ))
+                    .child(Kbd::new(
+                        Keystroke::parse("cmd-shift-p").expect("valid keystroke"),
+                    ))
+                    .child(Kbd::new(
+                        Keystroke::parse("escape").expect("valid keystroke"),
+                    )),
+            )
+    }
+
+    pub(crate) fn render_link(&self, _cx: &mut Context<Self>) -> impl IntoElement {
+        Card::new()
+            .title("Link")
+            .description("primitive/link — interactive hyperlink.")
+            .child(
+                h_flex()
+                    .gap_3()
+                    .items_center()
+                    .child(
+                        Link::new("link-gpui")
+                            .href("https://gpui.rs")
+                            .child("gpui.rs"),
+                    )
+                    .child(
+                        Link::new("link-celestia")
+                            .href("https://github.com")
+                            .child("Open docs"),
                     ),
             )
     }

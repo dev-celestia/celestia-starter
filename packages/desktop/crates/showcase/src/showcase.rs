@@ -1,6 +1,7 @@
 use celestia_ui::components::Card;
 use celestia_ui::components::composite::color_picker::ColorPickerState;
 use celestia_ui::components::composite::date_picker::DatePickerState;
+use celestia_ui::components::composite::search_field::SearchField;
 use celestia_ui::components::composite::sidebar_layout::{
     SidebarFooter, SidebarHeader, SidebarLayout, SidebarNav, SidebarNavItem, SidebarSection,
 };
@@ -10,25 +11,24 @@ use celestia_ui::components::primitive::button::{Button, ButtonSize, ButtonVaria
 use celestia_ui::components::primitive::calendar::CalendarState;
 use celestia_ui::components::primitive::icon::PhosphorWeight;
 use celestia_ui::components::primitive::icon::{Phosphor, PhosphorIcon};
-use celestia_ui::components::primitive::input::InputState;
+use celestia_ui::components::primitive::input::{Input, InputState};
 use celestia_ui::components::primitive::input_otp::OtpState;
 use celestia_ui::components::primitive::kbd::Kbd;
 use celestia_ui::components::primitive::select::SelectState;
 use celestia_ui::components::primitive::slider::SliderState;
-use celestia_ui::components::primitive::table::DataTable;
 use celestia_ui::components::primitive::textarea::TextareaState;
 use celestia_ui::components::primitive::toast::{Notification, WindowExt as _};
 use celestia_ui::components::{CodeEditor, SectionHeading, TextEditor};
 use celestia_ui::motion;
 use celestia_ui::state::StoreHandle;
-use celestia_ui::theme::AppTheme;
+use celestia_ui::theme::{ActiveTheme as _, AppTheme, Theme};
 use gpui::*;
 use gpui_base::spring;
 use gpui_component::input::{Editor, EditorState, InputEvent};
-use gpui_component::{ActiveTheme, IndexPath, Theme, ThemeMode, h_flex, v_flex};
+use gpui_component::{IndexPath, Theme as WidgetTheme, h_flex, v_flex};
 
 use crate::actions::ToggleTheme;
-use crate::section::{SECTIONS, Section};
+use crate::section::{Category, DocProp, SECTION_COUNT, Section};
 use crate::sections::data_display::VirtualListDemo;
 use crate::sections::layout::PlaygroundAxis;
 use crate::sections::state::GalleryState;
@@ -37,7 +37,7 @@ use crate::sections::state::GalleryState;
 pub enum ShowcaseTab {
     #[default]
     View,
-    Code,
+    Docs,
 }
 
 pub struct Showcase {
@@ -48,6 +48,14 @@ pub struct Showcase {
     pub(crate) demo_switch: bool,
     pub(crate) demo_checkbox: bool,
     pub(crate) demo_radio: usize,
+    pub(crate) demo_toggle_bold: bool,
+    pub(crate) demo_toggle_italic: bool,
+    /// Exclusive toggle-group selection (0 = left, 1 = center, 2 = right).
+    pub(crate) demo_toggle_align: usize,
+    /// Active document tab id in the App Composites demo.
+    pub(crate) demo_composite_tab: SharedString,
+    /// Active filter chip index in the App Composites demo (0 = All).
+    pub(crate) demo_composite_filter: usize,
     pub(crate) demo_rating: usize,
     pub(crate) demo_tab_segmented: usize,
     pub(crate) demo_tab_line: usize,
@@ -62,7 +70,6 @@ pub struct Showcase {
     pub(crate) demo_otp: Entity<OtpState>,
     pub(crate) demo_slider: Entity<SliderState>,
     pub(crate) demo_calendar: Entity<CalendarState>,
-    pub(crate) demo_table: Entity<DataTable>,
     pub(crate) demo_virtual_list: Entity<VirtualListDemo>,
     pub(crate) demo_state: StoreHandle<GalleryState>,
     pub(crate) state_count: u32,
@@ -70,6 +77,7 @@ pub struct Showcase {
     pub(crate) state_count_notifications: usize,
     pub(crate) state_label_notifications: usize,
     pub(crate) icon_search: Entity<InputState>,
+    pub(crate) nav_search: Entity<InputState>,
     pub(crate) icon_weight: PhosphorWeight,
     pub(crate) icon_scroll_handle: VirtualListScrollHandle,
     /// The interactive layout playground (see sections/layout.rs): the stack
@@ -104,22 +112,9 @@ impl Showcase {
             );
         });
 
-        let demo_table = cx.new(|cx| {
-            DataTable::from_key_value(
-                [
-                    ("INV-001 (Acme Corp)", "$1,200.00"),
-                    ("INV-002 (Globex Inc)", "$850.00"),
-                    ("INV-003 (Soylent LLC)", "$340.00"),
-                    ("INV-004 (Initech)", "$920.00"),
-                ],
-                window,
-                cx,
-            )
-        });
-
         let code_view = cx.new(|cx| EditorState::new(window, cx).language("rust"));
         code_view.update(cx, |e, cx| {
-            e.replace_all(Section::Buttons.code(), window, cx);
+            e.replace_all(Section::BUTTON.code(), window, cx);
         });
 
         // Shared app state (see sections/state.rs): one store entity observed
@@ -164,14 +159,28 @@ impl Showcase {
         })
         .detach();
 
+        // Sidebar component filter.
+        let nav_search = cx.new(|cx| InputState::new(window, cx).placeholder("Search components…"));
+        cx.subscribe(&nav_search, move |_, _, event: &InputEvent, cx| {
+            if matches!(event, InputEvent::Change) {
+                cx.notify();
+            }
+        })
+        .detach();
+
         Self {
             focus_handle: cx.focus_handle(),
-            selected: Section::Editors, // TEMP-VERIFY: revert to Section::Buttons
+            selected: Section::BUTTON,
             active_tab: ShowcaseTab::View,
             code_view,
             demo_switch: true,
             demo_checkbox: true,
             demo_radio: 0,
+            demo_toggle_bold: true,
+            demo_toggle_italic: false,
+            demo_toggle_align: 0,
+            demo_composite_tab: "main".into(),
+            demo_composite_filter: 0,
             demo_rating: 4,
             demo_tab_segmented: 0,
             demo_tab_line: 0,
@@ -194,7 +203,6 @@ impl Showcase {
             demo_otp: cx.new(|cx| OtpState::new(6, window, cx)),
             demo_slider: cx.new(|_| SliderState::new()),
             demo_calendar: cx.new(|cx| CalendarState::new(window, cx)),
-            demo_table,
             demo_virtual_list: cx.new(|_| VirtualListDemo::new()),
             demo_state,
             state_count,
@@ -202,6 +210,7 @@ impl Showcase {
             state_count_notifications: 0,
             state_label_notifications: 0,
             icon_search,
+            nav_search,
             icon_weight: PhosphorWeight::Regular,
             icon_scroll_handle,
             layout_axis: PlaygroundAxis::Row,
@@ -213,21 +222,16 @@ impl Showcase {
     }
 
     pub fn toggle_theme(cx: &mut App) {
-        let next = if cx.theme().is_dark() {
-            ThemeMode::Light
-        } else {
-            ThemeMode::Dark
-        };
-        Theme::change(next, None, cx);
+        Theme::toggle(cx);
     }
 
     pub fn switch_tab(&mut self, tab: ShowcaseTab, window: &mut Window, cx: &mut Context<Self>) {
         if self.active_tab != tab {
             self.active_tab = tab;
-            if self.active_tab == ShowcaseTab::Code {
-                let code = self.selected.code();
+            if self.active_tab == ShowcaseTab::Docs {
+                let usage = self.selected.docs().usage;
                 self.code_view.update(cx, |editor, cx| {
-                    editor.replace_all(code, window, cx);
+                    editor.replace_all(usage, window, cx);
                 });
             }
             cx.notify();
@@ -259,9 +263,54 @@ impl Render for Showcase {
 }
 
 impl Showcase {
-    /// The SidebarLayout shell: nav column + the selected section's pane.
+    /// The SidebarLayout shell: nav column + the selected component's pane.
     fn render_shell(&self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let is_dark = cx.theme().is_dark();
+        let query = self.nav_search.read(cx).value().to_string();
+        let query_trimmed = query.trim().to_string();
+        let mut nav_children: Vec<AnyElement> = Vec::new();
+        let mut visible = 0usize;
+
+        for category in Category::ALL {
+            let items: Vec<Section> = (0..SECTION_COUNT)
+                .map(|i| Section(i as u16))
+                .filter(|s| s.category() == category && s.matches_query(&query_trimmed))
+                .collect();
+            if items.is_empty() {
+                continue;
+            }
+            visible += items.len();
+            nav_children.push(SidebarSection::new(category.label()).into_any_element());
+            for section in items {
+                nav_children.push(
+                    SidebarNavItem::new(section.id(), section.label())
+                        .selected(self.selected == section)
+                        .on_click(cx.listener(move |this, _, window, cx| {
+                            this.selected = section;
+                            if this.active_tab == ShowcaseTab::Docs {
+                                let usage = section.docs().usage;
+                                this.code_view.update(cx, |editor, cx| {
+                                    editor.replace_all(usage, window, cx);
+                                });
+                            }
+                            cx.notify();
+                        }))
+                        .into_any_element(),
+                );
+            }
+        }
+
+        if visible == 0 {
+            nav_children.push(
+                div()
+                    .px_3()
+                    .py_2()
+                    .text_xs()
+                    .text_color(cx.theme().muted_foreground)
+                    .child("No components match.")
+                    .into_any_element(),
+            );
+        }
 
         SidebarLayout::new("shell")
             .sidebar(
@@ -282,21 +331,28 @@ impl Showcase {
                         ),
                 ),
             )
-            .sidebar(SidebarSection::new("Components"))
-            .sidebar(SidebarNav::new("nav").children(SECTIONS.map(|section| {
-                SidebarNavItem::new(section.id(), section.label())
-                    .selected(self.selected == section)
-                    .on_click(cx.listener(move |this, _, window, cx| {
-                        this.selected = section;
-                        if this.active_tab == ShowcaseTab::Code {
-                            let code = section.code();
-                            this.code_view.update(cx, |editor, cx| {
-                                editor.replace_all(code, window, cx);
-                            });
-                        }
-                        cx.notify();
-                    }))
-            })))
+            .sidebar(
+                div()
+                    .id("nav-search")
+                    .flex_none()
+                    .px_2()
+                    .pt_2()
+                    .pb_1()
+                    .border_b_1()
+                    .border_color(cx.theme().sidebar_border)
+                    .child(
+                        SearchField::new("sidebar-search")
+                            .clearable(true)
+                            .on_clear(cx.listener(|this, _, window, cx| {
+                                this.nav_search.update(cx, |state, cx| {
+                                    state.set_value("", window, cx);
+                                });
+                                cx.notify();
+                            }))
+                            .input(Input::new(&self.nav_search).cleanable(false)),
+                    ),
+            )
+            .sidebar(SidebarNav::new("nav").children(nav_children))
             .sidebar(
                 SidebarFooter::new()
                     .child(
@@ -327,7 +383,7 @@ impl Showcase {
         cx: &mut Context<Self>,
     ) -> impl IntoElement {
         let is_view = self.active_tab == ShowcaseTab::View;
-        let is_code = self.active_tab == ShowcaseTab::Code;
+        let is_docs = self.active_tab == ShowcaseTab::Docs;
 
         let (
             policy,
@@ -341,8 +397,10 @@ impl Showcase {
             fg_color,
         ) = {
             let theme = cx.theme();
+            // Motion tokens still live on the gpui-component theme (synced
+            // mode/palette by Theme::change); colors come from Celestia.
             (
-                theme.motion_tokens().spring_move,
+                WidgetTheme::global(cx).motion_tokens().spring_move,
                 theme.tab_bar,
                 theme.border,
                 theme.radius,
@@ -357,7 +415,7 @@ impl Showcase {
         // 76px segment width + 2.5px track padding + 2px gap = 80.5px offset for tab 1.
         let to_left = if is_view { px(2.5) } else { px(80.5) };
         let left = spring(
-            (ElementId::from("view-code-toggle"), "indicator-left"),
+            (ElementId::from("view-docs-toggle"), "indicator-left"),
             to_left,
             policy,
             window,
@@ -407,7 +465,7 @@ impl Showcase {
         };
 
         h_flex()
-            .id("view-code-toggle")
+            .id("view-docs-toggle")
             .relative()
             .items_center()
             .gap(px(2.))
@@ -435,11 +493,11 @@ impl Showcase {
                 cx,
             ))
             .child(render_segment(
-                "btn-trigger-code",
-                "Code",
-                PhosphorIcon::Code,
-                is_code,
-                ShowcaseTab::Code,
+                "btn-trigger-docs",
+                "Docs",
+                PhosphorIcon::BookOpen,
+                is_docs,
+                ShowcaseTab::Docs,
                 cx,
             ))
     }
@@ -452,35 +510,19 @@ impl Showcase {
         let header = h_flex()
             .w_full()
             .justify_between()
-            .items_end()
+            .items_start()
+            .gap_4()
             .child(heading)
-            .child(self.render_toggle_button(window, cx));
+            .child(self.render_toolbar_card(window, cx));
 
         let body: AnyElement = match self.active_tab {
-            ShowcaseTab::View => match self.selected {
-                Section::Buttons => self.render_buttons(cx).into_any_element(),
-                Section::TagsBadges => self.render_tags(cx).into_any_element(),
-                Section::Inputs => self.render_inputs(cx).into_any_element(),
-                Section::Pickers => self.render_pickers(cx).into_any_element(),
-                Section::Feedback => self.render_feedback(cx).into_any_element(),
-                Section::Overlays => self.render_overlays(cx).into_any_element(),
-                Section::MenusDialogs => self.render_menus(cx).into_any_element(),
-                Section::DataDisplay => self.render_data_display(cx).into_any_element(),
-                Section::Layout => self.render_layout(cx).into_any_element(),
-                Section::ChatAI => self.render_chat(cx).into_any_element(),
-                Section::Editors => self.render_editors(cx).into_any_element(),
-                Section::Charts => self.render_charts(cx).into_any_element(),
-                Section::Icons => self.render_icons(window, cx).into_any_element(),
-                Section::Palette => self.render_palette(cx).into_any_element(),
-                Section::Theming => self.render_theming(cx).into_any_element(),
-                Section::State => self.render_state(cx).into_any_element(),
-            },
-            ShowcaseTab::Code => self.render_code_view(cx).into_any_element(),
+            ShowcaseTab::View => self.render_demo(self.selected.demo(), window, cx),
+            ShowcaseTab::Docs => self.render_docs_view(cx).into_any_element(),
         };
 
         let anim_key = match self.active_tab {
             ShowcaseTab::View => "tab-content-view",
-            ShowcaseTab::Code => "tab-content-code",
+            ShowcaseTab::Docs => "tab-content-docs",
         };
         let anim_id = ElementId::Name(format!("{}-{anim_key}", self.selected.id()).into());
 
@@ -495,14 +537,144 @@ impl Showcase {
         v_flex().gap_6().child(header).child(animated_body)
     }
 
-    fn render_code_view(&self, cx: &mut Context<Self>) -> impl IntoElement {
-        let code = self.selected.code();
-        let line_count = code.lines().count();
-        let editor_height = (line_count as f32 * 22.0 + 40.0).clamp(280.0, 680.0);
+    /// Right-side toolbar on Visual/Docs: package chip + view toggle.
+    fn render_toolbar_card(
+        &self,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> impl IntoElement {
+        let package = self.selected.package();
+        let muted = cx.theme().muted_foreground;
+        let fg = cx.theme().foreground;
+        let border = cx.theme().border;
+        let tab_bar = cx.theme().tab_bar;
+        let radius = cx.theme().radius;
 
         Card::new()
-            .title(format!("{} — Code", self.selected.label()))
-            .description("Rust implementation and component usage.")
+            .size(celestia_ui::components::CardSize::Small)
+            .title("Package")
+            .description("Click to copy — paste into AI to pick this component.")
+            .action(self.render_toggle_button(window, cx))
+            .child(
+                div()
+                    .id("toolbar-package")
+                    .px_2()
+                    .py_0p5()
+                    .rounded(radius)
+                    .bg(tab_bar)
+                    .border_1()
+                    .border_color(border)
+                    .hover(|style| style.bg(cx.theme().accent.opacity(0.15)))
+                    .cursor_pointer()
+                    .on_click(move |_, window, cx| {
+                        cx.write_to_clipboard(gpui::ClipboardItem::new_string(package.to_string()));
+                        window.push_notification(
+                            Notification::success(format!("Copied {package}")),
+                            cx,
+                        );
+                    })
+                    .child(
+                        h_flex()
+                            .gap_1()
+                            .items_center()
+                            .child(
+                                Phosphor::new(PhosphorIcon::Copy)
+                                    .size(px(10.))
+                                    .color(muted),
+                            )
+                            .child(
+                                div()
+                                    .text_xs()
+                                    .font_family("monospace")
+                                    .text_color(fg)
+                                    .child(package),
+                            ),
+                    ),
+            )
+    }
+
+    fn render_docs_view(&self, cx: &mut Context<Self>) -> impl IntoElement {
+        let docs = self.selected.docs();
+        let line_count = docs.usage.lines().count();
+        let editor_height = (line_count as f32 * 22.0 + 40.0).clamp(280.0, 680.0);
+
+        v_flex()
+            .gap_4()
+            .child(self.render_docs_props(docs.props, cx))
+            .child(self.render_docs_usage(line_count, editor_height, cx))
+            .child(self.render_docs_notes(docs.notes, cx))
+    }
+
+    fn render_docs_props(
+        &self,
+        props: &'static [DocProp],
+        cx: &mut Context<Self>,
+    ) -> impl IntoElement {
+        let muted = cx.theme().muted_foreground;
+        let fg = cx.theme().foreground;
+        let border = cx.theme().border;
+        let tab_bar = cx.theme().tab_bar;
+        let radius = cx.theme().radius;
+
+        Card::new()
+            .title("Props")
+            .description("Builder methods and types for this section.")
+            .child(
+                v_flex().gap_2().children(props.iter().enumerate().map(|(ix, prop)| {
+                    let name = prop.name;
+                    let ty = prop.ty;
+                    let description = prop.description;
+                    h_flex()
+                        .id(ElementId::Name(format!("doc-prop-{ix}").into()))
+                        .w_full()
+                        .gap_3()
+                        .items_start()
+                        .px_3()
+                        .py_2()
+                        .rounded(radius)
+                        .bg(tab_bar)
+                        .border_1()
+                        .border_color(border)
+                        .child(
+                            v_flex()
+                                .gap_0p5()
+                                .min_w(px(200.))
+                                .max_w(px(260.))
+                                .child(
+                                    div()
+                                        .text_xs()
+                                        .font_weight(FontWeight::SEMIBOLD)
+                                        .text_color(fg)
+                                        .child(name),
+                                )
+                                .child(
+                                    div()
+                                        .text_xs()
+                                        .font_family("monospace")
+                                        .text_color(muted)
+                                        .child(ty),
+                                ),
+                        )
+                        .child(
+                            div()
+                                .flex_1()
+                                .text_xs()
+                                .text_color(muted)
+                                .child(description),
+                        )
+                })),
+            )
+    }
+
+    fn render_docs_usage(
+        &self,
+        line_count: usize,
+        editor_height: f32,
+        cx: &mut Context<Self>,
+    ) -> impl IntoElement {
+        Card::new()
+            .title("Usage")
+            .description("Copy-paste Rust snippets for this section.")
             .child(
                 v_flex()
                     .gap_3()
@@ -563,20 +735,20 @@ impl Showcase {
                                             })),
                                     )
                                     .child(
-                                        Button::new("copy-code-btn")
+                                        Button::new("copy-usage-btn")
                                             .variant(ButtonVariant::Ghost)
                                             .size(ButtonSize::XSmall)
-                                            .label("Copy Code")
+                                            .label("Copy Usage")
                                             .on_click(cx.listener(move |this, _, window, cx| {
-                                                let code = this.selected.code();
+                                                let usage = this.selected.docs().usage;
                                                 cx.write_to_clipboard(
                                                     gpui::ClipboardItem::new_string(
-                                                        code.to_string(),
+                                                        usage.to_string(),
                                                     ),
                                                 );
                                                 window.push_notification(
                                                     Notification::success(
-                                                        "Code copied to clipboard",
+                                                        "Usage copied to clipboard",
                                                     ),
                                                     cx,
                                                 );
@@ -602,6 +774,47 @@ impl Showcase {
                                     .h(px(editor_height)),
                             ),
                     ),
+            )
+    }
+
+    fn render_docs_notes(
+        &self,
+        notes: &'static [&'static str],
+        cx: &mut Context<Self>,
+    ) -> impl IntoElement {
+        let muted = cx.theme().muted_foreground;
+        let fg = cx.theme().foreground;
+        let accent = cx.theme().accent;
+        let radius = cx.theme().radius;
+
+        Card::new()
+            .title("Notes")
+            .description("Gotchas and tips that help when wiring these components.")
+            .child(
+                v_flex().gap_2().children(notes.iter().enumerate().map(|(ix, note)| {
+                    let note = *note;
+                    h_flex()
+                        .id(ElementId::Name(format!("doc-note-{ix}").into()))
+                        .w_full()
+                        .gap_2()
+                        .items_start()
+                        .px_3()
+                        .py_2()
+                        .rounded(radius)
+                        .bg(accent.opacity(0.12))
+                        .child(
+                            Phosphor::new(PhosphorIcon::Info)
+                                .size(px(14.))
+                                .color(fg),
+                        )
+                        .child(
+                            div()
+                                .flex_1()
+                                .text_xs()
+                                .text_color(muted)
+                                .child(note),
+                        )
+                })),
             )
     }
 }

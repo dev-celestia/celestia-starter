@@ -9,7 +9,8 @@ use celestia_ui::components::primitive::icon::{
 use celestia_ui::components::primitive::input::Input;
 use celestia_ui::components::primitive::toast::{Notification, WindowExt as _};
 use gpui::*;
-use gpui_component::{ActiveTheme, h_flex, v_flex};
+use celestia_ui::theme::ActiveTheme as _;
+use gpui_component::{h_flex, v_flex};
 
 use crate::showcase::Showcase;
 
@@ -97,7 +98,7 @@ impl Showcase {
                                 .rounded(px(6.))
                                 .border_1()
                                 .border_color(cx.theme().border)
-                                .hover(|style| style.bg(cx.theme().tokens.tab_bar))
+                                .hover(|style| style.bg(cx.theme().tab_bar))
                                 .cursor_pointer()
                                 .on_click(move |_, window, cx| {
                                     cx.write_to_clipboard(gpui::ClipboardItem::new_string(

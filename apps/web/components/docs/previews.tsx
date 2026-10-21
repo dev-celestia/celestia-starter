@@ -284,6 +284,11 @@ import {
   ToggleGroupItem,
 } from "@celestia-project/ui/composite/toggle-group"
 import {
+  ToolbarMenu,
+  ToolbarMenuItem,
+  ToolbarMenuSeparator,
+} from "@celestia-project/ui/composite/toolbar-menu"
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -1615,6 +1620,26 @@ export function ToggleGroupPreview() {
         <ToggleGroupItem value="center">Center</ToggleGroupItem>
         <ToggleGroupItem value="right">Right</ToggleGroupItem>
       </ToggleGroup>
+    </PreviewShell>
+  )
+}
+
+export function ToolbarMenuPreview() {
+  return (
+    <PreviewShell>
+      <div className="flex flex-wrap items-start gap-6">
+        <ToolbarMenu appearance="icon" orientation="horizontal" aria-label="Actions">
+          <ToolbarMenuItem icon={<PencilSimpleIcon />} label="Edit" />
+          <ToolbarMenuItem icon={<DownloadSimpleIcon />} label="Download" />
+          <ToolbarMenuSeparator />
+          <ToolbarMenuItem icon={<TrashIcon />} label="Delete" />
+        </ToolbarMenu>
+        <ToolbarMenu appearance="labeled" orientation="vertical" aria-label="Navigation">
+          <ToolbarMenuItem icon={<HouseIcon />} label="Home" />
+          <ToolbarMenuItem icon={<UserIcon />} label="Profile" />
+          <ToolbarMenuItem icon={<GearSixIcon />} label="Settings" />
+        </ToolbarMenu>
+      </div>
     </PreviewShell>
   )
 }

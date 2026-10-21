@@ -39,6 +39,7 @@ export const SEARCH_INDEX: SearchItem[] = [
   { title: "Components Overview", href: "/docs/components", category: "Components", description: "Explore 70+ accessible UI components built on Base UI and Tailwind v4." },
   { title: "Button", href: "/docs/components/button", category: "Components", description: "Button primitive with variants, sizes, and loading states." },
   { title: "Button Group", href: "/docs/components/button-group", category: "Components", description: "Cohesive segmented button group container." },
+  { title: "Toolbar Menu", href: "/docs/components/toolbar-menu", category: "Components", description: "Horizontal or vertical icon toolbar with optional labels and click handlers." },
   { title: "Toggle & Toggle Group", href: "/docs/components/toggle", category: "Components", description: "Two-state toggle button and multi-select toggle groups." },
   { title: "Input & Input Group", href: "/docs/components/input", category: "Components", description: "Accessible text inputs with addons, prefixes, and suffixes." },
   { title: "Dialog", href: "/docs/components/dialog", category: "Components", description: "Modal dialog overlay with accessibility and smooth focus trap." },
