@@ -688,9 +688,8 @@ session.update(cx, |s| s.user = "celeste".into());"#;
 const COMPOSITES_CODE: &str = r#"use celestia_ui::components::composite::app_header::AppHeader;
 use celestia_ui::components::composite::button_group::ButtonGroup;
 use celestia_ui::components::composite::command_palette::{CommandPalette, CommandPaletteItem};
-use celestia_ui::components::composite::window::{MacWindow, MacWindowKind, MacWindowTab};
-use celestia_ui::components::composite::windowing::{
-    MacAppMenu, MinimizeWindow, open_mac_window,
+use celestia_ui::components::composite::window::{
+    self as app_window, AppMenu, MinimizeWindow, WindowChrome,
 };
 use celestia_ui::components::composite::panel::Panel;
 use celestia_ui::components::composite::start_bar::{StartBar, StartBarItem};
@@ -704,18 +703,17 @@ use gpui::{Menu, MenuItem};
 AppHeader::new("header").brand("Celestia").title("Desktop")
 Toolbar::new("tb").title("main.rs")
 
+// TrafficLights / tabs are separate — compose into Window::title_bar.
 TrafficLights::new("lights").edited(true).on_close(|_, _| {})
 
-MacWindow::new("notes", "Notes")
-    .kind(MacWindowKind::Unified)
-    .sidebar(/* sidebar */)
-    .tab(MacWindowTab::new("a", "Notes"))
+app_window::Window::new("app", "Celestia Desktop")
+    .chrome(WindowChrome::Native)
+    .title_bar(/* your chrome */)
+    .child(/* body */)
 
-MacAppMenu::standard("Celestia")
+AppMenu::standard("Celestia")
     .menu(Menu::new("Window").items([MenuItem::action("Minimize", MinimizeWindow)]))
-    .without("Help")
     .install(cx);
-open_mac_window("Untitled", cx, |window, cx| /* root view */);
 
 StartBar::new("taskbar")
     .start(Button::icon("start", PhosphorIcon::WindowsLogo).variant(ButtonVariant::Ghost))
@@ -1250,14 +1248,9 @@ const COMPOSITES_PROPS: &[DocProp] = &[
         description: "Windows-style taskbar: start trigger, pinned apps, tray + clock, start menu flyout.",
     },
     DocProp {
-        name: "TrafficLights / MacWindow",
+        name: "Window / AppMenu",
         ty: "composite/window",
-        description: "Mac-first chrome. Embedded previews or Window OS roots. Lights, unified sidebar, title-bar tabs.",
-    },
-    DocProp {
-        name: "MacAppMenu / open_mac_window",
-        ty: "composite/windowing",
-        description: "Customizable app menu (standard, menu, item, without, install) and a real sub-window. Fullscreen reveals the installed bar on top-edge hover.",
+        description: "Window shell + AppMenu. Compose TrafficLights / tabs into Window::title_bar. Native roots this gallery; AppMenu::install → cx.set_menus.",
     },
     DocProp {
         name: "ButtonGroup / InputGroup / Panel",
@@ -1283,8 +1276,7 @@ const COMPOSITES_PROPS: &[DocProp] = &[
 
 const COMPOSITES_NOTES: &[&str] = &[
     "Composites are presentational shells — the host owns Entity state (inputs, open/close, selection).",
-    "composite/window — Embedded for in-view frames; Window chrome for real OS roots via open_mac_window (AppKit lights on macOS).",
-    "composite/windowing — MacAppMenu::standard is the starting bar. menu replaces by name, item appends, without drops a menu, and the app-name menu stays first. install sends it to cx.set_menus.",
+    "composite/window — Window is a shell (options, drag title band, body). Put TrafficLights / TabBar / actions in title_bar(…). Import Window via composite::window (clashes with gpui::Window).",
     "Prefer SplitPane for fixed ratios; use ResizableSplit / ResizablePanelGroup for drag handles.",
     "KanbanBoard ships its own KanbanCardDrag session. While a card is dragged, the column washes accent and an insert line appears before release — see the Drag & Drop family.",
     "ToastStack is an in-view host; window.push_notification still drives the Root notification layer.",

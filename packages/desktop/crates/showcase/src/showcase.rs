@@ -5,7 +5,6 @@ use celestia_ui::components::composite::search_field::SearchField;
 use celestia_ui::components::composite::sidebar_layout::{
     SidebarFooter, SidebarHeader, SidebarLayout, SidebarNav, SidebarNavItem, SidebarSection,
 };
-use celestia_ui::components::composite::window::{MacWindow, MacWindowChrome};
 use celestia_ui::components::composite::virtual_list::VirtualListScrollHandle;
 use celestia_ui::components::primitive::button::{Button, ButtonSize, ButtonVariant};
 use celestia_ui::components::primitive::calendar::CalendarState;
@@ -32,11 +31,10 @@ use crate::section::{Category, DocProp, SECTION_COUNT, Section};
 use crate::sections::data_display::VirtualListDemo;
 use crate::sections::layout::PlaygroundAxis;
 use crate::sections::state::GalleryState;
-use celestia_ui::components::composite::windowing::{
-    CloseWindow, MinimizeWindow, NewWindow, ShowHelp, ToggleFullScreen, ZoomWindow,
-    open_mac_window,
+use celestia_ui::components::composite::window::{
+    self as app_window, CloseWindow, MinimizeWindow, ShowHelp, ToggleFullScreen,
+    WindowChrome, ZoomWindow,
 };
-use crate::windowing_lab::WindowingLab;
 
 #[derive(Clone, Copy, PartialEq, Eq, Default, Debug)]
 pub enum ShowcaseTab {
@@ -322,15 +320,6 @@ impl Showcase {
         Theme::toggle(cx);
     }
 
-    /// Open the Windowing Lab sub-window. File → New Window and the Window /
-    /// Windowing gallery demos both call this.
-    pub fn open_sub_window(cx: &mut App) {
-        let _ = open_mac_window("Windowing Lab", cx, |window, cx| {
-            let view = cx.new(|cx| WindowingLab::new(window, cx));
-            cx.new(|cx| gpui_component::Root::new(view, window, cx))
-        });
-    }
-
     pub fn switch_tab(&mut self, tab: ShowcaseTab, window: &mut Window, cx: &mut Context<Self>) {
         if self.active_tab != tab {
             self.active_tab = tab;
@@ -358,7 +347,6 @@ impl Render for Showcase {
             .key_context("Showcase")
             .track_focus(&self.focus_handle)
             .on_action(cx.listener(|_, _: &ToggleTheme, _, cx| Self::toggle_theme(cx)))
-            .on_action(|_: &NewWindow, _, cx| Self::open_sub_window(cx))
             .on_action(|_: &CloseWindow, window, _| window.remove_window())
             .on_action(|_: &MinimizeWindow, window, _| window.minimize_window())
             .on_action(|_: &ZoomWindow, window, _| window.zoom_window())
@@ -366,22 +354,15 @@ impl Render for Showcase {
             .on_action(|_: &ShowHelp, window, cx| {
                 window.push_notification(
                     Notification::info(
-                        "Help — use File, Window, and View menus, or open Window / Windowing in the gallery.",
+                        "Help — File / Window / View menus, or Composites → Window.",
                     ),
                     cx,
                 );
             })
             .size_full()
             .child(
-                MacWindow::new("showcase", "Celestia Desktop")
-                    .chrome(MacWindowChrome::Window)
-                    .toolbar_item(
-                        Button::new("title-new-window")
-                            .variant(ButtonVariant::Ghost)
-                            .size(ButtonSize::Small)
-                            .label("New Window")
-                            .on_click(|_, _, cx| Showcase::open_sub_window(cx)),
-                    )
+                app_window::Window::new("showcase", "Celestia Desktop")
+                    .chrome(WindowChrome::Native)
                     .child(self.render_shell(window, cx)),
             )
     }

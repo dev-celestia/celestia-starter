@@ -29,9 +29,8 @@ use celestia_ui::components::composite::keybinding_recorder::{
     KeybindingRecorder, KeybindingState,
 };
 use celestia_ui::components::composite::log_viewer::{LogLevel, LogRow, LogViewer};
-use celestia_ui::components::composite::window::{MacWindow, MacWindowKind, MacWindowTab};
-use celestia_ui::components::composite::windowing::{
-    MacAppMenu, MacMenuBarPreview, MinimizeWindow, ZoomWindow,
+use celestia_ui::components::composite::window::{
+    CloseWindow, AppMenu, MenuBarPreview, MinimizeWindow, ZoomWindow,
 };
 use celestia_ui::components::composite::media_object::MediaObject;
 use celestia_ui::components::composite::notification_center::NotificationCenter;
@@ -1376,81 +1375,38 @@ impl Showcase {
                         )),
                 )
                 .into_any_element(),
-            Demo::Window => Card::new()
-                .title("Window")
-                .description(
-                    "composite/window — Embedded previews and Window OS chrome (Mac-first). Try it opens a real lab window.",
-                )
-                .child(
-                    v_flex()
-                        .gap_4()
-                        .child(windowing_try_it(cx))
-                        .child(
-                            MacWindow::new("notes", "Notes")
-                                .subtitle("iCloud")
-                                .kind(MacWindowKind::Unified)
-                                .h(px(200.))
-                                .on_close(|_, _| {})
-                                .on_minimize(|window, _| window.minimize_window())
-                                .on_zoom(|window, _| window.zoom_window())
-                                .sidebar(
-                                    div()
-                                        .px(px(12.))
-                                        .py(px(8.))
-                                        .flex()
-                                        .flex_col()
-                                        .gap(px(6.))
-                                        .text_xs()
-                                        .child("All Notes")
-                                        .child("Today"),
-                                )
-                                .child(
-                                    div()
-                                        .p(px(12.))
-                                        .text_sm()
-                                        .text_color(cx.theme().muted_foreground)
-                                        .child(
-                                            "Drawn lights on this preview: yellow minimizes this gallery, green zooms it.",
-                                        ),
-                                ),
-                        )
-                        .child(
-                            MacWindow::new("docs", "Docs")
-                                .h(px(160.))
-                                .tab(MacWindowTab::new("notes", "Notes"))
-                                .tab(MacWindowTab::new("todo", "Todo"))
-                                .active_tab("notes")
-                                .toolbar_item(
-                                    div()
-                                        .text_xs()
-                                        .text_color(cx.theme().muted_foreground)
-                                        .child("Share"),
-                                )
-                                .child(
-                                    div()
-                                        .p(px(12.))
-                                        .text_sm()
-                                        .child("Title-bar tabs replace the centered title."),
-                                ),
-                        ),
-                )
-                .into_any_element(),
-            Demo::AppMenu => {
-                let preview = MacAppMenu::standard("Celestia")
-                    .menu(gpui::Menu::new("Window").items([
-                        gpui::MenuItem::action("Minimize", MinimizeWindow),
-                        gpui::MenuItem::action("Zoom", ZoomWindow),
+            Demo::Window => {
+                // Mirror the live bar installed in main.rs (File is Close-only).
+                let preview = AppMenu::standard("Celestia")
+                    .menu(Menu::new("File").items([MenuItem::action("Close", CloseWindow)]))
+                    .menu(Menu::new("Window").items([
+                        MenuItem::action("Minimize", MinimizeWindow),
+                        MenuItem::action("Zoom", ZoomWindow),
                     ]));
+                let muted = cx.theme().muted_foreground;
                 Card::new()
-                    .title("Windowing")
+                    .title("Window")
                     .description(
-                        "composite/windowing — installed menu: Celestia · File · Edit · View · Window · Help. Enter fullscreen, then move the pointer to the top of the screen to reveal it.",
+                        "composite/window — Window shell + AppMenu. Compose TrafficLights / tabs in title_bar(…). This gallery is WindowChrome::Native.",
                     )
                     .child(
                         v_flex()
-                            .gap_3()
-                            .child(MacMenuBarPreview::new(&preview))
-                            .child(windowing_try_it(cx)),
+                            .gap_5()
+                            .child(window_try_it(cx))
+                            .child(
+                                v_flex()
+                                    .gap_2()
+                                    .child(window_caption("AppMenu", muted))
+                                    .child(
+                                        div()
+                                            .text_xs()
+                                            .text_color(muted)
+                                            .child(
+                                                "AppMenu::standard(…).install(cx). In fullscreen, move the pointer to the top edge to reveal the bar.",
+                                            ),
+                                    )
+                                    .child(MenuBarPreview::new(&preview)),
+                            ),
                     )
                     .into_any_element()
             }
@@ -1476,17 +1432,27 @@ fn labeled_lights(cx: &App, label: &str, lights: TrafficLights) -> impl IntoElem
         )
 }
 
-/// Buttons that drive the live gallery window and open the Windowing Lab.
-fn windowing_try_it(cx: &App) -> impl IntoElement {
+fn window_caption(label: &str, muted: Hsla) -> impl IntoElement {
+    div()
+        .text_xs()
+        .font_weight(FontWeight::SEMIBOLD)
+        .text_color(muted)
+        .child(label.to_string())
+}
+
+/// Buttons that drive this gallery window (minimize / zoom / fullscreen).
+fn window_try_it(cx: &App) -> impl IntoElement {
     let muted = cx.theme().muted_foreground;
     v_flex()
         .gap_2()
+        .child(window_caption("Window · Native", muted))
         .child(
             div()
                 .text_xs()
-                .font_weight(FontWeight::SEMIBOLD)
                 .text_color(muted)
-                .child("Try it — live window"),
+                .child(
+                    "Drives this WindowChrome::Native root. Menu: Window → Minimize / Zoom · View → Enter Full Screen (⌃⌘F).",
+                ),
         )
         .child(
             div()
@@ -1494,11 +1460,6 @@ fn windowing_try_it(cx: &App) -> impl IntoElement {
                 .flex_row()
                 .flex_wrap()
                 .gap(px(8.))
-                .child(
-                    Button::new("win-new-window")
-                        .label("New Window")
-                        .on_click(|_, _, cx| Showcase::open_sub_window(cx)),
-                )
                 .child(
                     Button::new("win-minimize")
                         .variant(ButtonVariant::Outline)
@@ -1516,14 +1477,6 @@ fn windowing_try_it(cx: &App) -> impl IntoElement {
                         .variant(ButtonVariant::Outline)
                         .label("Full Screen")
                         .on_click(|_, window, _| window.toggle_fullscreen()),
-                ),
-        )
-        .child(
-            div()
-                .text_xs()
-                .text_color(muted)
-                .child(
-                    "Also: File → New Window (⌘N), Window → Minimize / Zoom, View → Enter Full Screen (⌃⌘F). Resize from any edge.",
                 ),
         )
 }

@@ -26,7 +26,7 @@ crates/
 │        │   v_grid.rs, frame.rs, alignment.rs   # SwiftUI-style layout vocabulary
 │        ├─ charts.rs               # ChartLine / ChartPie / ChartDonut prefabs + chart/plot re-exports
 │        ├─ app_header / toolbar / start_bar / system_tray / start_menu / …  # app composites
-│        ├─ traffic_lights / window / windowing  # window chrome (Mac-first; other OS later)
+│        ├─ traffic_lights / window  # window chrome (macOS layout for now; other OS later)
 │        └─ section_heading.rs / text_editor.rs / code_editor.rs / …
 ├─ celestia-bridge           # HTTP bridge to apps/api (desktop twin of api-client.ts)
 ├─ celestia-desktop          # Component gallery (sidebar showcase window)
@@ -232,31 +232,31 @@ Source lives in `crates/starter/`:
 
 | File | Role |
 | --- | --- |
-| `src/main.rs` | Bootstrap — assets, `celestia_ui::init`, `MacAppMenu`, window, `Root` |
+| `src/main.rs` | Bootstrap — assets, `celestia_ui::init`, `AppMenu`, window, `Root` |
 | `src/app.rs` | Root view — `SidebarLayout`, pages, theme toggle, New Window |
 | `src/actions.rs` | Keybinding actions (`ToggleTheme`) |
 
-Mac windowing lives in `celestia_ui`:
+Window chrome lives in `celestia_ui` (`composite/window` — macOS layout for now):
 
 ```rust
-use celestia_ui::components::composite::windowing::{
-    MacAppMenu, bind_mac_window_keys, open_mac_window,
+use celestia_ui::components::composite::window::{
+    AppMenu, bind_window_keys, open_window,
 };
 
-MacAppMenu::standard("My App").install(cx);
-bind_mac_window_keys(cx);
+AppMenu::standard("My App").install(cx);
+bind_window_keys(cx);
 // File → New Window, or:
-open_mac_window("Untitled", cx, |window, cx| /* Root::new(...) */);
+open_window("Untitled", cx, |window, cx| /* Root::new(...) */);
 ```
 
-`MacAppMenu::standard` is the app name plus File, Edit, View, and Help.
+`AppMenu::standard` is the app name plus File, Edit, View, and Help.
 `menu` / `item` / `without` change that list before `install`. In fullscreen,
 macOS reveals the installed bar when the pointer hits the top of the screen.
-Minimize, zoom, and close on a real window are the native traffic lights.
-`open_mac_window` pairs with a root `MacWindow` using `MacWindowChrome::Window`
-so AppKit draws those lights. Resize is edge dragging, with a minimum size so
-the frame cannot collapse. `MacWindowChrome::Embedded` is the in-view preview
-(drawn lights, border, shadow) — not a second set of lights on the OS window.
+`open_window` pairs with a root `Window` using `WindowChrome::Native`.
+On macOS, AppKit draws the traffic lights. Compose custom chrome
+(`TrafficLights`, tabs, actions) via `Window::title_bar`. Resize is edge
+dragging, with a minimum size so the frame cannot collapse.
+`WindowChrome::Embedded` is a framed in-view preview — no built-in lights.
 
 Copy the crate into your app, rename the package, and replace the Home / About
 pages in `app.rs`. Keep the bootstrap order in `main.rs`.

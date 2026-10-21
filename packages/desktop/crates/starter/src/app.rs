@@ -5,7 +5,7 @@
 //! 2. Mutate with `cx.notify()` so GPUI re-renders.
 //! 3. Build the tree from `celestia_ui::components::*` and theme via `cx.theme()`.
 //! 4. Talk to `apps/api` through `celestia_bridge` (never import the DB).
-//! 5. Windowing via `composite/windowing` — `open_mac_window`, `MacAppMenu`, actions.
+//! 5. Window via `composite/window` — `open_window`, `AppMenu`, actions.
 
 use crate::actions::ToggleTheme;
 use celestia_bridge::{BridgeClient, Health, brief};
@@ -17,11 +17,8 @@ use celestia_ui::components::composite::sidebar_layout::{
     SidebarFooter, SidebarHeader, SidebarLayout, SidebarNav, SidebarNavItem, SidebarSection,
 };
 use celestia_ui::components::composite::window::{
-    MacWindow, MacWindowChrome, MacWindowKind, MacWindowTab,
-};
-use celestia_ui::components::composite::windowing::{
-    CloseWindow, MinimizeWindow, NewWindow, ShowHelp, ToggleFullScreen, ZoomWindow,
-    open_mac_window,
+    self as app_window, CloseWindow, MinimizeWindow, NewWindow, ShowHelp, ToggleFullScreen,
+    WindowChrome, ZoomWindow, open_window,
 };
 use celestia_ui::components::primitive::badge::{Badge, BadgeVariant};
 use celestia_ui::components::primitive::button::{Button, ButtonSize, ButtonVariant};
@@ -70,9 +67,9 @@ impl StarterApp {
     }
 
     /// Open another starter window. File → New Window and the Home controls
-    /// both call this (`composite/windowing::open_mac_window`).
+    /// both call this (`composite/window::open_window`).
     pub fn open_sub_window(cx: &mut App) {
-        let _ = open_mac_window("Celestia Starter", cx, |window, cx| {
+        let _ = open_window("Celestia Starter", cx, |window, cx| {
             let view = cx.new(|cx| Self::new(window, cx));
             cx.new(|cx| gpui_component::Root::new(view, window, cx))
         });
@@ -135,14 +132,27 @@ impl Render for StarterApp {
             })
             .size_full()
             .child(
-                MacWindow::new("starter", "Celestia Starter")
-                    .chrome(MacWindowChrome::Window)
-                    .toolbar_item(
-                        Button::new("title-new-window")
-                            .variant(ButtonVariant::Ghost)
-                            .size(ButtonSize::Small)
-                            .label("New Window")
-                            .on_click(|_, _, cx| StarterApp::open_sub_window(cx)),
+                app_window::Window::new("starter", "Celestia Starter")
+                    .chrome(WindowChrome::Native)
+                    .title_bar(
+                        div()
+                            .w_full()
+                            .flex()
+                            .items_center()
+                            .justify_between()
+                            .child(
+                                div()
+                                    .text_xs()
+                                    .font_weight(FontWeight::SEMIBOLD)
+                                    .child("Celestia Starter"),
+                            )
+                            .child(
+                                Button::new("title-new-window")
+                                    .variant(ButtonVariant::Ghost)
+                                    .size(ButtonSize::Small)
+                                    .label("New Window")
+                                    .on_click(|_, _, cx| StarterApp::open_sub_window(cx)),
+                            ),
                     )
                     .child(self.render_shell(cx)),
             )
@@ -269,9 +279,9 @@ impl StarterApp {
             )
             .child(
                 Card::new()
-                    .title("Windowing")
+                    .title("Window")
                     .description(
-                        "composite/window + composite/windowing — Mac-first today. \
+                        "composite/window — macOS chrome for now. \
                          New Window opens a real OS window; menu bar is installed in main.rs.",
                     )
                     .child(
@@ -307,33 +317,6 @@ impl StarterApp {
                                             .on_click(|_, window, _| window.toggle_fullscreen()),
                                     ),
                             )
-                            .child(
-                                MacWindow::new("starter-preview", "Notes")
-                                    .subtitle("composite/window")
-                                    .kind(MacWindowKind::Unified)
-                                    .h(px(160.))
-                                    .on_minimize(|window, _| window.minimize_window())
-                                    .on_zoom(|window, _| window.zoom_window())
-                                    .sidebar(
-                                        div()
-                                            .px(px(12.))
-                                            .py(px(8.))
-                                            .text_xs()
-                                            .child("Sidebar"),
-                                    )
-                                    .tab(MacWindowTab::new("a", "Notes"))
-                                    .tab(MacWindowTab::new("b", "Todo"))
-                                    .active_tab("a")
-                                    .child(
-                                        div()
-                                            .p(px(12.))
-                                            .text_sm()
-                                            .text_color(cx.theme().muted_foreground)
-                                            .child(
-                                                "Embedded preview. Real chrome uses MacWindowChrome::Window.",
-                                            ),
-                                    ),
-                            ),
                     ),
             )
             .child(
@@ -445,13 +428,13 @@ impl StarterApp {
                         ))
                         .child(checklist_line("celestia_ui::init(cx) before any window"))
                         .child(checklist_line(
-                            "MacAppMenu::standard(…).install(cx) + bind_mac_window_keys(cx)",
+                            "AppMenu::standard(…).install(cx) + bind_window_keys(cx)",
                         ))
                         .child(checklist_line(
-                            "open_mac_window(…) → Root::new(view, window, cx)",
+                            "open_window(…) → Root::new(view, window, cx)",
                         ))
                         .child(checklist_line(
-                            "MacWindow::chrome(Window) for real OS chrome; Embedded for previews",
+                            "Window::chrome(Native) + title_bar(…) for custom chrome",
                         ))
                         .child(checklist_line(
                             "Theme::toggle / AppTheme for light-dark + tokens",
