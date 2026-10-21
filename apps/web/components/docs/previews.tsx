@@ -43,7 +43,6 @@ import {
 import { Button } from "@celestia-project/ui/primitive/button"
 import {
   ButtonGroup,
-  ButtonGroupSeparator,
 } from "@celestia-project/ui/composite/button-group"
 import { Calendar } from "@celestia-project/ui/primitive/calendar"
 import {
@@ -544,9 +543,7 @@ export function ButtonGroupPreview() {
     <PreviewShell>
       <ButtonGroup>
         <Button variant="outline">Year</Button>
-        <ButtonGroupSeparator />
         <Button variant="outline">Month</Button>
-        <ButtonGroupSeparator />
         <Button variant="outline">Day</Button>
       </ButtonGroup>
     </PreviewShell>

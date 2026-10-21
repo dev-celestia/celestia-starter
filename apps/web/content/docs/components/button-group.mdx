@@ -9,13 +9,15 @@ Clusters related buttons into a single visual group with connected borders.
 
 ```tsx
 import { Button } from "@celestia-project/ui/primitive/button"
-import { ButtonGroup, ButtonGroupSeparator } from "@celestia-project/ui/composite/button-group"
+import { ButtonGroup } from "@celestia-project/ui/composite/button-group"
 
 <ButtonGroup>
   <Button variant="outline">Year</Button>
-  <ButtonGroupSeparator />
   <Button variant="outline">Month</Button>
-  <ButtonGroupSeparator />
   <Button variant="outline">Day</Button>
 </ButtonGroup>
 ```
+
+Outline buttons already share a border — skip `ButtonGroupSeparator` between them.
+Use the separator for non-outline variants (`default`, `secondary`, `ghost`) where
+segments need an explicit divider.

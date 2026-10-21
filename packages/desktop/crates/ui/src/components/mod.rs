@@ -130,6 +130,7 @@ pub mod traits;
 // their module path (`components::primitive::table`,
 // `components::composite::empty`).
 pub use composite::alignment::*;
+pub use composite::button_group::*;
 pub use composite::code_editor::*;
 pub use composite::color_picker::*;
 pub use composite::context_badge::*;
