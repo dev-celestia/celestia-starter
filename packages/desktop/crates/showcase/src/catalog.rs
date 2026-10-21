@@ -1466,7 +1466,7 @@ pub const SECTIONS: &[SectionMeta] = &[
         family: Family::Composites,
         demo: Demo::TrafficLights,
         package: "composite/traffic_lights",
-        description: "Close, minimize, and zoom lights (Mac-first).",
+        description: "Close, minimize, and zoom lights (macOS for now).",
     },
     SectionMeta {
         id: "window",
@@ -1475,7 +1475,7 @@ pub const SECTIONS: &[SectionMeta] = &[
         family: Family::Composites,
         demo: Demo::Window,
         package: "composite/window",
-        description: "This gallery window — OS chrome and AppMenu.",
+        description: "Window + AppMenu — Native chrome for this gallery (macOS for now).",
     },
     SectionMeta {
         id: "button-group",

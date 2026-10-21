@@ -689,7 +689,7 @@ const COMPOSITES_CODE: &str = r#"use celestia_ui::components::composite::app_hea
 use celestia_ui::components::composite::button_group::ButtonGroup;
 use celestia_ui::components::composite::command_palette::{CommandPalette, CommandPaletteItem};
 use celestia_ui::components::composite::window::{
-    AppMenu, Window, WindowChrome, MinimizeWindow,
+    self as app_window, AppMenu, MinimizeWindow, WindowChrome,
 };
 use celestia_ui::components::composite::panel::Panel;
 use celestia_ui::components::composite::start_bar::{StartBar, StartBarItem};
@@ -705,7 +705,10 @@ Toolbar::new("tb").title("main.rs")
 
 TrafficLights::new("lights").edited(true).on_close(|_, _| {})
 
-Window::new("app", "Celestia Desktop").chrome(WindowChrome::Native)
+// Import Window via the module — it is not re-exported from components::*
+// (name clashes with gpui::Window).
+app_window::Window::new("app", "Celestia Desktop")
+    .chrome(WindowChrome::Native)
 
 AppMenu::standard("Celestia")
     .menu(Menu::new("Window").items([MenuItem::action("Minimize", MinimizeWindow)]))
@@ -1244,9 +1247,9 @@ const COMPOSITES_PROPS: &[DocProp] = &[
         description: "Windows-style taskbar: start trigger, pinned apps, tray + clock, start menu flyout.",
     },
     DocProp {
-        name: "TrafficLights / Window / AppMenu",
+        name: "Window / AppMenu / TrafficLights",
         ty: "composite/window",
-        description: "OS chrome for this window and the customizable app menu (macOS layout for now). Fullscreen reveals the installed bar on top-edge hover.",
+        description: "OS-neutral names; macOS chrome for now. WindowChrome::Native roots this gallery. AppMenu::install → cx.set_menus; fullscreen reveals the bar on top-edge hover.",
     },
     DocProp {
         name: "ButtonGroup / InputGroup / Panel",
@@ -1272,7 +1275,7 @@ const COMPOSITES_PROPS: &[DocProp] = &[
 
 const COMPOSITES_NOTES: &[&str] = &[
     "Composites are presentational shells — the host owns Entity state (inputs, open/close, selection).",
-    "composite/window — this gallery uses WindowChrome::Native (AppKit lights on macOS). AppMenu::standard is the starting bar; menu/item/without customize it; install sends it to cx.set_menus.",
+    "composite/window — Window / WindowChrome / AppMenu (OS-neutral; macOS layout for now). This gallery is WindowChrome::Native. Import Window via composite::window — it is not in components::* (clashes with gpui::Window).",
     "Prefer SplitPane for fixed ratios; use ResizableSplit / ResizablePanelGroup for drag handles.",
     "KanbanBoard ships its own KanbanCardDrag session. While a card is dragged, the column washes accent and an insert line appears before release — see the Drag & Drop family.",
     "ToastStack is an in-view host; window.push_notification still drives the Root notification layer.",

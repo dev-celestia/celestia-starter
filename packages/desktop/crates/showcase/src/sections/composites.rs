@@ -1376,9 +1376,10 @@ impl Showcase {
                 )
                 .into_any_element(),
             Demo::Window => {
+                // Mirror the live bar installed in main.rs (File is Close-only).
                 let preview = AppMenu::standard("Celestia")
-                    .menu(gpui::Menu::new("File").items([MenuItem::action("Close", CloseWindow)]))
-                    .menu(gpui::Menu::new("Window").items([
+                    .menu(Menu::new("File").items([MenuItem::action("Close", CloseWindow)]))
+                    .menu(Menu::new("Window").items([
                         MenuItem::action("Minimize", MinimizeWindow),
                         MenuItem::action("Zoom", ZoomWindow),
                     ]));
@@ -1386,7 +1387,7 @@ impl Showcase {
                 Card::new()
                     .title("Window")
                     .description(
-                        "composite/window — this gallery is a WindowChrome::Native root. Controls and menu below drive it.",
+                        "composite/window — Window + AppMenu. This gallery is a WindowChrome::Native root (macOS chrome for now).",
                     )
                     .child(
                         v_flex()
@@ -1395,13 +1396,13 @@ impl Showcase {
                             .child(
                                 v_flex()
                                     .gap_2()
-                                    .child(window_caption("App menu", muted))
+                                    .child(window_caption("AppMenu", muted))
                                     .child(
                                         div()
                                             .text_xs()
                                             .text_color(muted)
                                             .child(
-                                                "Installed via AppMenu::install. In fullscreen, move the pointer to the top edge to reveal it.",
+                                                "AppMenu::standard(…).install(cx). In fullscreen, move the pointer to the top edge to reveal the bar.",
                                             ),
                                     )
                                     .child(MenuBarPreview::new(&preview)),
@@ -1444,13 +1445,13 @@ fn window_try_it(cx: &App) -> impl IntoElement {
     let muted = cx.theme().muted_foreground;
     v_flex()
         .gap_2()
-        .child(window_caption("This window", muted))
+        .child(window_caption("Window · Native", muted))
         .child(
             div()
                 .text_xs()
                 .text_color(muted)
                 .child(
-                    "Controls the gallery itself. Window → Minimize / Zoom, View → Enter Full Screen (⌃⌘F).",
+                    "Drives this WindowChrome::Native root. Menu: Window → Minimize / Zoom · View → Enter Full Screen (⌃⌘F).",
                 ),
         )
         .child(

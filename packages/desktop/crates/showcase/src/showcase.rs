@@ -354,7 +354,7 @@ impl Render for Showcase {
             .on_action(|_: &ShowHelp, window, cx| {
                 window.push_notification(
                     Notification::info(
-                        "Help — use File / Window / View, or open the Window gallery section.",
+                        "Help — File / Window / View menus, or Composites → Window.",
                     ),
                     cx,
                 );

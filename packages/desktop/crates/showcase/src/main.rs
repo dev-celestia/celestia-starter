@@ -3,12 +3,11 @@
 
 //! Celestia Desktop — component gallery for the `celestia-ui` library.
 //!
-//! The window is itself a demo of the [`SidebarLayout`] shell: a sidebar nav
-//! picks the component section, the content pane renders it through the same
-//! re-export layer an application would use. Bootstrap follows the GetCat
-//! reference: `gpui_platform::application()` → `celestia_ui::init` (runtime +
-//! theme) → keybindings → open window wrapping the root view in a
-//! `gpui-component` `Root`.
+//! The root view is wrapped in `composite/window::Window` with
+//! `WindowChrome::Native`. A sidebar nav picks the component section; the
+//! content pane renders it through the same re-export layer an application
+//! would use. Bootstrap: `gpui_platform::application()` → `celestia_ui::init`
+//! → `AppMenu` + keys → open window wrapping the root in `gpui-component::Root`.
 
 mod actions;
 mod assets;
