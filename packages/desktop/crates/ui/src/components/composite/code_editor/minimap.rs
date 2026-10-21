@@ -26,11 +26,13 @@ use gpui::{
     MouseButton, MouseDownEvent, MouseMoveEvent, MouseUpEvent, Pixels, Point, Styled, WeakEntity,
     canvas, div, fill, point, px, quad, relative, size,
 };
-use gpui_component::input::EditorState;
+use gpui_component::input::{EditorState, RopeExt};
 
 mod scan;
 
-use scan::{INK_COUNT, Ink, MinimapSnapshot};
+use scan::{INK_COUNT, Ink};
+
+pub(super) use scan::MinimapSnapshot;
 
 use crate::theme::ActiveTheme as _;
 
