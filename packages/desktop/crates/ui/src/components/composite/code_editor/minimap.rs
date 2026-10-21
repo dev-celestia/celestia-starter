@@ -16,6 +16,8 @@
 //!   the densest line in that band, which is what a compressed overview looks
 //!   like in a real editor.
 
+mod scan;
+
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
@@ -27,9 +29,6 @@ use gpui::{
     canvas, div, fill, point, px, quad, relative, size,
 };
 use gpui_component::input::{EditorState, RopeExt};
-
-mod scan;
-
 use scan::{INK_COUNT, Ink};
 
 pub(super) use scan::MinimapSnapshot;
@@ -44,10 +43,6 @@ const PAD_X: f32 = 5.;
 /// Tallest a single source line may render at, in px. Past this the document
 /// is compressed instead of stretched, so short files keep Monaco's density.
 const MAX_ROW_H: f32 = 3.;
-/// Widest source column the overview tracks; longer lines are clipped.
-const MAX_COLS: u16 = 260;
-/// Columns a tab expands to when measuring indentation.
-const TAB_COLS: u16 = 4;
 /// Shortest the viewport slider may get, so a huge file still leaves a handle.
 const MIN_SLIDER_H: f32 = 10.;
 /// Corner radius of the slider.
@@ -423,4 +418,3 @@ fn paint_overview(
         BorderStyle::Solid,
     ));
 }
-

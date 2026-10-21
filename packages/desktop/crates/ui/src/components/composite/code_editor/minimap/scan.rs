@@ -510,7 +510,6 @@ const KEYWORDS: &[&str] = &[
     "yield",
 ];
 
-
 #[cfg(test)]
 mod tests {
     use super::*;

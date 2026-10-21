@@ -17,6 +17,9 @@ mod minimap;
 use std::rc::Rc;
 use std::time::Duration;
 
+use crate::components::primitive::button::{Button, ButtonSize, ButtonVariant};
+use crate::components::primitive::icon::PhosphorIcon;
+use crate::components::traits::Selectable as _;
 use crate::theme::ActiveTheme as _;
 use gpui::prelude::FluentBuilder as _;
 use gpui::{
@@ -183,11 +186,34 @@ impl Render for CodeEditor {
                             .child(self.language.clone()),
                     )
                     .child(
-                        div()
-                            .text_xs()
-                            .font_family(cx.theme().mono_font_family.clone())
-                            .text_color(cx.theme().muted_foreground)
-                            .child(format!("{lines} lines")),
+                        h_flex()
+                            .items_center()
+                            .gap_1()
+                            .child(
+                                div()
+                                    .text_xs()
+                                    .font_family(cx.theme().mono_font_family.clone())
+                                    .text_color(cx.theme().muted_foreground)
+                                    .child(format!("{lines} lines")),
+                            )
+                            .child(
+                                Button::icon(
+                                    ("code-editor-minimap-toggle", cx.entity().entity_id()),
+                                    PhosphorIcon::MapTrifold,
+                                )
+                                .size(ButtonSize::XSmall)
+                                .variant(ButtonVariant::Ghost)
+                                .selected(show_minimap)
+                                .accessibility_label("Toggle minimap")
+                                .tooltip(if show_minimap {
+                                    "Hide minimap"
+                                } else {
+                                    "Show minimap"
+                                })
+                                .on_click(cx.listener(|this, _, _, cx| {
+                                    this.set_minimap(!this.show_minimap, cx);
+                                })),
+                            ),
                     ),
             )
             // The height must land on the Editor itself: the input renders its
