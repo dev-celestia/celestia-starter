@@ -7,21 +7,45 @@
 //! `rust` and `markdown`). The celestia chrome — bordered surface, language
 //! tag, line count — lives here.
 //!
+//! The right-hand overview strip lives in [`minimap`].
+//!
 //! Like [`super::text_editor::TextEditor`], this is an entity so the footer
 //! refreshes while typing.
 
+mod minimap;
+
+use std::rc::Rc;
+use std::time::Duration;
+
 use crate::theme::ActiveTheme as _;
+use gpui::prelude::FluentBuilder as _;
 use gpui::{
     App, AppContext as _, Context, Entity, IntoElement, ParentElement, Render, SharedString,
     Styled, Subscription, Window, div, px,
 };
 use gpui_component::input::{Editor, EditorState, InputEvent, RopeExt};
 use gpui_component::{h_flex, v_flex};
+use minimap::{MinimapInteraction, MinimapSnapshot, render_minimap};
+
+/// Height of the editing surface, until the parent imposes its own.
+const EDITOR_HEIGHT: f32 = 280.;
+
+/// How long the minimap waits for typing to pause before re-scanning the
+/// buffer. The scan itself runs off the main thread, so this only trades a
+/// barely visible lag for a snappy keystroke.
+const MINIMAP_DEBOUNCE: Duration = Duration::from_millis(60);
 
 /// A syntax-highlighted code editor for one language.
 pub struct CodeEditor {
     editor: Entity<EditorState>,
     language: SharedString,
+    /// When true, paint the overview strip on the right.
+    show_minimap: bool,
+    /// Scanned copy of the buffer the strip paints from.
+    minimap: Rc<MinimapSnapshot>,
+    /// Bumped per edit so only the newest queued rebuild lands.
+    minimap_seq: u64,
+    minimap_interaction: MinimapInteraction,
     _subscription: Subscription,
 }
 
@@ -33,14 +57,24 @@ impl CodeEditor {
     ) -> Self {
         let language = language.into();
         let editor = cx.new(|cx| EditorState::new(window, cx).language(language.clone()));
-        let subscription = cx.subscribe(&editor, |_, _, event: &InputEvent, cx| {
+
+        let minimap_interaction = MinimapInteraction::new();
+        minimap_interaction.attach(cx.weak_entity());
+        let minimap = Rc::new(MinimapSnapshot::build(editor.read(cx).text()));
+
+        let subscription = cx.subscribe(&editor, |this, editor, event: &InputEvent, cx| {
             if matches!(event, InputEvent::Change) {
-                cx.notify();
+                this.schedule_minimap_rebuild(editor, cx);
             }
         });
+
         Self {
             editor,
             language,
+            show_minimap: true,
+            minimap,
+            minimap_seq: 0,
+            minimap_interaction,
             _subscription: subscription,
         }
     }
@@ -58,14 +92,71 @@ impl CodeEditor {
         &self.language
     }
 
+    /// Switch the highlighter and the chrome's language tag.
+    pub fn set_language(&mut self, language: impl Into<SharedString>, cx: &mut Context<Self>) {
+        let language = language.into();
+        self.language = language.clone();
+        self.editor
+            .update(cx, |e, cx| e.set_highlighter(language, cx));
+        cx.notify();
+    }
+
     pub fn line_count(&self, cx: &App) -> usize {
         self.editor.read(cx).text().lines_len()
+    }
+
+    /// Show or hide the overview strip (default: shown).
+    pub fn set_minimap(&mut self, enabled: bool, cx: &mut Context<Self>) {
+        if self.show_minimap == enabled {
+            return;
+        }
+        self.show_minimap = enabled;
+        if enabled {
+            let editor = self.editor.clone();
+            self.schedule_minimap_rebuild(editor, cx);
+        }
+        cx.notify();
+    }
+
+    pub fn minimap_enabled(&self) -> bool {
+        self.show_minimap
+    }
+
+    /// Re-scan the buffer for the strip, off the main thread.
+    ///
+    /// Typing produces one edit per keystroke; each queues a rebuild that only
+    /// lands if no newer edit arrived while it waited, so a fast typist pays
+    /// for one scan rather than one per character.
+    fn schedule_minimap_rebuild(&mut self, editor: Entity<EditorState>, cx: &mut Context<Self>) {
+        if !self.show_minimap {
+            return;
+        }
+
+        self.minimap_seq = self.minimap_seq.wrapping_add(1);
+        let seq = self.minimap_seq;
+        let text = editor.read(cx).text().clone();
+
+        cx.spawn(async move |this, cx| {
+            cx.background_executor().timer(MINIMAP_DEBOUNCE).await;
+            let snapshot = cx
+                .background_executor()
+                .spawn(async move { MinimapSnapshot::build(&text) })
+                .await;
+            let _ = this.update(cx, |this, cx| {
+                if this.minimap_seq == seq {
+                    this.minimap = Rc::new(snapshot);
+                    cx.notify();
+                }
+            });
+        })
+        .detach();
     }
 }
 
 impl Render for CodeEditor {
     fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let lines = self.line_count(cx);
+        let show_minimap = self.show_minimap;
 
         v_flex()
             .w_full()
@@ -102,7 +193,27 @@ impl Render for CodeEditor {
             // The height must land on the Editor itself: the input renders its
             // own box with `h_auto`, so a sized wrapper div never propagates in
             // and the editor collapses to a single line.
-            .child(Editor::new(&self.editor).h(px(280.)))
+            .child(
+                h_flex()
+                    .w_full()
+                    .min_h_0()
+                    .child(
+                        div()
+                            .flex_1()
+                            .min_w_0()
+                            .child(Editor::new(&self.editor).h(px(EDITOR_HEIGHT))),
+                    )
+                    .when(show_minimap, |this| {
+                        // The row's height is auto, so the strip gets an explicit one
+                        // instead of a percentage that would resolve against nothing.
+                        this.child(div().flex_none().h(px(EDITOR_HEIGHT)).child(render_minimap(
+                            self.editor.clone(),
+                            self.minimap.clone(),
+                            self.minimap_interaction.clone(),
+                            cx,
+                        )))
+                    }),
+            )
     }
 }
 
