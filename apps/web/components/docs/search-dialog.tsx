@@ -43,7 +43,7 @@ export const SEARCH_INDEX: SearchItem[] = [
   { title: "Input & Input Group", href: "/docs/components/input", category: "Components", description: "Accessible text inputs with addons, prefixes, and suffixes." },
   { title: "Dialog", href: "/docs/components/dialog", category: "Components", description: "Modal dialog overlay with accessibility and smooth focus trap." },
   { title: "Alert & Alert Dialog", href: "/docs/components/alert", category: "Components", description: "Visual alert callouts and destructive confirmation dialogs." },
-  { title: "Bottom Sheet", href: "/docs/components/bottom-sheet", category: "Components", description: "Swipeable panel that rises from the bottom edge with a drag handle and snap points." },
+  { title: "Bottom Sheet", href: "/docs/components/bottom-sheet", category: "Components", description: "Drag the knob up and down between half and full snap points." },
   { title: "Drawer / Sheet", href: "/docs/components/drawer", category: "Components", description: "Slide-over drawer sheets for mobile menus and contextual panels." },
   { title: "Dropdown Menu", href: "/docs/components/dropdown-menu", category: "Components", description: "Contextual dropdown menus with nested submenus and shortcuts." },
   { title: "Select & Combobox", href: "/docs/components/select", category: "Components", description: "Accessible select dropdowns and searchable autocomplete comboboxes." },

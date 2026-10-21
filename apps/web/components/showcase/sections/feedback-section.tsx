@@ -237,10 +237,14 @@ export function BottomSheetDemo() {
       <BottomSheetContent>
         <BottomSheetHeader>
           <BottomSheetTitle>Share</BottomSheetTitle>
-          <BottomSheetDescription>Choose where to send this link.</BottomSheetDescription>
+          <BottomSheetDescription>
+            Drag the knob up or down between half and full height.
+          </BottomSheetDescription>
         </BottomSheetHeader>
         <BottomSheetBody>
-          <p className="text-xs text-muted-foreground">Swipe down or tap Cancel to dismiss.</p>
+          <p className="text-xs text-muted-foreground">
+            Swipe past the lowest snap or tap Cancel to dismiss.
+          </p>
         </BottomSheetBody>
         <BottomSheetFooter>
           <Button size="sm">Copy link</Button>
@@ -543,7 +547,7 @@ export function FeedbackSection() {
             id="bottom-sheet"
             title="Bottom Sheet"
             category="Feedback"
-            description="Swipeable panel that rises from the bottom edge with a drag handle. Built on Drawer with bottom-sheet defaults."
+            description="Drag the knob up and down between half and full height. Built on Drawer with bottom-sheet snap points."
             docsSlug="bottom-sheet"
             importSnippet={`import { BottomSheet, BottomSheetTrigger, BottomSheetContent, BottomSheetHeader, BottomSheetBody, BottomSheetTitle, BottomSheetDescription, BottomSheetFooter, BottomSheetClose } from "@celestia-project/ui"`}
             codeExample={BOTTOM_SHEET_CODE}
@@ -556,12 +560,12 @@ export function FeedbackSection() {
                 <BottomSheetHeader>
                   <BottomSheetTitle>Share</BottomSheetTitle>
                   <BottomSheetDescription>
-                    Choose where to send this link.
+                    Drag the knob up or down between half and full height.
                   </BottomSheetDescription>
                 </BottomSheetHeader>
                 <BottomSheetBody>
                   <p className="text-xs text-muted-foreground">
-                    Swipe down or tap Cancel to dismiss.
+                    Swipe past the lowest snap or tap Cancel to dismiss.
                   </p>
                 </BottomSheetBody>
                 <BottomSheetFooter>

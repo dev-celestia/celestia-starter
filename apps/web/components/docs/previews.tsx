@@ -868,7 +868,7 @@ export function BottomSheetPreview() {
           <BottomSheetHeader>
             <BottomSheetTitle>Share</BottomSheetTitle>
             <BottomSheetDescription>
-              Choose where to send this link.
+              Drag the knob up or down between half and full height.
             </BottomSheetDescription>
           </BottomSheetHeader>
           <BottomSheetBody>
@@ -878,6 +878,14 @@ export function BottomSheetPreview() {
               defaultValue="https://celestia.dev"
               readOnly
             />
+            <div className="mt-3 grid gap-2" aria-hidden>
+              {Array.from({ length: 8 }, (_, index) => (
+                <div
+                  key={index}
+                  className="h-10 rounded-md bg-muted/60"
+                />
+              ))}
+            </div>
           </BottomSheetBody>
           <BottomSheetFooter>
             <Button>Copy link</Button>
