@@ -261,6 +261,8 @@ pub struct Button {
     disabled: bool,
     loading: bool,
     selected: bool,
+    /// Overrides the variant's resolved text color (and its hover blend).
+    tint: Option<Hsla>,
     dropdown_caret: bool,
     tooltip: Option<SharedString>,
     leading_icon: Option<AnyElement>,
@@ -284,6 +286,7 @@ impl Button {
             disabled: false,
             loading: false,
             selected: false,
+            tint: None,
             dropdown_caret: false,
             tooltip: None,
             leading_icon: None,
@@ -364,6 +367,18 @@ impl Button {
 
     pub fn mono(mut self, mono: bool) -> Self {
         self.mono = mono;
+        self
+    }
+
+    /// Force the glyph/label color, overriding the variant's text color and its
+    /// hover blend.
+    ///
+    /// This is the "quiet selected" lever: an item can announce itself with an
+    /// accent glyph on no fill instead of [`Self::selected`]'s tinted tile. The
+    /// background still follows the variant, so a tinted [`ButtonVariant::Ghost`]
+    /// keeps its hover wash and its press feedback.
+    pub fn tint(mut self, color: impl Into<Hsla>) -> Self {
+        self.tint = Some(color.into());
         self
     }
 
@@ -776,6 +791,13 @@ impl RenderOnce for Button {
             motion::mix(border, hover_border, hover_t),
             motion::mix(text, hover_text, hover_t),
         );
+        // A tint wins over both the variant and the hover blend: the glyph keeps
+        // its accent while the surface underneath still responds to the pointer.
+        // The pressed color follows it, so a press cannot wash the accent out.
+        let (text, active_text) = match self.tint {
+            Some(tint) => (tint, tint),
+            None => (text, active_text),
+        };
         let show_underline = hover_underline && hover_t > 0.0;
 
         let mut el = div()

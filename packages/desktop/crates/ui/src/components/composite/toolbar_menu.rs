@@ -92,6 +92,11 @@ impl ToolbarMenuItem {
         self
     }
 
+    /// Mark the item as the current one.
+    ///
+    /// Active items are drawn with the accent color on the plain (ghost)
+    /// surface — no filled tile — so a rail reads as a row of icons with one
+    /// lit up, not as a stack of cards.
     pub fn active(mut self, active: bool) -> Self {
         self.active = active;
         self
@@ -124,7 +129,7 @@ impl ToolbarMenuItem {
 }
 
 impl RenderOnce for ToolbarMenuItem {
-    fn render(self, _: &mut Window, _: &mut App) -> impl IntoElement {
+    fn render(self, _: &mut Window, cx: &mut App) -> impl IntoElement {
         let show_label = self.label.is_some()
             && (self.appearance == ToolbarMenuAppearance::Labeled || self.icon.is_none());
         let show_icon =
@@ -134,10 +139,16 @@ impl RenderOnce for ToolbarMenuItem {
             .clone()
             .or_else(|| self.label.clone())
             .unwrap_or_default();
+        // An active item is marked by its accent glyph, not by a filled tile:
+        // these strips are columns/rows of icons, and a tinted tile behind one
+        // of them reads as a card sitting on the rail rather than as "selected".
+        // The hover wash and press feedback stay on the ghost surface, and idle
+        // items stay muted so the lit one is the only accent in the strip.
+        let tint = self.active.then(|| cx.theme().primary);
         let variant = if self.active {
-            ButtonVariant::Secondary
-        } else {
             ButtonVariant::Ghost
+        } else {
+            ButtonVariant::Quiet
         };
 
         let icon = if show_icon { self.icon } else { None };
@@ -157,6 +168,9 @@ impl RenderOnce for ToolbarMenuItem {
         };
 
         button = button.disabled(self.disabled);
+        if let Some(tint) = tint {
+            button = button.tint(tint);
+        }
         if !tip.is_empty() {
             button = button.tooltip(tip);
         }
