@@ -69,7 +69,7 @@ See the [Components docs](/docs/components) and the [npm package](https://www.np
 
 ## @celestia-project/mobile
 
-Native iOS and Android UI components built on **`@expo/ui`** — real SwiftUI on iOS and Jetpack Compose on Android, with no web-shim layer in between. The package reuses the same `primitive` / `composite` / `layout` taxonomy and the same design tokens as `@celestia-project/ui`, but it is **not** a port: mobile-only affordances (haptics, safe areas, native sheets) have no web counterpart.
+Native iOS and Android UI components built on **`@expo/ui`** — real SwiftUI on iOS and Jetpack Compose on Android, with no web-shim layer in between. The package reuses the same `primitive` / `composite` / `layout` taxonomy and the same design tokens as `@celestia-project/ui`, but it is **not** a port: mobile-only affordances (haptics, safe areas) have no web counterpart. For slide-up panels, use `MobileBottomSheet` on native and [`BottomSheet`](/docs/components/bottom-sheet) on web.
 
 <Callout type="info" title="Publishing & Workspace Usage">
 `@celestia-project/mobile` is part of the npm publish set: `scripts/publish.sh` supports publishing `@celestia-project/ui`, `@celestia-project/create`, and `@celestia-project/mobile`. Inside the workspace, it is consumed from source through the workspace protocol (`"@celestia-project/mobile": "workspace:*"`). Publish it standalone with `pnpm publish:mobile`, or all packages together with `pnpm publish:packages`.

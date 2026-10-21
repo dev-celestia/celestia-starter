@@ -30,6 +30,15 @@ import {
   DialogFooter,
   DialogTitle,
   DialogDescription,
+  BottomSheet,
+  BottomSheetBody,
+  BottomSheetClose,
+  BottomSheetContent,
+  BottomSheetDescription,
+  BottomSheetFooter,
+  BottomSheetHeader,
+  BottomSheetTitle,
+  BottomSheetTrigger,
   Sheet,
   SheetTrigger,
   SheetContent,
@@ -202,6 +211,49 @@ export function AlertDialogDemo() {
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+  )
+}`
+
+const BOTTOM_SHEET_CODE = `import * as React from "react"
+import {
+  BottomSheet,
+  BottomSheetBody,
+  BottomSheetClose,
+  BottomSheetContent,
+  BottomSheetDescription,
+  BottomSheetFooter,
+  BottomSheetHeader,
+  BottomSheetTitle,
+  BottomSheetTrigger,
+  Button,
+} from "@celestia-project/ui"
+
+export function BottomSheetDemo() {
+  return (
+    <BottomSheet>
+      <BottomSheetTrigger render={<Button variant="outline" size="sm" />}>
+        Open Bottom Sheet
+      </BottomSheetTrigger>
+      <BottomSheetContent>
+        <BottomSheetHeader>
+          <BottomSheetTitle>Share</BottomSheetTitle>
+          <BottomSheetDescription>
+            Drag the knob up or down between half and full height.
+          </BottomSheetDescription>
+        </BottomSheetHeader>
+        <BottomSheetBody>
+          <p className="text-xs text-muted-foreground">
+            Swipe past the lowest snap or tap Cancel to dismiss.
+          </p>
+        </BottomSheetBody>
+        <BottomSheetFooter>
+          <Button size="sm">Copy link</Button>
+          <BottomSheetClose render={<Button variant="outline" size="sm" />}>
+            Cancel
+          </BottomSheetClose>
+        </BottomSheetFooter>
+      </BottomSheetContent>
+    </BottomSheet>
   )
 }`
 
@@ -490,7 +542,45 @@ export function FeedbackSection() {
             </AlertDialog>
           </ShowcaseCard>
 
-          {/* 5. Sheet / Drawer */}
+          {/* 5. Bottom Sheet */}
+          <ShowcaseCard
+            id="bottom-sheet"
+            title="Bottom Sheet"
+            category="Feedback"
+            description="Drag the knob up and down between half and full height. Built on Drawer with bottom-sheet snap points."
+            docsSlug="bottom-sheet"
+            importSnippet={`import { BottomSheet, BottomSheetTrigger, BottomSheetContent, BottomSheetHeader, BottomSheetBody, BottomSheetTitle, BottomSheetDescription, BottomSheetFooter, BottomSheetClose } from "@celestia-project/ui"`}
+            codeExample={BOTTOM_SHEET_CODE}
+          >
+            <BottomSheet>
+              <BottomSheetTrigger render={<Button variant="outline" size="sm" />}>
+                Open Bottom Sheet
+              </BottomSheetTrigger>
+              <BottomSheetContent>
+                <BottomSheetHeader>
+                  <BottomSheetTitle>Share</BottomSheetTitle>
+                  <BottomSheetDescription>
+                    Drag the knob up or down between half and full height.
+                  </BottomSheetDescription>
+                </BottomSheetHeader>
+                <BottomSheetBody>
+                  <p className="text-xs text-muted-foreground">
+                    Swipe past the lowest snap or tap Cancel to dismiss.
+                  </p>
+                </BottomSheetBody>
+                <BottomSheetFooter>
+                  <Button size="sm" onClick={() => toast.success("Link copied")}>
+                    Copy link
+                  </Button>
+                  <BottomSheetClose render={<Button variant="outline" size="sm" />}>
+                    Cancel
+                  </BottomSheetClose>
+                </BottomSheetFooter>
+              </BottomSheetContent>
+            </BottomSheet>
+          </ShowcaseCard>
+
+          {/* 6. Sheet / Drawer */}
           <ShowcaseCard
             id="drawer"
             title="Sheet / Drawer"
@@ -531,7 +621,7 @@ export function FeedbackSection() {
             </Sheet>
           </ShowcaseCard>
 
-          {/* 6. Popover */}
+          {/* 7. Popover */}
           <ShowcaseCard
             id="popover"
             title="Popover"
@@ -560,7 +650,7 @@ export function FeedbackSection() {
             </Popover>
           </ShowcaseCard>
 
-          {/* 7. Tooltip */}
+          {/* 8. Tooltip */}
           <ShowcaseCard
             id="tooltip"
             title="Tooltip"
@@ -591,7 +681,7 @@ export function FeedbackSection() {
             </div>
           </ShowcaseCard>
 
-          {/* 8. Hover Card */}
+          {/* 9. Hover Card */}
           <ShowcaseCard
             id="hover-card"
             title="Hover Card"
@@ -625,7 +715,7 @@ export function FeedbackSection() {
             </HoverCard>
           </ShowcaseCard>
 
-          {/* 9. Progress */}
+          {/* 10. Progress */}
           <ShowcaseCard
             id="progress"
             title="Progress"
@@ -648,7 +738,7 @@ export function FeedbackSection() {
             </div>
           </ShowcaseCard>
 
-          {/* 10. Spinner */}
+          {/* 11. Spinner */}
           <ShowcaseCard
             id="spinner"
             title="Spinner"

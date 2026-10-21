@@ -119,6 +119,17 @@ import {
   DialogTrigger,
 } from "@celestia-project/ui/primitive/dialog"
 import {
+  BottomSheet,
+  BottomSheetBody,
+  BottomSheetClose,
+  BottomSheetContent,
+  BottomSheetDescription,
+  BottomSheetFooter,
+  BottomSheetHeader,
+  BottomSheetTitle,
+  BottomSheetTrigger,
+} from "@celestia-project/ui/primitive/bottom-sheet"
+import {
   Drawer,
   DrawerClose,
   DrawerContent,
@@ -903,6 +914,48 @@ export function DialogPreview() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </PreviewShell>
+  )
+}
+
+export function BottomSheetPreview() {
+  return (
+    <PreviewShell>
+      <BottomSheet>
+        <BottomSheetTrigger render={<Button variant="outline" />}>
+          Open Bottom Sheet
+        </BottomSheetTrigger>
+        <BottomSheetContent>
+          <BottomSheetHeader>
+            <BottomSheetTitle>Share</BottomSheetTitle>
+            <BottomSheetDescription>
+              Drag the knob up or down between half and full height.
+            </BottomSheetDescription>
+          </BottomSheetHeader>
+          <BottomSheetBody>
+            <Label htmlFor="bottom-sheet-link">Link</Label>
+            <Input
+              id="bottom-sheet-link"
+              defaultValue="https://celestia.dev"
+              readOnly
+            />
+            <div className="mt-3 grid gap-2" aria-hidden>
+              {Array.from({ length: 8 }, (_, index) => (
+                <div
+                  key={index}
+                  className="h-10 rounded-md bg-muted/60"
+                />
+              ))}
+            </div>
+          </BottomSheetBody>
+          <BottomSheetFooter>
+            <Button>Copy link</Button>
+            <BottomSheetClose render={<Button variant="outline" />}>
+              Cancel
+            </BottomSheetClose>
+          </BottomSheetFooter>
+        </BottomSheetContent>
+      </BottomSheet>
     </PreviewShell>
   )
 }
