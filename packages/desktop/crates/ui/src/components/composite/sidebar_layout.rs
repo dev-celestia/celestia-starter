@@ -20,10 +20,11 @@ use std::rc::Rc;
 use gpui::prelude::FluentBuilder as _;
 use gpui::{
     AnyElement, App, ClickEvent, ElementId, FontWeight, InteractiveElement, IntoElement,
-    ParentElement, Pixels, RenderOnce, SharedString, StatefulInteractiveElement, Styled, Window,
-    div, px,
+    ParentElement, Pixels, RenderOnce, Role, SharedString, StatefulInteractiveElement, Styled,
+    Window, div, px,
 };
 
+use crate::components::primitive::tooltip::Tooltip;
 use crate::focus_ring::focus_ring;
 use crate::theme::ActiveTheme as _;
 
@@ -164,8 +165,9 @@ impl RenderOnce for SidebarSection {
     fn render(self, _: &mut Window, cx: &mut App) -> impl IntoElement {
         div()
             .px_3()
+            // Inter-group: ≥2× the 4px intra-item nav gap so categories read apart.
             .pt(px(16.0))
-            .pb(px(4.0))
+            .pb(px(8.0))
             .flex_none()
             .text_xs()
             .font_weight(FontWeight::SEMIBOLD)
@@ -301,6 +303,8 @@ impl RenderOnce for SidebarNavItem {
             .read(cx)
             .clone();
 
+        let label = self.label.clone();
+
         let mut row = div()
             .flex()
             .flex_row()
@@ -315,7 +319,9 @@ impl RenderOnce for SidebarNavItem {
             // value.
             .text_xs()
             .cursor_pointer()
-            .track_focus(&focus_handle)
+            .role(Role::Button)
+            .aria_label(label.clone())
+            .track_focus(&focus_handle.clone().tab_index(0).tab_stop(true))
             .when(self.selected, |row| {
                 row.bg(sidebar_accent)
                     .text_color(sidebar_accent_foreground)
@@ -348,7 +354,11 @@ impl RenderOnce for SidebarNavItem {
             row = row.child(div().flex_none().child(icon));
         }
 
-        row = row.child(div().flex_1().min_w_0().truncate().child(self.label));
+        // Truncate with tooltip so the full label stays reachable.
+        let tooltip_label = label.clone();
+        row = row
+            .child(div().flex_1().min_w_0().truncate().child(label))
+            .tooltip(move |window, cx| Tooltip::new(tooltip_label.clone()).build(window, cx));
 
         if let Some(badge) = self.badge {
             row = row.child(

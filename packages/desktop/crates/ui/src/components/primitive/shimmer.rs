@@ -1,17 +1,13 @@
 //! Celestia shimmer text — the desktop counterpart of the web
 //! `packages/ui/src/components/ai/shimmer.tsx`.
 //!
-//! Text that breathes while work is in flight: the label sweeps between full
-//! strength and [`ShimmerStyle::highlight_color`], on the shared clock so
-//! sibling labels stay in phase.
+//! Two modes:
 //!
-//! **Deviation from the web, on purpose.** The web paints a *travelling
-//! gradient band* across the glyphs, which needs a custom `gpui::Element` that
-//! re-lays-out text runs per frame and masks glyph paints. This desktop
-//! version instead pulses the whole label's opacity — the same "work in
-//! flight" read, with no per-frame text shaping and no private glyph
-//! internals. If the travelling band is ever wanted, it belongs in a custom
-//! `Element` here, not in a wrapper.
+//! - [`ShimmerKind::Pulse`] — the whole label breathes (opacity / tint). Cheap
+//!   and phase-locked across siblings via `repeat_synced`.
+//! - [`ShimmerKind::Wave`] — a highlight band travels across glyphs (web-like
+//!   “shimmering text”). Each character is its own animated span on the same
+//!   synced clock.
 //!
 //! Under reduced motion the label renders at rest and schedules no frames.
 
@@ -23,18 +19,44 @@ use gpui::{
     ease_in_out,
 };
 
+use crate::theme::ActiveTheme as _;
+
+/// How the shimmer moves across the label.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum ShimmerKind {
+    /// Whole-label opacity / tint breathe.
+    #[default]
+    Pulse,
+    /// Travelling highlight band across characters (web-style).
+    Wave,
+}
+
 /// Appearance and timing of a shimmering label.
 #[derive(Clone, Copy, Debug)]
 pub struct ShimmerStyle {
     duration: Duration,
     highlight_color: Option<Hsla>,
     once: bool,
+    kind: ShimmerKind,
+    /// Wave width as a fraction of the string (0.15–0.6 typical).
+    spread: f32,
 }
 
 impl ShimmerStyle {
-    /// A two-second, looping sweep.
+    /// A two-second, looping pulse.
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// Travelling-band defaults (2.4s loop, mid spread).
+    pub fn wave() -> Self {
+        Self {
+            duration: Duration::from_millis(2400),
+            highlight_color: None,
+            once: false,
+            kind: ShimmerKind::Wave,
+            spread: 0.35,
+        }
     }
 
     /// Set the duration of one sweep; zero is clamped to one millisecond.
@@ -53,6 +75,18 @@ impl ShimmerStyle {
     /// Sweep once instead of looping.
     pub fn once(mut self, once: bool) -> Self {
         self.once = once;
+        self
+    }
+
+    /// Pulse vs travelling wave.
+    pub fn kind(mut self, kind: ShimmerKind) -> Self {
+        self.kind = kind;
+        self
+    }
+
+    /// Width of the travelling highlight (wave mode only), `0.0..=1.0`.
+    pub fn spread(mut self, spread: f32) -> Self {
+        self.spread = spread.clamp(0.1, 1.0);
         self
     }
 
@@ -76,6 +110,8 @@ impl Default for ShimmerStyle {
             duration: Duration::from_secs(2),
             highlight_color: None,
             once: false,
+            kind: ShimmerKind::Pulse,
+            spread: 0.35,
         }
     }
 }
@@ -90,12 +126,22 @@ pub struct ShimmerText {
 }
 
 impl ShimmerText {
-    /// Shimmering text with the default two-second loop.
+    /// Shimmering text with the default two-second pulse loop.
     pub fn new(text: impl Into<SharedString>) -> Self {
         Self {
             text: text.into(),
             style: StyleRefinement::default(),
             shimmer_style: ShimmerStyle::default(),
+            id: None,
+        }
+    }
+
+    /// Travelling-wave shimmer (web-like band across glyphs).
+    pub fn wave(text: impl Into<SharedString>) -> Self {
+        Self {
+            text: text.into(),
+            style: StyleRefinement::default(),
+            shimmer_style: ShimmerStyle::wave(),
             id: None,
         }
     }
@@ -131,6 +177,18 @@ impl ShimmerText {
         self.shimmer_style = self.shimmer_style.once(once);
         self
     }
+
+    /// Pulse vs travelling wave.
+    pub fn kind(mut self, kind: ShimmerKind) -> Self {
+        self.shimmer_style = self.shimmer_style.kind(kind);
+        self
+    }
+
+    /// Wave band width (`0.0..=1.0`).
+    pub fn spread(mut self, spread: f32) -> Self {
+        self.shimmer_style = self.shimmer_style.spread(spread);
+        self
+    }
 }
 
 impl Styled for ShimmerText {
@@ -140,13 +198,19 @@ impl Styled for ShimmerText {
 }
 
 impl RenderOnce for ShimmerText {
-    fn render(self, _: &mut Window, _: &mut App) -> impl IntoElement {
+    fn render(self, _: &mut Window, cx: &mut App) -> impl IntoElement {
+        match self.shimmer_style.kind {
+            ShimmerKind::Pulse => self.render_pulse().into_any_element(),
+            ShimmerKind::Wave => self.render_wave(cx).into_any_element(),
+        }
+    }
+}
+
+impl ShimmerText {
+    fn render_pulse(self) -> impl IntoElement {
         let id = self.id.unwrap_or_else(|| self.text.clone().into());
         let text = self.text;
         let highlight = self.shimmer_style.highlight_color;
-
-        // `repeat_synced` phase-locks every mounted shimmer to one clock, so a
-        // row of labels breathes together instead of drifting.
         let animation = self.shimmer_style.animation();
 
         let mut label = div().min_w_0().child(text);
@@ -163,5 +227,56 @@ impl RenderOnce for ShimmerText {
                 }
             },
         )
+    }
+
+    fn render_wave(self, cx: &mut App) -> impl IntoElement {
+        let theme = cx.theme();
+        let base_id = self.id.unwrap_or_else(|| self.text.clone().into());
+        let chars: Vec<char> = self.text.chars().collect();
+        let n = chars.len().max(1) as f32;
+        let spread = self.shimmer_style.spread;
+        let highlight = self
+            .shimmer_style
+            .highlight_color
+            .unwrap_or(theme.foreground);
+        let base = theme.muted_foreground;
+        let animation = self.shimmer_style.animation();
+
+        let mut row = div().flex().flex_row().items_baseline().min_w_0();
+        row.style().refine(&self.style);
+
+        // Each glyph shares the synced clock but samples a different phase.
+        row.children(chars.into_iter().enumerate().map(|(i, ch)| {
+            let pos = (i as f32 + 0.5) / n;
+            let glyph = if ch == ' ' {
+                SharedString::from("\u{00a0}")
+            } else {
+                SharedString::from(ch.to_string())
+            };
+            let anim = animation.clone();
+            div().child(glyph).with_animation(
+                (base_id.clone(), SharedString::from(format!("{i}"))),
+                anim,
+                move |this, delta| {
+                    let mut d = (pos - delta).abs();
+                    if d > 0.5 {
+                        d = 1.0 - d;
+                    }
+                    let intensity = (1.0 - d / (spread * 0.5)).clamp(0.0, 1.0);
+                    let color = mix_hsla(base, highlight, intensity);
+                    this.text_color(color).opacity(0.4 + 0.6 * intensity)
+                },
+            )
+        }))
+    }
+}
+
+fn mix_hsla(a: Hsla, b: Hsla, t: f32) -> Hsla {
+    let t = t.clamp(0.0, 1.0);
+    Hsla {
+        h: a.h + (b.h - a.h) * t,
+        s: a.s + (b.s - a.s) * t,
+        l: a.l + (b.l - a.l) * t,
+        a: a.a + (b.a - a.a) * t,
     }
 }

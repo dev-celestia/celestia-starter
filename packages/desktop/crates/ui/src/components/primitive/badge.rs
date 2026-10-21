@@ -102,9 +102,19 @@ impl Badge {
 }
 
 /// The web's `bg-<accent>/10 text-<accent>` pair, at the dark step (`/20`).
+///
+/// Text is darkened (light mode) or lightened (dark mode) so 10–12px badge
+/// copy clears WCAG AA on the wash — raw accent on `/10` fails for danger.
 fn tint(accent: Hsla, is_dark: bool) -> (Hsla, Hsla) {
     let alpha = if is_dark { 0.20 } else { 0.10 };
-    (accent.opacity(alpha), accent)
+    let black: Hsla = gpui::rgba(0x0000_00ff).into();
+    let white: Hsla = gpui::rgba(0xffff_ffff).into();
+    let fg = if is_dark {
+        crate::motion::mix(accent, white, 0.18)
+    } else {
+        crate::motion::mix(accent, black, 0.28)
+    };
+    (accent.opacity(alpha), fg)
 }
 
 impl RenderOnce for Badge {
@@ -336,52 +346,84 @@ impl RenderOnce for GpuiBadge {
         let size = self.size;
         let box_px = size.box_px();
         let text_px = size.text_px();
+        // Prefer semantic danger tokens over raw `theme.red` (#ef4444 fails AA
+        // on white count text).
+        let color = self.color.unwrap_or(cx.theme().danger);
+        let fg = if self.color.is_some() {
+            white()
+        } else {
+            cx.theme().danger_foreground
+        };
+        // Absolute overlay only when there is an anchor. A bare `.count(8)` /
+        // `.dot()` with no children used to collapse to a zero-size relative
+        // box and bleed over the previous flex sibling (the Brand chip snowman).
+        let anchored = !self.children.is_empty();
 
-        let mut root = div().relative();
+        let bubble = |variant: GpuiBadgeVariant| {
+            let el = div()
+                .flex()
+                .flex_row()
+                .items_center()
+                .justify_center()
+                .rounded_full()
+                .bg(color)
+                .text_color(fg)
+                .text_size(text_px);
+
+            match variant {
+                GpuiBadgeVariant::Dot => {
+                    if anchored {
+                        el.absolute().top_0().right_0().size(px(6.))
+                    } else {
+                        el.size(px(6.))
+                    }
+                }
+                GpuiBadgeVariant::Number => {
+                    let count = if self.count > self.max {
+                        format!("{}+", self.max)
+                    } else {
+                        self.count.to_string()
+                    };
+                    let count_len = count.len();
+                    let el = el
+                        .py(px(2.0))
+                        .px(px(2.0))
+                        .min_w(px(14.0))
+                        .text_size(px(10.))
+                        .line_height(relative(1.))
+                        .child(count);
+                    if anchored {
+                        let (top, right) = size.count_offset(count_len);
+                        el.absolute().top(top).right(right)
+                    } else {
+                        el
+                    }
+                }
+                GpuiBadgeVariant::Icon(icon) => {
+                    let el = el
+                        .size(box_px)
+                        .border_1()
+                        .border_color(cx.theme().background)
+                        .child(*icon);
+                    if anchored {
+                        el.absolute().right_0().bottom_0()
+                    } else {
+                        el
+                    }
+                }
+            }
+        };
+
+        let mut root = if anchored {
+            div().relative()
+        } else {
+            div().flex().flex_none()
+        };
         // The caller's `Styled` chain wins over the default above.
         root.style().refine(&self.style);
 
-        root.children(self.children).when(visible, |this| {
-            this.child(
-                div()
-                    .flex()
-                    .flex_row()
-                    .items_center()
-                    .justify_center()
-                    .absolute()
-                    .rounded_full()
-                    .bg(self.color.unwrap_or(cx.theme().red))
-                    .text_color(white())
-                    .text_size(text_px)
-                    .map(|this| match self.variant {
-                        GpuiBadgeVariant::Dot => this.top_0().right_0().size(px(6.)),
-                        GpuiBadgeVariant::Number => {
-                            let count = if self.count > self.max {
-                                format!("{}+", self.max)
-                            } else {
-                                self.count.to_string()
-                            };
-                            let (top, right) = size.count_offset(count.len());
-
-                            this.top(top)
-                                .right(right)
-                                .py(px(2.0))
-                                .px(px(2.0))
-                                .min_w(px(14.0))
-                                .text_size(px(10.))
-                                .line_height(relative(1.))
-                                .child(count)
-                        }
-                        GpuiBadgeVariant::Icon(icon) => this
-                            .right_0()
-                            .bottom_0()
-                            .size(box_px)
-                            .border_1()
-                            .border_color(cx.theme().background)
-                            .child(*icon),
-                    }),
-            )
-        })
+        root.children(self.children)
+            .when(visible, |this| this.child(bubble(self.variant)))
     }
 }
 

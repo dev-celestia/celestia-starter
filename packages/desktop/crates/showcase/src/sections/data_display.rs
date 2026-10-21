@@ -1,7 +1,6 @@
 use std::rc::Rc;
 
 use celestia_ui::components::Card;
-use celestia_ui::components::composite::description_list::DescriptionList;
 use celestia_ui::components::composite::empty::{
     Empty as EmptyState, EmptyDescription, EmptyHeader, EmptyTitle,
 };
@@ -61,17 +60,6 @@ impl Showcase {
                 .description("Virtualized list.")
                 .child(self.demo_virtual_list.clone())
                 .into_any_element(),
-            Demo::DescriptionList => Card::new()
-                .title("DescriptionList")
-                .description("Metadata description list.")
-                .child(
-                    DescriptionList::new()
-                        .item("Framework", "Celestia Desktop", 1)
-                        .item("Platform Engine", "GPUI (Metal / Vulkan)", 1)
-                        .item("Architecture", "ARM64 / x86_64 Native", 1)
-                        .item("Design System", "Celestia Semantic Tokens", 1),
-                )
-                .into_any_element(),
             Demo::Breadcrumb => Card::new()
                 .title("Breadcrumb")
                 .description("Hierarchical breadcrumbs.")
@@ -91,25 +79,27 @@ impl Showcase {
                         .child(Pagination::new("pg-demo").total_pages(8).current_page(3)),
                 )
                 .into_any_element(),
-            Demo::Empty => Card::new()
-                .title("Empty")
-                .description("Empty-state placeholder.")
-                .child(
-                    EmptyState::new()
-                        .header(
-                            EmptyHeader::new()
-                                .title(EmptyTitle::new().child("No records found"))
-                                .description(EmptyDescription::new().child(
-                                    "There are no items matching the selected criteria.",
-                                )),
-                        )
-                        .child(
-                            Button::new("empty-reset")
-                                .variant(ButtonVariant::Outline)
-                                .label("Reset Filters"),
-                        ),
-                )
-                .into_any_element(),
+            Demo::Empty => {
+                Card::new()
+                    .title("Empty")
+                    .description("Empty-state placeholder.")
+                    .child(
+                        EmptyState::new()
+                            .header(
+                                EmptyHeader::new()
+                                    .title(EmptyTitle::new().child("No records found"))
+                                    .description(EmptyDescription::new().child(
+                                        "There are no items matching the selected criteria.",
+                                    )),
+                            )
+                            .child(
+                                Button::new("empty-reset")
+                                    .variant(ButtonVariant::Outline)
+                                    .label("Reset Filters"),
+                            ),
+                    )
+                    .into_any_element()
+            }
             _ => v_flex()
                 .child(div().text_sm().child("Not a data display demo."))
                 .into_any_element(),

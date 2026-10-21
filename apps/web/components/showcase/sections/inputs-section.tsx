@@ -50,6 +50,11 @@ import {
   FieldLegend,
   FieldGroup,
   Label,
+  FilterBar,
+  FilterChip,
+  FilterClear,
+  FilterMenu,
+  FilterToken,
 } from "@celestia-project/ui"
 import { ShowcaseCard } from "../showcase-card"
 
@@ -399,7 +404,7 @@ export function InputsSection() {
           Inputs & Form Controls
         </h2>
         <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-          13 components
+          14 components
         </span>
       </div>
 
@@ -823,7 +828,155 @@ export function InputsSection() {
             </FieldGroup>
           </FieldSet>
         </ShowcaseCard>
+
+        <FilterShowcase />
       </div>
     </div>
+  )
+}
+
+const FILTER_STATUS = [
+  { value: "live", label: "Live", count: 12 },
+  { value: "building", label: "Building", count: 4 },
+  { value: "draft", label: "Draft", count: 3 },
+]
+
+const FILTER_CODE = `import * as React from "react"
+import {
+  FilterBar,
+  FilterChip,
+  FilterClear,
+  FilterMenu,
+  FilterToken,
+} from "@celestia-project/ui"
+
+const STATUS = [
+  { value: "live", label: "Live", count: 12 },
+  { value: "building", label: "Building", count: 4 },
+  { value: "draft", label: "Draft", count: 3 },
+]
+
+export function FilterDemo() {
+  const [scope, setScope] = React.useState("open")
+  const [status, setStatus] = React.useState<string[]>(["live"])
+
+  return (
+    <div className="flex flex-col gap-3">
+      <FilterBar aria-label="Issue scope">
+        <FilterChip selected={scope === "all"} onClick={() => setScope("all")}>All</FilterChip>
+        <FilterChip selected={scope === "open"} onClick={() => setScope("open")}>Open</FilterChip>
+        <FilterChip selected={scope === "done"} onClick={() => setScope("done")}>Done</FilterChip>
+      </FilterBar>
+      <div className="flex flex-wrap items-center gap-2">
+        <FilterMenu
+          label="Status"
+          options={STATUS}
+          selected={status}
+          onSelectedChange={setStatus}
+        />
+        {status.map((value) => (
+          <FilterToken
+            key={value}
+            label="Status"
+            value={STATUS.find((option) => option.value === value)?.label}
+            onRemove={() =>
+              setStatus((current) => current.filter((item) => item !== value))
+            }
+          />
+        ))}
+        {status.length > 0 && <FilterClear onClick={() => setStatus([])} />}
+      </div>
+    </div>
+  )
+}`
+
+function FilterShowcase() {
+  const [scope, setScope] = React.useState("open")
+  const [status, setStatus] = React.useState<string[]>(["live"])
+  const [tags, setTags] = React.useState<string[]>(["ui"])
+
+  const toggleTag = (value: string) => {
+    setTags((current) =>
+      current.includes(value)
+        ? current.filter((item) => item !== value)
+        : [...current, value]
+    )
+  }
+
+  return (
+    <ShowcaseCard
+      id="filter"
+      title="Filter"
+      category="Inputs"
+      description="Segmented filter chips, a faceted menu, and removable tokens. Selection stays with the caller."
+      docsSlug="filter"
+      importSnippet={`import { FilterBar, FilterChip, FilterMenu, FilterToken, FilterClear } from "@celestia-project/ui"`}
+      codeExample={FILTER_CODE}
+      className="md:col-span-2"
+    >
+      <div className="flex w-full max-w-xl flex-col items-start gap-4">
+        <div className="flex flex-col gap-1.5">
+          <span className="text-3xs font-medium tracking-wide text-muted-foreground uppercase">
+            Segmented bar
+          </span>
+          <FilterBar aria-label="Issue scope">
+            <FilterChip selected={scope === "all"} onClick={() => setScope("all")}>
+              All
+            </FilterChip>
+            <FilterChip selected={scope === "open"} onClick={() => setScope("open")}>
+              Open
+            </FilterChip>
+            <FilterChip selected={scope === "done"} onClick={() => setScope("done")}>
+              Done
+            </FilterChip>
+          </FilterBar>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <span className="text-3xs font-medium tracking-wide text-muted-foreground uppercase">
+            Toggle chips
+          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <FilterChip selected={tags.includes("ui")} onClick={() => toggleTag("ui")}>
+              UI
+            </FilterChip>
+            <FilterChip selected={tags.includes("rust")} onClick={() => toggleTag("rust")}>
+              Rust
+            </FilterChip>
+            <FilterChip selected={tags.includes("docs")} onClick={() => toggleTag("docs")}>
+              Docs
+            </FilterChip>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <span className="text-3xs font-medium tracking-wide text-muted-foreground uppercase">
+            Faceted menu
+          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <FilterMenu
+              label="Status"
+              options={FILTER_STATUS}
+              selected={status}
+              onSelectedChange={setStatus}
+            />
+            {status.map((value) => (
+              <FilterToken
+                key={value}
+                label="Status"
+                value={
+                  FILTER_STATUS.find((option) => option.value === value)?.label ??
+                  value
+                }
+                onRemove={() =>
+                  setStatus((current) => current.filter((item) => item !== value))
+                }
+              />
+            ))}
+            {status.length > 0 && <FilterClear onClick={() => setStatus([])} />}
+          </div>
+        </div>
+      </div>
+    </ShowcaseCard>
   )
 }

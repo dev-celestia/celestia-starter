@@ -1,10 +1,12 @@
 ---
 title: CLI
-description: Scaffold a new Celestia project interactively with npx @celestia-project/create
+description: Scaffold a Celestia web monorepo or native desktop (GPUI) app with npx @celestia-project/create
 icon: terminal
 ---
 
-The `@celestia-project/create` CLI creates a new project from the template, asks which features you need, and wires everything up so you can run `pnpm dev` immediately.
+The `@celestia-project/create` CLI scaffolds a new project from the template.
+Pick the **web** monorepo (Next.js + Hono) or a **desktop** GPUI app built on
+`celestia-ui`.
 
 ## Quick start
 
@@ -12,7 +14,15 @@ The `@celestia-project/create` CLI creates a new project from the template, asks
 npx @celestia-project/create my-app
 ```
 
-The installer will:
+The installer asks which template you want (`web` or `desktop`). You can also
+pass it up front:
+
+```bash
+npx @celestia-project/create my-app --template web
+npx @celestia-project/create my-desktop --template desktop
+```
+
+### Web template
 
 1. Ask which features you want (`auth`, `dashboard`, `blog`) — required features are resolved automatically
 2. Clone the template and run `pnpm install`
@@ -20,22 +30,42 @@ The installer will:
 4. Write `apps/api/.env` and `apps/web/.env`, including a generated `BETTER_AUTH_SECRET`
 5. Optionally push the database schema (`db:push`) and initialize git
 
+### Desktop template
+
+1. Clone the template and extract `packages/desktop`
+2. Keep `celestia-ui` + the starter app (drops the component gallery)
+3. Rename the app crate to your project name and write a root `README.md`
+4. Optionally run `cargo check` and initialize git
+
+Then:
+
+```bash
+cd my-desktop
+cargo run -p my-desktop
+```
+
+See [Desktop (GPUI)](/docs/desktop) for the component library and bootstrap notes, and
+[Desktop Components](/docs/desktop-components) for Toggle / Item / Menubar and the app composites.
+
 ## Non-interactive usage
 
 ```bash
-npx @celestia-project/create my-app --features auth,dashboard
+npx @celestia-project/create my-app --template web --features auth,dashboard
+npx @celestia-project/create my-desktop --template desktop
 ```
 
-| Flag                 | Description                                                                    |
-| -------------------- | ------------------------------------------------------------------------------ |
-| `--features <a,b>`   | Comma-separated features to install. Dependencies (`requires`) are added automatically. |
-| `--repo <url\|path>` | Template repository to clone. Also accepts a local git path for testing.        |
-| `-h`, `--help`       | Show help.                                                                      |
+| Flag                      | Description                                                                                  |
+| ------------------------- | -------------------------------------------------------------------------------------------- |
+| `-t`, `--template <name>` | `web` or `desktop`. Default: prompt; `web` when non-interactive.                             |
+| `--features <a,b>`        | Web only — features to install. Dependencies (`requires`) are added automatically.           |
+| `--repo <url\|path>`      | Template repository to clone. Also accepts a local git path for testing.                     |
+| `-h`, `--help`            | Show help.                                                                                   |
 
 ## Requirements
 
-- Node.js ≥ 20, `pnpm`, and `git` on your PATH
-- A running PostgreSQL if you let the installer push the schema
+- Node.js ≥ 20 and `git` on your PATH
+- **Web:** `pnpm`; a running PostgreSQL if you let the installer push the schema
+- **Desktop:** Rust ≥ 1.97 (`cargo`) to build and run
 
 ## Database migration errors
 

@@ -13,6 +13,7 @@ use celestia_ui::components::composite::alignment::{
 };
 use celestia_ui::components::composite::group_box::GroupBox;
 use celestia_ui::components::composite::h_stack::HStack;
+use celestia_ui::components::composite::resizable_split::ResizableSplit;
 use celestia_ui::components::composite::spacer::Spacer;
 use celestia_ui::components::composite::v_grid::{GridItem, VGrid};
 use celestia_ui::components::composite::v_stack::VStack;
@@ -22,13 +23,14 @@ use celestia_ui::components::primitive::button::{Button, ButtonSize, ButtonVaria
 use celestia_ui::components::primitive::collapsible::Collapsible;
 use celestia_ui::components::primitive::icon::{Phosphor, PhosphorIcon};
 use celestia_ui::components::primitive::kbd::Kbd;
+use celestia_ui::components::primitive::resizable::{ResizablePanelGroup, resizable_panel};
 use celestia_ui::components::primitive::separator::Separator;
 use celestia_ui::components::primitive::tabs::{
     Tabs, TabsContent, TabsList, TabsTrigger, TabsVariant,
 };
 use celestia_ui::palette;
-use gpui::*;
 use celestia_ui::theme::ActiveTheme as _;
+use gpui::*;
 use gpui_component::{h_flex, v_flex};
 
 use crate::catalog::Demo;
@@ -1254,9 +1256,10 @@ impl Showcase {
             .child(
                 GroupBox::new().child(
                     h_flex().p_3().gap_4().child(
-                        div().text_sm().text_color(muted).child(
-                            "Grouped content section inside a unified bordered box.",
-                        ),
+                        div()
+                            .text_sm()
+                            .text_color(muted)
+                            .child("Grouped content section inside a unified bordered box."),
                     ),
                 ),
             )
@@ -1279,11 +1282,9 @@ impl Showcase {
                         .item(|item| {
                             item.title("What is Celestia Desktop?")
                                 .open(true)
-                                .child(
-                                    div().text_sm().child(
-                                        "It is a high-performance native desktop UI library built on GPUI.",
-                                    ),
-                                )
+                                .child(div().text_sm().child(
+                                "It is a high-performance native desktop UI library built on GPUI.",
+                            ))
                         })
                         .item(|item| {
                             item.title("Does it use Chromium or WebViews?").child(
@@ -1310,11 +1311,159 @@ impl Showcase {
                 .into_any_element(),
             Demo::GroupBox => self.render_group_box_card(cx).into_any_element(),
             Demo::LayoutPlayground => self.render_playground_card(cx).into_any_element(),
+            Demo::Resizable => self.render_resizable_card(cx).into_any_element(),
+            Demo::ResizableSplit => self.render_resizable_split_card(cx).into_any_element(),
             _ => v_flex()
                 .child(div().text_sm().child("Not a layout demo."))
                 .into_any_element(),
         }
     }
+
+    fn render_resizable_card(&self, cx: &mut Context<Self>) -> impl IntoElement {
+        Card::new()
+            .title("Resizable")
+            .description(
+                "primitive/resizable — drag the dividers. Nested group = IDE shell \
+                 (sidebar + editor/terminal). with_handle(true) keeps a grip while idle.",
+            )
+            .child(
+                v_flex()
+                    .gap_4()
+                    .child(api_caption(
+                        "ResizablePanelGroup::horizontal + nested vertical",
+                        cx.theme().muted_foreground,
+                    ))
+                    .child(
+                        div()
+                            .w_full()
+                            .h(px(240.))
+                            .rounded(cx.theme().radius)
+                            .border_1()
+                            .border_color(cx.theme().border)
+                            .overflow_hidden()
+                            .child(
+                                ResizablePanelGroup::horizontal("demo-h-resizable")
+                                    .with_handle(true)
+                                    .child(
+                                        resizable_panel()
+                                            .size(px(180.))
+                                            .size_range(px(120.)..px(360.))
+                                            .child(resizable_pane("Sidebar", "Files & nav", cx)),
+                                    )
+                                    .child(
+                                        resizable_panel().child(
+                                            ResizablePanelGroup::vertical("demo-nested-v")
+                                                .with_handle(true)
+                                                .child(
+                                                    resizable_panel()
+                                                        .size(px(140.))
+                                                        .size_range(px(80.)..px(200.))
+                                                        .child(resizable_pane(
+                                                            "Editor",
+                                                            "Drag the bar below",
+                                                            cx,
+                                                        )),
+                                                )
+                                                .child(resizable_panel().child(resizable_pane(
+                                                    "Terminal",
+                                                    "Output panel",
+                                                    cx,
+                                                ))),
+                                        ),
+                                    ),
+                            ),
+                    )
+                    .child(api_caption(
+                        "ResizablePanelGroup::vertical",
+                        cx.theme().muted_foreground,
+                    ))
+                    .child(
+                        div()
+                            .w_full()
+                            .h(px(180.))
+                            .rounded(cx.theme().radius)
+                            .border_1()
+                            .border_color(cx.theme().border)
+                            .overflow_hidden()
+                            .child(
+                                ResizablePanelGroup::vertical("demo-v-resizable")
+                                    .with_handle(true)
+                                    .child(
+                                        resizable_panel()
+                                            .size(px(72.))
+                                            .size_range(px(48.)..px(120.))
+                                            .child(resizable_pane("Top", "Toolbar strip", cx)),
+                                    )
+                                    .child(resizable_panel().child(resizable_pane(
+                                        "Bottom",
+                                        "Main content",
+                                        cx,
+                                    ))),
+                            ),
+                    ),
+            )
+    }
+
+    fn render_resizable_split_card(&self, cx: &mut Context<Self>) -> impl IntoElement {
+        Card::new()
+            .title("ResizableSplit")
+            .description(
+                "composite/resizable_split — two-pane shell with a drag handle \
+                 (interactive twin of fixed-ratio SplitPane under Composites).",
+            )
+            .child(
+                v_flex()
+                    .gap_4()
+                    .child(api_caption(
+                        "ResizableSplit::horizontal",
+                        cx.theme().muted_foreground,
+                    ))
+                    .child(
+                        div().w_full().h(px(200.)).child(
+                            ResizableSplit::horizontal("demo-rs-h")
+                                .leading_size(px(200.))
+                                .leading_range(px(120.), px(400.))
+                                .leading(resizable_pane("Leading", "Inspector / list", cx))
+                                .trailing(resizable_pane("Trailing", "Detail view", cx)),
+                        ),
+                    )
+                    .child(api_caption(
+                        "ResizableSplit::vertical",
+                        cx.theme().muted_foreground,
+                    ))
+                    .child(
+                        div().w_full().h(px(200.)).child(
+                            ResizableSplit::vertical("demo-rs-v")
+                                .leading_size(px(72.))
+                                .leading_range(px(48.), px(120.))
+                                .leading(resizable_pane("Header", "Chrome", cx))
+                                .trailing(resizable_pane("Body", "Scrollable content", cx)),
+                        ),
+                    ),
+            )
+    }
+}
+
+fn resizable_pane(title: &'static str, hint: &'static str, cx: &App) -> Div {
+    let muted = cx.theme().muted;
+    let fg = cx.theme().foreground;
+    let hint_color = cx.theme().muted_foreground;
+    div()
+        .size_full()
+        .flex()
+        .flex_col()
+        .items_center()
+        .justify_center()
+        .gap_1()
+        .bg(muted)
+        .child(
+            div()
+                .text_sm()
+                .font_weight(FontWeight::SEMIBOLD)
+                .text_color(fg)
+                .child(title),
+        )
+        .child(div().text_xs().text_color(hint_color).child(hint))
 }
 
 /// A small muted caption naming the API being demonstrated.

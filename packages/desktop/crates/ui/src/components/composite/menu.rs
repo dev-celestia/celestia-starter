@@ -1,5 +1,7 @@
-//! Menus — `dropdown-menu.tsx` / `context-menu.tsx` / `menubar.tsx` → gpui
-//! `menu`.
+//! Menus — `dropdown-menu.tsx` / `context-menu.tsx` → gpui `menu`.
+//!
+//! The top-of-window strip is [`crate::components::primitive::menubar::Menubar`]
+//! (web `menubar.tsx`); this module is the popup family those triggers open.
 //!
 //! Attach to any element: `.dropdown_menu(|menu, window, cx| …)` (dropdown
 //! caret button) or `.context_menu(|menu, window, cx| …)` (right-click area),

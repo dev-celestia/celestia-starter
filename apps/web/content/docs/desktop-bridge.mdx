@@ -1,0 +1,123 @@
+---
+title: Desktop Bridge
+description: HTTP bridge from Celestia Desktop (GPUI) to the Hono backend — the desktop twin of api-client.ts
+icon: network
+---
+
+# Desktop Bridge
+
+`celestia-bridge` is how a GPUI app talks to [`apps/api`](/docs/backend). Same
+architecture rule as the web stack: the UI never imports the database or Better
+Auth server code — it only speaks HTTP.
+
+```
+┌─────────────────────┐         HTTP          ┌────────────────────┐
+│  celestia-ui (GPUI) │  ──────────────────▶  │  apps/api (Hono)   │
+│  + celestia-bridge  │   CELESTIA_API_URL    │  auth + data + DB  │
+└─────────────────────┘                       └─────────┬──────────┘
+                                                        │ Drizzle
+                                              ┌─────────▼──────────┐
+                                              │     PostgreSQL     │
+                                              └────────────────────┘
+```
+
+The web app uses Hono RPC (`hc<AppType>`) in `apps/web/lib/api-client.ts`.
+Desktop mirrors the **wire shape** in Rust DTOs — there is no shared codegen yet.
+
+---
+
+## File overview
+
+| Path | Purpose |
+| ---- | ------- |
+| `packages/desktop/crates/bridge/` | `celestia-bridge` crate |
+| `…/bridge/src/client.rs` | `BridgeClient` — health, auth, posts |
+| `…/bridge/src/types.rs` | Serde DTOs (`Health`, `Post`, …) |
+| `…/bridge/src/run.rs` | `run()` — blocking HTTP off the UI thread |
+| `packages/desktop/crates/starter/src/app.rs` | Live **Backend** page (Ping `/api/health`) |
+
+---
+
+## Environment variables
+
+| Variable | Default | Where |
+| -------- | ------- | ----- |
+| `CELESTIA_API_URL` | `http://127.0.0.1:4000` | Desktop process env |
+| `PORT` / API secrets | see [Backend API](/docs/backend) | `apps/api/.env` only |
+
+```bash
+# Terminal A — backend
+pnpm --filter @workspace/api dev
+
+# Terminal B — starter with the bridge demo
+pnpm desktop:starter
+# or override the URL:
+CELESTIA_API_URL=http://127.0.0.1:4000 pnpm desktop:starter
+```
+
+Native HTTP clients are not subject to browser CORS. No `CORS_ORIGIN` change is
+required for desktop.
+
+---
+
+## Client usage
+
+```rust
+use celestia_bridge::{BridgeClient, CreatePost, run};
+
+let bridge = BridgeClient::from_env();
+
+// Always leave the UI thread — run() spawns a worker + applies the result.
+run(cx, {
+    let bridge = bridge.clone();
+    move || bridge.health()
+}, |this, result, cx| {
+    this.health = Some(result);
+    cx.notify();
+})
+.detach();
+```
+
+### Authenticated routes
+
+Blog routes require a Better Auth session. Sign in once; the agent cookie jar
+(and optional `set_session_cookie`) is shared across clones:
+
+```rust
+bridge.sign_in_email("you@example.com", "password")?;
+let posts = bridge.list_posts()?;
+bridge.create_post(&CreatePost {
+    title: "From desktop".into(),
+    content: String::new(),
+    published: false,
+})?;
+```
+
+---
+
+## GPUI pattern
+
+1. Keep a `BridgeClient` on the view (or in a `StoreHandle`).
+2. On user action, set a `Loading` UI state and `cx.notify()`.
+3. Call `celestia_bridge::run(cx, work, apply)`.
+4. In `apply`, write `Ok` / `Err` into entity state and `cx.notify()` again.
+
+Never call `bridge.health()` (or any other blocking method) directly inside
+`Render` or a click handler on the UI thread.
+
+---
+
+## Try it in the starter
+
+`pnpm desktop:starter` → sidebar **Backend** → **Ping /api/health**. With the
+API running you should see a Success badge (`status = "ok"`). If the API is
+down, the error card tells you how to start it.
+
+---
+
+## Related
+
+- [Backend API](/docs/backend) — Hono app, proxy, env vars
+- [Desktop (GPUI)](/docs/desktop) — crates, theming, bootstrap
+- [Desktop State](/docs/desktop-state) — `StoreHandle` for caching bridge results
+- [Blog](/docs/blog) — `/api/posts` contract the bridge mirrors

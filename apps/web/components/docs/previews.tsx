@@ -44,6 +44,13 @@ import { Button } from "@celestia-project/ui/primitive/button"
 import {
   ButtonGroup,
 } from "@celestia-project/ui/composite/button-group"
+import {
+  FilterBar,
+  FilterChip,
+  FilterClear,
+  FilterMenu,
+  FilterToken,
+} from "@celestia-project/ui/composite/filter"
 import { Calendar } from "@celestia-project/ui/primitive/calendar"
 import {
   Card,
@@ -546,6 +553,54 @@ export function ButtonGroupPreview() {
         <Button variant="outline">Month</Button>
         <Button variant="outline">Day</Button>
       </ButtonGroup>
+    </PreviewShell>
+  )
+}
+
+const FILTER_STATUS = [
+  { value: "live", label: "Live", count: 12 },
+  { value: "building", label: "Building", count: 4 },
+  { value: "draft", label: "Draft", count: 3 },
+]
+
+export function FilterPreview() {
+  const [scope, setScope] = useState("open")
+  const [status, setStatus] = useState<string[]>(["live"])
+
+  return (
+    <PreviewShell>
+      <div className="flex w-full max-w-xl flex-col items-start gap-4">
+        <FilterBar aria-label="Issue scope">
+          <FilterChip selected={scope === "all"} onClick={() => setScope("all")}>
+            All
+          </FilterChip>
+          <FilterChip selected={scope === "open"} onClick={() => setScope("open")}>
+            Open
+          </FilterChip>
+          <FilterChip selected={scope === "done"} onClick={() => setScope("done")}>
+            Done
+          </FilterChip>
+        </FilterBar>
+        <div className="flex flex-wrap items-center gap-2">
+          <FilterMenu
+            label="Status"
+            options={FILTER_STATUS}
+            selected={status}
+            onSelectedChange={setStatus}
+          />
+          {status.map((value) => (
+            <FilterToken
+              key={value}
+              label="Status"
+              value={FILTER_STATUS.find((option) => option.value === value)?.label ?? value}
+              onRemove={() => setStatus((current) => current.filter((item) => item !== value))}
+            />
+          ))}
+          {status.length > 0 && (
+            <FilterClear onClick={() => setStatus([])} />
+          )}
+        </div>
+      </div>
     </PreviewShell>
   )
 }
@@ -2480,20 +2535,29 @@ const LAYOUT_LIST_COLUMNS: ListColumn<LayoutListRow>[] = [
   },
 ]
 
+const LAYOUT_LIST_STATUS = [
+  { value: "Live", label: "Live" },
+  { value: "Building", label: "Building" },
+  { value: "Stable", label: "Stable" },
+  { value: "Draft", label: "Draft" },
+]
+
 export function ListPagePreview() {
   const [query, setQuery] = useState("")
+  const [status, setStatus] = useState<string[]>([])
   const [selected, setSelected] = useState<string[]>(["prj_02"])
   const [page, setPage] = useState(1)
 
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase()
-    if (!q) return LAYOUT_LIST_ROWS
-    return LAYOUT_LIST_ROWS.filter((row) =>
-      [row.name, row.owner, row.status].some((field) =>
+    return LAYOUT_LIST_ROWS.filter((row) => {
+      if (status.length > 0 && !status.includes(row.status)) return false
+      if (!q) return true
+      return [row.name, row.owner, row.status].some((field) =>
         field.toLowerCase().includes(q)
       )
-    )
-  }, [query])
+    })
+  }, [query, status])
 
   return (
     <LayoutPreviewShell className="h-[32rem] overflow-y-auto">
@@ -2510,10 +2574,25 @@ export function ListPagePreview() {
           placeholder: "Search projects…",
         }}
         filters={
-          <Button variant="outline" size="sm">
-            <FunnelSimpleIcon />
-            Status
-          </Button>
+          <>
+            <FilterMenu
+              label="Status"
+              options={LAYOUT_LIST_STATUS}
+              selected={status}
+              onSelectedChange={setStatus}
+            />
+            {status.map((value) => (
+              <FilterToken
+                key={value}
+                label="Status"
+                value={value}
+                onRemove={() =>
+                  setStatus((current) => current.filter((item) => item !== value))
+                }
+              />
+            ))}
+            {status.length > 0 && <FilterClear onClick={() => setStatus([])} />}
+          </>
         }
         toolbar={
           <Button size="sm">

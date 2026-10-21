@@ -156,14 +156,14 @@ const FAMILIES = [
   {
     id: "overlays",
     name: "overlays",
-    modules: "popover.rs · dialog.rs · sheet.rs · hover_card.rs",
+    modules: "popover.rs · dialog.rs · modal.rs · sheet.rs · hover_card.rs",
     web: "popover.tsx, dialog.tsx, drawer.tsx / sheet.tsx, hover-card.tsx",
   },
   {
     id: "data_display",
     name: "data display",
     modules:
-      "badge.rs (wrapper) · avatar.rs · breadcrumb.rs · table.rs · list.rs · tree.rs · pagination.rs · marker.rs · empty.rs · description_list.rs",
+      "badge.rs (wrapper) · avatar.rs · breadcrumb.rs · table.rs · list.rs · tree.rs · pagination.rs · marker.rs · empty.rs",
     web: "badge.tsx, avatar.tsx, breadcrumb.tsx, table.tsx, item.tsx, ai/file-tree.tsx, pagination.tsx, marker.tsx, empty.tsx",
   },
   {
@@ -217,6 +217,10 @@ const THEMING_NOTES = [
   {
     title: "One radius knob",
     body: "radius maps to shadcn's --radius and lands on theme.radius everywhere; the large-element radius (dialogs, notifications) derives as radius + 4px — the shadcn --radius-xl step.",
+  },
+  {
+    title: "One font",
+    body: "AppFont sets the UI family and rem size (unset is the embedded Geist face at 16px) and the monospace family and size (unset is the platform mono face at 13px). apply writes both theme globals, so the window root and every code surface follow.",
   },
   {
     title: "Light, dark and custom families",
@@ -395,7 +399,7 @@ function Run() {
         id="run"
         eyebrow="Get started"
         title="Run the gallery"
-        description="The showcase binary renders one Card section per family through the same re-export layer an app would use — buttons and badges, inputs and selection, alerts and toasts, a live popover/dialog/sheet, an accordion, date/color/number pickers, both text editors (markdown toolbar + tree-sitter code mode), and a live theming section: radius presets, accent swaps and custom theme families. ⌘D / Ctrl+D toggles light/dark."
+        description="The showcase binary renders one Card section per family through the same re-export layer an app would use — buttons and badges, inputs and selection, alerts and toasts, a live popover/dialog/sheet, an accordion, date/color/number pickers, both text editors (markdown toolbar + tree-sitter code mode), and a live theming section: radius presets, font faces, accent swaps and custom theme families. ⌘D / Ctrl+D toggles light/dark."
       />
 
       <div className="grid gap-3 lg:grid-cols-2">
@@ -793,15 +797,20 @@ function Theming() {
         id="theming"
         eyebrow="Theming"
         title="One config drives the theme at runtime"
-        description="AppTheme is the desktop counterpart of the shadcn :root / .dark blocks in globals.css — semantic tokens and one radius, with overlay semantics over the compiled-in theme. Nothing per-component changes: every primitive already reads cx.theme(), so applying a config re-themes the whole window on the next frame."
+        description="AppTheme is the desktop counterpart of the shadcn :root / .dark blocks in globals.css — semantic tokens, one radius, and one font, with overlay semantics over the compiled-in theme. Nothing per-component changes: every primitive already reads cx.theme(), so applying a config re-themes the whole window on the next frame."
       />
 
       <Command
-        code={`use celestia_ui::theme::{hex, AppTheme, Scheme};
+        code={`use celestia_ui::theme::{hex, AppFont, AppTheme, Scheme};
 use gpui::px;
 
 let config = AppTheme {
     radius: px(10.),                    // one knob — radius_lg derives +4px
+    font: AppFont {
+        family: Some("Georgia".into()), // None = Geist (embedded)
+        size: Some(px(18.)),            // None = 16px, also the rem size
+        ..Default::default()
+    },
     light: Scheme {
         primary: Some(hex(0x2563eb)),   // None = keep the theme.json value
         ..Default::default()

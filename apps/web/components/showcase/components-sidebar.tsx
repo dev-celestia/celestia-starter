@@ -41,7 +41,7 @@ export const CATEGORIES: CategoryItem[] = [
     id: "inputs",
     name: "Inputs & Forms",
     icon: TextboxIcon,
-    count: 13,
+    count: 14,
     items: [
       { id: "input", name: "Input" },
       { id: "input-group", name: "Input Group" },
@@ -56,6 +56,7 @@ export const CATEGORIES: CategoryItem[] = [
       { id: "input-otp", name: "Input OTP" },
       { id: "colorized-url-input", name: "Colorized URL Input" },
       { id: "field", name: "Field & Form" },
+      { id: "filter", name: "Filter" },
     ],
   },
   {

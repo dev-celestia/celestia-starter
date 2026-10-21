@@ -15,18 +15,22 @@ crates/
 │  ├─ theme/book.rs  # Multi-theme: named light/dark families, register + select
 │  ├─ palette.rs     # Semantic roles the Theme lacks (brand, charts) — raw hex lives only here
 │  └─ components/    # ONE FILE PER COMPONENT, split by category (see below)
-│     ├─ primitive/  # 40 self-contained widgets — Button, Badge, Input, Card, Dialog, …
+│     ├─ primitive/  # 46 self-contained widgets — Button, Badge, Toggle, Item, Menubar, …
 │     │  ├─ button.rs / badge.rs    # Celestia wrappers: ButtonVariant/ButtonSize, BadgeVariant
 │     │  ├─ card.rs / input.rs / select.rs / switch.rs / … (per-component files,
 │     │  │   each doc comment maps the web file → desktop module)
 │     │  └─ icon.rs                 # Phosphor / PhosphorIcon
-│     └─ composite/  # 35 compositions built out of primitives + app chrome
+│     └─ composite/  # 55+ compositions built out of primitives + app chrome
 │        ├─ sidebar_layout.rs       # app shell: SidebarLayout + header/nav/item/footer
 │        ├─ h_stack.rs, v_stack.rs, z_stack.rs, spacer.rs, scroll_view.rs,
 │        │   v_grid.rs, frame.rs, alignment.rs   # SwiftUI-style layout vocabulary
 │        ├─ charts.rs               # ChartLine / ChartPie / ChartDonut prefabs + chart/plot re-exports
+│        ├─ app_header / toolbar / start_bar / system_tray / start_menu / …  # app composites
+│        ├─ traffic_lights / window  # window chrome (macOS layout for now; other OS later)
 │        └─ section_heading.rs / text_editor.rs / code_editor.rs / …
-└─ celestia-desktop  # The app binary (sidebar gallery window — uses SidebarLayout itself)
+├─ celestia-bridge           # HTTP bridge to apps/api (desktop twin of api-client.ts)
+├─ celestia-desktop          # Component gallery (sidebar showcase window)
+└─ celestia-desktop-starter  # Minimal boilerplate app — copy this to start your own window
 ```
 
 ## Architecture
@@ -90,8 +94,7 @@ Components are being rewritten onto **raw gpui** one family at a time;
   `shimmer`, `icon`, `tooltip`; `composite/`: `loaders`, `notice`,
   `context_badge`.
 - **Structural** — `primitive/`: `separator`, `kbd`, `link`, `breadcrumb`;
-  `composite/`: `group_box`, `status_bar`, `title_bar`, `description_list`,
-  `empty`.
+  `composite/`: `group_box`, `status_bar`, `title_bar`, `empty`.
 - **Display** — `primitive/`: `badge`, `label`, `rating`, `avatar` (with its
   own `AvatarGroup` and the OkLCH identity ring).
 - **Layout** — `primitive/`: `card`; `composite/`: `section_heading`,
@@ -105,10 +108,12 @@ Components are being rewritten onto **raw gpui** one family at a time;
   still rides `gpui-component`'s `PopupMenu`, and the value transition is
   `gpui_base::motion::transition`.)
 - **Content** — `composite/`: `attachment`.
+- **Data display** — `primitive/`: `table` (composition + declarative
+  `DataTable`, pure GPUI).
 
-24 shims remain (the overlay family — `popover`, `dialog`, `sheet`, `hover_card`,
+23 shims remain (the overlay family — `popover`, `dialog`, `sheet`, `hover_card`,
 `menu`, `toast` — the text stack — `input`, `textarea`, `input_otp`,
-`code_editor`, `text_editor`, `command` — and the heavy data widgets — `table`,
+`code_editor`, `text_editor`, `command` — and the heavy data widgets —
 `tree`, `list`, `calendar`, `date_picker`, `carousel`, `charts`, `color_picker`,
 `combobox`, `dock`, `sidebar`, `resizable`, `scroll_area`, plus the
 `virtual_list` re-export). Everything else names at least one `gpui-base` module
@@ -148,7 +153,7 @@ left column is what the old facade exposed; the right is the origin crate):
 | `.refine_style(&style)` (gpui-base) | `el.style().refine(&style)` (core) |
 | `h_flex()` / `v_flex()` (gpui-base) | `div().flex().flex_row()` / `div().flex().flex_col()`, **plus the cross-axis rule the helper supplied** — `h_flex()` is `.items_center()`, so a row that relied on it keeps an explicit `.items_center()` |
 | `Tooltip::new(..).build(..)` | `.tooltip(\|_, cx\| cx.new(\|_\| MyHint).into())` |
-| `Sizable` / `Size` (gpui-component) | a crate-local metric bucket, e.g. `DescriptionListSize`, `RatingSize`, `GpuiBadgeSize` |
+| `Sizable` / `Size` (gpui-component) | a crate-local metric bucket, e.g. `RatingSize`, `GpuiBadgeSize` |
 
 Two traps worth knowing before starting a file: `ParentElement` must be imported
 **by name** (not `as _`) if the file implements it, and `Styled` /
@@ -157,15 +162,16 @@ Two traps worth knowing before starting a file: `ParentElement` must be imported
 family by *transitive* cost rather than file size — lives in the module doc of
 `crates/ui/src/components/mod.rs`.
 
-The theme service (`cx.theme()`) is still `gpui-component`'s and is the last
-piece scheduled to move; it is re-exported from `crate::theme` so component
-files never name `gpui_component` directly.
-The whole library re-themes at runtime through `celestia_ui::theme::AppTheme`
-— one shadcn-style config (semantic colors per mode + one radius) applied
-with `config.apply(cx)`; unset fields keep the `theme.json` defaults.
-Multi-theme: `config.register("Nocturne", cx)` adds a named light/dark
-family, `theme::select` / `theme::active` / `theme::families` switch and
-list them.
+The theme service is Celestia's own (`crate::theme` / `celestia_ui::theme`):
+`use crate::theme::ActiveTheme as _` then `cx.theme()`. Light/dark is
+`Theme::toggle(cx)` or `Theme::change(ThemeMode::…, cx)` — that also keeps
+`gpui-component`'s widget theme on the same mode so re-exported controls do
+not drift. The whole library re-themes at runtime through
+`celestia_ui::theme::AppTheme` — one shadcn-style config (semantic colors per
+mode + one radius) applied with `config.apply(cx)`; unset fields keep the
+`theme.json` defaults. Multi-theme: `config.register("Nocturne", cx)` adds a
+named light/dark family, `theme::select` / `theme::active` /
+`theme::families` switch and list them.
 
 The gallery (`pnpm desktop`) renders one section per family through the same
 re-export layer an app would use: buttons/kbd/link, tags & badges, inputs &
@@ -173,10 +179,11 @@ selection, feedback, overlays (popover/tooltip/toast), the SwiftUI layout
 vocabulary (HStack/VStack/ZStack/Spacer/VGrid — every alignment variant live,
 plus an interactive playground), tabs/accordion/collapsible, palette swatches,
 the two text editors, menus/dialogs/sheets, and pickers
-(date / color / number). Usage examples follow `reference/gpui-kit` (the
-upstream repo's `crates/story` — note it is v0.7.0; this workspace is pinned
-to the published 0.6.x line, so verify signatures against the installed
-source when they differ).
+(date / color / number). Each section has a **Visual / Docs** toggle in the
+upper right — Docs lists props, a copyable usage snippet, and wiring notes.
+Usage examples follow `reference/gpui-kit` (the upstream repo's `crates/story`
+— note it is v0.7.0; this workspace is pinned to the published 0.6.x line, so
+verify signatures against the installed source when they differ).
 
 ### Overlay layers (dialogs / sheets / toasts)
 
@@ -192,7 +199,8 @@ let notification_layer = Root::render_notification_layer(window, cx);
 
 Then open them with `WindowExt`: `window.open_dialog(cx, |dialog, _, _| …)`,
 `window.open_sheet(cx, |sheet, _, _| …)`,
-`window.push_notification(Notification::success("…"), cx)`.
+`window.push_notification(Notification::success("…"), cx)`
+(always-visible close button; upstream hover-only dismiss still works too).
 
 ### Text editors
 
@@ -210,11 +218,56 @@ editor.update(cx, |e, cx| e.set_text("# Hello", window, cx));
 editor.update(cx, |e, cx| e.toggle_bold(window, cx));
 ```
 
+## Getting started (boilerplate)
+
+The gallery (`celestia-desktop`) is a full component tour. For a **minimal app
+skeleton** you can copy and extend, use the starter crate:
+
+```bash
+pnpm desktop:starter                   # from the repo root
+cargo run -p celestia-desktop-starter  # from packages/desktop/
+```
+
+Source lives in `crates/starter/`:
+
+| File | Role |
+| --- | --- |
+| `src/main.rs` | Bootstrap — assets, `celestia_ui::init`, `AppMenu`, window, `Root` |
+| `src/app.rs` | Root view — `SidebarLayout`, pages, theme toggle, New Window |
+| `src/actions.rs` | Keybinding actions (`ToggleTheme`) |
+
+Window chrome lives in `celestia_ui` (`composite/window` — macOS layout for now):
+
+```rust
+use celestia_ui::components::composite::window::{
+    AppMenu, bind_window_keys, open_window,
+};
+
+AppMenu::standard("My App").install(cx);
+bind_window_keys(cx);
+// File → New Window, or:
+open_window("Untitled", cx, |window, cx| /* Root::new(...) */);
+```
+
+`AppMenu::standard` is the app name plus File, Edit, View, and Help.
+`menu` / `item` / `without` change that list before `install`. In fullscreen,
+macOS reveals the installed bar when the pointer hits the top of the screen.
+`open_window` pairs with a root `Window` using `WindowChrome::Native`.
+On macOS, AppKit draws the traffic lights. Compose custom chrome
+(`TrafficLights`, tabs, actions) via `Window::title_bar`. Resize is edge
+dragging, with a minimum size so the frame cannot collapse.
+`WindowChrome::Embedded` is a framed in-view preview — no built-in lights.
+
+Copy the crate into your app, rename the package, and replace the Home / About
+pages in `app.rs`. Keep the bootstrap order in `main.rs`.
+
 ## Commands
 
 ```bash
 pnpm desktop                           # from the repo root: build & run the showcase window
+pnpm desktop:starter                   # minimal boilerplate window (copy this crate)
 cargo run -p celestia-desktop          # or directly from packages/desktop (⌘D / Ctrl+D toggles theme)
+cargo run -p celestia-desktop-starter
 cargo test --workspace                 # unit + gpui TestAppContext tests
 cargo fmt --all
 cargo clippy --workspace --all-targets -- -D warnings
@@ -222,3 +275,13 @@ cargo clippy --workspace --all-targets -- -D warnings
 
 Requirements: Rust ≥ 1.97 (edition 2024). macOS needs no extra toolchain;
 Linux needs Vulkan + Wayland/X11/fontconfig headers; Windows needs MSVC.
+
+## Docs
+
+| Page | Covers |
+| ---- | ------ |
+| [`/docs/desktop`](../../apps/web/content/docs/desktop.mdx) | Architecture, theming, full web→desktop map, bootstrap |
+| [`/docs/desktop-state`](../../apps/web/content/docs/desktop-state.mdx) | Stores, ambient context, selector-gated subscriptions |
+| [`/docs/desktop-components`](../../apps/web/content/docs/desktop-components.mdx) | Toggle, Chip, Meter, Menubar, app composites (header, toolbar, panel, …) |
+| [`/docs/desktop-ai`](../../apps/web/content/docs/desktop-ai.mdx) | Twenty AI kit surfaces (prompt, tools, plans, citations, …) |
+| [`/docs/desktop-bridge`](../../apps/web/content/docs/desktop-bridge.mdx) | HTTP bridge to `apps/api` — health, auth, posts |

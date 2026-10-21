@@ -214,7 +214,7 @@ recorded so the mapping is explicit; where the desktop's motion comes from
 | `combobox.rs` | combobox composite | popup entrance + search | gpui-kit `combobox.rs` |
 | `calendar.rs` / `date_picker.rs` | `calendar.tsx` | day cell `hover:bg-accent`, popover entrance | gpui-kit `time/` |
 | `table.rs` (DataTable half) | `composite/data-table` | virtualized delegate | gpui-kit `table/` |
-| `list.rs`, `tree.rs`, `pagination.rs`, `breadcrumb.rs`, `marker.rs`, `empty.rs`, `description_list.rs`, `kbd.rs`, `label.rs`, `separator.rs`, `link.rs`, `group_box.rs`, `scroll_area.rs`, `resizable.rs`, `sidebar.rs`, `status_bar.rs`, `title_bar.rs`, `dock.rs`, `charts.rs`, `attachment.rs`, `bubble.rs`, `message.rs`, `color_picker.rs`, `rating.rs`, `stepper.rs` | various | static chrome, or `transition-colors` on hover rows | gpui-kit |
+| `list.rs`, `tree.rs`, `pagination.rs`, `breadcrumb.rs`, `marker.rs`, `empty.rs`, `kbd.rs`, `label.rs`, `separator.rs`, `link.rs`, `group_box.rs`, `scroll_area.rs`, `resizable.rs`, `sidebar.rs`, `status_bar.rs`, `title_bar.rs`, `dock.rs`, `charts.rs`, `attachment.rs`, `bubble.rs`, `message.rs`, `color_picker.rs`, `rating.rs`, `stepper.rs` | various | static chrome, or `transition-colors` on hover rows | gpui-kit |
 
 `bubble.tsx` is a one-line re-export on the web too (30 bytes); `aspect-ratio.tsx`
 and `direction.tsx` have no desktop counterpart and need none.

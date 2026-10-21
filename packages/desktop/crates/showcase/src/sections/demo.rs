@@ -22,6 +22,9 @@ impl Showcase {
             Demo::Kbd => self.render_kbd(cx).into_any_element(),
             Demo::Link => self.render_link(cx).into_any_element(),
 
+            // Typography
+            Demo::Typography | Demo::Heading => self.render_typography_demo(demo, cx),
+
             // Badges / atoms
             Demo::Badge
             | Demo::Chip
@@ -39,6 +42,7 @@ impl Showcase {
             | Demo::Truncate
             | Demo::RelativeTime
             | Demo::IconLabel
+            | Demo::ImageIcon
             | Demo::HotkeyHint => self.render_tag_demo(demo, cx),
 
             // Inputs
@@ -57,10 +61,9 @@ impl Showcase {
             | Demo::Label => self.render_input_demo(demo, cx),
 
             // Pickers
-            Demo::Calendar
-            | Demo::DatePicker
-            | Demo::ColorPicker
-            | Demo::NumberInput => self.render_picker_demo(demo, cx),
+            Demo::Calendar | Demo::DatePicker | Demo::ColorPicker | Demo::NumberInput => {
+                self.render_picker_demo(demo, cx)
+            }
 
             // Feedback
             Demo::Alert
@@ -80,6 +83,7 @@ impl Showcase {
             | Demo::Tooltip
             | Demo::Toast
             | Demo::Dialog
+            | Demo::Modal
             | Demo::Sheet
             | Demo::SheetPanel
             | Demo::Drawer
@@ -95,7 +99,6 @@ impl Showcase {
             // Data
             Demo::DataTable
             | Demo::VirtualList
-            | Demo::DescriptionList
             | Demo::Breadcrumb
             | Demo::Pagination
             | Demo::Empty => self.render_data_demo(demo, cx),
@@ -110,12 +113,15 @@ impl Showcase {
             | Demo::Accordion
             | Demo::Collapsible
             | Demo::GroupBox
-            | Demo::LayoutPlayground => self.render_layout_demo(demo, cx),
+            | Demo::LayoutPlayground
+            | Demo::Resizable
+            | Demo::ResizableSplit => self.render_layout_demo(demo, cx),
 
             // Chat & AI
             Demo::Message
             | Demo::PromptInput
             | Demo::Reasoning
+            | Demo::ThinkingText
             | Demo::Tool
             | Demo::Suggestion
             | Demo::Plan
@@ -157,6 +163,11 @@ impl Showcase {
             | Demo::AppHeader
             | Demo::Toolbar
             | Demo::ActionBar
+            | Demo::StartBar
+            | Demo::SystemTray
+            | Demo::StartMenu
+            | Demo::TrafficLights
+            | Demo::Window
             | Demo::ButtonGroup
             | Demo::InputGroup
             | Demo::Panel
@@ -176,13 +187,21 @@ impl Showcase {
             | Demo::KeybindingRecorder
             | Demo::DataTableToolbar
             | Demo::FileBrowser
+            | Demo::FileTree
             | Demo::KanbanBoard
             | Demo::Timeline
             | Demo::StatCard
             | Demo::ToastStack
             | Demo::Banner
-            | Demo::OnboardingTip
-            | Demo::DropZone => self.render_composite_demo(demo, cx),
+            | Demo::OnboardingTip => self.render_composite_demo(demo, cx),
+
+            // Drag & Drop
+            Demo::DragHandle
+            | Demo::DropIndicator
+            | Demo::Draggable
+            | Demo::DropTarget
+            | Demo::DropZone
+            | Demo::SortableList => self.render_dnd_demo(demo, cx),
 
             // System — keep existing full-page renders
             Demo::Icons => self.render_icons(window, cx).into_any_element(),

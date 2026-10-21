@@ -51,6 +51,7 @@ use gpui::{
 
 use crate::components::primitive::tooltip::Tooltip;
 use crate::components::traits::{Disableable, Sizable, Size};
+use crate::focus_ring::focus_ring;
 use crate::motion;
 use crate::theme::ActiveTheme as _;
 
@@ -285,7 +286,7 @@ impl RenderOnce for Switch {
             // `tab_stop(true)`; `focus_next` skips handles that are not tab
             // stops, so this is what makes the switch tab-reachable.
             .when(!disabled, |this| {
-                this.track_focus(&focus_handle.tab_index(0).tab_stop(true))
+                this.track_focus(&focus_handle.clone().tab_index(0).tab_stop(true))
             })
             .when(disabled, |this| {
                 this.on_mouse_down(MouseButton::Left, |_, _, cx| {
@@ -327,6 +328,12 @@ impl RenderOnce for Switch {
         }
 
         root.style().refine(&self.style);
+
+        // `focus-visible:ring-2` — Switch is tab-reachable; match Checkbox.
+        if !disabled && focus_handle.is_focused(window) {
+            root = focus_ring(root, window, cx);
+        }
+
         root
     }
 }

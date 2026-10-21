@@ -94,6 +94,9 @@ import {
   CardTitle,
   ChartArea,
   DashboardShell,
+  FilterClear,
+  FilterMenu,
+  FilterToken,
   Input,
   Label,
   MarketingShell,
@@ -770,20 +773,29 @@ function SettingsPageDemo() {
   )
 }
 
+const LIST_STATUS_OPTIONS = [
+  { value: "Live", label: "Live" },
+  { value: "Building", label: "Building" },
+  { value: "Stable", label: "Stable" },
+  { value: "Draft", label: "Draft" },
+]
+
 function ListPageDemo() {
   const [query, setQuery] = React.useState("")
+  const [status, setStatus] = React.useState<string[]>([])
   const [selected, setSelected] = React.useState<string[]>(["prj_02"])
   const [page, setPage] = React.useState(1)
 
   const rows = React.useMemo(() => {
     const q = query.trim().toLowerCase()
-    if (!q) return LIST_ROWS
-    return LIST_ROWS.filter((row) =>
-      [row.name, row.owner, row.status].some((field) =>
+    return LIST_ROWS.filter((row) => {
+      if (status.length > 0 && !status.includes(row.status)) return false
+      if (!q) return true
+      return [row.name, row.owner, row.status].some((field) =>
         field.toLowerCase().includes(q)
       )
-    )
-  }, [query])
+    })
+  }, [query, status])
 
   return (
     <ShellColumn>
@@ -800,10 +812,25 @@ function ListPageDemo() {
           placeholder: "Search projects…",
         }}
         filters={
-          <Button variant="outline" size="sm">
-            <FunnelSimpleIcon />
-            Status
-          </Button>
+          <>
+            <FilterMenu
+              label="Status"
+              options={LIST_STATUS_OPTIONS}
+              selected={status}
+              onSelectedChange={setStatus}
+            />
+            {status.map((value) => (
+              <FilterToken
+                key={value}
+                label="Status"
+                value={value}
+                onRemove={() =>
+                  setStatus((current) => current.filter((item) => item !== value))
+                }
+              />
+            ))}
+            {status.length > 0 && <FilterClear onClick={() => setStatus([])} />}
+          </>
         }
         toolbar={
           <Button size="sm">

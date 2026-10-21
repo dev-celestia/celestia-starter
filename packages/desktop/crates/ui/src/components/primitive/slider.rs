@@ -63,7 +63,7 @@ use std::time::Duration;
 
 use gpui::{
     AccessibleAction, AnimationExt as _, App, AppContext as _, Axis, Bounds, Context,
-    DefiniteLength, DragMoveEvent, ElementId, Empty, Entity, EntityId, EventEmitter, Hsla,
+    DefiniteLength, DragMoveEvent, ElementId, Empty, Entity, EntityId, EventEmitter,
     InteractiveElement as _, IntoElement, KeyDownEvent, MouseButton, MouseDownEvent, Orientation,
     ParentElement as _, Pixels, Refineable as _, Render, RenderOnce, Role, Size, SpringAnimation,
     SpringConfig, StatefulInteractiveElement as _, Styled, Window, canvas, div,
@@ -597,10 +597,6 @@ fn set_thumb_press(interaction: &Entity<ThumbInteraction>, pressed: bool, cx: &m
 /// re-enters mid-fade.
 struct ThumbRing {
     interaction: Entity<ThumbInteraction>,
-    color: Hsla,
-    /// The ring's corner radius at full extension: the thumb's own radius
-    /// grown by the ring width, so the two nest.
-    radius: Pixels,
     /// Whether the ring should be out, sampled when the ring was built.
     active: bool,
 }
@@ -608,14 +604,7 @@ struct ThumbRing {
 impl ThumbRing {
     /// Samples the ring for the `start` or end thumb of the slider keyed by
     /// `id`.
-    fn new(
-        id: EntityId,
-        start: bool,
-        color: Hsla,
-        radius: Pixels,
-        window: &mut Window,
-        cx: &mut App,
-    ) -> Self {
+    fn new(id: EntityId, start: bool, window: &mut Window, cx: &mut App) -> Self {
         let interaction = if start {
             window.use_keyed_state(("slider-ring-start", id), cx, |_, _| {
                 ThumbInteraction::default()
@@ -629,8 +618,6 @@ impl ThumbRing {
 
         Self {
             interaction,
-            color,
-            radius,
             active,
         }
     }
@@ -750,9 +737,8 @@ impl RenderOnce for Slider {
             .read(cx)
             .clone();
 
-        let end_ring = ThumbRing::new(entity_id, false, ring_color, ring_radius, window, cx);
-        let start_ring =
-            is_range.then(|| ThumbRing::new(entity_id, true, ring_color, ring_radius, window, cx));
+        let end_ring = ThumbRing::new(entity_id, false, window, cx);
+        let start_ring = is_range.then(|| ThumbRing::new(entity_id, true, window, cx));
 
         // The (fill_start, fill_end) insets of the range fill. `reverse`
         // flips a single-value fill to run from the thumb to the max end —

@@ -4,9 +4,9 @@ use celestia_ui::components::primitive::button::{Button, ButtonSize, ButtonVaria
 use celestia_ui::components::primitive::input::Input;
 use celestia_ui::components::primitive::kbd::Kbd;
 use celestia_ui::components::primitive::link::Link;
+use celestia_ui::theme::ActiveTheme as _;
 use celestia_ui::theme::{AppTheme, Scheme, active, families, hex, select};
 use gpui::*;
-use celestia_ui::theme::ActiveTheme as _;
 use gpui_component::{h_flex, v_flex};
 
 use crate::showcase::Showcase;
@@ -32,12 +32,36 @@ const RADII: &[(&str, f32)] = &[
     ("Round", 24.),
 ];
 
+/// (id, label, family). `None` is the embedded default, Geist.
+/// `.SystemUIFont` is the platform face and is always offered.
+const UI_FONTS: &[(&str, &str, Option<&str>)] = &[
+    ("geist", "Geist", None),
+    ("system", "System", Some(".SystemUIFont")),
+    ("georgia", "Georgia", Some("Georgia")),
+    ("helvetica", "Helvetica", Some("Helvetica")),
+    ("avenir", "Avenir Next", Some("Avenir Next")),
+    ("palatino", "Palatino", Some("Palatino")),
+];
+
+/// (id, label, family). `None` is the platform monospace face.
+const MONO_FONTS: &[(&str, &str, Option<&str>)] = &[
+    ("default", "Default", None),
+    ("menlo", "Menlo", Some("Menlo")),
+    ("monaco", "Monaco", Some("Monaco")),
+    ("sfmono", "SF Mono", Some("SF Mono")),
+    ("courier", "Courier New", Some("Courier New")),
+];
+
+/// Base UI sizes. 16 is the Celestia default and the 1:1 rem size.
+const FONT_SIZES: &[f32] = &[13., 14., 16., 18., 20.];
+
 impl Showcase {
     pub(crate) fn render_theming(&self, cx: &mut Context<Self>) -> impl IntoElement {
         v_flex()
             .gap_6()
             .child(self.render_families_card(cx))
             .child(self.render_radius_card(cx))
+            .child(self.render_font_card(cx))
             .child(self.render_accent_card(cx))
             .child(self.render_specimen_card(cx))
     }
@@ -177,6 +201,130 @@ impl Showcase {
             )
     }
 
+    /// UI family, UI size, and monospace family. Uninstalled faces are hidden
+    /// so a click cannot ask GPUI to lay out a missing font.
+    fn render_font_card(&self, cx: &mut Context<Self>) -> impl IntoElement {
+        let current_family = self.theme.font.family.clone();
+        let current_mono = self.theme.font.mono_family.clone();
+        let current_size = self.theme.font.size.map(f32::from).unwrap_or(16.);
+
+        let ui_fonts: Vec<_> = UI_FONTS
+            .iter()
+            .filter_map(|(id, label, family)| {
+                if let Some(family) = family {
+                    if *family != ".SystemUIFont" && !font_installed(cx, family) {
+                        return None;
+                    }
+                }
+                let selected = match (current_family.as_deref(), family) {
+                    (None, None) => true,
+                    (Some(current), Some(family)) => current == *family,
+                    _ => false,
+                };
+                let family = (*family).map(SharedString::from);
+                Some(
+                    Button::new(format!("font-ui-{id}"))
+                        .variant(if selected {
+                            ButtonVariant::Primary
+                        } else {
+                            ButtonVariant::Outline
+                        })
+                        .size(ButtonSize::Small)
+                        .label(*label)
+                        .on_click(cx.listener(move |this, _, _, cx| {
+                            this.theme.font.family = family.clone();
+                            this.theme.apply(cx);
+                            cx.notify();
+                        })),
+                )
+            })
+            .collect();
+
+        let mono_fonts: Vec<_> = MONO_FONTS
+            .iter()
+            .filter_map(|(id, label, family)| {
+                if let Some(family) = family {
+                    if !font_installed(cx, family) {
+                        return None;
+                    }
+                }
+                let selected = match (current_mono.as_deref(), family) {
+                    (None, None) => true,
+                    (Some(current), Some(family)) => current == *family,
+                    _ => false,
+                };
+                let family = (*family).map(SharedString::from);
+                Some(
+                    Button::new(format!("font-mono-{id}"))
+                        .variant(if selected {
+                            ButtonVariant::Primary
+                        } else {
+                            ButtonVariant::Outline
+                        })
+                        .size(ButtonSize::Small)
+                        .label(*label)
+                        .on_click(cx.listener(move |this, _, _, cx| {
+                            this.theme.font.mono_family = family.clone();
+                            this.theme.apply(cx);
+                            cx.notify();
+                        })),
+                )
+            })
+            .collect();
+
+        let sizes: Vec<_> = FONT_SIZES
+            .iter()
+            .map(|value| {
+                let active = current_size == *value;
+                let label = *value as i32;
+                Button::new(format!("font-size-{label}"))
+                    .variant(if active {
+                        ButtonVariant::Primary
+                    } else {
+                        ButtonVariant::Outline
+                    })
+                    .size(ButtonSize::Small)
+                    .label(label.to_string())
+                    .on_click(cx.listener(move |this, _, _, cx| {
+                        this.theme.font.size = Some(px(*value));
+                        this.theme.apply(cx);
+                        cx.notify();
+                    }))
+            })
+            .collect();
+
+        let mono_family = cx.theme().mono_font_family.clone();
+        let mono_size = cx.theme().mono_font_size;
+        let muted = cx.theme().muted_foreground;
+
+        Card::new()
+            .title("Font")
+            .description(
+                "AppFont on the same config as color and radius. The UI family cascades \
+                 from the window root; size is the rem size, so text_sm and the type scale \
+                 follow it. Code uses the monospace face.",
+            )
+            .child(
+                v_flex()
+                    .gap_3()
+                    .child(h_flex().flex_wrap().gap_2().children(ui_fonts))
+                    .child(h_flex().flex_wrap().gap_2().children(sizes))
+                    .child(h_flex().flex_wrap().gap_2().children(mono_fonts))
+                    .child(
+                        div()
+                            .text_sm()
+                            .child("The quick brown fox jumps over the lazy dog."),
+                    )
+                    .child(
+                        div()
+                            .text_size(mono_size)
+                            .font_family(mono_family)
+                            .text_color(muted)
+                            .child("fn main() { println!(\"mono\"); }"),
+                    ),
+            )
+    }
+
     /// Accent presets: one `primary` override per mode, everything the token
     /// drives (ring, caret, links, selection, active rows…) follows.
     fn render_accent_card(&self, cx: &mut Context<Self>) -> impl IntoElement {
@@ -282,6 +430,17 @@ impl Showcase {
             .map(|(id, ..)| *id)
             .unwrap_or("custom")
     }
+}
+
+/// Families installed on this machine, listed once. Enumerating fonts is slow
+/// on macOS, and the set does not change while the process runs.
+fn font_installed(cx: &App, family: &str) -> bool {
+    use std::sync::OnceLock;
+    static NAMES: OnceLock<Vec<String>> = OnceLock::new();
+    NAMES
+        .get_or_init(|| cx.text_system().all_font_names())
+        .iter()
+        .any(|name| name == family)
 }
 
 /// Static specimens that show the applied config at a glance — they take

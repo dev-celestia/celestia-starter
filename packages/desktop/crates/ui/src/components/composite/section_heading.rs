@@ -4,6 +4,7 @@
 use gpui::prelude::FluentBuilder as _;
 use gpui::{
     App, FontWeight, IntoElement, ParentElement, RenderOnce, SharedString, Styled, Window, div, px,
+    relative,
 };
 
 use crate::theme::ActiveTheme as _;
@@ -54,8 +55,9 @@ impl RenderOnce for SectionHeading {
             })
             .child(
                 div()
+                    // Section title: one step below page headers; unitless LH ~1.15.
                     .text_size(px(18.))
-                    .line_height(px(24.))
+                    .line_height(relative(1.15))
                     .font_weight(FontWeight::SEMIBOLD)
                     .text_color(cx.theme().foreground)
                     .child(self.title),
@@ -64,7 +66,7 @@ impl RenderOnce for SectionHeading {
                 this.child(
                     div()
                         .text_sm()
-                        .line_height(px(20.))
+                        .line_height(relative(1.5))
                         .text_color(cx.theme().muted_foreground)
                         .child(description),
                 )

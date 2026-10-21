@@ -1,60 +1,126 @@
-//! Celestia table components — desktop counterparts of the web package's
-//! `primitive/table.tsx` (HTML-style composition) and `composite/data-table`
-//! (data-driven), informed by GetCat's hand-built `kv_table.rs` /
-//! `ops_table.rs` and the upstream `crates/story` data-table examples.
+//! Celestia table — pure GPUI composition table (web `primitive/table.tsx`
+//! parity), plus a declarative [`DataTable`] helper (web `composite/data-table`
+//! role).
 //!
-//! Two APIs, matching the two web components:
+//! Written directly on `gpui`. No `gpui-component` / `gpui-base` table widgets:
+//! layout, roles, and paint live here. Columns share width via
+//! `flex_basis(relative(col_span))` so cells line up across rows — the previous
+//! `flex_1` hand-roll sized each row independently and looked broken.
 //!
-//! 1. **HTML-style primitives** — [`Table`], [`TableHeader`], [`TableBody`],
-//!    [`TableRow`], [`TableHead`], [`TableCell`], [`TableCaption`]: thin,
-//!    themed composition elements, exactly like the web `table.tsx` import
-//!    surface. Build any table by hand.
+//! # Example
 //!
-//! 2. **[`DataTable`]** — an entity wrapping gpui-component's virtualized
-//!    delegate table, driven by declarative columns + rows (and
-//!    [`DataTable::set_rows`] for updates), so simple data tables need no
-//!    custom [`TableDelegate`]. For virtualized / editable / sortable grids,
-//!    implement [`TableDelegate`] and drive the gpui element directly.
+//! ```rust,ignore
+//! Table::new()
+//!     .child(
+//!         TableHeader::new().child(
+//!             TableRow::new()
+//!                 .child(TableHead::new().child("Invoice"))
+//!                 .child(TableHead::new().child("Amount")),
+//!         ),
+//!     )
+//!     .child(
+//!         TableBody::new().child(
+//!             TableRow::new()
+//!                 .child(TableCell::new().child("INV-001"))
+//!                 .child(TableCell::new().child("$1,200.00")),
+//!         ),
+//!     )
+//!     .child(TableCaption::new().child("A list of recent invoices."));
+//! ```
 
-use std::cell::{Cell, RefCell};
-use std::rc::Rc;
+use std::cell::Cell;
 
-use crate::theme::ActiveTheme as _;
-use crate::motion::transition;
-// Re-exported for advanced use (custom delegates, sorting, virtualization).
+use gpui::prelude::FluentBuilder as _;
 use gpui::{
-    App, AppContext as _, Context, ElementId, Entity, InteractiveElement, IntoElement,
-    ParentElement, Render, RenderOnce, SharedString, StatefulInteractiveElement as _, Styled,
-    Window, div, px,
-};
-pub use gpui_component::table;
-pub use gpui_component::table::{
-    Column, ColumnSort, DataTable as GpuiDataTable, TableDelegate, TableState,
+    AnyElement, App, DefiniteLength, ElementId, FontWeight, InteractiveElement, IntoElement,
+    ParentElement, Pixels, Refineable as _, RenderOnce, Role, SharedString,
+    StatefulInteractiveElement as _, StyleRefinement, Styled, TextAlign, Window, div, px, relative,
 };
 
-use crate::motion;
+use crate::components::traits::{Sizable, Size};
+use crate::motion::{self, transition};
+use crate::theme::ActiveTheme as _;
+
+/// Floor width for a single column so narrow cells stay readable.
+const MIN_CELL_WIDTH: Pixels = px(80.);
 
 // ---------------------------------------------------------------------------
-// HTML-style primitives (web primitive/table.tsx parity)
+// Index + size propagation (typed children — ParentElement would erase this)
 // ---------------------------------------------------------------------------
 
-/// `<table>` — the rounded, bordered container everything else sits in.
+/// Internal stamp applied by parents before a part becomes an [`AnyElement`].
+/// Public so typed `.child()` builders can name it in their signatures.
+pub trait TablePart: Sized {
+    /// Row / section index within the parent (0-based).
+    fn with_ix(self, ix: usize) -> Self;
+    /// Density inherited from the root [`Table`].
+    fn with_size(self, size: Size) -> Self;
+}
+
+/// Type-erased table section / row / cell so parents can stamp `ix` + `size`
+/// before the child becomes an [`AnyElement`].
+struct AnyTablePart(Box<dyn FnOnce(usize, Size) -> AnyElement>);
+
+impl AnyTablePart {
+    fn new<T: TablePart + IntoElement + 'static>(part: T) -> Self {
+        Self(Box::new(move |ix, size| {
+            part.with_ix(ix).with_size(size).into_any_element()
+        }))
+    }
+
+    fn into_any(self, ix: usize, size: Size) -> AnyElement {
+        (self.0)(ix, size)
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Table
+// ---------------------------------------------------------------------------
+
+/// `<table>` — bordered, rounded container. Web: `w-full caption-bottom text-xs`
+/// inside an overflow wrapper; desktop carries both chrome layers on one node.
 #[derive(IntoElement)]
 pub struct Table {
     id: ElementId,
-    children: Vec<gpui::AnyElement>,
+    style: StyleRefinement,
+    children: Vec<AnyTablePart>,
+    size: Size,
+    accessibility_label: Option<SharedString>,
 }
 
 impl Table {
     pub fn new() -> Self {
         Self {
-            id: gpui::ElementId::Name("table".into()),
+            id: ElementId::Name("table".into()),
+            style: StyleRefinement::default(),
             children: Vec::new(),
+            size: Size::default(),
+            accessibility_label: None,
         }
     }
 
     pub fn id(mut self, id: impl Into<ElementId>) -> Self {
         self.id = id.into();
+        self
+    }
+
+    /// Screen-reader name for the table (a caption is visual only).
+    pub fn accessibility_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.accessibility_label = Some(label.into());
+        self
+    }
+
+    pub fn child(mut self, child: impl TablePart + IntoElement + 'static) -> Self {
+        self.children.push(AnyTablePart::new(child));
+        self
+    }
+
+    pub fn children<E: TablePart + IntoElement + 'static>(
+        mut self,
+        children: impl IntoIterator<Item = E>,
+    ) -> Self {
+        self.children
+            .extend(children.into_iter().map(AnyTablePart::new));
         self
     }
 }
@@ -65,43 +131,81 @@ impl Default for Table {
     }
 }
 
-impl ParentElement for Table {
-    fn extend(&mut self, children: impl IntoIterator<Item = gpui::AnyElement>) {
-        self.children.extend(children);
+impl Styled for Table {
+    fn style(&mut self) -> &mut StyleRefinement {
+        &mut self.style
+    }
+}
+
+impl Sizable for Table {
+    fn with_size(mut self, size: impl Into<Size>) -> Self {
+        self.size = size.into();
+        self
     }
 }
 
 impl RenderOnce for Table {
     fn render(self, _: &mut Window, cx: &mut App) -> impl IntoElement {
-        // Web: `w-full caption-bottom text-xs` on the `<table>`, inside a
-        // separate `relative w-full overflow-x-auto` wrapper. The desktop has
-        // no `<table>` element to split the two across, so this carries the
-        // wrapper's chrome (border + radius + clip) as well as the table's type
-        // step. That outer chrome is the one deliberate addition here; every
-        // type and spacing value below is the web's.
-        div()
+        let size = self.size;
+        let mut el = div()
             .id(self.id)
+            .role(Role::Table)
+            .when_some(self.accessibility_label, |this, label| {
+                this.aria_label(label)
+            })
             .w_full()
             .text_xs()
+            .overflow_hidden()
             .border_1()
             .border_color(cx.theme().border)
             .rounded(cx.theme().radius)
-            .overflow_hidden()
-            .children(self.children)
+            .bg(cx.theme().table)
+            .children(
+                self.children
+                    .into_iter()
+                    .enumerate()
+                    .map(|(ix, c)| c.into_any(ix, size)),
+            );
+        el.style().refine(&self.style);
+        el
     }
 }
 
-/// `<thead>` — header block with the muted fill.
+// ---------------------------------------------------------------------------
+// TableHeader / TableBody / TableFooter
+// ---------------------------------------------------------------------------
+
+/// `<thead>` — web is `[&_tr]:border-b` only (no muted band).
 #[derive(IntoElement)]
 pub struct TableHeader {
-    children: Vec<gpui::AnyElement>,
+    ix: usize,
+    style: StyleRefinement,
+    children: Vec<AnyTablePart>,
+    size: Size,
 }
 
 impl TableHeader {
     pub fn new() -> Self {
         Self {
+            ix: 0,
+            style: StyleRefinement::default(),
             children: Vec::new(),
+            size: Size::default(),
         }
+    }
+
+    pub fn child(mut self, child: impl TablePart + IntoElement + 'static) -> Self {
+        self.children.push(AnyTablePart::new(child));
+        self
+    }
+
+    pub fn children<E: TablePart + IntoElement + 'static>(
+        mut self,
+        children: impl IntoIterator<Item = E>,
+    ) -> Self {
+        self.children
+            .extend(children.into_iter().map(AnyTablePart::new));
+        self
     }
 }
 
@@ -111,36 +215,81 @@ impl Default for TableHeader {
     }
 }
 
-impl ParentElement for TableHeader {
-    fn extend(&mut self, children: impl IntoIterator<Item = gpui::AnyElement>) {
-        self.children.extend(children);
+impl TablePart for TableHeader {
+    fn with_ix(mut self, ix: usize) -> Self {
+        self.ix = ix;
+        self
+    }
+    fn with_size(mut self, size: Size) -> Self {
+        self.size = size;
+        self
+    }
+}
+
+impl Styled for TableHeader {
+    fn style(&mut self) -> &mut StyleRefinement {
+        &mut self.style
+    }
+}
+
+impl Sizable for TableHeader {
+    fn with_size(mut self, size: impl Into<Size>) -> Self {
+        self.size = size.into();
+        self
     }
 }
 
 impl RenderOnce for TableHeader {
     fn render(self, _: &mut Window, cx: &mut App) -> impl IntoElement {
-        // Web `<thead>` is `[&_tr]:border-b` and nothing else — the header row
-        // is unfilled. The desktop used to paint `bg(muted)` here, which reads
-        // as a banded header the web does not have.
-        div()
+        let size = self.size;
+        let mut el = div()
+            .id(("table-header", self.ix))
+            .role(Role::RowGroup)
             .w_full()
             .border_b_1()
-            .border_color(cx.theme().border)
-            .children(self.children)
+            .border_color(cx.theme().table_row_border)
+            .children(
+                self.children
+                    .into_iter()
+                    .enumerate()
+                    .map(|(ix, c)| c.into_any(ix, size)),
+            );
+        el.style().refine(&self.style);
+        el
     }
 }
 
-/// `<tbody>` — body block.
+/// `<tbody>`.
 #[derive(IntoElement)]
 pub struct TableBody {
-    children: Vec<gpui::AnyElement>,
+    ix: usize,
+    style: StyleRefinement,
+    children: Vec<AnyTablePart>,
+    size: Size,
 }
 
 impl TableBody {
     pub fn new() -> Self {
         Self {
+            ix: 0,
+            style: StyleRefinement::default(),
             children: Vec::new(),
+            size: Size::default(),
         }
+    }
+
+    pub fn child(mut self, child: impl TablePart + IntoElement + 'static) -> Self {
+        self.children.push(AnyTablePart::new(child));
+        self
+    }
+
+    pub fn children<E: TablePart + IntoElement + 'static>(
+        mut self,
+        children: impl IntoIterator<Item = E>,
+    ) -> Self {
+        self.children
+            .extend(children.into_iter().map(AnyTablePart::new));
+        self
     }
 }
 
@@ -150,60 +299,186 @@ impl Default for TableBody {
     }
 }
 
-impl ParentElement for TableBody {
-    fn extend(&mut self, children: impl IntoIterator<Item = gpui::AnyElement>) {
-        self.children.extend(children);
+impl TablePart for TableBody {
+    fn with_ix(mut self, ix: usize) -> Self {
+        self.ix = ix;
+        self
+    }
+    fn with_size(mut self, size: Size) -> Self {
+        self.size = size;
+        self
+    }
+}
+
+impl Styled for TableBody {
+    fn style(&mut self) -> &mut StyleRefinement {
+        &mut self.style
+    }
+}
+
+impl Sizable for TableBody {
+    fn with_size(mut self, size: impl Into<Size>) -> Self {
+        self.size = size.into();
+        self
     }
 }
 
 impl RenderOnce for TableBody {
-    fn render(self, _: &mut Window, _cx: &mut App) -> impl IntoElement {
-        div().w_full().children(self.children)
+    fn render(self, _: &mut Window, _: &mut App) -> impl IntoElement {
+        let size = self.size;
+        let mut el = div()
+            .id(("table-body", self.ix))
+            .role(Role::RowGroup)
+            .w_full()
+            .children(
+                self.children
+                    .into_iter()
+                    .enumerate()
+                    .map(|(ix, c)| c.into_any(ix, size)),
+            );
+        el.style().refine(&self.style);
+        el
     }
 }
 
-/// `<tr>` — one row; tinted on hover like the web row hover state.
-///
-/// The web row is `border-b transition-colors hover:bg-muted/50
-/// data-[state=selected]:bg-muted`, so both the hover tint *and* the selected
-/// tint fade over 150ms on `--ease-out` rather than snapping.
-///
-/// The fade needs a per-row key, and [`TableRow::new`]'s default id is the same
-/// for every row in a table — keying a transition on it would drive all of them
-/// together. The fade is therefore enabled only when the caller supplies its
-/// own [`TableRow::id`]; rows left on the default id keep the instant
-/// `.hover(...)` tint, which is the old behaviour and is at least correct per
-/// row.
+/// `<tfoot>` — web: `border-t bg-muted/50 font-medium`.
+#[derive(IntoElement)]
+pub struct TableFooter {
+    ix: usize,
+    style: StyleRefinement,
+    children: Vec<AnyTablePart>,
+    size: Size,
+}
+
+impl TableFooter {
+    pub fn new() -> Self {
+        Self {
+            ix: 0,
+            style: StyleRefinement::default(),
+            children: Vec::new(),
+            size: Size::default(),
+        }
+    }
+
+    pub fn child(mut self, child: impl TablePart + IntoElement + 'static) -> Self {
+        self.children.push(AnyTablePart::new(child));
+        self
+    }
+
+    pub fn children<E: TablePart + IntoElement + 'static>(
+        mut self,
+        children: impl IntoIterator<Item = E>,
+    ) -> Self {
+        self.children
+            .extend(children.into_iter().map(AnyTablePart::new));
+        self
+    }
+}
+
+impl Default for TableFooter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl TablePart for TableFooter {
+    fn with_ix(mut self, ix: usize) -> Self {
+        self.ix = ix;
+        self
+    }
+    fn with_size(mut self, size: Size) -> Self {
+        self.size = size;
+        self
+    }
+}
+
+impl Styled for TableFooter {
+    fn style(&mut self) -> &mut StyleRefinement {
+        &mut self.style
+    }
+}
+
+impl Sizable for TableFooter {
+    fn with_size(mut self, size: impl Into<Size>) -> Self {
+        self.size = size.into();
+        self
+    }
+}
+
+impl RenderOnce for TableFooter {
+    fn render(self, _: &mut Window, cx: &mut App) -> impl IntoElement {
+        let size = self.size;
+        let mut el = div()
+            .id(("table-footer", self.ix))
+            .role(Role::RowGroup)
+            .w_full()
+            .border_t_1()
+            .border_color(cx.theme().table_row_border)
+            .bg(cx.theme().table_foot)
+            .text_color(cx.theme().table_foot_foreground)
+            .font_weight(FontWeight::MEDIUM)
+            .children(
+                self.children
+                    .into_iter()
+                    .enumerate()
+                    .map(|(ix, c)| c.into_any(ix, size)),
+            );
+        el.style().refine(&self.style);
+        el
+    }
+}
+
+// ---------------------------------------------------------------------------
+// TableRow
+// ---------------------------------------------------------------------------
+
+/// `<tr>` — flex row; hover / selected fades match web `transition-colors`.
 #[derive(IntoElement)]
 pub struct TableRow {
-    id: ElementId,
-    /// True once the caller supplies a unique id — see the type docs.
-    keyed: bool,
+    ix: usize,
+    style: StyleRefinement,
+    children: Vec<AnyTablePart>,
+    size: Size,
     selected: bool,
-    children: Vec<gpui::AnyElement>,
+    /// Even-row stripe fill (declarative [`DataTable`] sets this).
+    striped: bool,
 }
 
 impl TableRow {
     pub fn new() -> Self {
         Self {
-            id: gpui::ElementId::Name("table-row".into()),
-            keyed: false,
-            selected: false,
+            ix: 0,
+            style: StyleRefinement::default(),
             children: Vec::new(),
+            size: Size::default(),
+            selected: false,
+            striped: false,
         }
     }
 
-    /// Give the row a unique id. This is also what opts the row into the
-    /// animated hover fade.
-    pub fn id(mut self, id: impl Into<ElementId>) -> Self {
-        self.id = id.into();
-        self.keyed = true;
+    /// Web `data-[state=selected]` — full muted / table-active fill.
+    pub fn selected(mut self, selected: bool) -> Self {
+        self.selected = selected;
         self
     }
 
-    /// Web `data-[state=selected]` — a full `bg-muted` fill.
-    pub fn selected(mut self, selected: bool) -> Self {
-        self.selected = selected;
+    /// Paint the even-row stripe (`table_even`).
+    pub fn striped(mut self, striped: bool) -> Self {
+        self.striped = striped;
+        self
+    }
+
+    pub fn child(mut self, child: impl TablePart + IntoElement + 'static) -> Self {
+        self.children.push(AnyTablePart::new(child));
+        self
+    }
+
+    pub fn children<E: TablePart + IntoElement + 'static>(
+        mut self,
+        children: impl IntoIterator<Item = E>,
+    ) -> Self {
+        self.children
+            .extend(children.into_iter().map(AnyTablePart::new));
         self
     }
 }
@@ -214,55 +489,87 @@ impl Default for TableRow {
     }
 }
 
-impl ParentElement for TableRow {
-    fn extend(&mut self, children: impl IntoIterator<Item = gpui::AnyElement>) {
-        self.children.extend(children);
+impl TablePart for TableRow {
+    fn with_ix(mut self, ix: usize) -> Self {
+        self.ix = ix;
+        self
+    }
+    fn with_size(mut self, size: Size) -> Self {
+        self.size = size;
+        self
+    }
+}
+
+impl Styled for TableRow {
+    fn style(&mut self) -> &mut StyleRefinement {
+        &mut self.style
+    }
+}
+
+impl Sizable for TableRow {
+    fn with_size(mut self, size: impl Into<Size>) -> Self {
+        self.size = size.into();
+        self
     }
 }
 
 impl RenderOnce for TableRow {
     fn render(self, window: &mut Window, cx: &mut App) -> impl IntoElement {
-        let (muted, transparent, border) = {
+        let size = self.size;
+        let id: ElementId = ("table-row", self.ix).into();
+        let (table_hover, table_active, table_even, transparent, border) = {
             let theme = cx.theme();
-            (theme.muted, theme.transparent, theme.border)
+            (
+                theme.table_hover,
+                theme.table_active,
+                theme.table_even,
+                theme.transparent,
+                theme.table_row_border,
+            )
         };
-        let hover_fill = muted.opacity(0.5);
+        let base = if self.selected {
+            table_active
+        } else if self.striped {
+            table_even
+        } else {
+            transparent
+        };
+        let hover_fill = table_hover;
+
+        let state = window.use_keyed_state(id.clone(), cx, |_, _| Cell::new(false));
+        let hovered = state.read(cx).get();
+        let select_t = transition(
+            (id.clone(), "selected"),
+            if self.selected { 1.0 } else { 0.0 },
+            motion::hover_transition(),
+            window,
+            cx,
+        );
+        let hover_t = transition(
+            (id.clone(), "hover"),
+            if hovered && !self.selected { 1.0 } else { 0.0 },
+            motion::hover_transition(),
+            window,
+            cx,
+        );
+        let fill = motion::mix(
+            motion::mix(base, table_active, select_t),
+            hover_fill,
+            hover_t,
+        );
+        let state_hover = state.clone();
 
         let mut el = div()
-            .id(self.id.clone())
+            .id(id)
+            .role(Role::Row)
+            .aria_row_index(self.ix + 1)
             .w_full()
             .flex()
+            .flex_row()
             .items_center()
-            .border_b_1()
-            .border_color(border);
-
-        if self.keyed {
-            let state = window.use_keyed_state(self.id.clone(), cx, |_, _| Cell::new(false));
-            let hovered = state.read(cx).get();
-            // `data-[state=selected]:bg-muted` is written after
-            // `hover:bg-muted/50` in the web class list, so selection wins over
-            // hover; the hover blend is suppressed rather than layered.
-            let select_t = transition(
-                (self.id.clone(), "selected"),
-                if self.selected { 1.0 } else { 0.0 },
-                motion::hover_transition(),
-                window,
-                cx,
-            );
-            let hover_t = transition(
-                (self.id.clone(), "hover"),
-                if hovered && !self.selected { 1.0 } else { 0.0 },
-                motion::hover_transition(),
-                window,
-                cx,
-            );
-            let fill = motion::mix(
-                motion::mix(transparent, muted, select_t),
-                hover_fill,
-                hover_t,
-            );
-            let state_hover = state.clone();
-            el = el.bg(fill).on_hover(move |hovered, _, cx| {
+            .bg(fill)
+            .when(self.ix > 0, |this| this.border_t_1().border_color(border))
+            .on_hover(move |hovered, _, cx| {
                 if state_hover.read(cx).get() == *hovered {
                     return;
                 }
@@ -270,28 +577,104 @@ impl RenderOnce for TableRow {
                     flag.set(*hovered);
                     cx.notify();
                 });
-            });
-        } else {
-            let base = if self.selected { muted } else { transparent };
-            el = el.bg(base).hover(move |style| style.bg(hover_fill));
-        }
-
-        el.children(self.children)
+            })
+            .children(
+                self.children
+                    .into_iter()
+                    .enumerate()
+                    .map(|(ix, c)| c.into_any(ix, size)),
+            );
+        el.style().refine(&self.style);
+        el
     }
 }
 
-/// `<th>` — header cell. Web: `h-10 px-2 font-medium whitespace-nowrap
-/// text-foreground` (the type step comes from the table's `text-xs`).
+// ---------------------------------------------------------------------------
+// TableHead / TableCell
+// ---------------------------------------------------------------------------
+
+/// Row density for a cell (web `size` prop). Prefer table-level [`Sizable`]
+/// when every cell shares a step; use this to override one cell.
+#[derive(Clone, Copy, Default, PartialEq, Eq, Debug)]
+pub enum TableCellSize {
+    /// Match the table's [`Size`] padding.
+    #[default]
+    Default,
+    /// Web `sm` → tighter vertical padding only (`py-1.5` on an 8px base).
+    Small,
+}
+
+fn cell_padding(size: Size, cell: TableCellSize) -> (Pixels, Pixels) {
+    let edges = size.table_cell_padding();
+    match cell {
+        TableCellSize::Default => (edges.left, edges.top),
+        // Web extracts only the vertical axis for `sm`.
+        TableCellSize::Small => (edges.left, px(6.)),
+    }
+}
+
+fn cell_flex_basis(
+    col_span: usize,
+    width: Option<DefiniteLength>,
+) -> Option<(DefiniteLength, bool)> {
+    // Fixed width wins; otherwise equal fractional basis so columns align.
+    match width {
+        Some(w) => Some((w, false)),
+        None => Some((relative(col_span as f32).into(), true)),
+    }
+}
+
+/// `<th>` — web: `h-10 px-2 font-medium whitespace-nowrap text-foreground`.
 #[derive(IntoElement)]
 pub struct TableHead {
-    children: Vec<gpui::AnyElement>,
+    ix: usize,
+    style: StyleRefinement,
+    children: Vec<AnyElement>,
+    size: Size,
+    cell_size: TableCellSize,
+    col_span: usize,
+    align: TextAlign,
+    width: Option<DefiniteLength>,
 }
 
 impl TableHead {
     pub fn new() -> Self {
         Self {
+            ix: 0,
+            style: StyleRefinement::default(),
             children: Vec::new(),
+            size: Size::default(),
+            cell_size: TableCellSize::Default,
+            col_span: 1,
+            align: TextAlign::Left,
+            width: None,
         }
+    }
+
+    pub fn col_span(mut self, span: usize) -> Self {
+        self.col_span = span.max(1);
+        self
+    }
+
+    pub fn size(mut self, size: TableCellSize) -> Self {
+        self.cell_size = size;
+        self
+    }
+
+    /// Pin an absolute column width; unpinned columns share remaining space.
+    pub fn width(mut self, width: impl Into<DefiniteLength>) -> Self {
+        self.width = Some(width.into());
+        self
+    }
+
+    pub fn text_center(mut self) -> Self {
+        self.align = TextAlign::Center;
+        self
+    }
+
+    pub fn text_right(mut self) -> Self {
+        self.align = TextAlign::Right;
+        self
     }
 }
 
@@ -301,66 +684,134 @@ impl Default for TableHead {
     }
 }
 
+impl TablePart for TableHead {
+    fn with_ix(mut self, ix: usize) -> Self {
+        self.ix = ix;
+        self
+    }
+    fn with_size(mut self, size: Size) -> Self {
+        self.size = size;
+        self
+    }
+}
+
 impl ParentElement for TableHead {
-    fn extend(&mut self, children: impl IntoIterator<Item = gpui::AnyElement>) {
-        self.children.extend(children);
+    fn extend(&mut self, elements: impl IntoIterator<Item = AnyElement>) {
+        self.children.extend(elements);
+    }
+}
+
+impl Styled for TableHead {
+    fn style(&mut self) -> &mut StyleRefinement {
+        &mut self.style
+    }
+}
+
+impl Sizable for TableHead {
+    fn with_size(mut self, size: impl Into<Size>) -> Self {
+        self.size = size.into();
+        self
     }
 }
 
 impl RenderOnce for TableHead {
     fn render(self, _: &mut Window, cx: &mut App) -> impl IntoElement {
-        div()
-            .flex_1()
-            .min_w_0()
-            .h(px(40.))
-            .px(px(8.))
+        let (pad_x, pad_y) = cell_padding(self.size, self.cell_size);
+        let caller_width = self.style.size.width;
+        let mut el = div()
+            .id(("table-head", self.ix))
+            .role(Role::ColumnHeader)
+            .aria_column_index(self.ix + 1)
             .flex()
             .items_center()
+            .h(self.size.table_row_height().max(px(40.)))
+            .px(pad_x)
+            .py(pad_y)
             .whitespace_nowrap()
             .text_xs()
-            .font_weight(gpui::FontWeight::MEDIUM)
+            .font_weight(FontWeight::MEDIUM)
             .text_color(cx.theme().foreground)
-            .children(self.children)
+            .when(self.align == TextAlign::Center, |this| {
+                this.justify_center()
+            })
+            .when(self.align == TextAlign::Right, |this| this.justify_end())
+            .children(self.children);
+
+        if caller_width.is_none() {
+            if let Some((basis, shrink)) = cell_flex_basis(self.col_span, self.width) {
+                el = el
+                    .flex_basis(basis)
+                    .min_w(MIN_CELL_WIDTH * self.col_span as f32);
+                if shrink {
+                    el = el.flex_shrink_1();
+                } else {
+                    el = el.flex_shrink_0();
+                }
+            }
+        }
+
+        el.style().refine(&self.style);
+        el
     }
 }
 
-/// Row density for [`TableCell`] (web `size` prop).
-#[derive(Clone, Copy, Default, PartialEq, Eq, Debug)]
-pub enum TableCellSize {
-    /// 8px on both axes (web `p-2`).
-    #[default]
-    Default,
-    /// 8px horizontal, 6px vertical (web `sm` → `py-1.5`). The web extracts only
-    /// the vertical axis, so this is a height step and nothing else.
-    Small,
-}
-
-/// `<td>` — body cell. Web base is `p-2 align-middle whitespace-nowrap`.
+/// `<td>` — web base `p-2 align-middle whitespace-nowrap`.
 #[derive(IntoElement)]
 pub struct TableCell {
-    size: TableCellSize,
+    ix: usize,
+    style: StyleRefinement,
+    children: Vec<AnyElement>,
+    size: Size,
+    cell_size: TableCellSize,
+    col_span: usize,
+    align: TextAlign,
+    width: Option<DefiniteLength>,
     mono: bool,
-    children: Vec<gpui::AnyElement>,
 }
 
 impl TableCell {
     pub fn new() -> Self {
         Self {
-            size: TableCellSize::default(),
-            mono: false,
+            ix: 0,
+            style: StyleRefinement::default(),
             children: Vec::new(),
+            size: Size::default(),
+            cell_size: TableCellSize::Default,
+            col_span: 1,
+            align: TextAlign::Left,
+            width: None,
+            mono: false,
         }
     }
 
-    /// Set the row density (web `size="sm"`).
-    pub fn size(mut self, size: TableCellSize) -> Self {
-        self.size = size;
+    pub fn col_span(mut self, span: usize) -> Self {
+        self.col_span = span.max(1);
         self
     }
 
-    /// Render in the monospace stack — ids, hashes, tokens, ports (web `mono`).
+    pub fn size(mut self, size: TableCellSize) -> Self {
+        self.cell_size = size;
+        self
+    }
+
+    pub fn width(mut self, width: impl Into<DefiniteLength>) -> Self {
+        self.width = Some(width.into());
+        self
+    }
+
+    /// Monospace stack — ids, hashes, tokens, ports (web `mono`).
     pub fn mono(mut self, mono: bool) -> Self {
         self.mono = mono;
+        self
+    }
+
+    pub fn text_center(mut self) -> Self {
+        self.align = TextAlign::Center;
+        self
+    }
+
+    pub fn text_right(mut self) -> Self {
+        self.align = TextAlign::Right;
         self
     }
 }
@@ -371,47 +822,97 @@ impl Default for TableCell {
     }
 }
 
+impl TablePart for TableCell {
+    fn with_ix(mut self, ix: usize) -> Self {
+        self.ix = ix;
+        self
+    }
+    fn with_size(mut self, size: Size) -> Self {
+        self.size = size;
+        self
+    }
+}
+
 impl ParentElement for TableCell {
-    fn extend(&mut self, children: impl IntoIterator<Item = gpui::AnyElement>) {
-        self.children.extend(children);
+    fn extend(&mut self, elements: impl IntoIterator<Item = AnyElement>) {
+        self.children.extend(elements);
+    }
+}
+
+impl Styled for TableCell {
+    fn style(&mut self) -> &mut StyleRefinement {
+        &mut self.style
+    }
+}
+
+impl Sizable for TableCell {
+    fn with_size(mut self, size: impl Into<Size>) -> Self {
+        self.size = size.into();
+        self
     }
 }
 
 impl RenderOnce for TableCell {
     fn render(self, _: &mut Window, cx: &mut App) -> impl IntoElement {
-        let pad_y = match self.size {
-            TableCellSize::Default => px(8.),
-            TableCellSize::Small => px(6.),
-        };
+        let (pad_x, pad_y) = cell_padding(self.size, self.cell_size);
+        let caller_width = self.style.size.width;
         let mut el = div()
-            .flex_1()
-            .min_w_0()
-            .px(px(8.))
-            .py(pad_y)
+            .id(("table-cell", self.ix))
+            .role(Role::Cell)
+            .aria_column_index(self.ix + 1)
             .flex()
             .items_center()
+            .px(pad_x)
+            .py(pad_y)
             .whitespace_nowrap()
-            .text_color(cx.theme().foreground);
-        if self.mono {
-            el = el.font_family(cx.theme().mono_font_family.clone());
+            .text_color(cx.theme().foreground)
+            .when(self.mono, |this| {
+                this.font_family(cx.theme().mono_font_family.clone())
+            })
+            .when(self.align == TextAlign::Center, |this| {
+                this.justify_center()
+            })
+            .when(self.align == TextAlign::Right, |this| this.justify_end())
+            .children(self.children);
+
+        if caller_width.is_none() {
+            if let Some((basis, shrink)) = cell_flex_basis(self.col_span, self.width) {
+                el = el
+                    .flex_basis(basis)
+                    .min_w(MIN_CELL_WIDTH * self.col_span as f32);
+                if shrink {
+                    el = el.flex_shrink_1();
+                } else {
+                    el = el.flex_shrink_0();
+                }
+            }
         }
-        // No `text_sm` here: the web lets the table's `text-xs` through to the
-        // cell rather than restating a size, and the desktop used to override it
-        // one step up.
-        el.children(self.children)
+
+        el.style().refine(&self.style);
+        el
     }
 }
 
-/// `<caption>` — caption below the table. Web: `mt-4 text-xs text-muted-foreground`.
+// ---------------------------------------------------------------------------
+// TableCaption
+// ---------------------------------------------------------------------------
+
+/// `<caption>` — web: `mt-4 text-xs text-muted-foreground`.
 #[derive(IntoElement)]
 pub struct TableCaption {
-    children: Vec<gpui::AnyElement>,
+    ix: usize,
+    style: StyleRefinement,
+    children: Vec<AnyElement>,
+    size: Size,
 }
 
 impl TableCaption {
     pub fn new() -> Self {
         Self {
+            ix: 0,
+            style: StyleRefinement::default(),
             children: Vec::new(),
+            size: Size::default(),
         }
     }
 }
@@ -422,27 +923,55 @@ impl Default for TableCaption {
     }
 }
 
+impl TablePart for TableCaption {
+    fn with_ix(mut self, ix: usize) -> Self {
+        self.ix = ix;
+        self
+    }
+    fn with_size(mut self, size: Size) -> Self {
+        self.size = size;
+        self
+    }
+}
+
 impl ParentElement for TableCaption {
-    fn extend(&mut self, children: impl IntoIterator<Item = gpui::AnyElement>) {
-        self.children.extend(children);
+    fn extend(&mut self, elements: impl IntoIterator<Item = AnyElement>) {
+        self.children.extend(elements);
+    }
+}
+
+impl Styled for TableCaption {
+    fn style(&mut self) -> &mut StyleRefinement {
+        &mut self.style
+    }
+}
+
+impl Sizable for TableCaption {
+    fn with_size(mut self, size: impl Into<Size>) -> Self {
+        self.size = size.into();
+        self
     }
 }
 
 impl RenderOnce for TableCaption {
     fn render(self, _: &mut Window, cx: &mut App) -> impl IntoElement {
-        div()
+        let mut el = div()
+            .id(("table-caption", self.ix))
+            .w_full()
             .mt(px(16.))
             .text_xs()
             .text_color(cx.theme().muted_foreground)
-            .children(self.children)
+            .children(self.children);
+        el.style().refine(&self.style);
+        el
     }
 }
 
 // ---------------------------------------------------------------------------
-// DataTable — declarative delegate table (web composite/data-table role)
+// DataTable — declarative helper over the composition table
 // ---------------------------------------------------------------------------
 
-/// One column definition: header name + optional fixed width.
+/// One column definition: header name + optional fixed width in pixels.
 #[derive(Clone, Debug)]
 pub struct TableColumn {
     name: SharedString,
@@ -457,112 +986,43 @@ impl TableColumn {
         }
     }
 
-    /// Pin the column width; unpinned columns flex with the table.
+    /// Pin the column width; unpinned columns flex equally.
     pub fn width(mut self, width: f32) -> Self {
         self.width = Some(width);
         self
     }
 }
 
-/// The delegate payload: columns + shared, mutable rows.
-struct TableData {
-    columns: Vec<TableColumn>,
-    rows: Rc<RefCell<Vec<Vec<SharedString>>>>,
-}
-
-impl TableDelegate for TableData {
-    fn columns_count(&self, _: &App) -> usize {
-        self.columns.len()
-    }
-
-    fn rows_count(&self, _: &App) -> usize {
-        self.rows.borrow().len()
-    }
-
-    fn column(&self, col_ix: usize, _: &App) -> Column {
-        let column = self
-            .columns
-            .get(col_ix)
-            .expect("table column index in range");
-        let mut col = Column::new(format!("col-{col_ix}"), column.name.clone());
-        if let Some(width) = column.width {
-            col = col.width(px(width));
-        }
-        col
-    }
-
-    fn render_td(
-        &mut self,
-        row_ix: usize,
-        col_ix: usize,
-        _: &mut Window,
-        _: &mut Context<TableState<Self>>,
-    ) -> impl IntoElement {
-        let text = self
-            .rows
-            .borrow()
-            .get(row_ix)
-            .and_then(|row| row.get(col_ix))
-            .cloned()
-            .unwrap_or_default();
-
-        div()
-            .px_3()
-            .min_h(px(32.0))
-            .flex()
-            .items_center()
-            .text_sm()
-            .child(text)
-    }
-
-    fn cell_text(&self, row_ix: usize, col_ix: usize, _: &App) -> String {
-        self.rows
-            .borrow()
-            .get(row_ix)
-            .and_then(|row| row.get(col_ix))
-            .map(|cell| cell.to_string())
-            .unwrap_or_default()
-    }
-}
-
-/// A striped, bordered, virtualized data table driven by declarative columns
-/// + rows (the web `data-table` composite role).
+/// Declarative columns + rows rendered through the pure composition [`Table`].
 ///
-/// Entity usage: `let table = cx.new(|cx| DataTable::new(columns, rows, window, cx));`
-/// then render `table.clone()` and push updates with
-/// `table.update(cx, |t, cx| t.set_rows(rows, cx))`.
+/// Prefer this for simple string grids. For custom cell content, compose
+/// [`Table`] / [`TableRow`] / [`TableCell`] directly.
+#[derive(IntoElement)]
 pub struct DataTable {
-    state: Entity<TableState<TableData>>,
-    rows: Rc<RefCell<Vec<Vec<SharedString>>>>,
+    columns: Vec<TableColumn>,
+    rows: Vec<Vec<SharedString>>,
+    striped: bool,
+    size: Size,
+    caption: Option<SharedString>,
 }
 
 impl DataTable {
     pub fn new(
         columns: impl IntoIterator<Item = TableColumn>,
         rows: Vec<Vec<SharedString>>,
-        window: &mut Window,
-        cx: &mut Context<Self>,
     ) -> Self {
-        let rows = Rc::new(RefCell::new(rows));
-        let state = cx.new(|cx| {
-            TableState::new(
-                TableData {
-                    columns: columns.into_iter().collect(),
-                    rows: rows.clone(),
-                },
-                window,
-                cx,
-            )
-        });
-        Self { state, rows }
+        Self {
+            columns: columns.into_iter().collect(),
+            rows,
+            striped: true,
+            size: Size::default(),
+            caption: None,
+        }
     }
 
-    /// Two-column convenience in the spirit of GetCat's `kv_table.rs`:
-    /// Key / Value rows.
+    /// Two-column Key / Value convenience (GetCat `kv_table` spirit).
     pub fn from_key_value(
         pairs: impl IntoIterator<Item = (impl Into<SharedString>, impl Into<SharedString>)>,
-        window: &mut Window,
-        cx: &mut Context<Self>,
     ) -> Self {
         let rows: Vec<Vec<SharedString>> = pairs
             .into_iter()
@@ -574,25 +1034,71 @@ impl DataTable {
                 TableColumn::new("Value"),
             ],
             rows,
-            window,
-            cx,
         )
     }
 
-    /// Replace the row data and refresh the table layout.
-    pub fn set_rows(&self, rows: Vec<Vec<SharedString>>, cx: &mut App) {
-        self.rows.replace(rows);
-        self.state.update(cx, |state, cx| state.refresh(cx));
+    pub fn striped(mut self, striped: bool) -> Self {
+        self.striped = striped;
+        self
+    }
+
+    pub fn caption(mut self, caption: impl Into<SharedString>) -> Self {
+        self.caption = Some(caption.into());
+        self
     }
 }
 
-impl Render for DataTable {
-    fn render(&mut self, _: &mut Window, _: &mut Context<Self>) -> impl IntoElement {
-        // Same sizing contract as the upstream story: the table fills a
-        // flexing, min-h-0 wrapper (content-height when the parent is auto).
-        div()
-            .flex_1()
-            .min_h_0()
-            .child(GpuiDataTable::new(&self.state).stripe(true).bordered(true))
+impl Sizable for DataTable {
+    fn with_size(mut self, size: impl Into<Size>) -> Self {
+        self.size = size.into();
+        self
+    }
+}
+
+impl RenderOnce for DataTable {
+    fn render(self, _: &mut Window, _: &mut App) -> impl IntoElement {
+        let columns = self.columns;
+        let striped = self.striped;
+
+        let header = TableHeader::new().child({
+            let mut row = TableRow::new();
+            for col in &columns {
+                let mut head = TableHead::new().child(col.name.clone());
+                if let Some(w) = col.width {
+                    head = head.width(px(w));
+                }
+                row = row.child(head);
+            }
+            row
+        });
+
+        let mut body = TableBody::new();
+        for (row_ix, cells) in self.rows.into_iter().enumerate() {
+            let mut row = TableRow::new().striped(striped && row_ix.is_multiple_of(2));
+            let mut filled = 0usize;
+            for (col_ix, cell) in cells.into_iter().enumerate() {
+                let mut td = TableCell::new().child(cell);
+                if let Some(w) = columns.get(col_ix).and_then(|c| c.width) {
+                    td = td.width(px(w));
+                }
+                row = row.child(td);
+                filled = col_ix + 1;
+            }
+            // Pad short rows so column count stays stable.
+            for col_ix in filled..columns.len() {
+                let mut td = TableCell::new().child("");
+                if let Some(w) = columns.get(col_ix).and_then(|c| c.width) {
+                    td = td.width(px(w));
+                }
+                row = row.child(td);
+            }
+            body = body.child(row);
+        }
+
+        let mut table = Table::new().with_size(self.size).child(header).child(body);
+        if let Some(caption) = self.caption {
+            table = table.child(TableCaption::new().child(caption));
+        }
+        table
     }
 }

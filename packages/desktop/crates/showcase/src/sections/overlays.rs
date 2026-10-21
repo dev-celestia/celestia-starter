@@ -1,6 +1,7 @@
 use celestia_ui::components::Card;
 use celestia_ui::components::composite::confirm_dialog::ConfirmDialog;
 use celestia_ui::components::composite::drawer::{Drawer, DrawerSide};
+use celestia_ui::components::composite::modal::{Modal, ModalSize};
 use celestia_ui::components::composite::sheet_panel::{SheetPanel, SheetSide};
 use celestia_ui::components::primitive::button::{Button, ButtonVariant};
 use celestia_ui::components::primitive::popover::Popover;
@@ -55,10 +56,8 @@ impl Showcase {
                         .variant(ButtonVariant::Primary)
                         .label("Push a toast")
                         .on_click(|_, window, cx| {
-                            window.push_notification(
-                                Notification::success("Saved to Celestia."),
-                                cx,
-                            );
+                            window
+                                .push_notification(Notification::success("Saved to Celestia."), cx);
                         }),
                 )
                 .into_any_element(),
@@ -71,13 +70,62 @@ impl Showcase {
                         .label("Open dialog")
                         .on_click(|_, window, cx| {
                             window.open_dialog(cx, |dialog, _, _| {
-                                dialog
-                                    .title("Confirm action")
-                                    .child(div().text_sm().child(
-                                        "This uses the Root dialog layer via WindowExt.",
-                                    ))
+                                dialog.title("Confirm action").child(
+                                    div()
+                                        .text_sm()
+                                        .child("This uses the Root dialog layer via WindowExt."),
+                                )
                             });
                         }),
+                )
+                .into_any_element(),
+            Demo::Modal => Card::new()
+                .title("Modal")
+                .description("Presentational centered modal chrome.")
+                .child(
+                    h_flex()
+                        .gap_4()
+                        .items_start()
+                        .child(
+                            Modal::new("modal-default")
+                                .title("Edit profile")
+                                .description("Update how your name appears across Celestia.")
+                                .size(ModalSize::Medium)
+                                .w(px(420.0))
+                                .child(
+                                    div()
+                                        .text_sm()
+                                        .child("Display name, bio, and avatar live in the body."),
+                                )
+                                .footer(
+                                    h_flex()
+                                        .gap_2()
+                                        .justify_end()
+                                        .child(
+                                            Button::new("modal-cancel")
+                                                .variant(ButtonVariant::Ghost)
+                                                .label("Cancel"),
+                                        )
+                                        .child(
+                                            Button::new("modal-save")
+                                                .variant(ButtonVariant::Primary)
+                                                .label("Save"),
+                                        ),
+                                ),
+                        )
+                        .child(
+                            Modal::new("modal-sm")
+                                .title("Session expired")
+                                .description("Sign in again to continue.")
+                                .size(ModalSize::Small)
+                                .show_close(false)
+                                .w(px(340.0))
+                                .footer(
+                                    Button::new("modal-signin")
+                                        .variant(ButtonVariant::Primary)
+                                        .label("Sign in"),
+                                ),
+                        ),
                 )
                 .into_any_element(),
             Demo::Sheet => Card::new()
@@ -138,7 +186,11 @@ impl Showcase {
                                 .description("Send this board to a teammate.")
                                 .size(220.0)
                                 .w(px(360.0))
-                                .child(div().text_sm().child("Drawer body — actions, forms, lists."))
+                                .child(
+                                    div()
+                                        .text_sm()
+                                        .child("Drawer body — actions, forms, lists."),
+                                )
                                 .footer(
                                     Button::new("drawer-send")
                                         .variant(ButtonVariant::Primary)

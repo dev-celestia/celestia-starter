@@ -1,17 +1,20 @@
 //! Reusable components for Celestia desktop apps.
 //!
-//! Two categories, mirroring the web package's `packages/ui/src/components/`:
+//! Three categories, mirroring the web package's `packages/ui/src/components/`:
 //!
 //! - [`primitive`] — one control, or one visual atom, per file. The counterpart
 //!   of `packages/ui/src/components/primitive/*.tsx`.
 //! - [`composite`] — surfaces assembled from several primitives, plus
 //!   application-level assemblies (chrome, shells, editors). The counterpart of
 //!   `packages/ui/src/components/composite/*.tsx`.
+//! - [`ai`] — chat / agent surfaces from `packages/ui/src/components/ai/*.tsx`
+//!   (prompt, reasoning, tools, plans, …).
 //!
 //! The split is by **composition, not size**: a file that renders two or more
 //! primitives, or that owns a layout region rather than a control, belongs in
-//! `composite`. The web package's own placement of the same component settles
-//! every case that has a counterpart there.
+//! `composite`. AI chat chrome lives in [`ai`] even when composed. The web
+//! package's own placement of the same component settles every case that has a
+//! counterpart there.
 //!
 //! ## Dependency layers
 //!
@@ -31,8 +34,8 @@
 //!   `icon`, `tooltip` (primitive); `loaders`, `notice`, `context_badge`
 //!   (composite).
 //! - **Structural** — `separator`, `kbd`, `link`, `breadcrumb` (primitive);
-//!   `group_box`, `status_bar`, `title_bar`, `description_list`, `empty`
-//!   (composite).
+//!   `group_box`, `status_bar`, `title_bar`, `traffic_lights`, `window`,
+//!   `empty` (composite).
 //! - **Display** — `badge`, `label`, `rating`, `avatar` (+ its own
 //!   `AvatarGroup` and the OkLCH identity ring) (primitive).
 //! - **Layout** — `card` (primitive); `section_heading`, `sidebar_layout`, and
@@ -41,6 +44,10 @@
 //! - **Conversation** — `bubble` (primitive); `message`, `marker` (composite);
 //!   `message_scroller` (composite, one tolerated `gpui_base::motion`
 //!   value-transition).
+//! - **AI** — `prompt_input`, `reasoning`, `suggestion`, `tool`, `sources`,
+//!   `chain_of_thought`, `artifact`, `plan`, `task`, `model_selector`, `agent`,
+//!   `confirmation`, `checkpoint`, `queue`, `inline_citation`, `code_block`,
+//!   `snippet`, `terminal`, `conversation`, `context_usage` (`ai` module).
 //! - **Controls** — `button`, `checkbox`, `switch`, `radio`, `slider`
 //!   (primitive); `stepper`, `pagination`, `toolbar_menu`, `collapsible`
 //!   (composite/primitive). `button` keeps two deliberate upstreams: the
@@ -120,6 +127,7 @@
 //! Colors always come from `cx.theme()` / `crate::palette(cx)` — never from a
 //! hex literal at a call site.
 
+pub mod ai;
 pub mod composite;
 pub mod primitive;
 pub mod traits;
@@ -129,55 +137,184 @@ pub mod traits;
 // module-only components (avatar, table, tree, empty, …) are reached through
 // their module path (`components::primitive::table`,
 // `components::composite::empty`).
+//
+// AI family — prefer AiCodeBlock / AiTerminal / AiConfirmation to avoid
+// collisions with composite chrome names. `Task` collides with `gpui::Task`
+// when `use gpui::*` is in scope; import via `components::ai::task::Task`.
+pub use ai::agent::*;
+pub use ai::artifact::*;
+pub use ai::chain_of_thought::*;
+pub use ai::checkpoint::*;
+pub use ai::code_block::*;
+pub use ai::confirmation::*;
+pub use ai::context_usage::*;
+pub use ai::conversation::*;
+pub use ai::inline_citation::*;
+pub use ai::model_selector::*;
+pub use ai::plan::*;
+pub use ai::prompt_input::*;
+pub use ai::queue::*;
+pub use ai::reasoning::*;
+pub use ai::snippet::*;
+pub use ai::sources::*;
+pub use ai::suggestion::*;
+pub use ai::task::{Task as AiTask, TaskItem, TaskStatus};
+pub use ai::terminal::*;
+pub use ai::thinking_text::*;
+pub use ai::tool::*;
+
+pub use composite::action_bar::*;
+pub use composite::activity_feed::*;
 pub use composite::alignment::*;
+pub use composite::app_header::*;
+pub use composite::banner::*;
+pub use composite::breadcrumb_bar::*;
+pub use composite::bulk_action_bar::*;
 pub use composite::button_group::*;
+pub use composite::chat_composer::*;
+pub use composite::checklist::*;
+pub use composite::code_block::*;
 pub use composite::code_editor::*;
 pub use composite::color_picker::*;
+pub use composite::command_palette::*;
+pub use composite::comment_thread::*;
+pub use composite::commit_row::*;
+pub use composite::confirm_dialog::*;
 pub use composite::context_badge::*;
+pub use composite::conversation_list::*;
+pub use composite::data_table_toolbar::*;
 pub use composite::date_picker::*;
+pub use composite::dnd::*;
+pub use composite::drawer::*;
+pub use composite::drop_zone::*;
+pub use composite::file_browser::*;
+pub use composite::file_tree::*;
+pub use composite::filter_bar::*;
+pub use composite::find_replace_bar::*;
+pub use composite::form_field::*;
 pub use composite::frame::*;
 pub use composite::h_stack::*;
+pub use composite::input_group::*;
+pub use composite::inspector_panel::*;
+pub use composite::issue_card::*;
+pub use composite::kanban_board::*;
+pub use composite::keybinding_recorder::*;
 pub use composite::loaders::*;
+pub use composite::log_viewer::*;
+// `Window` is not re-exported here — it conflicts with `gpui::Window`.
+// Import via `celestia_ui::components::composite::window::Window`.
+pub use composite::window::{
+    AppMenu, CloseWindow, EditCopy, EditCut, EditPaste, EditRedo, EditSelectAll, EditUndo,
+    MenuBarPreview, MinimizeWindow, NewWindow, ShowHelp, TITLE_LEADING_PAD, ToggleFullScreen,
+    TRAFFIC_INSET, WINDOW_MIN_SIZE, WINDOW_RADIUS, WINDOW_SIZE, WINDOW_TITLE_BAR_HEIGHT,
+    WindowChrome, ZoomWindow, bind_window_keys, open_window, open_window_options,
+};
+pub use composite::media_object::*;
 pub use composite::menu::*;
+pub use composite::modal::*;
 pub use composite::notice::*;
+pub use composite::notification_center::*;
+pub use composite::onboarding_tip::*;
+pub use composite::outline_view::*;
+pub use composite::page_header::*;
+pub use composite::panel::*;
+pub use composite::project_card::*;
+pub use composite::property_list::*;
+pub use composite::resizable_split::*;
 pub use composite::scroll_view::*;
+pub use composite::search_field::*;
 pub use composite::section_heading::*;
+pub use composite::settings_page::*;
+pub use composite::sheet_panel::*;
+pub use composite::side_nav::*;
 pub use composite::sidebar_layout::*;
+pub use composite::sortable_list::*;
 pub use composite::spacer::*;
+pub use composite::split_pane::*;
+pub use composite::start_bar::*;
+pub use composite::start_menu::*;
+pub use composite::stat_card::*;
+pub use composite::system_tray::*;
+// `tab_bar` stays module-path only — its `TabBar` name collides with
+// `primitive::tabs::TabBar` from gpui-component.
+pub use composite::tag_input::*;
+pub use composite::task_list::*;
+pub use composite::terminal_panel::*;
 pub use composite::text_editor::*;
+pub use composite::timeline::*;
 pub use composite::title_bar::*;
+pub use composite::toast_stack::*;
+pub use composite::toolbar::*;
 pub use composite::toolbar_menu::*;
+pub use composite::traffic_lights::*;
+pub use composite::user_menu::*;
 pub use composite::v_grid::*;
 pub use composite::v_stack::*;
 pub use composite::virtual_list::*;
+pub use composite::wizard::*;
+pub use composite::workspace_switcher::*;
 pub use composite::z_stack::*;
 
+pub use primitive::accent_rail::*;
 pub use primitive::accordion::*;
 pub use primitive::alert::*;
+pub use primitive::aspect_ratio::*;
 pub use primitive::badge::*;
+pub use primitive::battery::*;
 pub use primitive::button::*;
+pub use primitive::caption::*;
 pub use primitive::card::*;
 pub use primitive::checkbox::*;
+pub use primitive::chip::*;
+pub use primitive::color_swatch::*;
+pub use primitive::count_label::*;
 pub use primitive::dialog::*;
+pub use primitive::disclosure::*;
+pub use primitive::drag_handle::*;
+pub use primitive::drop_indicator::*;
+pub use primitive::fab::*;
+pub use primitive::file_glyph::*;
+pub use primitive::hotkey_hint::*;
 pub use primitive::icon::*;
+pub use primitive::icon_label::*;
+pub use primitive::image_icon::*;
+pub use primitive::initials::*;
+pub use primitive::inline_code::*;
 pub use primitive::input::*;
 pub use primitive::input_otp::*;
+pub use primitive::item::*;
 pub use primitive::kbd::*;
 pub use primitive::link::*;
+pub use primitive::menubar::*;
+pub use primitive::meter::*;
+pub use primitive::navigation_menu::*;
+pub use primitive::number_stepper::*;
+pub use primitive::pill::*;
+pub use primitive::pin::*;
 pub use primitive::popover::*;
 pub use primitive::progress::*;
+pub use primitive::quote::*;
 pub use primitive::radio::*;
 pub use primitive::rating::*;
+pub use primitive::relative_time::*;
+pub use primitive::resizable::*;
+pub use primitive::scrim::*;
+pub use primitive::scrubber::*;
 pub use primitive::select::*;
 pub use primitive::separator::*;
 pub use primitive::sheet::*;
+pub use primitive::signal_bars::*;
 pub use primitive::skeleton::*;
 pub use primitive::spinner::*;
+pub use primitive::status_dot::*;
 pub use primitive::switch::*;
 pub use primitive::tabs::*;
 pub use primitive::textarea::*;
 pub use primitive::toast::*;
+pub use primitive::toggle::*;
 pub use primitive::tooltip::*;
+pub use primitive::truncate::*;
+pub use primitive::typography::*;
 
 #[cfg(test)]
 mod migrated_family_tests {
@@ -193,7 +330,6 @@ mod migrated_family_tests {
     };
 
     use crate::components::composite::context_badge::{BadgeDetail, MessageBadge, context_badge};
-    use crate::components::composite::description_list::DescriptionList;
     use crate::components::composite::empty::{Empty, EmptyDescription, EmptyHeader, EmptyTitle};
     use crate::components::composite::group_box::{GroupBox, GroupBoxVariants as _};
     use crate::components::composite::marker::{
@@ -312,14 +448,6 @@ mod migrated_family_tests {
                         .child(BreadcrumbItem::new("Components"))
                         .child(BreadcrumbItem::new("Structural")),
                 )
-                .child(
-                    DescriptionList::new()
-                        .item("Framework", "Celestia Desktop", 1)
-                        .item("Engine", "GPUI", 2)
-                        .separator()
-                        .item("Architecture", "ARM64", 3),
-                )
-                .child(DescriptionList::vertical().item("Key", "Value", 1))
                 .child(
                     Empty::new()
                         .header(

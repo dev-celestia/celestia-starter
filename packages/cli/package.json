@@ -1,7 +1,7 @@
 {
   "name": "@celestia-project/create",
-  "version": "0.1.1",
-  "description": "Interactive CLI to scaffold a celestia-starter monorepo with only the features you need",
+  "version": "0.1.2",
+  "description": "Interactive CLI to scaffold a Celestia web monorepo or native desktop (GPUI) app",
   "type": "module",
   "license": "MIT",
   "repository": {
@@ -28,7 +28,9 @@
     "better-auth",
     "drizzle",
     "cli",
-    "scaffold"
+    "scaffold",
+    "gpui",
+    "desktop"
   ],
   "engines": {
     "node": ">=20"

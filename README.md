@@ -123,17 +123,21 @@ Cargo workspace (invisible to pnpm/turbo — use `cargo` directly inside it):
   gpui-component library covering most of `packages/ui` (buttons, inputs, feedback, overlays,
   data display, layout, chat, charts), and a zustand/react-context-style state layer (`state/`)
   with selector-gated subscriptions — the desktop counterpart of `packages/ui`
+- **celestia-bridge** — HTTP client from GPUI to `apps/api` (desktop twin of `api-client.ts`)
 - **celestia-desktop** — the desktop app binary (component gallery window)
 
 ```bash
 pnpm desktop                     # showcase window from the repo root (⌘D / Ctrl+D toggles light/dark)
+pnpm desktop:starter             # boilerplate window with Backend bridge demo
 cargo test --workspace           # from packages/desktop/
 ```
 
 Documented in the docs site: [Desktop (GPUI)](apps/web/content/docs/desktop.mdx) — architecture,
 theming rules, component-family map, and app setup (published at `/docs/desktop`) — plus
-[Desktop State](apps/web/content/docs/desktop-state.mdx) for the state layer (published at
-`/docs/desktop-state`).
+[Desktop State](apps/web/content/docs/desktop-state.mdx),
+[Desktop Components](apps/web/content/docs/desktop-components.mdx),
+[Desktop AI](apps/web/content/docs/desktop-ai.mdx), and
+[Desktop Bridge](apps/web/content/docs/desktop-bridge.mdx) (published at `/docs/desktop-bridge`).
 
 ---
 
