@@ -268,7 +268,7 @@ impl StarterApp {
                 Card::new()
                     .title("Window")
                     .description(
-                        "composite/window — Mac-first today. \
+                        "composite/window — macOS chrome for now. \
                          New Window opens a real OS window; menu bar is installed in main.rs.",
                     )
                     .child(
