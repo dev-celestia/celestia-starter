@@ -18,7 +18,7 @@ use std::rc::Rc;
 use std::time::Duration;
 
 use crate::components::primitive::button::{Button, ButtonSize, ButtonVariant};
-use crate::components::primitive::icon::PhosphorIcon;
+use crate::components::primitive::icon::{Phosphor, PhosphorIcon};
 use crate::components::traits::Selectable as _;
 use crate::theme::ActiveTheme as _;
 use gpui::prelude::FluentBuilder as _;
@@ -199,9 +199,9 @@ impl Render for CodeEditor {
                             .child(
                                 Button::icon(
                                     ("code-editor-minimap-toggle", cx.entity().entity_id()),
-                                    PhosphorIcon::MapTrifold,
+                                    Phosphor::new(PhosphorIcon::MapTrifold).size(px(14.0)),
                                 )
-                                .size(ButtonSize::XSmall)
+                                .size(ButtonSize::IconSm)
                                 .variant(ButtonVariant::Ghost)
                                 .selected(show_minimap)
                                 .accessibility_label("Toggle minimap")
@@ -210,9 +210,11 @@ impl Render for CodeEditor {
                                 } else {
                                     "Show minimap"
                                 })
-                                .on_click(cx.listener(|this, _, _, cx| {
-                                    this.set_minimap(!this.show_minimap, cx);
-                                })),
+                                .on_click(cx.listener(
+                                    |this, _, _, cx| {
+                                        this.set_minimap(!this.show_minimap, cx);
+                                    },
+                                )),
                             ),
                     ),
             )
