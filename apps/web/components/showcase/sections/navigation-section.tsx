@@ -120,24 +120,12 @@ export function TabBarDemo() {
         }}
         onRemoveTab={(id) => setTabs(tabs.filter((t) => t.id !== id))}
       />
-      <TabBar
-        variant="chrome"
-        tabs={tabs}
-        activeTabId={activeTabId}
-        onSelectTab={setActiveTabId}
-      />
-      <TabBar
-        variant="pills"
-        tabs={tabs}
-        activeTabId={activeTabId}
-        onSelectTab={setActiveTabId}
-      />
-      <TabBar
-        variant="underline"
-        tabs={tabs}
-        activeTabId={activeTabId}
-        onSelectTab={setActiveTabId}
-      />
+      <TabBar variant="chrome" tabs={tabs} activeTabId={activeTabId} onSelectTab={setActiveTabId} />
+      <TabBar variant="pills" tabs={tabs} activeTabId={activeTabId} onSelectTab={setActiveTabId} />
+      <TabBar variant="underline" tabs={tabs} activeTabId={activeTabId} onSelectTab={setActiveTabId} />
+      <TabBar variant="ghost" tabs={tabs} activeTabId={activeTabId} onSelectTab={setActiveTabId} />
+      <TabBar size="sm" tabs={tabs} activeTabId={activeTabId} onSelectTab={setActiveTabId} />
+      <TabBar size="lg" tabs={tabs} activeTabId={activeTabId} onSelectTab={setActiveTabId} />
     </div>
   )
 }`
@@ -402,9 +390,6 @@ export function NavigationSection() {
     { id: "tab-2", name: "routes.ts", method: "POST", isDirty: true },
     { id: "tab-3", name: "schema.prisma", method: "PUT" },
   ])
-  const [tabBarVariant, setTabBarVariant] = React.useState<
-    "default" | "chrome" | "pills" | "underline" | "ghost"
-  >("default")
 
   const [showBookmarks, setShowBookmarks] = React.useState(true)
 
@@ -422,13 +407,11 @@ export function NavigationSection() {
     }
   }
 
-  const tabBarVariants = [
-    { id: "default", label: "Default" },
-    { id: "chrome", label: "Chrome" },
-    { id: "pills", label: "Pills" },
-    { id: "underline", label: "Underline" },
-    { id: "ghost", label: "Ghost" },
-  ] as const
+  const tabBarSharedProps = {
+    tabs,
+    activeTabId,
+    onSelectTab: setActiveTabId,
+  } as const
 
   return (
     <div id="navigation" className="flex flex-col gap-6 pt-6">
@@ -473,35 +456,51 @@ export function NavigationSection() {
           id="tab-bar"
           title="Tab Bar"
           category="Navigation"
-          description="IDE and API client style tab bar with HTTP method badges, dirty indicators, add/close actions, and five visual variants."
+          description="IDE and API client style tab bar with HTTP method badges, dirty indicators, add/close actions, five visual variants, and three sizes."
           docsSlug="tab-bar"
           importSnippet={`import { TabBar } from "@celestia-project/ui"`}
           codeExample={TAB_BAR_CODE}
           className="md:col-span-2"
         >
-          <div className="flex w-full flex-col gap-4">
-            <div className="flex flex-wrap items-center gap-2">
-              {tabBarVariants.map((variant) => (
-                <Button
-                  key={variant.id}
-                  type="button"
-                  size="xs"
-                  variant={tabBarVariant === variant.id ? "secondary" : "outline"}
-                  onClick={() => setTabBarVariant(variant.id)}
-                >
-                  {variant.label}
-                </Button>
-              ))}
+          <div className="flex w-full flex-col gap-5">
+            <div className="flex w-full flex-col gap-3">
+              <p className="text-[11px] font-medium tracking-wide text-muted-foreground">
+                Variants
+              </p>
+              <div className="w-full overflow-hidden rounded-lg border border-border bg-background">
+                <TabBar
+                  {...tabBarSharedProps}
+                  onAddTab={handleAddTab}
+                  onRemoveTab={handleRemoveTab}
+                />
+              </div>
+              <div className="w-full overflow-hidden rounded-lg border border-border bg-background">
+                <TabBar variant="chrome" {...tabBarSharedProps} />
+              </div>
+              <div className="w-full overflow-hidden rounded-lg border border-border bg-background">
+                <TabBar variant="pills" {...tabBarSharedProps} />
+              </div>
+              <div className="w-full overflow-hidden rounded-lg border border-border bg-background">
+                <TabBar variant="underline" {...tabBarSharedProps} />
+              </div>
+              <div className="w-full overflow-hidden rounded-lg border border-border bg-background">
+                <TabBar variant="ghost" {...tabBarSharedProps} />
+              </div>
             </div>
-            <div className="w-full overflow-hidden rounded-lg border border-border bg-background">
-              <TabBar
-                variant={tabBarVariant}
-                tabs={tabs}
-                activeTabId={activeTabId}
-                onSelectTab={setActiveTabId}
-                onAddTab={handleAddTab}
-                onRemoveTab={handleRemoveTab}
-              />
+
+            <div className="flex w-full flex-col gap-3 border-t border-border/40 pt-4">
+              <p className="text-[11px] font-medium tracking-wide text-muted-foreground">
+                Sizes
+              </p>
+              <div className="w-full overflow-hidden rounded-lg border border-border bg-background">
+                <TabBar size="sm" {...tabBarSharedProps} />
+              </div>
+              <div className="w-full overflow-hidden rounded-lg border border-border bg-background">
+                <TabBar size="default" {...tabBarSharedProps} />
+              </div>
+              <div className="w-full overflow-hidden rounded-lg border border-border bg-background">
+                <TabBar size="lg" {...tabBarSharedProps} />
+              </div>
             </div>
           </div>
         </ShowcaseCard>

@@ -35,7 +35,7 @@ export function TabBarDemo() {
 }
 ```
 
-## Variants
+## Variants & sizes
 
 `TabBar` accepts `variant="default" | "chrome" | "pills" | "underline" | "ghost"` and `size="sm" | "default" | "lg"`.
 
@@ -43,6 +43,9 @@ export function TabBarDemo() {
 <TabBar variant="chrome" tabs={tabs} activeTabId={activeTabId} onSelectTab={setActiveTabId} />
 <TabBar variant="pills" tabs={tabs} activeTabId={activeTabId} onSelectTab={setActiveTabId} />
 <TabBar variant="underline" tabs={tabs} activeTabId={activeTabId} onSelectTab={setActiveTabId} />
+<TabBar variant="ghost" tabs={tabs} activeTabId={activeTabId} onSelectTab={setActiveTabId} />
+<TabBar size="sm" tabs={tabs} activeTabId={activeTabId} onSelectTab={setActiveTabId} />
+<TabBar size="lg" tabs={tabs} activeTabId={activeTabId} onSelectTab={setActiveTabId} />
 ```
 
 ## Tab items
