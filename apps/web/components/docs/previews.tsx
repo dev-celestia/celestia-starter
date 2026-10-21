@@ -227,6 +227,10 @@ import {
   PaginationPrevious,
 } from "@celestia-project/ui/composite/pagination"
 import {
+  TabBar,
+  type TabItem,
+} from "@celestia-project/ui/composite/tab-bar"
+import {
   Popover,
   PopoverContent,
   PopoverDescription,
@@ -1634,6 +1638,41 @@ export function TabsPreview() {
           <TabsTrigger value="password">Password</TabsTrigger>
         </TabsList>
       </Tabs>
+    </PreviewShell>
+  )
+}
+
+export function TabBarPreview() {
+  const [activeTabId, setActiveTabId] = useState("tab-1")
+  const [tabs, setTabs] = useState<TabItem[]>([
+    { id: "tab-1", name: "auth.ts", method: "GET" },
+    { id: "tab-2", name: "routes.ts", method: "POST", isDirty: true },
+    { id: "tab-3", name: "schema.prisma", method: "PUT" },
+  ])
+
+  return (
+    <PreviewShell>
+      <div className="w-full max-w-xl overflow-hidden rounded-lg border border-border">
+        <TabBar
+          tabs={tabs}
+          activeTabId={activeTabId}
+          onSelectTab={setActiveTabId}
+          onAddTab={() => {
+            const id = `tab-${Date.now()}`
+            setTabs((prev) => [...prev, { id, name: "new.ts", method: "GET" }])
+            setActiveTabId(id)
+          }}
+          onRemoveTab={(id) => {
+            setTabs((prev) => {
+              const next = prev.filter((tab) => tab.id !== id)
+              if (activeTabId === id && next[0]) {
+                setActiveTabId(next[0].id)
+              }
+              return next
+            })
+          }}
+        />
+      </div>
     </PreviewShell>
   )
 }
