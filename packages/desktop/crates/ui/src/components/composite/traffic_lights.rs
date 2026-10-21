@@ -1,9 +1,9 @@
-//! macOS traffic lights — close, minimize, zoom.
+//! Traffic lights — close, minimize, zoom.
 //!
-//! Presentational. The host owns active / edited state and the three
-//! callbacks. A real macOS window keeps AppKit's lights via
-//! [`super::window::Window`] with [`super::window::WindowChrome::Native`];
-//! these are for in-view frames so the two sets do not stack.
+//! Presentational. Compose into [`super::window::Window::title_bar`] when you
+//! need drawn controls (previews, or client-decorated platforms). A
+//! [`super::window::WindowChrome::Native`] root on macOS keeps AppKit's lights
+//! — do not stack a second set.
 
 use std::rc::Rc;
 

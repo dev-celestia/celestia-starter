@@ -18,7 +18,7 @@ use celestia_ui::components::composite::sidebar_layout::{
 };
 use celestia_ui::components::composite::window::{
     self as app_window, CloseWindow, MinimizeWindow, NewWindow, ShowHelp, ToggleFullScreen,
-    WindowChrome, WindowKind, WindowTab, ZoomWindow, open_window,
+    WindowChrome, ZoomWindow, open_window,
 };
 use celestia_ui::components::primitive::badge::{Badge, BadgeVariant};
 use celestia_ui::components::primitive::button::{Button, ButtonSize, ButtonVariant};
@@ -134,12 +134,25 @@ impl Render for StarterApp {
             .child(
                 app_window::Window::new("starter", "Celestia Starter")
                     .chrome(WindowChrome::Native)
-                    .toolbar_item(
-                        Button::new("title-new-window")
-                            .variant(ButtonVariant::Ghost)
-                            .size(ButtonSize::Small)
-                            .label("New Window")
-                            .on_click(|_, _, cx| StarterApp::open_sub_window(cx)),
+                    .title_bar(
+                        div()
+                            .w_full()
+                            .flex()
+                            .items_center()
+                            .justify_between()
+                            .child(
+                                div()
+                                    .text_xs()
+                                    .font_weight(FontWeight::SEMIBOLD)
+                                    .child("Celestia Starter"),
+                            )
+                            .child(
+                                Button::new("title-new-window")
+                                    .variant(ButtonVariant::Ghost)
+                                    .size(ButtonSize::Small)
+                                    .label("New Window")
+                                    .on_click(|_, _, cx| StarterApp::open_sub_window(cx)),
+                            ),
                     )
                     .child(self.render_shell(cx)),
             )
@@ -304,33 +317,6 @@ impl StarterApp {
                                             .on_click(|_, window, _| window.toggle_fullscreen()),
                                     ),
                             )
-                            .child(
-                                app_window::Window::new("starter-preview", "Notes")
-                                    .subtitle("composite/window")
-                                    .kind(WindowKind::Unified)
-                                    .h(px(160.))
-                                    .on_minimize(|window, _| window.minimize_window())
-                                    .on_zoom(|window, _| window.zoom_window())
-                                    .sidebar(
-                                        div()
-                                            .px(px(12.))
-                                            .py(px(8.))
-                                            .text_xs()
-                                            .child("Sidebar"),
-                                    )
-                                    .tab(WindowTab::new("a", "Notes"))
-                                    .tab(WindowTab::new("b", "Todo"))
-                                    .active_tab("a")
-                                    .child(
-                                        div()
-                                            .p(px(12.))
-                                            .text_sm()
-                                            .text_color(cx.theme().muted_foreground)
-                                            .child(
-                                                "Embedded preview. Real chrome uses WindowChrome::Native.",
-                                            ),
-                                    ),
-                            ),
                     ),
             )
             .child(
@@ -448,7 +434,7 @@ impl StarterApp {
                             "open_window(…) → Root::new(view, window, cx)",
                         ))
                         .child(checklist_line(
-                            "Window::chrome(Native) for real OS chrome; Embedded for previews",
+                            "Window::chrome(Native) + title_bar(…) for custom chrome",
                         ))
                         .child(checklist_line(
                             "Theme::toggle / AppTheme for light-dark + tokens",

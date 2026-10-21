@@ -205,9 +205,9 @@ pub use composite::log_viewer::*;
 // Import via `celestia_ui::components::composite::window::Window`.
 pub use composite::window::{
     AppMenu, CloseWindow, EditCopy, EditCut, EditPaste, EditRedo, EditSelectAll, EditUndo,
-    MenuBarPreview, MinimizeWindow, NewWindow, ShowHelp, ToggleFullScreen, WINDOW_MIN_SIZE,
-    WINDOW_RADIUS, WINDOW_SIZE, WINDOW_TITLE_BAR_HEIGHT, WindowChrome, WindowKind, WindowTab,
-    ZoomWindow, bind_window_keys, open_window, open_window_options, TRAFFIC_INSET,
+    MenuBarPreview, MinimizeWindow, NewWindow, ShowHelp, TITLE_LEADING_PAD, ToggleFullScreen,
+    TRAFFIC_INSET, WINDOW_MIN_SIZE, WINDOW_RADIUS, WINDOW_SIZE, WINDOW_TITLE_BAR_HEIGHT,
+    WindowChrome, ZoomWindow, bind_window_keys, open_window, open_window_options,
 };
 pub use composite::media_object::*;
 pub use composite::menu::*;

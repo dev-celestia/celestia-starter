@@ -1387,7 +1387,7 @@ impl Showcase {
                 Card::new()
                     .title("Window")
                     .description(
-                        "composite/window — Window + AppMenu. This gallery is a WindowChrome::Native root (macOS chrome for now).",
+                        "composite/window — Window shell + AppMenu. Compose TrafficLights / tabs in title_bar(…). This gallery is WindowChrome::Native.",
                     )
                     .child(
                         v_flex()

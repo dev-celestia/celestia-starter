@@ -297,7 +297,7 @@ state; builders take callbacks and element slots.
 | --------- | ------- |
 | `AppHeader` / `Toolbar` / `ActionBar` / `PageHeader` | Chrome strips |
 | `StartBar` / `StartBarItem` / `SystemTray` / `StartMenu` | Windows-style taskbar (start · apps · tray · menu) |
-| `TrafficLights` / `Window` / `AppMenu` / `open_window` | Window chrome, sub-windows, and app menu via `composite/window` — `Embedded` previews and `Native` OS roots (macOS chrome for now) |
+| `Window` / `AppMenu` / `open_window` | Window shell + menu via `composite/window`. Compose `TrafficLights` / tabs in `title_bar(…)` |
 | `Wizard` / `SideNav` / `WorkspaceSwitcher` / `UserMenu` | Flows & nav |
 | `ButtonGroup` / `InputGroup` / `TagInput` / `FindReplaceBar` | Grouped controls |
 | `Panel` / `PropertyList` / `ProjectCard` / `IssueCard` | Content cards |
@@ -375,36 +375,33 @@ FileTree::new("workspace")
 
 ### Window chrome
 
-`Window` is both the in-view preview (`WindowChrome::Embedded`) and the
-root chrome for a real OS window (`WindowChrome::Native`). Names are
-OS-neutral; chrome layout is macOS-only for now and will branch by platform
-later. In `Native` mode on macOS, AppKit draws the traffic lights and resizes
-from the edges — do not stack a second set of lights. `open_window` opens
-another OS window with those options. `bind_window_keys` maps New (⌘N),
-Close (⌘W), Minimize (⌘M), and Enter Full Screen (⌃⌘F).
+`Window` is a shell: OS options, a drag title band, and a body. It does **not**
+draw traffic lights, tabs, or toolbars — put those in `title_bar(…)`
+(`TrafficLights`, `TabBar`, buttons, …). Use `WindowChrome::Embedded` for
+framed previews and `WindowChrome::Native` for a real OS root. On macOS,
+AppKit draws the lights in `Native` mode — do not stack a second set. Pad
+custom title-bar content with `TITLE_LEADING_PAD` / `TRAFFIC_INSET`.
+
+`open_window` opens another OS window with those options. `bind_window_keys`
+maps New (⌘N), Close (⌘W), Minimize (⌘M), and Enter Full Screen (⌃⌘F).
 
 `AppMenu::standard(app_name)` starts with the app name, File, Edit, View,
-and Help. `menu` adds or replaces a menu by name, `item` appends an item, and
-`without` drops a menu. The app-name menu stays first. `install(cx)` sends the
-list to `cx.set_menus`. In fullscreen, macOS hides that bar and shows it again
-when the pointer hits the top of the screen.
+and Help. `menu` / `item` / `without` customize it; `install(cx)` sends the
+list to `cx.set_menus`.
 
 ```rust
 use celestia_ui::components::composite::window::{
-    AppMenu, MinimizeWindow, ShowHelp, bind_window_keys, open_window,
+    self as app_window, AppMenu, WindowChrome, bind_window_keys, open_window,
 };
-use gpui::{Menu, MenuItem};
 
-AppMenu::standard("Celestia")
-    .item("File", MenuItem::action("Open…", ShowHelp))
-    .menu(Menu::new("Window").items([MenuItem::action("Minimize", MinimizeWindow)]))
-    .without("Help")
-    .install(cx);
+app_window::Window::new("app", "Celestia")
+    .chrome(WindowChrome::Native)
+    .title_bar(/* TrafficLights / tabs / actions */)
+    .child(/* body */);
+
+AppMenu::standard("Celestia").install(cx);
 bind_window_keys(cx);
-
-open_window("Untitled", cx, |window, cx| {
-    // Root::new(view, window, cx)
-});
+open_window("Untitled", cx, |window, cx| { /* Root::new(...) */ });
 ```
 
 `Modal` / `SheetPanel` / `Drawer` are presentational. For a live window overlay,

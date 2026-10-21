@@ -1475,7 +1475,7 @@ pub const SECTIONS: &[SectionMeta] = &[
         family: Family::Composites,
         demo: Demo::Window,
         package: "composite/window",
-        description: "Window + AppMenu — Native chrome for this gallery (macOS for now).",
+        description: "Window shell + AppMenu. Compose chrome in title_bar(…).",
     },
     SectionMeta {
         id: "button-group",

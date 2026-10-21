@@ -703,12 +703,13 @@ use gpui::{Menu, MenuItem};
 AppHeader::new("header").brand("Celestia").title("Desktop")
 Toolbar::new("tb").title("main.rs")
 
+// TrafficLights / tabs are separate — compose into Window::title_bar.
 TrafficLights::new("lights").edited(true).on_close(|_, _| {})
 
-// Import Window via the module — it is not re-exported from components::*
-// (name clashes with gpui::Window).
 app_window::Window::new("app", "Celestia Desktop")
     .chrome(WindowChrome::Native)
+    .title_bar(/* your chrome */)
+    .child(/* body */)
 
 AppMenu::standard("Celestia")
     .menu(Menu::new("Window").items([MenuItem::action("Minimize", MinimizeWindow)]))
@@ -1247,9 +1248,9 @@ const COMPOSITES_PROPS: &[DocProp] = &[
         description: "Windows-style taskbar: start trigger, pinned apps, tray + clock, start menu flyout.",
     },
     DocProp {
-        name: "Window / AppMenu / TrafficLights",
+        name: "Window / AppMenu",
         ty: "composite/window",
-        description: "OS-neutral names; macOS chrome for now. WindowChrome::Native roots this gallery. AppMenu::install → cx.set_menus; fullscreen reveals the bar on top-edge hover.",
+        description: "Window shell + AppMenu. Compose TrafficLights / tabs into Window::title_bar. Native roots this gallery; AppMenu::install → cx.set_menus.",
     },
     DocProp {
         name: "ButtonGroup / InputGroup / Panel",
@@ -1275,7 +1276,7 @@ const COMPOSITES_PROPS: &[DocProp] = &[
 
 const COMPOSITES_NOTES: &[&str] = &[
     "Composites are presentational shells — the host owns Entity state (inputs, open/close, selection).",
-    "composite/window — Window / WindowChrome / AppMenu (OS-neutral; macOS layout for now). This gallery is WindowChrome::Native. Import Window via composite::window — it is not in components::* (clashes with gpui::Window).",
+    "composite/window — Window is a shell (options, drag title band, body). Put TrafficLights / TabBar / actions in title_bar(…). Import Window via composite::window (clashes with gpui::Window).",
     "Prefer SplitPane for fixed ratios; use ResizableSplit / ResizablePanelGroup for drag handles.",
     "KanbanBoard ships its own KanbanCardDrag session. While a card is dragged, the column washes accent and an insert line appears before release — see the Drag & Drop family.",
     "ToastStack is an in-view host; window.push_notification still drives the Root notification layer.",

@@ -252,11 +252,11 @@ open_window("Untitled", cx, |window, cx| /* Root::new(...) */);
 `AppMenu::standard` is the app name plus File, Edit, View, and Help.
 `menu` / `item` / `without` change that list before `install`. In fullscreen,
 macOS reveals the installed bar when the pointer hits the top of the screen.
-Minimize, zoom, and close on a real window are the native traffic lights.
-`open_window` pairs with a root `Window` using `WindowChrome::Native`
-so AppKit draws those lights. Resize is edge dragging, with a minimum size so
-the frame cannot collapse. `WindowChrome::Embedded` is the in-view preview
-(drawn lights, border, shadow) — not a second set of lights on the OS window.
+`open_window` pairs with a root `Window` using `WindowChrome::Native`.
+On macOS, AppKit draws the traffic lights. Compose custom chrome
+(`TrafficLights`, tabs, actions) via `Window::title_bar`. Resize is edge
+dragging, with a minimum size so the frame cannot collapse.
+`WindowChrome::Embedded` is a framed in-view preview — no built-in lights.
 
 Copy the crate into your app, rename the package, and replace the Home / About
 pages in `app.rs`. Keep the bootstrap order in `main.rs`.
