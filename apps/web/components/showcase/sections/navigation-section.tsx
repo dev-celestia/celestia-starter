@@ -98,24 +98,47 @@ export function TabsDemo() {
 
 const TAB_BAR_CODE = `import * as React from "react"
 import { TabBar, type TabItem } from "@celestia-project/ui"
-import { SparkleIcon, LightningIcon, DatabaseIcon } from "@phosphor-icons/react"
 
 export function TabBarDemo() {
+  const [activeTabId, setActiveTabId] = React.useState("tab-1")
   const [tabs, setTabs] = React.useState<TabItem[]>([
-    { id: "1", label: "GET /api/v1/users", icon: <SparkleIcon className="size-3 text-success" /> },
-    { id: "2", label: "POST /api/v1/auth", icon: <LightningIcon className="size-3 text-warning" /> },
-    { id: "3", label: "Drizzle Schema", icon: <DatabaseIcon className="size-3 text-info" /> },
+    { id: "tab-1", name: "auth.ts", method: "GET" },
+    { id: "tab-2", name: "routes.ts", method: "POST", isDirty: true },
+    { id: "tab-3", name: "schema.prisma", method: "PUT" },
   ])
-  const [activeTabId, setActiveTabId] = React.useState("1")
 
   return (
-    <TabBar
-      tabs={tabs}
-      activeTabId={activeTabId}
-      onSelectTab={setActiveTabId}
-      onAddTab={() => setTabs([...tabs, { id: String(Date.now()), label: "New Request" }])}
-      onRemoveTab={(id) => setTabs(tabs.filter((t) => t.id !== id))}
-    />
+    <div className="flex w-full flex-col gap-4">
+      <TabBar
+        tabs={tabs}
+        activeTabId={activeTabId}
+        onSelectTab={setActiveTabId}
+        onAddTab={() => {
+          const id = \`tab-\${Date.now()}\`
+          setTabs([...tabs, { id, name: "new.ts", method: "GET" }])
+          setActiveTabId(id)
+        }}
+        onRemoveTab={(id) => setTabs(tabs.filter((t) => t.id !== id))}
+      />
+      <TabBar
+        variant="chrome"
+        tabs={tabs}
+        activeTabId={activeTabId}
+        onSelectTab={setActiveTabId}
+      />
+      <TabBar
+        variant="pills"
+        tabs={tabs}
+        activeTabId={activeTabId}
+        onSelectTab={setActiveTabId}
+      />
+      <TabBar
+        variant="underline"
+        tabs={tabs}
+        activeTabId={activeTabId}
+        onSelectTab={setActiveTabId}
+      />
+    </div>
   )
 }`
 
@@ -376,9 +399,12 @@ export function NavigationSection() {
   const [activeTabId, setActiveTabId] = React.useState("tab-1")
   const [tabs, setTabs] = React.useState<TabItem[]>([
     { id: "tab-1", name: "auth.ts", method: "GET" },
-    { id: "tab-2", name: "routes.ts", method: "POST" },
+    { id: "tab-2", name: "routes.ts", method: "POST", isDirty: true },
     { id: "tab-3", name: "schema.prisma", method: "PUT" },
   ])
+  const [tabBarVariant, setTabBarVariant] = React.useState<
+    "default" | "chrome" | "pills" | "underline" | "ghost"
+  >("default")
 
   const [showBookmarks, setShowBookmarks] = React.useState(true)
 
@@ -395,6 +421,14 @@ export function NavigationSection() {
       setActiveTabId(nextTabs[0].id)
     }
   }
+
+  const tabBarVariants = [
+    { id: "default", label: "Default" },
+    { id: "chrome", label: "Chrome" },
+    { id: "pills", label: "Pills" },
+    { id: "underline", label: "Underline" },
+    { id: "ghost", label: "Ghost" },
+  ] as const
 
   return (
     <div id="navigation" className="flex flex-col gap-6 pt-6">
@@ -439,19 +473,36 @@ export function NavigationSection() {
           id="tab-bar"
           title="Tab Bar"
           category="Navigation"
-          description="IDE and API client style tab bar with HTTP method badges, active borders, and add/close actions."
+          description="IDE and API client style tab bar with HTTP method badges, dirty indicators, add/close actions, and five visual variants."
           docsSlug="tab-bar"
           importSnippet={`import { TabBar } from "@celestia-project/ui"`}
           codeExample={TAB_BAR_CODE}
+          className="md:col-span-2"
         >
-          <div className="w-full max-w-sm rounded-lg border border-border overflow-hidden bg-background p-2">
-            <TabBar
-              tabs={tabs}
-              activeTabId={activeTabId}
-              onSelectTab={setActiveTabId}
-              onAddTab={handleAddTab}
-              onRemoveTab={handleRemoveTab}
-            />
+          <div className="flex w-full flex-col gap-4">
+            <div className="flex flex-wrap items-center gap-2">
+              {tabBarVariants.map((variant) => (
+                <Button
+                  key={variant.id}
+                  type="button"
+                  size="xs"
+                  variant={tabBarVariant === variant.id ? "secondary" : "outline"}
+                  onClick={() => setTabBarVariant(variant.id)}
+                >
+                  {variant.label}
+                </Button>
+              ))}
+            </div>
+            <div className="w-full overflow-hidden rounded-lg border border-border bg-background">
+              <TabBar
+                variant={tabBarVariant}
+                tabs={tabs}
+                activeTabId={activeTabId}
+                onSelectTab={setActiveTabId}
+                onAddTab={handleAddTab}
+                onRemoveTab={handleRemoveTab}
+              />
+            </div>
           </div>
         </ShowcaseCard>
 

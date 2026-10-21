@@ -1,0 +1,62 @@
+---
+title: "Tab Bar"
+description: "IDE and API client style tab bar with method badges, dirty indicators, add/close actions, and five visual variants."
+---
+
+IDE and API client style tab bar for closable document or request tabs. Prefer this over `Tabs` when tabs are dynamic, closable, or carry method badges.
+
+<TabBarPreview />
+
+```tsx
+import * as React from "react"
+import { TabBar, type TabItem } from "@celestia-project/ui/composite/tab-bar"
+
+export function TabBarDemo() {
+  const [activeTabId, setActiveTabId] = React.useState("tab-1")
+  const [tabs, setTabs] = React.useState<TabItem[]>([
+    { id: "tab-1", name: "auth.ts", method: "GET" },
+    { id: "tab-2", name: "routes.ts", method: "POST", isDirty: true },
+    { id: "tab-3", name: "schema.prisma", method: "PUT" },
+  ])
+
+  return (
+    <TabBar
+      tabs={tabs}
+      activeTabId={activeTabId}
+      onSelectTab={setActiveTabId}
+      onAddTab={() => {
+        const id = `tab-${Date.now()}`
+        setTabs([...tabs, { id, name: "new.ts", method: "GET" }])
+        setActiveTabId(id)
+      }}
+      onRemoveTab={(id) => setTabs(tabs.filter((tab) => tab.id !== id))}
+    />
+  )
+}
+```
+
+## Variants
+
+`TabBar` accepts `variant="default" | "chrome" | "pills" | "underline" | "ghost"` and `size="sm" | "default" | "lg"`.
+
+```tsx
+<TabBar variant="chrome" tabs={tabs} activeTabId={activeTabId} onSelectTab={setActiveTabId} />
+<TabBar variant="pills" tabs={tabs} activeTabId={activeTabId} onSelectTab={setActiveTabId} />
+<TabBar variant="underline" tabs={tabs} activeTabId={activeTabId} onSelectTab={setActiveTabId} />
+```
+
+## Tab items
+
+Each `TabItem` can include a label (`label` or `name`), HTTP `method` badge, optional `icon`, `badge`, `isDirty` dot, and per-tab `closable` / `disabled` flags.
+
+| Prop        | Type                                      | Default     |
+| ----------- | ----------------------------------------- | ----------- |
+| `variant`   | `default \| chrome \| pills \| underline \| ghost` | `default` |
+| `size`      | `sm \| default \| lg`                     | `default`   |
+| `tabs`      | `TabItem[]`                               | —           |
+| `activeTabId` | `string \| null`                        | —           |
+| `onSelectTab` | `(tabId: string) => void`               | —           |
+| `onAddTab`  | `() => void`                              | —           |
+| `onRemoveTab` | `(tabId: string) => void`               | —           |
+| `canClose`  | `boolean`                                 | derived     |
+| `showAddTab`| `boolean`                                 | derived     |
