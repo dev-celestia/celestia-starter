@@ -14,7 +14,7 @@ This project uses a **separated architecture**. All new features MUST respect th
 | Layer | Location | Runtime | Responsibility |
 |-------|----------|---------|----------------|
 | Backend API | `apps/api` | Hono (port 4000) | Auth server, business logic, CRUD routes, database access |
-| Frontend | `apps/web` | Next.js (port 3000) | Pure UI — pages, components, client-side auth via `better-auth/react` |
+| Frontend | `apps/web` | Next.js (port 1212) | Pure UI — pages, components, client-side auth via `better-auth/react` |
 | Shared DB | `packages/db` | — | Drizzle ORM schema + client (`@workspace/db`) |
 | Shared UI | `packages/ui` | — | Reusable shadcn/ui components (`@celestia-project/ui`) |
 
@@ -76,3 +76,16 @@ When a new feature is developed or an existing feature is modified, you MUST upd
 - Use `bash` for shell/env code fences (Shiki does not support `env`).
 - Keep code examples copy-pasteable and consistent with the actual implementation.
 <!-- END:docs-agent-rules -->
+
+<!-- BEGIN:cursor-cloud-agent-rules -->
+# Cursor Cloud specific instructions
+
+The environment start script boots local PostgreSQL 16, creates `apps/api/.env` when that file is missing, pushes the Drizzle schema, and starts the web and API dev servers.
+
+- Web app and docs: http://localhost:1212 (documentation at `/docs`)
+- API: http://localhost:4000 (`GET /api/health`)
+- Local database, matching `apps/api/.env.example`: `postgresql://postgres:postgres@localhost:5432/celestia`
+- Leave `apps/api/.env` uncommitted. Google OAuth and `GOOGLE_GENERATIVE_AI_API_KEY` are optional; email/password auth does not need them.
+- `pnpm mobile` and `pnpm ai` are not started on boot.
+- Checks: `pnpm typecheck`, `pnpm test`, `pnpm exec turbo lint`, and `pnpm build`. Root `pnpm lint` also runs `scripts/ui-audit/lint-coverage.mjs`, which fails while `apps/ai` has no lint script and is not listed as exempt.
+<!-- END:cursor-cloud-agent-rules -->
