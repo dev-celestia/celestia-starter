@@ -30,7 +30,7 @@ use celestia_ui::components::composite::keybinding_recorder::{
 };
 use celestia_ui::components::composite::log_viewer::{LogLevel, LogRow, LogViewer};
 use celestia_ui::components::composite::window::{
-    CloseWindow, MacAppMenu, MacMenuBarPreview, MinimizeWindow, ZoomWindow,
+    CloseWindow, AppMenu, MenuBarPreview, MinimizeWindow, ZoomWindow,
 };
 use celestia_ui::components::composite::media_object::MediaObject;
 use celestia_ui::components::composite::notification_center::NotificationCenter;
@@ -1376,7 +1376,7 @@ impl Showcase {
                 )
                 .into_any_element(),
             Demo::Window => {
-                let preview = MacAppMenu::standard("Celestia")
+                let preview = AppMenu::standard("Celestia")
                     .menu(gpui::Menu::new("File").items([MenuItem::action("Close", CloseWindow)]))
                     .menu(gpui::Menu::new("Window").items([
                         MenuItem::action("Minimize", MinimizeWindow),
@@ -1386,7 +1386,7 @@ impl Showcase {
                 Card::new()
                     .title("Window")
                     .description(
-                        "composite/window — this gallery is a MacWindowChrome::Window root. Controls and menu below drive it.",
+                        "composite/window — this gallery is a WindowChrome::Native root. Controls and menu below drive it.",
                     )
                     .child(
                         v_flex()
@@ -1401,10 +1401,10 @@ impl Showcase {
                                             .text_xs()
                                             .text_color(muted)
                                             .child(
-                                                "Installed via MacAppMenu::install. In fullscreen, move the pointer to the top edge to reveal it.",
+                                                "Installed via AppMenu::install. In fullscreen, move the pointer to the top edge to reveal it.",
                                             ),
                                     )
-                                    .child(MacMenuBarPreview::new(&preview)),
+                                    .child(MenuBarPreview::new(&preview)),
                             ),
                     )
                     .into_any_element()

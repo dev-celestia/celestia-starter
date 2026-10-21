@@ -232,30 +232,30 @@ Source lives in `crates/starter/`:
 
 | File | Role |
 | --- | --- |
-| `src/main.rs` | Bootstrap — assets, `celestia_ui::init`, `MacAppMenu`, window, `Root` |
+| `src/main.rs` | Bootstrap — assets, `celestia_ui::init`, `AppMenu`, window, `Root` |
 | `src/app.rs` | Root view — `SidebarLayout`, pages, theme toggle, New Window |
 | `src/actions.rs` | Keybinding actions (`ToggleTheme`) |
 
-Mac window chrome lives in `celestia_ui`:
+Window chrome lives in `celestia_ui` (`composite/window` — macOS layout for now):
 
 ```rust
 use celestia_ui::components::composite::window::{
-    MacAppMenu, bind_mac_window_keys, open_mac_window,
+    AppMenu, bind_window_keys, open_window,
 };
 
-MacAppMenu::standard("My App").install(cx);
-bind_mac_window_keys(cx);
+AppMenu::standard("My App").install(cx);
+bind_window_keys(cx);
 // File → New Window, or:
-open_mac_window("Untitled", cx, |window, cx| /* Root::new(...) */);
+open_window("Untitled", cx, |window, cx| /* Root::new(...) */);
 ```
 
-`MacAppMenu::standard` is the app name plus File, Edit, View, and Help.
+`AppMenu::standard` is the app name plus File, Edit, View, and Help.
 `menu` / `item` / `without` change that list before `install`. In fullscreen,
 macOS reveals the installed bar when the pointer hits the top of the screen.
 Minimize, zoom, and close on a real window are the native traffic lights.
-`open_mac_window` pairs with a root `MacWindow` using `MacWindowChrome::Window`
+`open_window` pairs with a root `Window` using `WindowChrome::Native`
 so AppKit draws those lights. Resize is edge dragging, with a minimum size so
-the frame cannot collapse. `MacWindowChrome::Embedded` is the in-view preview
+the frame cannot collapse. `WindowChrome::Embedded` is the in-view preview
 (drawn lights, border, shadow) — not a second set of lights on the OS window.
 
 Copy the crate into your app, rename the package, and replace the Home / About

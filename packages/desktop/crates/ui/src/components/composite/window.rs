@@ -1,25 +1,23 @@
-//! macOS window frame, OS sub-windows, chrome actions, and the app menu.
+//! Window frame, OS sub-windows, chrome actions, and the app menu.
 //!
-//! [`MacWindow`] draws traffic lights, a centered title (or title-bar tabs),
+//! [`Window`] draws traffic lights, a centered title (or title-bar tabs),
 //! an optional toolbar slot, and a unified sidebar that runs under the lights.
 //!
-//! - [`MacWindowChrome::Embedded`] (default) — framed preview with border,
+//! - [`WindowChrome::Embedded`] (default) — framed preview with border,
 //!   radius, and shadow. Always draws lights.
-//! - [`MacWindowChrome::Window`] — root of a real OS window opened with
-//!   [`Self::window_options`] / [`open_mac_window`]. No outer frame. On macOS,
-//!   AppKit draws the lights; elsewhere the drawn lights drive close / minimize
-//!   / zoom.
+//! - [`WindowChrome::Native`] — root of a real OS window opened with
+//!   [`Self::window_options`] / [`open_window`]. No outer frame. On macOS,
+//!   AppKit draws the lights; elsewhere the drawn lights drive close /
+//!   minimize / zoom.
 //!
-//! [`open_mac_window`] opens an OS window whose root chrome is [`MacWindow`] with
-//! [`MacWindowChrome::Window`]. On macOS, AppKit draws the traffic lights and
-//! resizes from the edges. Windows / Linux open helpers join this module later.
+//! [`open_window`] opens an OS window whose root chrome is [`Window`] with
+//! [`WindowChrome::Native`]. Platform chrome is macOS-only for now; other OS
+//! frames will branch here later.
 //!
-//! [`MacAppMenu`] is the menu bar `cx.set_menus` installs. In fullscreen, macOS
+//! [`AppMenu`] is the menu bar `cx.set_menus` installs. In fullscreen, macOS
 //! hides that bar and reveals it when the pointer hits the top of the screen.
 //!
-//! [`MacMenuBarPreview`] paints the same titles inside a view, for the gallery.
-//!
-//! Mac-first chrome for now; Windows / Linux frames land here later.
+//! [`MenuBarPreview`] paints the same titles inside a view, for the gallery.
 
 use std::rc::Rc;
 
@@ -28,29 +26,30 @@ use gpui::{
     AnyElement, App, BoxShadow, ElementId, Entity, FontWeight, InteractiveElement as _,
     IntoElement, Menu, MenuItem, MouseButton, OsAction, ParentElement, Pixels,
     Refineable as _, Render, RenderOnce, SharedString, StatefulInteractiveElement as _,
-    StyleRefinement, Styled, TitlebarOptions, Window, WindowBounds, WindowControlArea,
+    StyleRefinement, Styled, TitlebarOptions, WindowBounds, WindowControlArea,
     WindowHandle, WindowOptions, actions, div, point, px, rgba, size,
 };
+use gpui::Window as PlatformWindow;
 
 use super::traffic_lights::{TRAFFIC_LIGHT_DIAMETER, TrafficLights};
 use crate::components::primitive::icon::{Phosphor, PhosphorIcon};
 use crate::theme::ActiveTheme as _;
 
-/// Title-bar height for a standard Mac window.
-pub const MAC_TITLE_BAR_HEIGHT: Pixels = px(28.);
+/// Title-bar height for a standard window.
+pub const WINDOW_TITLE_BAR_HEIGHT: Pixels = px(28.);
 
-/// Distance from the window's left edge to the first traffic light.
-pub const MAC_TRAFFIC_INSET: Pixels = px(20.);
+/// Distance from the window's left edge to the first traffic light (macOS metrics for now).
+pub const TRAFFIC_INSET: Pixels = px(20.);
 
-/// Corner radius of a macOS window.
-pub const MAC_WINDOW_RADIUS: Pixels = px(10.);
+/// Corner radius of the window frame (macOS metrics for now).
+pub const WINDOW_RADIUS: Pixels = px(10.);
 
 /// Leading padding that clears AppKit (or drawn) traffic lights.
-const MAC_TITLE_LEADING_PAD: Pixels = px(80.);
+const TITLE_LEADING_PAD: Pixels = px(80.);
 
 /// How the frame lays out its title bar and sidebar.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
-pub enum MacWindowKind {
+pub enum WindowKind {
     /// Title band across the top. Sidebar slot is ignored.
     #[default]
     Standard,
@@ -61,24 +60,24 @@ pub enum MacWindowKind {
 
 /// Whether this frame is an in-view preview or the root of a real OS window.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
-pub enum MacWindowChrome {
+pub enum WindowChrome {
     /// Framed preview: border, radius, shadow, always-drawn lights.
     #[default]
     Embedded,
-    /// Real OS window root: full size, no outer chrome. AppKit lights on macOS.
-    Window,
+    /// Real OS window root: full size, no outer chrome. Platform lights on macOS for now.
+    Native,
 }
 
 /// One title-bar tab. The host owns which id is active.
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct MacWindowTab {
+pub struct WindowTab {
     /// Stable id passed to select and close callbacks.
     pub id: SharedString,
     /// Label drawn in the tab.
     pub label: SharedString,
 }
 
-impl MacWindowTab {
+impl WindowTab {
     /// A tab with the given id and label.
     pub fn new(id: impl Into<SharedString>, label: impl Into<SharedString>) -> Self {
         Self {
@@ -88,21 +87,21 @@ impl MacWindowTab {
     }
 }
 
-type TabHandler = Rc<dyn Fn(&SharedString, &mut Window, &mut App) + 'static>;
-type LightHandler = Rc<dyn Fn(&mut Window, &mut App) + 'static>;
+type TabHandler = Rc<dyn Fn(&SharedString, &mut PlatformWindow, &mut App) + 'static>;
+type LightHandler = Rc<dyn Fn(&mut PlatformWindow, &mut App) + 'static>;
 
-/// A framed macOS window surface.
+/// A framed window surface. Chrome layout is macOS-only for now.
 #[derive(IntoElement)]
-pub struct MacWindow {
+pub struct Window {
     id: SharedString,
     style: StyleRefinement,
     title: SharedString,
     subtitle: Option<SharedString>,
     active: bool,
     edited: bool,
-    kind: MacWindowKind,
-    chrome: MacWindowChrome,
-    tabs: Vec<MacWindowTab>,
+    kind: WindowKind,
+    chrome: WindowChrome,
+    tabs: Vec<WindowTab>,
     active_tab: Option<SharedString>,
     on_select_tab: Option<TabHandler>,
     on_close_tab: Option<TabHandler>,
@@ -115,7 +114,7 @@ pub struct MacWindow {
     on_zoom: Option<LightHandler>,
 }
 
-impl MacWindow {
+impl Window {
     /// An active standard window with the given title.
     pub fn new(id: impl Into<SharedString>, title: impl Into<SharedString>) -> Self {
         Self {
@@ -125,8 +124,8 @@ impl MacWindow {
             subtitle: None,
             active: true,
             edited: false,
-            kind: MacWindowKind::Standard,
-            chrome: MacWindowChrome::Embedded,
+            kind: WindowKind::Standard,
+            chrome: WindowChrome::Embedded,
             tabs: Vec::new(),
             active_tab: None,
             on_select_tab: None,
@@ -160,19 +159,19 @@ impl MacWindow {
     }
 
     /// Standard title band, or a sidebar that extends under the lights.
-    pub fn kind(mut self, kind: MacWindowKind) -> Self {
+    pub fn kind(mut self, kind: WindowKind) -> Self {
         self.kind = kind;
         self
     }
 
     /// Embedded preview (default) or real OS window chrome.
-    pub fn chrome(mut self, chrome: MacWindowChrome) -> Self {
+    pub fn chrome(mut self, chrome: WindowChrome) -> Self {
         self.chrome = chrome;
         self
     }
 
     /// Append a title-bar tab. Any tab hides the centered title.
-    pub fn tab(mut self, tab: MacWindowTab) -> Self {
+    pub fn tab(mut self, tab: WindowTab) -> Self {
         self.tabs.push(tab);
         self
     }
@@ -186,7 +185,7 @@ impl MacWindow {
     /// Called with the tab id when a tab is clicked.
     pub fn on_select_tab(
         mut self,
-        f: impl Fn(&SharedString, &mut Window, &mut App) + 'static,
+        f: impl Fn(&SharedString, &mut PlatformWindow, &mut App) + 'static,
     ) -> Self {
         self.on_select_tab = Some(Rc::new(f));
         self
@@ -195,14 +194,14 @@ impl MacWindow {
     /// Called with the tab id when its close glyph is clicked.
     pub fn on_close_tab(
         mut self,
-        f: impl Fn(&SharedString, &mut Window, &mut App) + 'static,
+        f: impl Fn(&SharedString, &mut PlatformWindow, &mut App) + 'static,
     ) -> Self {
         self.on_close_tab = Some(Rc::new(f));
         self
     }
 
     /// Called when the trailing add button is clicked.
-    pub fn on_add_tab(mut self, f: impl Fn(&mut Window, &mut App) + 'static) -> Self {
+    pub fn on_add_tab(mut self, f: impl Fn(&mut PlatformWindow, &mut App) + 'static) -> Self {
         self.on_add_tab = Some(Rc::new(f));
         self
     }
@@ -213,26 +212,26 @@ impl MacWindow {
         self
     }
 
-    /// Sidebar column. Rendered only for [`MacWindowKind::Unified`].
+    /// Sidebar column. Rendered only for [`WindowKind::Unified`].
     pub fn sidebar(mut self, sidebar: impl IntoElement) -> Self {
         self.sidebar = Some(sidebar.into_any_element());
         self
     }
 
     /// Close light callback.
-    pub fn on_close(mut self, f: impl Fn(&mut Window, &mut App) + 'static) -> Self {
+    pub fn on_close(mut self, f: impl Fn(&mut PlatformWindow, &mut App) + 'static) -> Self {
         self.on_close = Some(Rc::new(f));
         self
     }
 
     /// Minimize light callback.
-    pub fn on_minimize(mut self, f: impl Fn(&mut Window, &mut App) + 'static) -> Self {
+    pub fn on_minimize(mut self, f: impl Fn(&mut PlatformWindow, &mut App) + 'static) -> Self {
         self.on_minimize = Some(Rc::new(f));
         self
     }
 
     /// Zoom light callback.
-    pub fn on_zoom(mut self, f: impl Fn(&mut Window, &mut App) + 'static) -> Self {
+    pub fn on_zoom(mut self, f: impl Fn(&mut PlatformWindow, &mut App) + 'static) -> Self {
         self.on_zoom = Some(Rc::new(f));
         self
     }
@@ -244,16 +243,16 @@ impl MacWindow {
 
     /// Titlebar block embedded by [`Self::window_options`].
     pub fn title_bar_options() -> TitlebarOptions {
-        let y = (MAC_TITLE_BAR_HEIGHT - TRAFFIC_LIGHT_DIAMETER) / 2.;
+        let y = (WINDOW_TITLE_BAR_HEIGHT - TRAFFIC_LIGHT_DIAMETER) / 2.;
         TitlebarOptions {
             title: None,
             appears_transparent: true,
-            traffic_light_position: Some(point(MAC_TRAFFIC_INSET, y)),
+            traffic_light_position: Some(point(TRAFFIC_INSET, y)),
         }
     }
 
-    /// Base [`WindowOptions`] for a window whose root chrome is [`MacWindow`]
-    /// with [`MacWindowChrome::Window`].
+    /// Base [`WindowOptions`] for a window whose root chrome is [`Window`]
+    /// with [`WindowChrome::Native`].
     pub fn window_options() -> WindowOptions {
         WindowOptions {
             titlebar: Some(Self::title_bar_options()),
@@ -265,13 +264,13 @@ impl MacWindow {
     }
 }
 
-impl Styled for MacWindow {
+impl Styled for Window {
     fn style(&mut self) -> &mut StyleRefinement {
         &mut self.style
     }
 }
 
-impl ParentElement for MacWindow {
+impl ParentElement for Window {
     fn extend(&mut self, elements: impl IntoIterator<Item = AnyElement>) {
         self.children.extend(elements);
     }
@@ -288,35 +287,35 @@ fn window_shadow() -> BoxShadow {
 }
 
 /// Drag bookkeeping for OS chrome. Lives on the window via `use_state`.
-struct MacWindowDragState {
+struct WindowDragState {
     should_move: bool,
 }
 
-impl RenderOnce for MacWindow {
-    fn render(self, window: &mut Window, cx: &mut App) -> impl IntoElement {
+impl RenderOnce for Window {
+    fn render(self, window: &mut PlatformWindow, cx: &mut App) -> impl IntoElement {
         // Copy theme bits before any mutable `cx` borrow (`window.use_state`).
         let theme = cx.theme().colors.clone();
         let show_shadow = cx.theme().shadow;
         let shows_title = self.shows_title();
-        let unified = self.kind == MacWindowKind::Unified;
-        let os_chrome = self.chrome == MacWindowChrome::Window;
+        let unified = self.kind == WindowKind::Unified;
+        let os_chrome = self.chrome == WindowChrome::Native;
         // AppKit draws the lights on macOS; drawn lights are for previews and
         // for client-decorated Windows / Linux windows.
         let draw_lights = !os_chrome || !cfg!(target_os = "macos");
 
         let on_close = self.on_close.clone().or_else(|| {
             os_chrome.then(|| {
-                Rc::new(|window: &mut Window, _: &mut App| window.remove_window()) as LightHandler
+                Rc::new(|window: &mut PlatformWindow, _: &mut App| window.remove_window()) as LightHandler
             })
         });
         let on_minimize = self.on_minimize.clone().or_else(|| {
             os_chrome.then(|| {
-                Rc::new(|window: &mut Window, _: &mut App| window.minimize_window()) as LightHandler
+                Rc::new(|window: &mut PlatformWindow, _: &mut App| window.minimize_window()) as LightHandler
             })
         });
         let on_zoom = self.on_zoom.clone().or_else(|| {
             os_chrome.then(|| {
-                Rc::new(|window: &mut Window, _: &mut App| window.zoom_window()) as LightHandler
+                Rc::new(|window: &mut PlatformWindow, _: &mut App| window.zoom_window()) as LightHandler
             })
         });
 
@@ -357,7 +356,7 @@ impl RenderOnce for MacWindow {
             root = root
                 .w_full()
                 .min_h(px(140.))
-                .rounded(MAC_WINDOW_RADIUS)
+                .rounded(WINDOW_RADIUS)
                 .border_1()
                 .border_color(theme.window_border)
                 .when(show_shadow, |this| this.shadow(vec![window_shadow()]));
@@ -388,7 +387,7 @@ impl RenderOnce for MacWindow {
                         .flex()
                         .flex_col()
                         .flex_shrink_0()
-                        .pt(MAC_TITLE_BAR_HEIGHT)
+                        .pt(WINDOW_TITLE_BAR_HEIGHT)
                         .bg(theme.sidebar)
                         .text_color(theme.sidebar_foreground)
                         .border_r_1()
@@ -409,9 +408,9 @@ impl RenderOnce for MacWindow {
                     this.child(
                         div()
                             .absolute()
-                            .left(MAC_TRAFFIC_INSET)
+                            .left(TRAFFIC_INSET)
                             .top_0()
-                            .h(MAC_TITLE_BAR_HEIGHT)
+                            .h(WINDOW_TITLE_BAR_HEIGHT)
                             .flex()
                             .items_center()
                             .child(lights),
@@ -490,7 +489,7 @@ fn title_block(
 
 fn tab_strip(
     window_id: &SharedString,
-    tabs: &[MacWindowTab],
+    tabs: &[WindowTab],
     active_tab: Option<SharedString>,
     on_select: Option<TabHandler>,
     on_close: Option<TabHandler>,
@@ -600,7 +599,7 @@ fn title_band_with_lights(
     div()
         .relative()
         .w_full()
-        .h(MAC_TITLE_BAR_HEIGHT)
+        .h(WINDOW_TITLE_BAR_HEIGHT)
         .flex_shrink_0()
         .child(
             div()
@@ -608,13 +607,13 @@ fn title_band_with_lights(
                 .flex()
                 .items_center()
                 .justify_center()
-                .px(MAC_TITLE_LEADING_PAD)
+                .px(TITLE_LEADING_PAD)
                 .child(center),
         )
         .child(
             div()
                 .absolute()
-                .left(MAC_TRAFFIC_INSET)
+                .left(TRAFFIC_INSET)
                 .top_0()
                 .h_full()
                 .flex()
@@ -637,7 +636,7 @@ fn title_band(center: AnyElement, toolbar: AnyElement) -> impl IntoElement {
     div()
         .relative()
         .w_full()
-        .h(MAC_TITLE_BAR_HEIGHT)
+        .h(WINDOW_TITLE_BAR_HEIGHT)
         .flex_shrink_0()
         .child(
             div()
@@ -666,12 +665,12 @@ fn os_title_band(
     lights: Option<TrafficLights>,
     center: AnyElement,
     toolbar: AnyElement,
-    window: &mut Window,
+    window: &mut PlatformWindow,
     _cx: &mut App,
 ) -> impl IntoElement {
     let is_macos = cfg!(target_os = "macos");
     let is_linux = cfg!(target_os = "linux");
-    let state = window.use_state(_cx, |_, _| MacWindowDragState {
+    let state = window.use_state(_cx, |_, _| WindowDragState {
         should_move: false,
     });
     let fullscreen = window.is_fullscreen();
@@ -680,7 +679,7 @@ fn os_title_band(
         .id(ElementId::Name(format!("mac-window-{id}-title").into()))
         .relative()
         .w_full()
-        .h(MAC_TITLE_BAR_HEIGHT)
+        .h(WINDOW_TITLE_BAR_HEIGHT)
         .flex_shrink_0()
         .window_control_area(WindowControlArea::Drag)
         .on_mouse_down_out(window.listener_for(&state, |state, _, _, _| {
@@ -727,14 +726,14 @@ fn os_title_band(
             .items_center()
             .justify_center()
             .when(fullscreen, |this| this.px(px(12.)))
-            .when(!fullscreen, |this| this.px(MAC_TITLE_LEADING_PAD))
+            .when(!fullscreen, |this| this.px(TITLE_LEADING_PAD))
             .child(center),
     )
     .when_some(lights, |this, lights| {
         this.child(
             div()
                 .absolute()
-                .left(MAC_TRAFFIC_INSET)
+                .left(TRAFFIC_INSET)
                 .top_0()
                 .h_full()
                 .flex()
@@ -774,37 +773,37 @@ actions!(
     ]
 );
 
-/// Default size of a window opened with [`open_mac_window`].
-pub const MAC_WINDOW_SIZE: gpui::Size<Pixels> = size(px(960.), px(640.));
+/// Default size of a window opened with [`open_window`].
+pub const WINDOW_SIZE: gpui::Size<Pixels> = size(px(960.), px(640.));
 
 /// Smallest size AppKit will allow. Keeps a resize from collapsing the frame.
-pub const MAC_WINDOW_MIN_SIZE: gpui::Size<Pixels> = size(px(640.), px(420.));
+pub const WINDOW_MIN_SIZE: gpui::Size<Pixels> = size(px(640.), px(420.));
 
-/// [`WindowOptions`] for a Mac window: transparent title bar, traffic-light
+/// [`WindowOptions`] for an app window: transparent title bar, traffic-light
 /// inset, a centered size, and a minimum size. Pair with a root
-/// [`MacWindow`] using [`MacWindowChrome::Window`]. Resize
-/// stays with AppKit.
-pub fn mac_window_options(cx: &mut App) -> WindowOptions {
+/// [`Window`] using [`WindowChrome::Native`]. Resize
+/// stays with the platform (AppKit on macOS).
+pub fn open_window_options(cx: &mut App) -> WindowOptions {
     WindowOptions {
-        window_bounds: Some(WindowBounds::centered(MAC_WINDOW_SIZE, cx)),
-        window_min_size: Some(MAC_WINDOW_MIN_SIZE),
+        window_bounds: Some(WindowBounds::centered(WINDOW_SIZE, cx)),
+        window_min_size: Some(WINDOW_MIN_SIZE),
         #[cfg(target_os = "linux")]
         window_background: gpui::WindowBackgroundAppearance::Transparent,
         #[cfg(target_os = "linux")]
         window_decorations: Some(gpui::WindowDecorations::Client),
-        ..MacWindow::window_options()
+        ..Window::window_options()
     }
 }
 
 /// Open a new OS window. `build` returns the root view, usually
 /// `Root::new(...)`. The title is applied with `set_window_title`.
-pub fn open_mac_window<V: 'static + Render>(
+pub fn open_window<V: 'static + Render>(
     title: impl Into<SharedString>,
     cx: &mut App,
-    build: impl FnOnce(&mut Window, &mut App) -> Entity<V> + 'static,
+    build: impl FnOnce(&mut PlatformWindow, &mut App) -> Entity<V> + 'static,
 ) -> gpui::Result<WindowHandle<V>> {
     let title = title.into();
-    let options = mac_window_options(cx);
+    let options = open_window_options(cx);
     cx.open_window(options, move |window, cx| {
         window.set_window_title(&title);
         build(window, cx)
@@ -816,7 +815,7 @@ pub fn open_mac_window<V: 'static + Render>(
 /// macOS uses ⌘N, ⌘W, ⌘M, and ⌃⌘F. Other platforms use Ctrl+N, Ctrl+W,
 /// Ctrl+M, and F11. Zoom stays on the green traffic light and on any Window
 /// menu the host adds — macOS has no single zoom shortcut.
-pub fn bind_mac_window_keys(cx: &mut App) {
+pub fn bind_window_keys(cx: &mut App) {
     #[cfg(target_os = "macos")]
     cx.bind_keys([
         gpui::KeyBinding::new("cmd-n", NewWindow, None),
@@ -838,11 +837,11 @@ pub fn bind_mac_window_keys(cx: &mut App) {
 /// The first menu is the application menu. macOS draws its title bold and
 /// keeps it when the pointer reveals the bar in fullscreen. [`Self::without`]
 /// will not remove it.
-pub struct MacAppMenu {
+pub struct AppMenu {
     menus: Vec<Menu>,
 }
 
-impl MacAppMenu {
+impl AppMenu {
     /// Only the application menu. File, Edit, View, and Help are left out.
     pub fn new(app_name: impl Into<SharedString>) -> Self {
         Self {
@@ -954,17 +953,17 @@ fn help_menu() -> Menu {
     Menu::new("Help").items(vec![MenuItem::action("Help", ShowHelp)])
 }
 
-/// In-view preview of a [`MacAppMenu`]'s titles. The live fullscreen reveal is
-/// the system bar installed with [`MacAppMenu::install`], not this element.
+/// In-view preview of a [`AppMenu`]'s titles. The live fullscreen reveal is
+/// the system bar installed with [`AppMenu::install`], not this element.
 #[derive(IntoElement)]
-pub struct MacMenuBarPreview {
+pub struct MenuBarPreview {
     titles: Vec<SharedString>,
     style: StyleRefinement,
 }
 
-impl MacMenuBarPreview {
+impl MenuBarPreview {
     /// Paint `menu`'s titles in menu-bar order.
-    pub fn new(menu: &MacAppMenu) -> Self {
+    pub fn new(menu: &AppMenu) -> Self {
         Self {
             titles: menu.titles(),
             style: StyleRefinement::default(),
@@ -972,14 +971,14 @@ impl MacMenuBarPreview {
     }
 }
 
-impl Styled for MacMenuBarPreview {
+impl Styled for MenuBarPreview {
     fn style(&mut self) -> &mut StyleRefinement {
         &mut self.style
     }
 }
 
-impl RenderOnce for MacMenuBarPreview {
-    fn render(self, _: &mut Window, cx: &mut App) -> impl IntoElement {
+impl RenderOnce for MenuBarPreview {
+    fn render(self, _: &mut PlatformWindow, cx: &mut App) -> impl IntoElement {
         use crate::theme::ActiveTheme as _;
 
         let theme = cx.theme();
@@ -1016,33 +1015,33 @@ mod tests {
     use gpui::TestAppContext;
 
     #[test]
-    fn metrics_match_the_mac_title_band() {
-        assert_eq!(MAC_TITLE_BAR_HEIGHT, px(28.0));
-        assert_eq!(MAC_TRAFFIC_INSET, px(20.0));
-        assert_eq!(MAC_WINDOW_RADIUS, px(10.0));
+    fn metrics_match_the_title_band() {
+        assert_eq!(WINDOW_TITLE_BAR_HEIGHT, px(28.0));
+        assert_eq!(TRAFFIC_INSET, px(20.0));
+        assert_eq!(WINDOW_RADIUS, px(10.0));
     }
 
     #[test]
     fn tabs_replace_the_centered_title() {
-        let plain = MacWindow::new("notes", "Notes");
+        let plain = Window::new("notes", "Notes");
         assert!(plain.shows_title());
-        assert_eq!(plain.kind, MacWindowKind::Standard);
-        assert_eq!(plain.chrome, MacWindowChrome::Embedded);
+        assert_eq!(plain.kind, WindowKind::Standard);
+        assert_eq!(plain.chrome, WindowChrome::Embedded);
 
-        let tabbed = MacWindow::new("docs", "Docs").tab(MacWindowTab::new("a", "Notes"));
+        let tabbed = Window::new("docs", "Docs").tab(WindowTab::new("a", "Notes"));
         assert!(!tabbed.shows_title());
     }
 
     #[test]
     fn window_options_own_the_titlebar_drag() {
-        let options = MacWindow::window_options();
+        let options = Window::window_options();
         assert!(options.app_owns_titlebar_drag);
         let titlebar = options.titlebar.expect("window_options sets a titlebar");
         assert!(titlebar.appears_transparent);
-        let y = (MAC_TITLE_BAR_HEIGHT - TRAFFIC_LIGHT_DIAMETER) / 2.;
+        let y = (WINDOW_TITLE_BAR_HEIGHT - TRAFFIC_LIGHT_DIAMETER) / 2.;
         assert_eq!(
             titlebar.traffic_light_position,
-            Some(point(MAC_TRAFFIC_INSET, y))
+            Some(point(TRAFFIC_INSET, y))
         );
     }
 
@@ -1058,8 +1057,8 @@ mod tests {
     }
 
     #[test]
-    fn standard_menu_is_the_mac_starting_point() {
-        let menu = MacAppMenu::standard("Celestia");
+    fn standard_menu_is_the_starting_point() {
+        let menu = AppMenu::standard("Celestia");
         let owned = menu.titles();
         let titles: Vec<&str> = owned.iter().map(|title| title.as_ref()).collect();
         assert_eq!(titles, ["Celestia", "File", "Edit", "View", "Help"]);
@@ -1074,31 +1073,31 @@ mod tests {
 
     #[test]
     fn menu_item_and_without_customize_the_bar() {
-        let replaced = MacAppMenu::standard("Celestia")
+        let replaced = AppMenu::standard("Celestia")
             .menu(Menu::new("File").items(vec![MenuItem::action("Open", ShowHelp)]));
         assert_eq!(action_names(&replaced.menus()[1]), ["Open"]);
 
         let appended =
-            MacAppMenu::standard("Celestia").item("File", MenuItem::action("Open", ShowHelp));
+            AppMenu::standard("Celestia").item("File", MenuItem::action("Open", ShowHelp));
         assert_eq!(
             action_names(&appended.menus()[1]),
             ["New Window", "Close", "Open"]
         );
 
-        let created = MacAppMenu::new("Celestia")
+        let created = AppMenu::new("Celestia")
             .item("Window", MenuItem::action("Minimize", MinimizeWindow));
         let created_titles = created.titles();
         let titles: Vec<&str> = created_titles.iter().map(|title| title.as_ref()).collect();
         assert_eq!(titles, ["Celestia", "Window"]);
 
-        let trimmed = MacAppMenu::standard("Celestia")
+        let trimmed = AppMenu::standard("Celestia")
             .without("Help")
             .without("Celestia");
         let trimmed_titles = trimmed.titles();
         let titles: Vec<&str> = trimmed_titles.iter().map(|title| title.as_ref()).collect();
         assert_eq!(titles, ["Celestia", "File", "Edit", "View"]);
 
-        let only = MacAppMenu::new("Only");
+        let only = AppMenu::new("Only");
         assert_eq!(
             only.titles()
                 .iter()
@@ -1107,7 +1106,7 @@ mod tests {
             ["Only"]
         );
         assert_eq!(
-            MacAppMenu::new("A")
+            AppMenu::new("A")
                 .rename_app("B")
                 .titles()
                 .iter()
@@ -1118,13 +1117,13 @@ mod tests {
     }
 
     #[gpui::test]
-    fn mac_window_options_include_the_title_bar(cx: &mut TestAppContext) {
+    fn open_window_options_include_the_title_bar(cx: &mut TestAppContext) {
         cx.update(|cx| {
-            let options = mac_window_options(cx);
+            let options = open_window_options(cx);
             let titlebar = options
                 .titlebar
-                .expect("mac_window_options sets a titlebar");
-            let direct = MacWindow::title_bar_options();
+                .expect("open_window_options sets a titlebar");
+            let direct = Window::title_bar_options();
             assert!(titlebar.appears_transparent);
             assert!(options.app_owns_titlebar_drag);
             assert_eq!(

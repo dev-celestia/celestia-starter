@@ -2,7 +2,7 @@
 //!
 //! Presentational. The host owns active / edited state and the three
 //! callbacks. A real macOS window keeps AppKit's lights via
-//! [`super::window::MacWindow`] with [`super::window::MacWindowChrome::Window`];
+//! [`super::window::Window`] with [`super::window::WindowChrome::Native`];
 //! these are for in-view frames so the two sets do not stack.
 
 use std::rc::Rc;

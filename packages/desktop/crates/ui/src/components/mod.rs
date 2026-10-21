@@ -201,7 +201,14 @@ pub use composite::kanban_board::*;
 pub use composite::keybinding_recorder::*;
 pub use composite::loaders::*;
 pub use composite::log_viewer::*;
-pub use composite::window::*;
+// `Window` is not re-exported here — it conflicts with `gpui::Window`.
+// Import via `celestia_ui::components::composite::window::Window`.
+pub use composite::window::{
+    AppMenu, CloseWindow, EditCopy, EditCut, EditPaste, EditRedo, EditSelectAll, EditUndo,
+    MenuBarPreview, MinimizeWindow, NewWindow, ShowHelp, ToggleFullScreen, WINDOW_MIN_SIZE,
+    WINDOW_RADIUS, WINDOW_SIZE, WINDOW_TITLE_BAR_HEIGHT, WindowChrome, WindowKind, WindowTab,
+    ZoomWindow, bind_window_keys, open_window, open_window_options, TRAFFIC_INSET,
+};
 pub use composite::media_object::*;
 pub use composite::menu::*;
 pub use composite::modal::*;

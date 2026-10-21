@@ -32,8 +32,8 @@ use crate::sections::data_display::VirtualListDemo;
 use crate::sections::layout::PlaygroundAxis;
 use crate::sections::state::GalleryState;
 use celestia_ui::components::composite::window::{
-    CloseWindow, MacWindow, MacWindowChrome, MinimizeWindow, ShowHelp, ToggleFullScreen,
-    ZoomWindow,
+    self as app_window, CloseWindow, MinimizeWindow, ShowHelp, ToggleFullScreen,
+    WindowChrome, ZoomWindow,
 };
 
 #[derive(Clone, Copy, PartialEq, Eq, Default, Debug)]
@@ -361,8 +361,8 @@ impl Render for Showcase {
             })
             .size_full()
             .child(
-                MacWindow::new("showcase", "Celestia Desktop")
-                    .chrome(MacWindowChrome::Window)
+                app_window::Window::new("showcase", "Celestia Desktop")
+                    .chrome(WindowChrome::Native)
                     .child(self.render_shell(window, cx)),
             )
     }

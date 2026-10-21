@@ -19,7 +19,7 @@ mod showcase;
 
 use actions::ToggleTheme;
 use celestia_ui::components::composite::window::{
-    CloseWindow, MacAppMenu, MacWindow, MinimizeWindow, ToggleFullScreen, ZoomWindow,
+    self as app_window, AppMenu, CloseWindow, MinimizeWindow, ToggleFullScreen, ZoomWindow,
 };
 use celestia_ui::state::StoreContext;
 use gpui::*;
@@ -64,7 +64,7 @@ fn main() {
             // Window (Minimize / Zoom), Help. No New Window — the gallery
             // is a single window. Fullscreen hides the bar; top-edge hover
             // reveals it again.
-            MacAppMenu::standard("Celestia")
+            AppMenu::standard("Celestia")
                 .menu(Menu::new("File").items([MenuItem::action("Close", CloseWindow)]))
                 .menu(Menu::new("Window").items([
                     MenuItem::action("Minimize", MinimizeWindow),
@@ -79,7 +79,7 @@ fn main() {
                 window_background: WindowBackgroundAppearance::Transparent,
                 #[cfg(target_os = "linux")]
                 window_decorations: Some(WindowDecorations::Client),
-                ..MacWindow::window_options()
+                ..app_window::Window::window_options()
             };
 
             cx.open_window(options, |window, cx| {
