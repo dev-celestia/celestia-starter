@@ -451,7 +451,8 @@ fn grid9_loader(
     reduce: bool,
     phases: &[f32; 9],
 ) -> AnyElement {
-    let cell = size * 0.28;
+    // Smaller cells + roomier gutters so the 3×3 reads as a padded box.
+    let cell = size * 0.20;
     let gap = (size - cell * 3.0) / 4.0;
     let phases = *phases;
 
@@ -470,7 +471,7 @@ fn grid9_loader(
                 .left(px(x))
                 .top(px(y))
                 .size(px(cell))
-                .rounded(px(cell * 0.12))
+                .rounded(px(cell * 0.15))
                 .bg(if reduce {
                     motion::mix(secondary, primary, 0.35)
                 } else {
