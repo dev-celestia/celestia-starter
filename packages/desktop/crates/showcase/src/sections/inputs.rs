@@ -58,7 +58,7 @@ impl Showcase {
                 .into_any_element(),
             Demo::Select => Card::new()
                 .title("Select")
-                .description("Dropdown select.")
+                .description("Dropdown select, with plain or icon-bearing options.")
                 .child(
                     v_flex()
                         .gap_1p5()
@@ -68,6 +68,13 @@ impl Showcase {
                                 .w_48()
                                 .flex_none()
                                 .child(Select::new(&self.demo_select)),
+                        )
+                        .child(Label::new("Icon Options"))
+                        .child(
+                            div()
+                                .w_48()
+                                .flex_none()
+                                .child(Select::new(&self.demo_select_icon).cleanable(true)),
                         ),
                 )
                 .into_any_element(),

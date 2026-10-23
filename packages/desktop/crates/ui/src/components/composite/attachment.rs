@@ -1072,7 +1072,7 @@ mod tests {
                 .on_click(move |_, _, _| card_clicks.set(card_clicks.get() + 1))
                 .actions(
                     AttachmentActions::new().child(
-                        // `Button::icon` is `ButtonSize::Icon` — a fixed 32px
+                        // `Button::icon` is `ButtonSize::Icon` — a fixed 26px
                         // square — which is what makes the click points below
                         // deterministic. (Our `Button` has no `Styled` impl:
                         // callers size it through `Sizable`, so a hand-picked

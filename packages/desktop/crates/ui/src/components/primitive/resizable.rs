@@ -292,12 +292,12 @@ fn render_resize_handle(
     );
 
     let line_color = if handle.state().is_active() {
-        cx.theme().drag_border
+        cx.theme().muted_foreground
     } else {
         cx.theme().border
     };
     let pill_color = if handle.state() == ResizeHandleState::Dragging {
-        cx.theme().primary
+        cx.theme().foreground
     } else {
         cx.theme().muted_foreground
     };

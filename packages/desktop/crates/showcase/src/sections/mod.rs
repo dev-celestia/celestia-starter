@@ -1,6 +1,5 @@
 pub mod buttons;
 pub mod charts;
-pub mod chat;
 pub mod composites;
 pub mod data_display;
 pub mod demo;
@@ -11,6 +10,7 @@ pub mod icons;
 pub mod inputs;
 pub mod layout;
 pub mod menus;
+pub mod message;
 pub mod overlays;
 pub mod palette;
 pub mod pickers;

@@ -10,6 +10,7 @@ use celestia_ui::components::primitive::scrubber::Scrubber;
 use celestia_ui::components::primitive::shimmer::ShimmerText;
 use celestia_ui::components::primitive::signal_bars::SignalBars;
 use celestia_ui::components::primitive::skeleton::Skeleton;
+use celestia_ui::components::primitive::loader::{Loader, LoaderVariant};
 use celestia_ui::components::primitive::spinner::Spinner;
 use celestia_ui::components::primitive::toast::{Notification, WindowExt};
 use celestia_ui::theme::ActiveTheme as _;
@@ -100,6 +101,42 @@ impl Showcase {
                 .description("Indeterminate spinner.")
                 .child(h_flex().gap_4().items_center().child(Spinner::new()))
                 .into_any_element(),
+            Demo::Loader => Card::new()
+                .title("Loader")
+                .description("Icon-sized pixel loaders (16px default, same slot as Spinner).")
+                .child(
+                    v_flex()
+                        .gap_4()
+                        .child(
+                            h_flex()
+                                .gap_6()
+                                .items_center()
+                                .child(loader_sample("Diamond", Loader::diamond(), cx))
+                                .child(loader_sample("Orbit", Loader::orbit(), cx))
+                                .child(loader_sample("Box dots", Loader::box_dots(), cx))
+                                .child(loader_sample("Dots", Loader::dots(), cx))
+                                .child(loader_sample("Bars", Loader::bars(), cx))
+                                .child(loader_sample("Blocks", Loader::blocks(), cx)),
+                        )
+                        .child(
+                            h_flex()
+                                .gap_4()
+                                .items_center()
+                                .child(
+                                    div()
+                                        .text_xs()
+                                        .text_color(cx.theme().muted_foreground)
+                                        .child("Sizes"),
+                                )
+                                .child(Loader::new().variant(LoaderVariant::Diamond).size(px(12.)))
+                                .child(Loader::orbit().size(px(16.)))
+                                .child(Loader::box_dots().size(px(20.)))
+                                .child(Loader::dots().size(px(20.)))
+                                .child(Loader::bars().size(px(24.)))
+                                .child(Loader::blocks().size(px(28.))),
+                        ),
+                )
+                .into_any_element(),
             Demo::Skeleton => Card::new()
                 .title("Skeleton")
                 .description("Placeholder skeleton.")
@@ -145,4 +182,21 @@ impl Showcase {
                 .into_any_element(),
         }
     }
+}
+
+fn loader_sample(
+    label: &'static str,
+    loader: Loader,
+    cx: &mut Context<Showcase>,
+) -> impl IntoElement {
+    v_flex()
+        .gap_1()
+        .items_center()
+        .child(
+            div()
+                .text_xs()
+                .text_color(cx.theme().muted_foreground)
+                .child(label),
+        )
+        .child(loader)
 }

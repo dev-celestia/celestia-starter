@@ -13,7 +13,7 @@ use celestia_ui::components::primitive::icon::{Phosphor, PhosphorIcon};
 use celestia_ui::components::primitive::input::{Input, InputState};
 use celestia_ui::components::primitive::input_otp::OtpState;
 use celestia_ui::components::primitive::kbd::Kbd;
-use celestia_ui::components::primitive::select::SelectState;
+use celestia_ui::components::primitive::select::{SelectItems, SelectOption, SelectState};
 use celestia_ui::components::primitive::slider::SliderState;
 use celestia_ui::components::primitive::textarea::TextareaState;
 use celestia_ui::components::primitive::toast::{Notification, WindowExt as _};
@@ -88,6 +88,8 @@ pub struct Showcase {
     pub(crate) demo_tab_line: usize,
     pub(crate) demo_input: Entity<InputState>,
     pub(crate) demo_select: Entity<SelectState<Vec<&'static str>>>,
+    /// Icon-bearing options — the `SelectOption` gallery demo.
+    pub(crate) demo_select_icon: Entity<SelectState<SelectItems<&'static str>>>,
     pub(crate) demo_editor: Entity<TextEditor>,
     pub(crate) demo_code: Entity<CodeEditor>,
     pub(crate) demo_number: Entity<InputState>,
@@ -287,6 +289,29 @@ impl Showcase {
                     window,
                     cx,
                 )
+            }),
+            demo_select_icon: cx.new(|cx| {
+                let (warning, success) = (cx.theme().warning, cx.theme().success);
+
+                SelectState::new(
+                    SelectItems::new(vec![
+                        SelectOption::new("draft", "Draft").icon(PhosphorIcon::PencilSimpleLine),
+                        SelectOption::new("review", "In review").icon(PhosphorIcon::Eye),
+                        SelectOption::new("blocked", "Blocked")
+                            .icon(PhosphorIcon::WarningCircle)
+                            .icon_color(warning),
+                        SelectOption::new("shipped", "Shipped")
+                            .icon(PhosphorIcon::CheckCircle)
+                            .icon_color(success),
+                        SelectOption::new("archived", "Archived")
+                            .icon(PhosphorIcon::Archive)
+                            .disabled(true),
+                    ]),
+                    Some(IndexPath::default()),
+                    window,
+                    cx,
+                )
+                .searchable(true)
             }),
             demo_editor,
             demo_code,

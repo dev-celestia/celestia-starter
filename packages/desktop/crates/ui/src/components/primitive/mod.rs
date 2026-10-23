@@ -48,6 +48,7 @@ pub mod item;
 pub mod kbd;
 pub mod label;
 pub mod link;
+pub mod loader;
 pub mod menubar;
 pub mod meter;
 pub mod navigation_menu;

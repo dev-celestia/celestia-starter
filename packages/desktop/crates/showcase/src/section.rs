@@ -35,7 +35,7 @@ impl Family {
             Family::MenusDialogs => MENUS_DIALOGS_CODE,
             Family::DataDisplay => DATA_DISPLAY_CODE,
             Family::Layout => LAYOUT_CODE,
-            Family::ChatAI => CHAT_AI_CODE,
+            Family::Message => MESSAGE_CODE,
             Family::Editors => EDITORS_CODE,
             Family::Charts => CHARTS_CODE,
             Family::Composites => COMPOSITES_CODE,
@@ -59,7 +59,7 @@ impl Family {
             Family::MenusDialogs => MENUS_DIALOGS_PROPS,
             Family::DataDisplay => DATA_DISPLAY_PROPS,
             Family::Layout => LAYOUT_PROPS,
-            Family::ChatAI => CHAT_AI_PROPS,
+            Family::Message => MESSAGE_PROPS,
             Family::Editors => EDITORS_PROPS,
             Family::Charts => CHARTS_PROPS,
             Family::Composites => COMPOSITES_PROPS,
@@ -83,7 +83,7 @@ impl Family {
             Family::MenusDialogs => MENUS_DIALOGS_NOTES,
             Family::DataDisplay => DATA_DISPLAY_NOTES,
             Family::Layout => LAYOUT_NOTES,
-            Family::ChatAI => CHAT_AI_NOTES,
+            Family::Message => MESSAGE_NOTES,
             Family::Editors => EDITORS_NOTES,
             Family::Charts => CHARTS_NOTES,
             Family::Composites => COMPOSITES_NOTES,
@@ -113,7 +113,9 @@ pub struct SectionDocs {
 }
 
 const BUTTONS_CODE: &str = r#"use celestia_ui::components::Card;
-use celestia_ui::components::primitive::button::{Button, ButtonSize, ButtonVariant};
+use celestia_ui::components::primitive::button::{
+    Button, ButtonLoadingStyle, ButtonSize, ButtonVariant,
+};
 use celestia_ui::components::primitive::kbd::Kbd;
 use celestia_ui::components::primitive::link::Link;
 use gpui_component::h_flex;
@@ -139,6 +141,13 @@ Button::new("btn-small")
     .variant(ButtonVariant::Primary)
     .size(ButtonSize::XSmall)
     .label("Small primary")
+
+// Loading — spinner (default) or diamond chase
+Button::new("btn-loading").loading(true).label("Saving")
+Button::new("btn-loading-diamond")
+    .loading(true)
+    .loading_style(ButtonLoadingStyle::Diamond)
+    .label("Saving")
 
 // Keyboard shortcut badge
 Kbd::new(Keystroke::parse("cmd-d").expect("valid keystroke"))
@@ -210,6 +219,7 @@ use celestia_ui::components::primitive::input::{Input, InputState};
 use celestia_ui::components::primitive::item::{Item, ItemContent, ItemGroup, ItemMedia, ItemTitle};
 use celestia_ui::components::primitive::radio::Radio;
 use celestia_ui::components::primitive::rating::Rating;
+use celestia_ui::components::primitive::select::{SelectItems, SelectOption};
 use celestia_ui::components::primitive::switch::Switch;
 use celestia_ui::components::primitive::toggle::{Toggle, ToggleGroup};
 use gpui::*;
@@ -218,6 +228,19 @@ use gpui::*;
 Input::new(&self.demo_input).cleanable(true)
 Select::new(&self.demo_select)
 Slider::new(&self.demo_slider)
+
+// Icon options — the glyph rides on the item, so it is drawn by the
+// dropdown row and by the trigger's committed value alike
+let status = cx.new(|cx| SelectState::new(
+    SelectItems::new(vec![
+        SelectOption::new("draft", "Draft").icon(PhosphorIcon::PencilSimpleLine),
+        SelectOption::new("blocked", "Blocked")
+            .icon(PhosphorIcon::WarningCircle)
+            .icon_color(cx.theme().warning),
+    ]),
+    None, window, cx,
+));
+Select::new(&status).placeholder("Status").cleanable(true)
 
 // Boolean / choice — Switch is a track; Toggle is a pressed button
 Switch::new("sw-1").checked(true).label("Notifications")
@@ -267,6 +290,7 @@ use celestia_ui::components::composite::loaders::{
 use celestia_ui::components::composite::notice::{NoticeChipIcon, notice_chip};
 use celestia_ui::components::primitive::progress::Progress;
 use celestia_ui::components::primitive::skeleton::Skeleton;
+use celestia_ui::components::primitive::loader::Loader;
 use celestia_ui::components::primitive::spinner::Spinner;
 use gpui::*;
 
@@ -279,6 +303,7 @@ Alert::error("al-err", "Something failed.")
 // Progress bars & loading indicators
 Progress::new("pg-1").value(0.65)
 Spinner::new()
+Loader::diamond() // also: orbit / box_dots / dots / bars / blocks — default 16px
 Skeleton::new().h_4().w(px(192.))
 
 // Micro loaders running on shared pulse clock
@@ -522,40 +547,39 @@ ResizableSplit::horizontal("editor")
     .leading(sidebar)
     .trailing(editor)"#;
 
-const CHAT_AI_CODE: &str = r#"use celestia_ui::components::ai::prompt_input::{PromptInput, PromptStatus};
-use celestia_ui::components::ai::reasoning::Reasoning;
-use celestia_ui::components::ai::suggestion::{Suggestion, Suggestions};
-use celestia_ui::components::ai::tool::{Tool, ToolState};
-use celestia_ui::components::composite::message::{Message, MessageAlignment, MessageContent, MessageGroup};
+const MESSAGE_CODE: &str = r#"use celestia_ui::components::composite::message::{
+    Message, MessageAlignment, MessageContent, MessageGroup,
+};
+use celestia_ui::components::primitive::avatar::Avatar;
 use celestia_ui::components::primitive::bubble::{Bubble, BubbleVariant};
 use gpui::*;
 
-Suggestions::new("sugs")
-    .child(Suggestion::new("s1", "Explain this diff"))
-    .child(Suggestion::new("s2", "Write a unit test"));
-
-PromptInput::new("prompt")
-    .placeholder("Ask Celestia…")
-    .status(PromptStatus::Ready);
-
-Reasoning::new("think")
-    .open(true)
-    .duration_secs(3)
-    .body("Comparing desktop and web message metrics…");
-
-Tool::new("read", "read_file").state(ToolState::Completed);
-
-MessageGroup::new().child(
-    Message::new()
-        .alignment(MessageAlignment::Start)
-        .content(
-            MessageContent::new().bubble(
-                Bubble::new()
-                    .with_variant(BubbleVariant::Filled)
-                    .child("Hello from Celestia AI"),
+// A thread is a MessageGroup; each row owns its side, avatar and bubble.
+MessageGroup::new()
+    .child(
+        Message::new()
+            .alignment(MessageAlignment::Start)
+            .avatar(Avatar::new().src("avatars/celestia-ai.png").name("Celestia AI"))
+            .content(
+                MessageContent::new().bubble(
+                    Bubble::new()
+                        .with_variant(BubbleVariant::Filled)
+                        .child("Hello! How can I help you today?"),
+                ),
             ),
-        ),
-)"#;
+    )
+    .child(
+        Message::new()
+            .alignment(MessageAlignment::End)
+            .avatar(Avatar::new().src("avatars/demo-user.jpg").name("Alex Rivera"))
+            .content(
+                MessageContent::new().bubble(
+                    Bubble::new()
+                        .with_variant(BubbleVariant::Secondary)
+                        .child("Show me the message primitives!"),
+                ),
+            ),
+    )"#;
 
 const EDITORS_CODE: &str = r####"use celestia_ui::components::{CodeEditor, TextEditor};
 use gpui::*;
@@ -827,7 +851,7 @@ const BUTTONS_PROPS: &[DocProp] = &[
     DocProp {
         name: "leading_icon / trailing_icon",
         ty: "impl IntoElement",
-        description: "Typed icon slots (PhosphorIcon works). loading swaps the leading slot for a Spinner.",
+        description: "Typed icon slots (PhosphorIcon works). loading swaps the leading slot for Spinner or Diamond.",
     },
     DocProp {
         name: "on_click / dropdown_menu",
@@ -986,6 +1010,11 @@ const FEEDBACK_PROPS: &[DocProp] = &[
         description: "Task progress vs capacity meter (disk/quota), spinner, placeholders.",
     },
     DocProp {
+        name: "Loader::{diamond,orbit,box_dots,dots,bars,blocks}",
+        ty: "size 16px default",
+        description: "Icon-slot pixel loaders (diamond / box-dot chase, orbit, dots, bars, blocks).",
+    },
+    DocProp {
         name: "pulse_loader / gradient_spinner / progress_ring",
         ty: "size + view + cx",
         description: "Zeron-port micro loaders sharing a pulse clock.",
@@ -998,9 +1027,9 @@ const FEEDBACK_PROPS: &[DocProp] = &[
 ];
 
 const FEEDBACK_NOTES: &[&str] = &[
-    "Alert / Progress / Meter / Spinner / Skeleton are raw-GPUI — no gpui-component dependency.",
+    "Alert / Progress / Meter / Spinner / Loader / Skeleton are raw-GPUI — no gpui-component dependency.",
     "Meter auto-tones Warning ≥ 0.7 and Danger ≥ 0.9 unless .tone() is set.",
-    "Micro loaders need a view + cx so they can tick on the shared pulse clock.",
+    "Loader variants are icon-sized (16px) and need no EntityId; pulse_loader / gradient_spinner need view + cx.",
 ];
 
 const OVERLAYS_PROPS: &[DocProp] = &[
@@ -1146,48 +1175,38 @@ const LAYOUT_NOTES: &[&str] = &[
     "SplitPane is fixed-ratio only; use Resizable / ResizableSplit for drag handles.",
 ];
 
-const CHAT_AI_PROPS: &[DocProp] = &[
+const MESSAGE_PROPS: &[DocProp] = &[
     DocProp {
-        name: "MessageGroup / Message",
+        name: "MessageGroup",
+        ty: "children",
+        description: "Thread container. Owns the vertical rhythm between rows.",
+    },
+    DocProp {
+        name: "Message",
         ty: "alignment + avatar + content",
-        description: "Threaded chat. MessageAlignment::Start/End flips side.",
+        description: "One row. MessageAlignment::Start/End flips the side and the bubble tail.",
     },
     DocProp {
-        name: "PromptInput",
-        ty: "placeholder + status",
-        description: "Composer with submit / stop. PromptStatus::Streaming swaps the action.",
+        name: "MessageHeader",
+        ty: "name + timestamp",
+        description: "Author line above the bubble; pair it with MessageAvatar or Message::avatar.",
     },
     DocProp {
-        name: "Reasoning / Tool / Sources",
-        ty: "open + state",
-        description: "Thinking block, tool-call card (ToolState), citation list.",
+        name: "MessageContent",
+        ty: "bubble / body",
+        description: "The bubble slot. Pass a Bubble, or any element for an unstyled body.",
     },
     DocProp {
-        name: "Plan / Task / ChainOfThought",
-        ty: "steps + status",
-        description: "Multi-step agent progress. Status enums drive icon color.",
-    },
-    DocProp {
-        name: "Agent / Queue / AiConfirmation",
-        ty: "model + pending",
-        description: "Agent card, queued work, and approve/deny tool prompts.",
-    },
-    DocProp {
-        name: "AiCodeBlock / Snippet / AiTerminal",
-        ty: "code + output",
-        description: "Read-only code, one-line snippet, and terminal chrome.",
-    },
-    DocProp {
-        name: "ContextUsage / InlineCitation",
-        ty: "tokens / sources",
-        description: "Token budget meter and superscript citation chip.",
+        name: "MessageFooter",
+        ty: "children",
+        description: "Actions under the bubble — copy, retry, reactions.",
     },
 ];
 
-const CHAT_AI_NOTES: &[&str] = &[
+const MESSAGE_NOTES: &[&str] = &[
     "Build messages inside MessageGroup so spacing and avatar alignment stay consistent.",
     "Use MessageAlignment::End for the local user; Start for assistants / peers.",
-    "New AI kit lives under components::ai — flat imports use AiCodeBlock / AiTerminal / AiConfirmation to avoid name clashes.",
+    "The row is presentation only — the host owns the list, the scroll position and the state.",
 ];
 
 const EDITORS_PROPS: &[DocProp] = &[

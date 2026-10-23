@@ -57,10 +57,13 @@ const buttonVariants = cva(
         // `sm` to `md` cannot alter anything but the height.
         md: "h-7 gap-1 px-2.5 text-xs/relaxed has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2 [&_svg:not([class*='size-'])]:size-3",
         lg: "h-9 gap-1.5 px-3.5 text-xs/relaxed has-data-[icon=inline-end]:pe-2.5 has-data-[icon=inline-start]:ps-2.5 [&_svg:not([class*='size-'])]:size-4",
-        icon: "size-8 [&_svg:not([class*='size-'])]:size-3.5",
-        "icon-xs": "size-5 rounded-sm [&_svg:not([class*='size-'])]:size-2.5",
-        "icon-sm": "size-6 [&_svg:not([class*='size-'])]:size-3",
-        "icon-lg": "size-9 [&_svg:not([class*='size-'])]:size-4",
+        // Icon-only squares sit one step under the labeled heights so the
+        // glyph reads tighter (less chrome around the SVG). Glyph sizes stay
+        // on the same ladder as the matching labeled step.
+        icon: "size-6.5 [&_svg:not([class*='size-'])]:size-3.5",
+        "icon-xs": "size-4 rounded-sm [&_svg:not([class*='size-'])]:size-2.5",
+        "icon-sm": "size-5 [&_svg:not([class*='size-'])]:size-3",
+        "icon-lg": "size-8 [&_svg:not([class*='size-'])]:size-4",
       },
       // Monospace labels (ids, hashes, tokens) are common in data-dense tooling.
       mono: {

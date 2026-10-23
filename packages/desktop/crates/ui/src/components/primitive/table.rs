@@ -29,17 +29,24 @@
 //! ```
 
 use std::cell::Cell;
+use std::rc::Rc;
 
 use gpui::prelude::FluentBuilder as _;
 use gpui::{
-    AnyElement, App, DefiniteLength, ElementId, FontWeight, InteractiveElement, IntoElement,
-    ParentElement, Pixels, Refineable as _, RenderOnce, Role, SharedString,
-    StatefulInteractiveElement as _, StyleRefinement, Styled, TextAlign, Window, div, px, relative,
+    AnyElement, App, ClickEvent, Context, DefiniteLength, ElementId, FontWeight,
+    InteractiveElement, IntoElement, ParentElement, Pixels, Refineable as _, RenderOnce, Role,
+    SharedString, StatefulInteractiveElement as _, StyleRefinement, Styled, TextAlign, Window, div,
+    px, relative,
 };
+use gpui_component::menu::{ContextMenuExt as _, PopupMenu};
 
 use crate::components::traits::{Sizable, Size};
 use crate::motion::{self, transition};
 use crate::theme::ActiveTheme as _;
+
+type OnClick = Rc<dyn Fn(&ClickEvent, &mut Window, &mut App) + 'static>;
+type ContextMenuFn =
+    Rc<dyn Fn(PopupMenu, &mut Window, &mut Context<PopupMenu>) -> PopupMenu + 'static>;
 
 /// Floor width for a single column so narrow cells stay readable.
 const MIN_CELL_WIDTH: Pixels = px(80.);
@@ -436,24 +443,36 @@ impl RenderOnce for TableFooter {
 #[derive(IntoElement)]
 pub struct TableRow {
     ix: usize,
+    id: Option<ElementId>,
     style: StyleRefinement,
     children: Vec<AnyTablePart>,
     size: Size,
     selected: bool,
     /// Even-row stripe fill (declarative [`DataTable`] sets this).
     striped: bool,
+    on_click: Option<OnClick>,
+    context_menu: Option<ContextMenuFn>,
 }
 
 impl TableRow {
     pub fn new() -> Self {
         Self {
             ix: 0,
+            id: None,
             style: StyleRefinement::default(),
             children: Vec::new(),
             size: Size::default(),
             selected: false,
             striped: false,
+            on_click: None,
+            context_menu: None,
         }
+    }
+
+    /// Stable element id (needed for context-menu open state across re-renders).
+    pub fn id(mut self, id: impl Into<ElementId>) -> Self {
+        self.id = Some(id.into());
+        self
     }
 
     /// Web `data-[state=selected]` — full muted / table-active fill.
@@ -465,6 +484,23 @@ impl TableRow {
     /// Paint the even-row stripe (`table_even`).
     pub fn striped(mut self, striped: bool) -> Self {
         self.striped = striped;
+        self
+    }
+
+    pub fn on_click(
+        mut self,
+        f: impl Fn(&ClickEvent, &mut Window, &mut App) + 'static,
+    ) -> Self {
+        self.on_click = Some(Rc::new(f));
+        self
+    }
+
+    /// Right-click menu for this row (same builder as [`ContextMenuExt::context_menu`]).
+    pub fn context_menu(
+        mut self,
+        f: impl Fn(PopupMenu, &mut Window, &mut Context<PopupMenu>) -> PopupMenu + 'static,
+    ) -> Self {
+        self.context_menu = Some(Rc::new(f));
         self
     }
 
@@ -516,7 +552,9 @@ impl Sizable for TableRow {
 impl RenderOnce for TableRow {
     fn render(self, window: &mut Window, cx: &mut App) -> impl IntoElement {
         let size = self.size;
-        let id: ElementId = ("table-row", self.ix).into();
+        let id = self
+            .id
+            .unwrap_or_else(|| ElementId::from(("table-row", self.ix)));
         let (table_hover, table_active, table_even, transparent, border) = {
             let theme = cx.theme();
             (
@@ -535,6 +573,7 @@ impl RenderOnce for TableRow {
             transparent
         };
         let hover_fill = table_hover;
+        let interactive = self.on_click.is_some() || self.context_menu.is_some();
 
         let state = window.use_keyed_state(id.clone(), cx, |_, _| Cell::new(false));
         let hovered = state.read(cx).get();
@@ -568,6 +607,7 @@ impl RenderOnce for TableRow {
             .flex_row()
             .items_center()
             .bg(fill)
+            .when(interactive, |this| this.cursor_pointer())
             .when(self.ix > 0, |this| this.border_t_1().border_color(border))
             .on_hover(move |hovered, _, cx| {
                 if state_hover.read(cx).get() == *hovered {
@@ -585,7 +625,17 @@ impl RenderOnce for TableRow {
                     .map(|(ix, c)| c.into_any(ix, size)),
             );
         el.style().refine(&self.style);
-        el
+
+        let el = el.when_some(self.on_click, |this, on| {
+            this.on_click(move |e, window, cx| on(e, window, cx))
+        });
+
+        match self.context_menu {
+            Some(builder) => el
+                .context_menu(move |menu, window, cx| builder(menu, window, cx))
+                .into_any_element(),
+            None => el.into_any_element(),
+        }
     }
 }
 

@@ -283,5 +283,4 @@ Linux needs Vulkan + Wayland/X11/fontconfig headers; Windows needs MSVC.
 | [`/docs/desktop`](../../apps/web/content/docs/desktop.mdx) | Architecture, theming, full web→desktop map, bootstrap |
 | [`/docs/desktop-state`](../../apps/web/content/docs/desktop-state.mdx) | Stores, ambient context, selector-gated subscriptions |
 | [`/docs/desktop-components`](../../apps/web/content/docs/desktop-components.mdx) | Toggle, Chip, Meter, Menubar, app composites (header, toolbar, panel, …) |
-| [`/docs/desktop-ai`](../../apps/web/content/docs/desktop-ai.mdx) | Twenty AI kit surfaces (prompt, tools, plans, citations, …) |
 | [`/docs/desktop-bridge`](../../apps/web/content/docs/desktop-bridge.mdx) | HTTP bridge to `apps/api` — health, auth, posts |

@@ -28,7 +28,7 @@
 //!   static-button behavior until the menu family migrates.
 //! - **Icon-only pieces map onto the square icon steps.** The crate `Button`
 //!   has no `compact` step, so the compact nav buttons and the ellipsis
-//!   resolve their [`Size`] to a square [`ButtonSize`] (web's `size-8`
+//!   resolve their [`Size`] to a square [`ButtonSize`] (web's `size-6.5`
 //!   ellipsis is exactly the `Icon` step) instead of a padded one.
 
 use std::{ops::Range, rc::Rc};

@@ -31,7 +31,7 @@ use super::traffic_lights::TRAFFIC_LIGHT_DIAMETER;
 use crate::theme::ActiveTheme as _;
 
 /// Title-bar height for the drag / content band.
-pub const WINDOW_TITLE_BAR_HEIGHT: Pixels = px(28.);
+pub const WINDOW_TITLE_BAR_HEIGHT: Pixels = px(36.);
 
 /// Distance from the window's left edge to the first traffic light (macOS metrics for now).
 /// Use this to pad custom [`Window::title_bar`] content clear of AppKit lights.
@@ -187,7 +187,7 @@ impl RenderOnce for Window {
         let title = if os_chrome {
             native_title_band(&self.id, band_content, window, cx).into_any_element()
         } else {
-            embedded_title_band(band_content).into_any_element()
+            embedded_title_band(band_content, cx).into_any_element()
         };
 
         root.child(title).child(
@@ -201,7 +201,8 @@ impl RenderOnce for Window {
     }
 }
 
-fn embedded_title_band(content: AnyElement) -> impl IntoElement {
+fn embedded_title_band(content: AnyElement, cx: &App) -> impl IntoElement {
+    let theme = cx.theme();
     div()
         .w_full()
         .h(WINDOW_TITLE_BAR_HEIGHT)
@@ -210,6 +211,8 @@ fn embedded_title_band(content: AnyElement) -> impl IntoElement {
         .items_center()
         .justify_center()
         .px(px(12.))
+        .border_b_1()
+        .border_color(theme.primary)
         .child(content)
 }
 
@@ -227,12 +230,15 @@ fn native_title_band(
     });
     let fullscreen = window.is_fullscreen();
 
+    let theme = cx.theme();
     let mut band = div()
         .id(ElementId::Name(format!("window-{id}-title").into()))
         .relative()
         .w_full()
         .h(WINDOW_TITLE_BAR_HEIGHT)
         .flex_shrink_0()
+        .border_b_1()
+        .border_color(theme.primary)
         .window_control_area(WindowControlArea::Drag)
         .on_mouse_down_out(window.listener_for(&state, |state, _, _, _| {
             state.should_move = false;
@@ -277,8 +283,10 @@ fn native_title_band(
             .flex()
             .items_center()
             .justify_center()
-            .when(fullscreen, |this| this.px(px(12.)))
-            .when(!fullscreen, |this| this.px(TITLE_LEADING_PAD))
+            // Leading pad clears traffic lights; no trailing pad so actions
+            // (e.g. project switcher) sit flush on the window's right edge.
+            .when(fullscreen, |this| this.pl(px(12.)))
+            .when(!fullscreen, |this| this.pl(TITLE_LEADING_PAD))
             .child(content),
     )
 }
@@ -547,7 +555,7 @@ mod tests {
 
     #[test]
     fn metrics_match_the_title_band() {
-        assert_eq!(WINDOW_TITLE_BAR_HEIGHT, px(28.0));
+        assert_eq!(WINDOW_TITLE_BAR_HEIGHT, px(36.0));
         assert_eq!(TRAFFIC_INSET, px(20.0));
         assert_eq!(WINDOW_RADIUS, px(10.0));
     }

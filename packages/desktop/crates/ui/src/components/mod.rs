@@ -30,7 +30,7 @@
 //! re-export `gpui-component` and are still being rewritten, one family at a
 //! time. Written on raw gpui so far:
 //!
-//! - **Feedback** — `alert`, `progress`, `skeleton`, `spinner`, `shimmer`,
+//! - **Feedback** — `alert`, `progress`, `skeleton`, `spinner`, `loader`, `shimmer`,
 //!   `icon`, `tooltip` (primitive); `loaders`, `notice`, `context_badge`
 //!   (composite).
 //! - **Structural** — `separator`, `kbd`, `link`, `breadcrumb` (primitive);
@@ -44,10 +44,6 @@
 //! - **Conversation** — `bubble` (primitive); `message`, `marker` (composite);
 //!   `message_scroller` (composite, one tolerated `gpui_base::motion`
 //!   value-transition).
-//! - **AI** — `prompt_input`, `reasoning`, `suggestion`, `tool`, `sources`,
-//!   `chain_of_thought`, `artifact`, `plan`, `task`, `model_selector`, `agent`,
-//!   `confirmation`, `checkpoint`, `queue`, `inline_citation`, `code_block`,
-//!   `snippet`, `terminal`, `conversation`, `context_usage` (`ai` module).
 //! - **Controls** — `button`, `checkbox`, `switch`, `radio`, `slider`
 //!   (primitive); `stepper`, `pagination`, `toolbar_menu`, `collapsible`
 //!   (composite/primitive). `button` keeps two deliberate upstreams: the
@@ -127,7 +123,6 @@
 //! Colors always come from `cx.theme()` / `crate::palette(cx)` — never from a
 //! hex literal at a call site.
 
-pub mod ai;
 pub mod composite;
 pub mod primitive;
 pub mod traits;
@@ -137,32 +132,6 @@ pub mod traits;
 // module-only components (avatar, table, tree, empty, …) are reached through
 // their module path (`components::primitive::table`,
 // `components::composite::empty`).
-//
-// AI family — prefer AiCodeBlock / AiTerminal / AiConfirmation to avoid
-// collisions with composite chrome names. `Task` collides with `gpui::Task`
-// when `use gpui::*` is in scope; import via `components::ai::task::Task`.
-pub use ai::agent::*;
-pub use ai::artifact::*;
-pub use ai::chain_of_thought::*;
-pub use ai::checkpoint::*;
-pub use ai::code_block::*;
-pub use ai::confirmation::*;
-pub use ai::context_usage::*;
-pub use ai::conversation::*;
-pub use ai::inline_citation::*;
-pub use ai::model_selector::*;
-pub use ai::plan::*;
-pub use ai::prompt_input::*;
-pub use ai::queue::*;
-pub use ai::reasoning::*;
-pub use ai::snippet::*;
-pub use ai::sources::*;
-pub use ai::suggestion::*;
-pub use ai::task::{Task as AiTask, TaskItem, TaskStatus};
-pub use ai::terminal::*;
-pub use ai::thinking_text::*;
-pub use ai::tool::*;
-
 pub use composite::action_bar::*;
 pub use composite::activity_feed::*;
 pub use composite::alignment::*;
@@ -284,7 +253,9 @@ pub use primitive::input::*;
 pub use primitive::input_otp::*;
 pub use primitive::item::*;
 pub use primitive::kbd::*;
+pub use primitive::label::*;
 pub use primitive::link::*;
+pub use primitive::loader::*;
 pub use primitive::menubar::*;
 pub use primitive::meter::*;
 pub use primitive::navigation_menu::*;

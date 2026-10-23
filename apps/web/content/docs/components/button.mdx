@@ -21,7 +21,36 @@ import { Button } from "@celestia-project/ui/primitive/button"
 <Button disabled>Disabled</Button>
 ```
 
-| Prop      | Type                                                                 | Default   |
-| --------- | -------------------------------------------------------------------- | --------- |
-| `variant` | `default \| secondary \| outline \| ghost \| destructive \| link`    | `default` |
-| `size`    | `default \| xs \| sm \| lg \| icon \| icon-xs \| icon-sm \| icon-lg` | `default` |
+| Prop      | Type                                                                                        | Default   |
+| --------- | ------------------------------------------------------------------------------------------- | --------- |
+| `variant` | `default \| secondary \| outline \| ghost \| quiet \| destructive \| link`                  | `default` |
+| `size`    | `default \| xs \| sm \| md \| lg \| icon \| icon-xs \| icon-sm \| icon-lg`                   | `default` |
+| `mono`    | `boolean`                                                                                   | `false`   |
+| `leading` | `relaxed \| tight`                                                                          | `relaxed` |
+
+## Size metrics
+
+Labeled sizes:
+
+| Step | Height | Padding X | Gap | Text | Icon glyph |
+| ---- | ------ | --------- | --- | ---- | ---------- |
+| `xs` | 20px (`h-5`) | 8px | 4px | 10px (`text-3xs`) | 10px (`size-2.5`) |
+| `sm` | 24px (`h-6`) | 10px | 4px | 12px | 12px (`size-3`) |
+| `default` | 26px (`h-6.5`) | 12px | 6px | 12px | 14px (`size-3.5`) |
+| `md` | 28px (`h-7`) | 10px | 4px | 12px | 12px (`size-3`) |
+| `lg` | 36px (`h-9`) | 14px | 6px | 12px (`text-xs`) | 16px (`size-4`) |
+
+`md` is `sm` with one more step of height — nothing else changes — so it is taller than `default` but keeps the smaller icon. `default` matches the active pill inside tabs (`h-8` track with inset padding).
+
+## Icon-only metrics
+
+Icon-only squares sit one step under the old roomy sizes so the glyph has less chrome around it. Glyph sizes stay on the labeled ladder.
+
+| Step | Button (square) | Glyph |
+| ---- | --------------- | ----- |
+| `icon-xs` | 16px (`size-4`) | 10px (`size-2.5`) |
+| `icon-sm` | 20px (`size-5`) | 12px (`size-3`) |
+| `icon` | 26px (`size-6.5`) | 14px (`size-3.5`) |
+| `icon-lg` | 32px (`size-8`) | 16px (`size-4`) |
+
+Default icon-only is `icon` (26×26 with a 14px glyph) — same height as labeled `default`. Icons inside labeled buttons use the labeled size ladder above unless the SVG sets its own `size-*` class.

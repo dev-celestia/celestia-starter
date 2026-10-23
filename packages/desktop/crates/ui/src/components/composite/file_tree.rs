@@ -8,15 +8,18 @@ use std::rc::Rc;
 
 use gpui::prelude::FluentBuilder as _;
 use gpui::{
-    AnyElement, App, ClickEvent, ElementId, FontWeight, InteractiveElement as _, IntoElement,
-    ParentElement, Refineable as _, RenderOnce, SharedString, StatefulInteractiveElement as _,
-    StyleRefinement, Styled, Window, div, px,
+    AnyElement, App, ClickEvent, Context, ElementId, FontWeight, Hsla, InteractiveElement as _,
+    IntoElement, ParentElement, Refineable as _, RenderOnce, SharedString,
+    StatefulInteractiveElement as _, StyleRefinement, Styled, Window, div, px,
 };
+use gpui_component::menu::{ContextMenuExt as _, PopupMenu};
 
 use crate::components::primitive::icon::{Phosphor, PhosphorIcon};
 use crate::theme::ActiveTheme as _;
 
 type OnClick = Rc<dyn Fn(&ClickEvent, &mut Window, &mut App) + 'static>;
+type ContextMenuFn =
+    Rc<dyn Fn(PopupMenu, &mut Window, &mut Context<PopupMenu>) -> PopupMenu + 'static>;
 
 /// Root file-tree surface (web `FileTree`).
 #[derive(IntoElement)]
@@ -24,6 +27,9 @@ pub struct FileTree {
     id: ElementId,
     style: StyleRefinement,
     children: Vec<AnyElement>,
+    context_menu: Option<ContextMenuFn>,
+    /// Inset around the rows (default: on). Off for a tree that owns its pane.
+    padded: bool,
 }
 
 impl FileTree {
@@ -32,11 +38,31 @@ impl FileTree {
             id: id.into(),
             style: StyleRefinement::default(),
             children: Vec::new(),
+            context_menu: None,
+            padded: true,
         }
     }
 
     pub fn child(mut self, child: impl IntoElement) -> Self {
         self.children.push(child.into_any_element());
+        self
+    }
+
+    /// Draw the 8px inset around the rows (default: on).
+    ///
+    /// A tree that fills a panel edge-to-edge turns this off so the rows (and
+    /// their selection pill) meet the panel border instead of floating inside it.
+    pub fn padded(mut self, padded: bool) -> Self {
+        self.padded = padded;
+        self
+    }
+
+    /// Right-click menu for the tree background (empty area).
+    pub fn context_menu(
+        mut self,
+        f: impl Fn(PopupMenu, &mut Window, &mut Context<PopupMenu>) -> PopupMenu + 'static,
+    ) -> Self {
+        self.context_menu = Some(Rc::new(f));
         self
     }
 }
@@ -73,14 +99,19 @@ impl RenderOnce for FileTree {
                 div()
                     .id(ElementId::Name(format!("{}-body", id).into()))
                     .w_full()
-                    .p(px(8.0))
+                    .when(self.padded, |this| this.p(px(8.0)))
                     .flex()
                     .flex_col()
-                    .gap(px(1.0))
+                    .gap(px(0.))
                     .children(self.children),
             );
         root.style().refine(&self.style);
-        root
+        match self.context_menu {
+            Some(builder) => root
+                .context_menu(move |menu, window, cx| builder(menu, window, cx))
+                .into_any_element(),
+            None => root.into_any_element(),
+        }
     }
 }
 
@@ -92,9 +123,16 @@ pub struct FileTreeFolder {
     name: SharedString,
     expanded: bool,
     selected: bool,
+    /// Soften the label (e.g. gitignored paths).
+    dimmed: bool,
+    /// Override label color (e.g. git dirty status). Wins over [`Self::dimmed`].
+    label_color: Option<Hsla>,
     on_toggle: Option<OnClick>,
     on_select: Option<OnClick>,
     actions: Option<AnyElement>,
+    /// Custom folder mark (e.g. explorer-icon SVG). Replaces the Phosphor icon.
+    mark: Option<AnyElement>,
+    context_menu: Option<ContextMenuFn>,
     children: Vec<AnyElement>,
 }
 
@@ -108,9 +146,13 @@ impl FileTreeFolder {
             name: name.into(),
             expanded: false,
             selected: false,
+            dimmed: false,
+            label_color: None,
             on_toggle: None,
             on_select: None,
             actions: None,
+            mark: None,
+            context_menu: None,
             children: Vec::new(),
         }
     }
@@ -122,6 +164,18 @@ impl FileTreeFolder {
 
     pub fn selected(mut self, selected: bool) -> Self {
         self.selected = selected;
+        self
+    }
+
+    /// Soften the label color (gitignored / excluded paths).
+    pub fn dimmed(mut self, dimmed: bool) -> Self {
+        self.dimmed = dimmed;
+        self
+    }
+
+    /// Override the folder name color (e.g. git status tint).
+    pub fn label_color(mut self, color: Hsla) -> Self {
+        self.label_color = Some(color);
         self
     }
 
@@ -142,6 +196,21 @@ impl FileTreeFolder {
         self
     }
 
+    /// Custom folder mark (e.g. explorer-icon SVG). Replaces the Phosphor icon.
+    pub fn mark(mut self, mark: impl IntoElement) -> Self {
+        self.mark = Some(mark.into_any_element());
+        self
+    }
+
+    /// Right-click menu for this folder row.
+    pub fn context_menu(
+        mut self,
+        f: impl Fn(PopupMenu, &mut Window, &mut Context<PopupMenu>) -> PopupMenu + 'static,
+    ) -> Self {
+        self.context_menu = Some(Rc::new(f));
+        self
+    }
+
     pub fn child(mut self, child: impl IntoElement) -> Self {
         self.children.push(child.into_any_element());
         self
@@ -159,6 +228,14 @@ impl RenderOnce for FileTreeFolder {
         let theme = cx.theme();
         let expanded = self.expanded;
         let selected = self.selected;
+        let dimmed = self.dimmed;
+        let name_color = self
+            .label_color
+            .unwrap_or(if dimmed {
+                theme.muted_foreground
+            } else {
+                theme.foreground
+            });
         let folder_icon = if expanded {
             PhosphorIcon::FolderOpen
         } else {
@@ -169,13 +246,14 @@ impl RenderOnce for FileTreeFolder {
         } else {
             PhosphorIcon::CaretRight
         };
+        let has_mark = self.mark.is_some();
 
         let row = div()
             .id(ElementId::Name(format!("{}-row", self.path).into()))
             .w_full()
-            .h(px(28.0))
+            .h(px(22.0))
             .px(px(6.0))
-            .rounded(px(4.0))
+            .rounded(px(2.0))
             .flex()
             .flex_row()
             .items_center()
@@ -211,17 +289,21 @@ impl RenderOnce for FileTreeFolder {
                     .items_center()
                     .gap(px(4.0))
                     .cursor_pointer()
+                    .when(dimmed, |d| d.opacity(0.5))
                     .when_some(self.on_select, |d, on| {
                         d.on_click(move |e, w, cx| on(e, w, cx))
                     })
-                    .child(Phosphor::new(folder_icon).size(px(14.0)).color(theme.info))
+                    .when_some(self.mark, |d, mark| d.child(mark))
+                    .when(!has_mark, |d| {
+                        d.child(Phosphor::new(folder_icon).size(px(14.0)).color(theme.info))
+                    })
                     .child(
                         div()
                             .flex_1()
                             .min_w_0()
                             .text_sm()
                             .font_weight(FontWeight::MEDIUM)
-                            .text_color(theme.foreground)
+                            .text_color(name_color)
                             .whitespace_nowrap()
                             .overflow_hidden()
                             .text_ellipsis()
@@ -229,6 +311,13 @@ impl RenderOnce for FileTreeFolder {
                     ),
             )
             .when_some(self.actions, |d, actions| d.child(actions));
+
+        let row = match self.context_menu {
+            Some(builder) => row
+                .context_menu(move |menu, window, cx| builder(menu, window, cx))
+                .into_any_element(),
+            None => row.into_any_element(),
+        };
 
         div()
             .id(self.id)
@@ -247,7 +336,7 @@ impl RenderOnce for FileTreeFolder {
                         .border_color(theme.border)
                         .flex()
                         .flex_col()
-                        .gap(px(1.0))
+                        .gap(px(0.))
                         .children(self.children),
                 )
             })
@@ -260,9 +349,16 @@ pub struct FileTreeFile {
     id: ElementId,
     name: SharedString,
     selected: bool,
+    /// Soften the label (e.g. gitignored paths).
+    dimmed: bool,
+    /// Override label color (e.g. git dirty status). Wins over [`Self::dimmed`].
+    label_color: Option<Hsla>,
     icon: Option<PhosphorIcon>,
+    /// Custom mark (SVG / image). Wins over [`Self::icon`] when set.
+    mark: Option<AnyElement>,
     on_select: Option<OnClick>,
     actions: Option<AnyElement>,
+    context_menu: Option<ContextMenuFn>,
 }
 
 impl FileTreeFile {
@@ -273,9 +369,13 @@ impl FileTreeFile {
             id: ElementId::Name(path),
             name: name.into(),
             selected: false,
+            dimmed: false,
+            label_color: None,
             icon: None,
+            mark: None,
             on_select: None,
             actions: None,
+            context_menu: None,
         }
     }
 
@@ -284,8 +384,35 @@ impl FileTreeFile {
         self
     }
 
+    /// Soften the label color (gitignored / excluded paths).
+    pub fn dimmed(mut self, dimmed: bool) -> Self {
+        self.dimmed = dimmed;
+        self
+    }
+
+    /// Override the file name color (e.g. git status tint).
+    pub fn label_color(mut self, color: Hsla) -> Self {
+        self.label_color = Some(color);
+        self
+    }
+
     pub fn icon(mut self, icon: PhosphorIcon) -> Self {
         self.icon = Some(icon);
+        self
+    }
+
+    /// Custom file mark (SVG / image). Wins over [`Self::icon`] when set.
+    pub fn mark(mut self, mark: impl IntoElement) -> Self {
+        self.mark = Some(mark.into_any_element());
+        self
+    }
+
+    /// Right-click menu for this file row.
+    pub fn context_menu(
+        mut self,
+        f: impl Fn(PopupMenu, &mut Window, &mut Context<PopupMenu>) -> PopupMenu + 'static,
+    ) -> Self {
+        self.context_menu = Some(Rc::new(f));
         self
     }
 
@@ -304,14 +431,23 @@ impl RenderOnce for FileTreeFile {
     fn render(self, _: &mut Window, cx: &mut App) -> impl IntoElement {
         let theme = cx.theme();
         let selected = self.selected;
+        let dimmed = self.dimmed;
+        let name_color = self
+            .label_color
+            .unwrap_or(if dimmed {
+                theme.muted_foreground
+            } else {
+                theme.foreground
+            });
         let icon = self.icon.unwrap_or(PhosphorIcon::File);
+        let has_mark = self.mark.is_some();
 
-        div()
+        let row = div()
             .id(self.id)
             .w_full()
-            .h(px(28.0))
+            .h(px(22.0))
             .px(px(6.0))
-            .rounded(px(4.0))
+            .rounded(px(2.0))
             .flex()
             .flex_row()
             .items_center()
@@ -324,24 +460,41 @@ impl RenderOnce for FileTreeFile {
             })
             // Spacer aligns with folder caret column.
             .child(div().size(px(16.0)).flex_shrink_0())
-            .child(
-                Phosphor::new(icon)
-                    .size(px(14.0))
-                    .color(theme.muted_foreground),
-            )
+            .when_some(self.mark, |d, mark| {
+                d.child(div().when(dimmed, |m| m.opacity(0.5)).child(mark))
+            })
+            .when(!has_mark, |d| {
+                d.child(
+                    Phosphor::new(icon)
+                        .size(px(14.0))
+                        .color(if dimmed {
+                            theme.muted_foreground.opacity(0.5)
+                        } else {
+                            theme.muted_foreground
+                        }),
+                )
+            })
             .child(
                 div()
                     .flex_1()
                     .min_w_0()
                     .text_sm()
                     .font_weight(FontWeight::NORMAL)
-                    .text_color(theme.foreground)
+                    .text_color(name_color)
+                    .when(dimmed && self.label_color.is_none(), |d| d.opacity(0.85))
                     .whitespace_nowrap()
                     .overflow_hidden()
                     .text_ellipsis()
                     .child(self.name),
             )
-            .when_some(self.actions, |d, actions| d.child(actions))
+            .when_some(self.actions, |d, actions| d.child(actions));
+
+        match self.context_menu {
+            Some(builder) => row
+                .context_menu(move |menu, window, cx| builder(menu, window, cx))
+                .into_any_element(),
+            None => row.into_any_element(),
+        }
     }
 }
 

@@ -1,7 +1,8 @@
 //! StartMenu — Windows-style start menu flyout.
 //!
-//! Search header, pinned app grid, recommended list, and a footer with user /
-//! power actions. Presentational: the host owns open state and navigation.
+//! Search header, pinned app grid or list, recommended list, and an optional
+//! footer with user / power actions. Presentational: the host owns open state
+//! and navigation.
 
 use std::rc::Rc;
 
@@ -185,7 +186,7 @@ impl RenderOnce for StartMenuItem {
     }
 }
 
-/// Start menu flyout: search, pinned grid, recommended list, footer.
+/// Start menu flyout: search, pinned grid or list, recommended list, footer.
 #[derive(IntoElement)]
 pub struct StartMenu {
     id: ElementId,
@@ -193,6 +194,8 @@ pub struct StartMenu {
     search: Option<AnyElement>,
     pins_label: SharedString,
     pins: Vec<AnyElement>,
+    /// When true, pins stack as a vertical icon list instead of a wrap grid.
+    pins_list: bool,
     recommended_label: SharedString,
     recommended: Vec<AnyElement>,
     footer_leading: Option<AnyElement>,
@@ -207,6 +210,7 @@ impl StartMenu {
             search: None,
             pins_label: "Pinned".into(),
             pins: Vec::new(),
+            pins_list: false,
             recommended_label: "Recommended".into(),
             recommended: Vec::new(),
             footer_leading: None,
@@ -221,6 +225,12 @@ impl StartMenu {
 
     pub fn pins_label(mut self, label: impl Into<SharedString>) -> Self {
         self.pins_label = label.into();
+        self
+    }
+
+    /// Render pins as a vertical `[icon] label` list instead of a wrap grid.
+    pub fn pins_list(mut self, list: bool) -> Self {
+        self.pins_list = list;
         self
     }
 
@@ -261,6 +271,11 @@ impl Styled for StartMenu {
 impl RenderOnce for StartMenu {
     fn render(self, _: &mut Window, cx: &mut App) -> impl IntoElement {
         let theme = cx.theme();
+        let has_footer = self.footer_leading.is_some() || !self.footer_trailing.is_empty();
+        let pins_list = self.pins_list;
+        let pins_empty = self.pins.is_empty();
+        let recommended_empty = self.recommended.is_empty();
+        let pad_pins_bottom = !has_footer && recommended_empty;
         let mut root = div()
             .id(self.id)
             .w(px(360.0))
@@ -276,11 +291,12 @@ impl RenderOnce for StartMenu {
         root.when_some(self.search, |this, search| {
             this.child(div().px(px(14.0)).pt(px(14.0)).pb(px(8.0)).child(search))
         })
-        .when(!self.pins.is_empty(), |this| {
+        .when(!pins_empty, |this| {
             this.child(
                 div()
                     .px(px(14.0))
                     .pt(px(8.0))
+                    .when(pad_pins_bottom, |d| d.pb(px(12.0)))
                     .child(
                         div()
                             .mb(px(6.0))
@@ -292,14 +308,13 @@ impl RenderOnce for StartMenu {
                     .child(
                         div()
                             .flex()
-                            .flex_row()
-                            .flex_wrap()
-                            .gap(px(4.0))
+                            .when(pins_list, |d| d.flex_col().gap(px(2.0)))
+                            .when(!pins_list, |d| d.flex_row().flex_wrap().gap(px(4.0)))
                             .children(self.pins),
                     ),
             )
         })
-        .when(!self.recommended.is_empty(), |this| {
+        .when(!recommended_empty, |this| {
             this.child(
                 div()
                     .px(px(14.0))
@@ -322,27 +337,29 @@ impl RenderOnce for StartMenu {
                     ),
             )
         })
-        .child(
-            div()
-                .mt(px(4.0))
-                .px(px(10.0))
-                .py(px(8.0))
-                .border_t_1()
-                .border_color(theme.border)
-                .flex()
-                .flex_row()
-                .items_center()
-                .gap(px(8.0))
-                .when_some(self.footer_leading, |this, leading| this.child(leading))
-                .child(div().flex_1())
-                .child(
-                    div()
-                        .flex()
-                        .flex_row()
-                        .items_center()
-                        .gap(px(4.0))
-                        .children(self.footer_trailing),
-                ),
-        )
+        .when(has_footer, |this| {
+            this.child(
+                div()
+                    .mt(px(4.0))
+                    .px(px(10.0))
+                    .py(px(8.0))
+                    .border_t_1()
+                    .border_color(theme.border)
+                    .flex()
+                    .flex_row()
+                    .items_center()
+                    .gap(px(8.0))
+                    .when_some(self.footer_leading, |this, leading| this.child(leading))
+                    .child(div().flex_1())
+                    .child(
+                        div()
+                            .flex()
+                            .flex_row()
+                            .items_center()
+                            .gap(px(4.0))
+                            .children(self.footer_trailing),
+                    ),
+            )
+        })
     }
 }

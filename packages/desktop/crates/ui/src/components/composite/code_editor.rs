@@ -23,8 +23,8 @@ use crate::components::traits::Selectable as _;
 use crate::theme::ActiveTheme as _;
 use gpui::prelude::FluentBuilder as _;
 use gpui::{
-    App, AppContext as _, Context, Entity, IntoElement, ParentElement, Render, SharedString,
-    Styled, Subscription, Window, div, px,
+    App, AppContext as _, Context, Entity, IntoElement, ParentElement, Pixels, Render,
+    SharedString, Styled, Subscription, Window, div, px,
 };
 use gpui_component::input::{Editor, EditorState, InputEvent, RopeExt};
 use gpui_component::{h_flex, v_flex};
@@ -32,6 +32,15 @@ use minimap::{MinimapInteraction, MinimapSnapshot, render_minimap};
 
 /// Height of the editing surface, until the parent imposes its own.
 const EDITOR_HEIGHT: f32 = 280.;
+
+/// How the editing surface takes its height.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Height {
+    /// The standalone preview height above.
+    Fixed,
+    /// Whatever the parent leaves over — for an editor that owns its pane.
+    Fill,
+}
 
 /// How long the minimap waits for typing to pause before re-scanning the
 /// buffer. The scan itself runs off the main thread, so this only trades a
@@ -44,6 +53,19 @@ pub struct CodeEditor {
     language: SharedString,
     /// When true, paint the overview strip on the right.
     show_minimap: bool,
+    /// When true, show the footer chrome with the minimap toggle.
+    /// Hosts that own their own floating controls turn this off.
+    show_minimap_toggle: bool,
+    /// When true, the card gets a border and rounded corners. Editors that own
+    /// their pane turn this off so they sit flush in it.
+    bordered: bool,
+    /// Where the editing surface gets its height from.
+    height: Height,
+    /// Override the theme mono font size for this editor. `None` keeps the
+    /// theme default (`mono_font_size`).
+    font_size: Option<Pixels>,
+    /// Override the theme mono font family. `None` keeps `mono_font_family`.
+    font_family: Option<SharedString>,
     /// Scanned copy of the buffer the strip paints from.
     minimap: Rc<MinimapSnapshot>,
     /// Bumped per edit so only the newest queued rebuild lands.
@@ -74,7 +96,12 @@ impl CodeEditor {
         Self {
             editor,
             language,
-            show_minimap: true,
+            show_minimap: false,
+            show_minimap_toggle: true,
+            bordered: true,
+            height: Height::Fixed,
+            font_size: None,
+            font_family: None,
             minimap,
             minimap_seq: 0,
             minimap_interaction,
@@ -84,6 +111,12 @@ impl CodeEditor {
 
     pub fn text(&self, cx: &App) -> String {
         self.editor.read(cx).text().to_string()
+    }
+
+    /// Underlying editing engine — for hosts that install LSP providers or
+    /// push diagnostics onto [`EditorState`].
+    pub fn editor_state(&self) -> Entity<EditorState> {
+        self.editor.clone()
     }
 
     pub fn set_text(&self, text: impl Into<SharedString>, window: &mut Window, cx: &mut App) {
@@ -128,6 +161,97 @@ impl CodeEditor {
         self.show_minimap
     }
 
+    /// Show or hide the footer minimap toggle (default: shown).
+    pub fn set_show_minimap_toggle(&mut self, show: bool, cx: &mut Context<Self>) {
+        if self.show_minimap_toggle == show {
+            return;
+        }
+        self.show_minimap_toggle = show;
+        cx.notify();
+    }
+
+    /// Override the editor's monospace font size (default: theme `mono_font_size`).
+    pub fn set_font_size(&mut self, size: impl Into<Pixels>, cx: &mut Context<Self>) {
+        let size = size.into();
+        if self.font_size == Some(size) {
+            return;
+        }
+        self.font_size = Some(size);
+        cx.notify();
+    }
+
+    /// Clear a font-size override so the theme mono size is used again.
+    pub fn clear_font_size(&mut self, cx: &mut Context<Self>) {
+        if self.font_size.is_none() {
+            return;
+        }
+        self.font_size = None;
+        cx.notify();
+    }
+
+    pub fn font_size(&self) -> Option<Pixels> {
+        self.font_size
+    }
+
+    /// Override the editor's monospace font family (default: theme `mono_font_family`).
+    pub fn set_font_family(
+        &mut self,
+        family: impl Into<SharedString>,
+        cx: &mut Context<Self>,
+    ) {
+        let family = family.into();
+        if self.font_family.as_ref() == Some(&family) {
+            return;
+        }
+        self.font_family = Some(family);
+        cx.notify();
+    }
+
+    /// Clear a font-family override so the theme mono face is used again.
+    pub fn clear_font_family(&mut self, cx: &mut Context<Self>) {
+        if self.font_family.is_none() {
+            return;
+        }
+        self.font_family = None;
+        cx.notify();
+    }
+
+    pub fn font_family(&self) -> Option<&SharedString> {
+        self.font_family.as_ref()
+    }
+
+    /// Draw the card's border and rounded corners (default: on).
+    ///
+    /// An editor that owns its pane turns the border off and keeps only the
+    /// header tint, so the code meets the pane edges without a frame inside a
+    /// frame.
+    pub fn set_bordered(&mut self, bordered: bool, cx: &mut Context<Self>) {
+        if self.bordered == bordered {
+            return;
+        }
+        self.bordered = bordered;
+        cx.notify();
+    }
+
+    pub fn bordered(&self) -> bool {
+        self.bordered
+    }
+
+    /// Take the height from the parent instead of the fixed preview height
+    /// (default: fixed).
+    pub fn set_fill_height(&mut self, fill: bool, cx: &mut Context<Self>) {
+        let height = if fill { Height::Fill } else { Height::Fixed };
+        if self.height == height {
+            return;
+        }
+        self.height = height;
+        cx.notify();
+    }
+
+    pub fn fills_height(&self) -> bool {
+        self.height == Height::Fill
+    }
+
     /// Re-scan the buffer for the strip, off the main thread.
     ///
     /// Typing produces one edit per keystroke; each queues a rebuild that only
@@ -161,68 +285,23 @@ impl CodeEditor {
 
 impl Render for CodeEditor {
     fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        let lines = self.line_count(cx);
         let show_minimap = self.show_minimap;
-
-        // The strip is the editor's only chrome control, so it sits in the
-        // header rather than floating over the text: a hover-revealed affordance
-        // would be undiscoverable, and an always-on overlay would eat clicks
-        // meant for the code underneath.
-        let minimap_toggle = Button::icon(
-            ("code-editor-minimap-toggle", cx.entity().entity_id()),
-            Phosphor::new(PhosphorIcon::MapTrifold).size(px(14.0)),
-        )
-        .size(ButtonSize::IconSm)
-        .variant(ButtonVariant::Ghost)
-        .selected(show_minimap)
-        .accessibility_label("Toggle minimap")
-        .tooltip(if show_minimap {
-            "Hide minimap"
-        } else {
-            "Show minimap"
-        })
-        .on_click(cx.listener(|this, _, _, cx| {
-            this.set_minimap(!this.show_minimap, cx);
-        }));
+        let show_minimap_toggle = self.show_minimap_toggle;
+        let bordered = self.bordered;
+        let fill = self.height == Height::Fill;
+        let font_size = self.font_size;
+        let font_family = self.font_family.clone();
 
         v_flex()
             .w_full()
-            .border_1()
-            .border_color(cx.theme().border)
-            .rounded(cx.theme().radius)
+            .when(fill, |this| this.size_full().min_h_0())
+            .when(bordered, |this| {
+                this.border_1()
+                    .border_color(cx.theme().border)
+                    .rounded(cx.theme().radius)
+            })
             .overflow_hidden()
             .bg(cx.theme().background)
-            .child(
-                h_flex()
-                    .w_full()
-                    .items_center()
-                    .justify_between()
-                    .px_3()
-                    .py_1p5()
-                    .bg(cx.theme().muted.opacity(0.4))
-                    .border_b_1()
-                    .border_color(cx.theme().border)
-                    .child(
-                        div()
-                            .text_xs()
-                            .font_weight(gpui::FontWeight::MEDIUM)
-                            .text_color(cx.theme().foreground)
-                            .child(self.language.clone()),
-                    )
-                    .child(
-                        h_flex()
-                            .items_center()
-                            .gap_1()
-                            .child(
-                                div()
-                                    .text_xs()
-                                    .font_family(cx.theme().mono_font_family.clone())
-                                    .text_color(cx.theme().muted_foreground)
-                                    .child(format!("{lines} lines")),
-                            )
-                            .child(minimap_toggle),
-                    ),
-            )
             // The height must land on the Editor itself: the input renders its
             // own box with `h_auto`, so a sized wrapper div never propagates in
             // and the editor collapses to a single line.
@@ -230,16 +309,36 @@ impl Render for CodeEditor {
                 h_flex()
                     .w_full()
                     .min_h_0()
+                    // `h_flex` centers its children, so a filling editor needs
+                    // the cross axis stretched before a percentage can resolve.
+                    .when(fill, |this| this.flex_1().items_stretch())
                     .child(
                         div()
                             .flex_1()
                             .min_w_0()
-                            .child(Editor::new(&self.editor).h(px(EDITOR_HEIGHT))),
+                            .when(fill, |this| this.h_full().min_h_0())
+                            .child(
+                                Editor::new(&self.editor)
+                                    .bordered(bordered)
+                                    .when(fill, |this| this.h_full())
+                                    .when(!fill, |this| this.h(px(EDITOR_HEIGHT)))
+                                    // Refine after Editor's theme mono face/size
+                                    // so host overrides (Coder settings) win.
+                                    .when_some(font_family, |this, family| {
+                                        this.font_family(family)
+                                    })
+                                    .when_some(font_size, |this, size| this.text_size(size)),
+                            ),
                     )
                     .when(show_minimap, |this| {
-                        // The row's height is auto, so the strip gets an explicit one
-                        // instead of a percentage that would resolve against nothing.
-                        this.child(div().flex_none().h(px(EDITOR_HEIGHT)).child(render_minimap(
+                        // A fixed-height row gives the strip an explicit height;
+                        // a filling one hands it the row's.
+                        let strip = if fill {
+                            div().flex_none().h_full().min_h_0()
+                        } else {
+                            div().flex_none().h(px(EDITOR_HEIGHT))
+                        };
+                        this.child(strip.child(render_minimap(
                             self.editor.clone(),
                             self.minimap.clone(),
                             self.minimap_interaction.clone(),
@@ -247,6 +346,40 @@ impl Render for CodeEditor {
                         )))
                     }),
             )
+            .when(show_minimap_toggle, |this| {
+                // Footer chrome when the host does not provide its own toggle.
+                this.child(
+                    h_flex()
+                        .w_full()
+                        .when(fill, |row| row.flex_none())
+                        .items_center()
+                        .justify_end()
+                        .px_2()
+                        .py_1()
+                        .bg(cx.theme().muted.opacity(0.4))
+                        .when(bordered, |row| {
+                            row.border_t_1().border_color(cx.theme().border)
+                        })
+                        .child(
+                            Button::icon(
+                                ("code-editor-minimap-toggle", cx.entity().entity_id()),
+                                Phosphor::new(PhosphorIcon::MapTrifold).size(px(14.0)),
+                            )
+                            .size(ButtonSize::IconSm)
+                            .variant(ButtonVariant::Ghost)
+                            .selected(show_minimap)
+                            .accessibility_label("Toggle minimap")
+                            .tooltip(if show_minimap {
+                                "Hide minimap"
+                            } else {
+                                "Show minimap"
+                            })
+                            .on_click(cx.listener(|this, _, _, cx| {
+                                this.set_minimap(!this.show_minimap, cx);
+                            })),
+                        ),
+                )
+            })
     }
 }
 

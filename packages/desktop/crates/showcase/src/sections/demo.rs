@@ -75,6 +75,7 @@ impl Showcase {
             | Demo::NumberStepper
             | Demo::Fab
             | Demo::Spinner
+            | Demo::Loader
             | Demo::Skeleton
             | Demo::Shimmer => self.render_feedback_demo(demo, cx),
 
@@ -117,19 +118,8 @@ impl Showcase {
             | Demo::Resizable
             | Demo::ResizableSplit => self.render_layout_demo(demo, cx),
 
-            // Chat & AI
-            Demo::Message
-            | Demo::PromptInput
-            | Demo::Reasoning
-            | Demo::ThinkingText
-            | Demo::Tool
-            | Demo::Suggestion
-            | Demo::Plan
-            | Demo::Agent
-            | Demo::AiCodeBlock
-            | Demo::AiTerminal
-            | Demo::Conversation
-            | Demo::Attachment => self.render_chat_demo(demo, cx),
+            // Message — a content surface, filed with the composites
+            Demo::Message => self.render_message_demo(demo, cx),
 
             // Editors
             Demo::TextEditor | Demo::CodeEditor => self.render_editor_demo(demo, cx),

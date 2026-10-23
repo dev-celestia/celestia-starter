@@ -33,6 +33,7 @@ use gpui::{
     relative,
 };
 
+use crate::components::primitive::loader::Loader;
 use crate::components::primitive::shimmer::{ShimmerStyle, ShimmerText};
 use crate::components::primitive::spinner::Spinner;
 use crate::theme::ActiveTheme as _;
@@ -55,6 +56,8 @@ pub enum MarkerLoadingStyle {
     /// Show a compact rotating spinner beside the marker content.
     #[default]
     Spinner,
+    /// Show an eight-pixel diamond chase beside the marker content.
+    Diamond,
     /// Sweep a highlight across marker content without adding an icon.
     Shimmer,
 }
@@ -232,10 +235,19 @@ impl RenderOnce for Marker {
             rule.style().refine(&separator_style);
             row = row.child(rule);
         }
-        // A spinner is only injected when the caller did not supply an icon of
-        // their own — a custom glyph already reads as "something is happening".
-        if loading && loading_style == MarkerLoadingStyle::Spinner && !has_icon {
-            row = row.child(MarkerIcon::new().child(Spinner::new().size(px(12.0))));
+        // A loading mark is only injected when the caller did not supply an
+        // icon of their own — a custom glyph already reads as "something is
+        // happening".
+        if loading && !has_icon {
+            match loading_style {
+                MarkerLoadingStyle::Spinner => {
+                    row = row.child(MarkerIcon::new().child(Spinner::new().size(px(12.0))));
+                }
+                MarkerLoadingStyle::Diamond => {
+                    row = row.child(MarkerIcon::new().child(Loader::diamond().size(px(12.0))));
+                }
+                MarkerLoadingStyle::Shimmer => {}
+            }
         }
         row = row.children(children);
         if variant == MarkerVariant::Separator {

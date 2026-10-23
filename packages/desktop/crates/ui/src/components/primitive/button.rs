@@ -14,9 +14,10 @@
 //! - **Icon slots.** [`Button::leading_icon`] / [`Button::trailing_icon`] are the
 //!   typed form of web's `data-icon="inline-start"` / `"inline-end"` children,
 //!   and [`Button::icon`] builds an icon-only button.
-//! - **Loading.** [`Button::loading`] swaps the leading slot for a
-//!   [`Spinner`] and blocks interaction. Web has no `loading` prop at all; the
-//!   state is assembled there from `disabled` plus a hand-placed spinner.
+//! - **Loading.** [`Button::loading`] swaps the leading slot for a loading
+//!   mark ([`Spinner`] by default, or [`ButtonLoadingStyle::Diamond`]) and
+//!   blocks interaction. Web has no `loading` prop at all; the state is
+//!   assembled there from `disabled` plus a hand-placed spinner.
 //!
 //! One dependency is still deliberate: [`Button::dropdown_menu`] opens
 //! `gpui-component`'s `PopupMenu`, because the menu family (popup surfaces,
@@ -30,7 +31,7 @@ use std::rc::Rc;
 use crate::motion::transition;
 use gpui::prelude::FluentBuilder as _;
 use gpui::{
-    AnimationExt as _, AnyElement, App, BoxShadow, ClickEvent, Context, Div, ElementId,
+    Anchor, AnimationExt as _, AnyElement, App, BoxShadow, ClickEvent, Context, Div, ElementId,
     FocusHandle, FontWeight, Hsla, InteractiveElement, Interactivity, IntoElement, MouseButton,
     ParentElement, Pixels, RenderOnce, Role, SharedString, SpringAnimation, SpringConfig, Stateful,
     StatefulInteractiveElement as _, StyleRefinement, Styled, Window, div, point, px,
@@ -41,6 +42,7 @@ use gpui_component::Selectable as GpuiSelectable;
 use gpui_component::menu::{DropdownMenu, PopupMenu};
 
 use crate::components::primitive::icon::PhosphorIcon;
+use crate::components::primitive::loader::Loader;
 use crate::components::primitive::spinner::Spinner;
 use crate::components::traits::{Disableable, Selectable, Sizable, Size};
 use crate::motion;
@@ -89,6 +91,16 @@ impl ButtonVariant {
     pub fn is_status(self) -> bool {
         Self::STATUS.contains(&self)
     }
+}
+
+/// The mark shown in the leading slot while [`Button::loading`] is set.
+#[derive(Clone, Copy, Default, PartialEq, Eq, Debug)]
+pub enum ButtonLoadingStyle {
+    /// Rotating Phosphor spinner — the default.
+    #[default]
+    Spinner,
+    /// Eight-pixel diamond chase ([`Loader::diamond`]).
+    Diamond,
 }
 
 /// The resolved style of one [`ButtonVariant`], before the hover fade is
@@ -167,13 +179,13 @@ pub enum ButtonSize {
     /// `gap-1.5` (6px) — the desktop widens both, so this is the one step that
     /// is deliberately *not* a straight port. See the metrics test.
     Large,
-    /// 32px square icon button (web `icon`).
+    /// 26px square icon button (web `icon` / `size-6.5`) — matches labeled `default`.
     Icon,
-    /// 20px square icon button (web `icon-xs`).
+    /// 16px square icon button (web `icon-xs` / `size-4`).
     IconXs,
-    /// 24px square icon button (web `icon-sm`).
+    /// 20px square icon button (web `icon-sm` / `size-5`).
     IconSm,
-    /// 36px square icon button (web `icon-lg`).
+    /// 32px square icon button (web `icon-lg` / `size-8`).
     IconLg,
 }
 
@@ -213,10 +225,10 @@ impl ButtonSize {
             ButtonSize::Medium => (px(26.), px(12.), px(6.), px(12.), px(14.), false),
             ButtonSize::Md => (px(28.), px(10.), px(4.), px(12.), px(12.), false),
             ButtonSize::Large => (px(36.), px(14.), px(8.), px(14.), px(16.), false),
-            ButtonSize::Icon => (px(32.), px(0.), px(0.), px(12.), px(14.), true),
-            ButtonSize::IconXs => (px(20.), px(0.), px(0.), px(10.), px(10.), true),
-            ButtonSize::IconSm => (px(24.), px(0.), px(0.), px(12.), px(12.), true),
-            ButtonSize::IconLg => (px(36.), px(0.), px(0.), px(14.), px(16.), true),
+            ButtonSize::Icon => (px(26.), px(0.), px(0.), px(12.), px(14.), true),
+            ButtonSize::IconXs => (px(16.), px(0.), px(0.), px(10.), px(10.), true),
+            ButtonSize::IconSm => (px(20.), px(0.), px(0.), px(12.), px(12.), true),
+            ButtonSize::IconLg => (px(32.), px(0.), px(0.), px(14.), px(16.), true),
         };
 
         ButtonMetrics {
@@ -260,6 +272,7 @@ pub struct Button {
     mono: bool,
     disabled: bool,
     loading: bool,
+    loading_style: ButtonLoadingStyle,
     selected: bool,
     /// Overrides the variant's resolved text color (and its hover blend).
     tint: Option<Hsla>,
@@ -271,6 +284,9 @@ pub struct Button {
     icon_size: Option<Pixels>,
     on_click: Option<ClickHandler>,
     dropdown_menu: Option<DropdownBuilder>,
+    /// Popover corner for [`Self::dropdown_menu`]. Default [`Anchor::TopLeft`]
+    /// (below, left-aligned). Use [`Anchor::TopRight`] for right-edge triggers.
+    dropdown_menu_anchor: Anchor,
     children: Vec<AnyElement>,
 }
 
@@ -285,6 +301,7 @@ impl Button {
             mono: false,
             disabled: false,
             loading: false,
+            loading_style: ButtonLoadingStyle::default(),
             selected: false,
             tint: None,
             dropdown_caret: false,
@@ -294,11 +311,12 @@ impl Button {
             icon_size: None,
             on_click: None,
             dropdown_menu: None,
+            dropdown_menu_anchor: Anchor::TopLeft,
             children: Vec::new(),
         }
     }
 
-    /// An icon-only button, sized [`ButtonSize::Icon`] (32px square) by default.
+    /// An icon-only button, sized [`ButtonSize::Icon`] (26px square) by default.
     ///
     /// `icon` fills the leading slot, so [`Self::loading`] replaces it with the
     /// spinner. The slot's size follows the size step's ladder; an icon that
@@ -355,13 +373,21 @@ impl Button {
         self
     }
 
-    /// Show a [`Spinner`] in the leading slot and block interaction.
+    /// Show a loading mark in the leading slot and block interaction.
     ///
     /// Unlike [`Self::disabled`], a loading button keeps full opacity and its
     /// elevation — it is *busy*, not *forbidden* — so only the cursor and the
     /// click handling change. `loading` is ignored when `disabled` is also set.
+    /// Pick the mark with [`Self::loading_style`] (default
+    /// [`ButtonLoadingStyle::Spinner`]).
     pub fn loading(mut self, loading: bool) -> Self {
         self.loading = loading;
+        self
+    }
+
+    /// Choose the leading-slot mark used while [`Self::loading`] is set.
+    pub fn loading_style(mut self, style: ButtonLoadingStyle) -> Self {
+        self.loading_style = style;
         self
     }
 
@@ -407,10 +433,27 @@ impl Button {
 
     /// Attach a dropdown menu (opens below the button, mirroring the web
     /// dropdown-menu composite). The closure receives `gpui-component`'s `PopupMenu`.
+    ///
+    /// Defaults to [`Anchor::TopLeft`]. Prefer [`Self::dropdown_menu_with_anchor`]
+    /// when the trigger sits on a window edge (e.g. [`Anchor::TopRight`]).
     pub fn dropdown_menu(
         mut self,
         build: impl Fn(PopupMenu, &mut Window, &mut Context<PopupMenu>) -> PopupMenu + 'static,
     ) -> Self {
+        self.dropdown_menu = Some(Rc::new(build));
+        self
+    }
+
+    /// Like [`Self::dropdown_menu`], but places the popover with `anchor`.
+    ///
+    /// `TopLeft` / `TopRight` open below the trigger; `Bottom*` open above.
+    /// The name is the popover's own corner (see `gpui-component` `Popover::anchor`).
+    pub fn dropdown_menu_with_anchor(
+        mut self,
+        anchor: impl Into<Anchor>,
+        build: impl Fn(PopupMenu, &mut Window, &mut Context<PopupMenu>) -> PopupMenu + 'static,
+    ) -> Self {
+        self.dropdown_menu_anchor = anchor.into();
         self.dropdown_menu = Some(Rc::new(build));
         self
     }
@@ -951,12 +994,16 @@ impl RenderOnce for Button {
             }
         }
 
-        // The spinner takes the leading slot rather than being pushed in front
-        // of it, so the label and the trailing icon keep their positions and
-        // the button does not reflow when it enters the loading state.
+        // The loading mark takes the leading slot rather than being pushed in
+        // front of it, so the label and the trailing icon keep their positions
+        // and the button does not reflow when it enters the loading state.
         if self.loading {
+            let mark: AnyElement = match self.loading_style {
+                ButtonLoadingStyle::Spinner => Spinner::new().size(icon_size).into_any_element(),
+                ButtonLoadingStyle::Diamond => Loader::diamond().size(icon_size).into_any_element(),
+            };
             el = el.child(
-                icon_slot(Spinner::new().size(icon_size).into_any_element(), icon_size)
+                icon_slot(mark, icon_size)
                     // An accessibility node needs a stable identity, so the
                     // role only takes effect together with the id.
                     .id(ElementId::NamedInteger(
@@ -1003,8 +1050,11 @@ impl RenderOnce for Button {
                 element: el,
                 selected: self.selected,
             };
+            let anchor = self.dropdown_menu_anchor;
             trigger
-                .dropdown_menu(move |menu, window, cx| build(menu, window, cx))
+                .dropdown_menu_with_anchor(anchor, move |menu, window, cx| {
+                    build(menu, window, cx)
+                })
                 .into_any_element()
         } else if has_3d_press && !is_inert {
             let shadow_color = shadow.as_ref().map(|s| s.color);
@@ -1138,19 +1188,19 @@ mod tests {
         );
         assert_metrics(
             ButtonSize::Icon,
-            (px(32.), px(0.), px(0.), px(12.), px(14.), true),
+            (px(26.), px(0.), px(0.), px(12.), px(14.), true),
         );
         assert_metrics(
             ButtonSize::IconXs,
-            (px(20.), px(0.), px(0.), px(10.), px(10.), true),
+            (px(16.), px(0.), px(0.), px(10.), px(10.), true),
         );
         assert_metrics(
             ButtonSize::IconSm,
-            (px(24.), px(0.), px(0.), px(12.), px(12.), true),
+            (px(20.), px(0.), px(0.), px(12.), px(12.), true),
         );
         assert_metrics(
             ButtonSize::IconLg,
-            (px(36.), px(0.), px(0.), px(14.), px(16.), true),
+            (px(32.), px(0.), px(0.), px(14.), px(16.), true),
         );
     }
 
@@ -1357,8 +1407,14 @@ mod tests {
                         .size(ButtonSize::IconLg)
                         .leading_icon(PhosphorIcon::MagnifyingGlass),
                 )
-                // Loading: with a label, with a leading icon, and icon-only.
+                // Loading: spinner (default), diamond, with label / icon-only.
                 .child(Button::new("btn-loading").loading(true).label("Saving"))
+                .child(
+                    Button::new("btn-loading-diamond")
+                        .loading(true)
+                        .loading_style(ButtonLoadingStyle::Diamond)
+                        .label("Saving"),
+                )
                 .child(
                     Button::new("btn-loading-with-icon")
                         .loading(true)
@@ -1366,6 +1422,11 @@ mod tests {
                         .label("Saving"),
                 )
                 .child(Button::icon("btn-loading-icon", PhosphorIcon::Gear).loading(true))
+                .child(
+                    Button::icon("btn-loading-diamond-icon", PhosphorIcon::Gear)
+                        .loading(true)
+                        .loading_style(ButtonLoadingStyle::Diamond),
+                )
                 .child(
                     Button::new("btn-loading-disabled")
                         .loading(true)
