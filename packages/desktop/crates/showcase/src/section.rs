@@ -303,7 +303,9 @@ Alert::error("al-err", "Something failed.")
 // Progress bars & loading indicators
 Progress::new("pg-1").value(0.65)
 Spinner::new()
-Loader::diamond() // also: orbit / box_dots / dots / bars / blocks — default 16px
+Loader::diamond() // chase: orbit / box_dots / snake / zigzag / blocks
+Loader::wave()    // processing: bounce / cascade / breath / spark / dots / bars
+Loader::grid_zigzag() // 3×3 two-tone primary: also grid_shift / grid_spin
 Skeleton::new().h_4().w(px(192.))
 
 // Micro loaders running on shared pulse clock
@@ -1010,9 +1012,9 @@ const FEEDBACK_PROPS: &[DocProp] = &[
         description: "Task progress vs capacity meter (disk/quota), spinner, placeholders.",
     },
     DocProp {
-        name: "Loader::{diamond,orbit,box_dots,dots,bars,blocks}",
-        ty: "size 16px default",
-        description: "Icon-slot pixel loaders (diamond / box-dot chase, orbit, dots, bars, blocks).",
+        name: "Loader::{diamond,wave,grid_zigzag,grid_shift,grid_spin,…}",
+        ty: "size 16–24px",
+        description: "Chase / processing / boxy 3×3 two-tone primary (zigzag, random shift, spin).",
     },
     DocProp {
         name: "pulse_loader / gradient_spinner / progress_ring",

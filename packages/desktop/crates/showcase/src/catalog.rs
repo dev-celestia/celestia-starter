@@ -760,7 +760,7 @@ pub const SECTIONS: &[SectionMeta] = &[
         family: Family::Feedback,
         demo: Demo::Loader,
         package: "primitive/loader",
-        description: "Icon-sized pixel loaders (diamond, orbit, box dots, dots, bars, blocks).",
+        description: "Icon loaders — chase, processing, and boxy 3×3 primary two-tone (zigzag / shift / spin).",
     },
     SectionMeta {
         id: "skeleton",

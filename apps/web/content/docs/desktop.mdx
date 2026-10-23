@@ -451,9 +451,11 @@ from zeron's theme — and all motion runs through one shared module:
   unmounts (a window with no spinner schedules nothing). Reduced motion (gpui's
   `reduce_motion` flag) snaps loaders to a static rest brightness and zeroes the wave phases.
 - `components/primitive/loader.rs` — icon-sized (default 16px) pixel loaders that drop into the
-  same slot as `Spinner`: `Loader::diamond` (eight-square diamond chase, web `spin-pixel`
-  keyframes), `orbit`, `box_dots` (eight round dots on a square perimeter), `dots`, `bars`,
-  and `blocks`. Uses `with_animation` (no `EntityId`); reduced motion parks every cell at a
+  same slot as `Spinner`. **Chase:** `diamond` (web `spin-pixel`), `orbit`, `box_dots`,
+  `snake`, `zigzag`, `blocks`. **Processing (Cursor-style):** `wave`, `bounce`, `cascade`,
+  `breath`, `spark`, plus `dots` / `bars`. **Boxy 3×3 (two-tone theme primary):**
+  `grid_zigzag`, `grid_shift` (scrambled phases), `grid_spin` — override with `.color` /
+  `.secondary`. Uses `with_animation` (no `EntityId`); reduced motion parks every cell at a
   static rest brightness.
 - `components/loaders.rs` — the cell loaders: `pulse_loader` (5-cell opacity/scale wave),
   `gradient_spinner` (3×3 grid on the `brand → brand_deep` ramp, the pulse travels

@@ -10,7 +10,7 @@ use celestia_ui::components::primitive::scrubber::Scrubber;
 use celestia_ui::components::primitive::shimmer::ShimmerText;
 use celestia_ui::components::primitive::signal_bars::SignalBars;
 use celestia_ui::components::primitive::skeleton::Skeleton;
-use celestia_ui::components::primitive::loader::{Loader, LoaderVariant};
+use celestia_ui::components::primitive::loader::Loader;
 use celestia_ui::components::primitive::spinner::Spinner;
 use celestia_ui::components::primitive::toast::{Notification, WindowExt};
 use celestia_ui::theme::ActiveTheme as _;
@@ -103,20 +103,78 @@ impl Showcase {
                 .into_any_element(),
             Demo::Loader => Card::new()
                 .title("Loader")
-                .description("Icon-sized pixel loaders (16px default, same slot as Spinner).")
+                .description("Icon-sized loaders (16px default) — pixel chase + Cursor-style processing.")
                 .child(
                     v_flex()
                         .gap_4()
                         .child(
-                            h_flex()
-                                .gap_6()
-                                .items_center()
-                                .child(loader_sample("Diamond", Loader::diamond(), cx))
-                                .child(loader_sample("Orbit", Loader::orbit(), cx))
-                                .child(loader_sample("Box dots", Loader::box_dots(), cx))
-                                .child(loader_sample("Dots", Loader::dots(), cx))
-                                .child(loader_sample("Bars", Loader::bars(), cx))
-                                .child(loader_sample("Blocks", Loader::blocks(), cx)),
+                            v_flex()
+                                .gap_2()
+                                .child(
+                                    div()
+                                        .text_xs()
+                                        .text_color(cx.theme().muted_foreground)
+                                        .child("Chase"),
+                                )
+                                .child(
+                                    h_flex()
+                                        .gap_5()
+                                        .items_center()
+                                        .flex_wrap()
+                                        .child(loader_sample("Diamond", Loader::diamond(), cx))
+                                        .child(loader_sample("Orbit", Loader::orbit(), cx))
+                                        .child(loader_sample("Box dots", Loader::box_dots(), cx))
+                                        .child(loader_sample("Snake", Loader::snake(), cx))
+                                        .child(loader_sample("Zigzag", Loader::zigzag(), cx))
+                                        .child(loader_sample("Blocks", Loader::blocks(), cx)),
+                                ),
+                        )
+                        .child(
+                            v_flex()
+                                .gap_2()
+                                .child(
+                                    div()
+                                        .text_xs()
+                                        .text_color(cx.theme().muted_foreground)
+                                        .child("Processing"),
+                                )
+                                .child(
+                                    h_flex()
+                                        .gap_5()
+                                        .items_center()
+                                        .flex_wrap()
+                                        .child(loader_sample("Wave", Loader::wave(), cx))
+                                        .child(loader_sample("Bounce", Loader::bounce(), cx))
+                                        .child(loader_sample("Cascade", Loader::cascade(), cx))
+                                        .child(loader_sample("Breath", Loader::breath(), cx))
+                                        .child(loader_sample("Spark", Loader::spark(), cx))
+                                        .child(loader_sample("Dots", Loader::dots(), cx))
+                                        .child(loader_sample("Bars", Loader::bars(), cx)),
+                                ),
+                        )
+                        .child(
+                            v_flex()
+                                .gap_2()
+                                .child(
+                                    div()
+                                        .text_xs()
+                                        .text_color(cx.theme().muted_foreground)
+                                        .child("Boxy 3×3 (primary two-tone)"),
+                                )
+                                .child(
+                                    h_flex()
+                                        .gap_6()
+                                        .items_center()
+                                        .flex_wrap()
+                                        .child(loader_sample("Zigzag", Loader::grid_zigzag(), cx))
+                                        .child(loader_sample("Shift", Loader::grid_shift(), cx))
+                                        .child(loader_sample("Spin", Loader::grid_spin(), cx))
+                                        .child(loader_sample(
+                                            "Large spin",
+                                            Loader::grid_spin().size(px(36.)),
+                                            cx,
+                                        )),
+                                ),
                         )
                         .child(
                             h_flex()
@@ -128,12 +186,11 @@ impl Showcase {
                                         .text_color(cx.theme().muted_foreground)
                                         .child("Sizes"),
                                 )
-                                .child(Loader::new().variant(LoaderVariant::Diamond).size(px(12.)))
-                                .child(Loader::orbit().size(px(16.)))
-                                .child(Loader::box_dots().size(px(20.)))
-                                .child(Loader::dots().size(px(20.)))
-                                .child(Loader::bars().size(px(24.)))
-                                .child(Loader::blocks().size(px(28.))),
+                                .child(Loader::diamond().size(px(12.)))
+                                .child(Loader::wave().size(px(16.)))
+                                .child(Loader::bounce().size(px(20.)))
+                                .child(Loader::spark().size(px(24.)))
+                                .child(Loader::snake().size(px(28.))),
                         ),
                 )
                 .into_any_element(),
