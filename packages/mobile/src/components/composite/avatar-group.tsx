@@ -2,12 +2,10 @@ import * as React from "react"
 import {
   View,
   StyleSheet,
-  Animated,
   type ImageSourcePropType,
   type ViewStyle,
 } from "react-native"
 import { useMobileTheme } from "../../host"
-import { SPRING_ENTRANCE, springTo } from "../../motion"
 import {
   MobileAvatar,
   mobileAvatarSizes,
@@ -89,31 +87,6 @@ export function MobileAvatarGroup({
     borderRadius: (diameter + 4) / 2,
   }
 
-  // One-time stagger scale-in on mount — cheap and makes the stack feel dealt
-  // rather than dropped in. Values are created lazily per slot; anything added
-  // after the entrance has run starts settled (scale 1).
-  const enterAnims = React.useRef<Animated.Value[]>([])
-  const hasEntered = React.useRef(false)
-  const totalItems = visible.length + (overflowCount > 0 ? 1 : 0)
-  for (let i = 0; i < totalItems; i++) {
-    if (!enterAnims.current[i]) {
-      enterAnims.current[i] = new Animated.Value(hasEntered.current ? 1 : 0)
-    }
-  }
-
-  React.useEffect(() => {
-    hasEntered.current = true
-    Animated.stagger(
-      55,
-      enterAnims.current.map((anim) => springTo(anim, 1, SPRING_ENTRANCE))
-    ).start()
-    // Mount-only: the stagger is an entrance, not a reaction to prop changes.
-  }, [])
-
-  const scaleAt = (index: number) => ({
-    transform: [{ scale: enterAnims.current[index] ?? 1 }],
-  })
-
   return (
     <View
       testID={testID}
@@ -127,14 +100,9 @@ export function MobileAvatarGroup({
     >
       {visible.map((avatar, index) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: items carry no stable id; the list is a fixed slice
-        <Animated.View
+        <View
           key={`avatar-${index}`}
-          style={[
-            styles.item,
-            ring,
-            index > 0 ? { marginLeft: -overlap } : null,
-            scaleAt(index),
-          ]}
+          style={[styles.item, ring, index > 0 ? { marginLeft: -overlap } : null]}
         >
           <MobileAvatar
             source={avatar.source}
@@ -142,16 +110,15 @@ export function MobileAvatarGroup({
             size={size}
             accessibilityLabel={avatar.accessibilityLabel}
           />
-        </Animated.View>
+        </View>
       ))}
 
       {overflowCount > 0 ? (
-        <Animated.View
+        <View
           style={[
             styles.item,
             ring,
             { marginLeft: -overlap },
-            scaleAt(visible.length),
           ]}
         >
           <View
@@ -173,7 +140,7 @@ export function MobileAvatarGroup({
               {`+${overflowCount}`}
             </MobileText>
           </View>
-        </Animated.View>
+        </View>
       ) : null}
     </View>
   )

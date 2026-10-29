@@ -1,12 +1,6 @@
 import * as React from "react"
-import {
-  View,
-  StyleSheet,
-  Animated,
-  type ViewStyle,
-} from "react-native"
+import { View, StyleSheet, type ViewStyle } from "react-native"
 import { useMobileTheme } from "../../host"
-import { SPRING_GAUGE, springTo } from "../../motion"
 import { MobileText } from "../primitive/text"
 
 export interface MobileEmptyStateProps {
@@ -52,29 +46,12 @@ export function MobileEmptyState({
   testID,
 }: MobileEmptyStateProps) {
   const { colors } = useMobileTheme()
-  // One-time entrance on mount: fade in while rising a few points into place.
-  // A spring drives both, so the settle has a little life without overshooting
-  // into a bounce on an otherwise static panel.
-  const entrance = React.useRef(new Animated.Value(0)).current
-
-  React.useEffect(() => {
-    springTo(entrance, 1, SPRING_GAUGE).start()
-  }, [entrance])
-
-  const translateY = entrance.interpolate({
-    inputRange: [0, 1],
-    outputRange: [10, 0],
-  })
 
   return (
-    <Animated.View
+    <View
       testID={testID}
       accessible
-      style={[
-        styles.container,
-        { opacity: entrance, transform: [{ translateY }] },
-        style,
-      ]}
+      style={[styles.container, style]}
     >
       {icon ? <View style={styles.icon}>{icon}</View> : null}
 
@@ -102,7 +79,7 @@ export function MobileEmptyState({
           {action}
         </View>
       ) : null}
-    </Animated.View>
+    </View>
   )
 }
 

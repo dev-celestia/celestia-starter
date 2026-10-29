@@ -10,8 +10,8 @@ import { DataDisplaySection } from "@/components/showcase/sections/data-display-
 import { FeedbackSection } from "@/components/showcase/sections/feedback-section"
 import { NavigationSection } from "@/components/showcase/sections/navigation-section"
 import { ChatAiSection } from "@/components/showcase/sections/chat-ai-section"
-import { ChartsSection } from "@/components/showcase/sections/charts-section"
 import { SurfacesSection } from "@/components/showcase/sections/surfaces-section"
+import { LayoutSection } from "@/components/showcase/sections/layout-section"
 import { useDesignSystem } from "./hooks/use-design-system"
 
 export function ShowcaseTab() {
@@ -63,7 +63,7 @@ export function ShowcaseTab() {
             <ButtonsSection />
           )}
 
-          {(!normalizedQuery || "inputs input textarea checkbox radio switch slider select combobox otp field form url native-select filter facet chip token menu".includes(normalizedQuery)) && (
+          {(!normalizedQuery || "inputs input textarea checkbox radio switch slider select combobox otp field form url native-select".includes(normalizedQuery)) && (
             <InputsSection />
           )}
 
@@ -83,12 +83,12 @@ export function ShowcaseTab() {
             <ChatAiSection />
           )}
 
-          {(!normalizedQuery || "charts chart container area line bar pie donut radar radial gauge sparkline legend tooltip cartesian grid recharts axis stacked".includes(normalizedQuery)) && (
-            <ChartsSection />
+          {(!normalizedQuery || "surfaces resizable scroll area carousel text code editor block markdown chart".includes(normalizedQuery)) && (
+            <SurfacesSection />
           )}
 
-          {(!normalizedQuery || "surfaces resizable scroll area carousel text code editor block markdown".includes(normalizedQuery)) && (
-            <SurfacesSection />
+          {(!normalizedQuery || "layout auth shell sign in up forgot reset password two factor otp not found 404 page browser dashboard profile settings list table billing invoice plan usage payment status error 500 403 forbidden empty".includes(normalizedQuery)) && (
+            <LayoutSection />
           )}
         </div>
       </div>

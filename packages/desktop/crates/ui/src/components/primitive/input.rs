@@ -7,7 +7,10 @@
 
 use gpui::Entity;
 
-pub use gpui_component::input::{InputState, NumberInput};
+pub use gpui_component::input::{
+    InlineToken, InlineTokenContext, InlineTokenError, InlineTokenSpan, InputContent, InputEvent,
+    InputState, NumberInput, TabSize,
+};
 
 /// Constructor for Celestia text inputs (focus border tint off).
 ///

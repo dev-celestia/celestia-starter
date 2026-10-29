@@ -98,7 +98,7 @@ function SignUpForm() {
 
         <AuthError message={error} />
 
-        <Button type="submit" disabled={loading} className="w-full">
+        <Button type="submit" size="lg" disabled={loading} className="w-full">
           {loading ? "Creating account..." : "Sign up"}
         </Button>
       </form>
@@ -107,6 +107,7 @@ function SignUpForm() {
 
       <Button
         variant="outline"
+        size="lg"
         className="w-full"
         onClick={handleGoogleSignIn}
       >

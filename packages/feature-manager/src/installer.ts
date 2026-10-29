@@ -1,16 +1,15 @@
 import { cpSync, existsSync, readFileSync, statSync } from "node:fs"
-import { dirname, join, relative } from "node:path"
+import { dirname, join } from "node:path"
 
-import { backupPathFor, backupRelativePath, ensureDir, listFiles, readJson, sha256File, stringifyJson } from "./fsx.js"
+import { backupPathFor, backupRelativePath, ensureDir, readJson, sha256File, stringifyJson } from "./fsx.js"
 import { appendToJsonArray, insertIntoRegionDetailed } from "./markers.js"
 import {
   availableFeatureNames,
   discoverFeatures,
-  normalizeRel,
   validateManifest,
   type NormalizedManifest,
 } from "./manifest.js"
-import { featurePath, manifestDisplayPath, repoContext, repoPath } from "./paths.js"
+import { featurePath, repoContext, repoPath } from "./paths.js"
 import { allocateSeq, currentOwner, readTracker, writeTracker } from "./state.js"
 import { FileTransaction } from "./txn.js"
 import type { InsertionReport, WarningReport } from "./types.js"
@@ -123,7 +122,7 @@ export function planInstall(options: InstallOptions): PlanResult<InstallPlan> {
     return {
       ok: false,
       errors: [
-        `Feature "${name}" not found in packages/feature-manager/features/.`,
+        `Feature "${name}" not found in features/.`,
         available.length ? `Available features: ${available.join(", ")}` : "No features are available.",
       ],
     }
@@ -132,7 +131,7 @@ export function planInstall(options: InstallOptions): PlanResult<InstallPlan> {
   if (found.error || !found.raw || !found.manifest) {
     return {
       ok: false,
-      errors: [`Cannot read ${manifestDisplayPath(name)}: ${found.error ?? "unknown error"}`],
+      errors: [`Cannot read features/${name}/feature.json: ${found.error ?? "unknown error"}`],
     }
   }
 
@@ -173,7 +172,7 @@ export function planInstall(options: InstallOptions): PlanResult<InstallPlan> {
 
   const warnings: WarningReport[] = validation.warnings.map((message) => ({
     type: "other" as const,
-    file: manifestDisplayPath(name),
+    file: `features/${name}/feature.json`,
     message,
   }))
 
@@ -573,18 +572,7 @@ export function executeInstall(plan: InstallPlan, options: { dryRun?: boolean } 
 
       ensureDir(dirname(copy.destAbs))
       cpSync(copy.sourceAbs, copy.destAbs, { recursive: true, force: true })
-      if (copy.isDirectory) {
-        // Track every file the directory copy wrote (not pre-existing files
-        // that merely live alongside), so removal can undo the copy exactly.
-        const wrote = new Set(listFiles(copy.sourceAbs).map((file) => relative(copy.sourceAbs, file)))
-        for (const file of listFiles(copy.destAbs)) {
-          if (!wrote.has(relative(copy.destAbs, file))) continue
-          const hash = sha256File(file)
-          if (hash) filesRecord[normalizeRel(relative(root, file))] = hash
-        }
-      } else if (copy.hash) {
-        filesRecord[copy.to] = copy.hash
-      }
+      if (!copy.isDirectory && copy.hash) filesRecord[copy.to] = copy.hash
     }
 
     // 2. Insertions.
@@ -597,20 +585,7 @@ export function executeInstall(plan: InstallPlan, options: { dryRun?: boolean } 
         insertion.snippet,
         insertion.file,
       )
-      if (result.changed) {
-        txn.writeFile(insertion.absFile, result.content)
-        // The target may be a copy another installed feature owns. Its recorded
-        // hash now describes the pre-insertion content, so verify would report
-        // the composed file as user-modified — refresh every owner's hash to
-        // the final content (the user-edit guard keeps working for real edits).
-        const finalHash = sha256File(insertion.absFile)
-        if (!finalHash) continue
-        for (const record of Object.values(tracker.features)) {
-          if (record.files && Object.hasOwn(record.files, insertion.file)) {
-            record.files[insertion.file] = finalHash
-          }
-        }
-      }
+      if (result.changed) txn.writeFile(insertion.absFile, result.content)
     }
 
     // 3. JSON array appends.

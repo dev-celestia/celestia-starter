@@ -10,14 +10,11 @@
     "GOOGLE_CLIENT_SECRET",
     "NEXT_PUBLIC_API_URL"
   ],
-  "globalPassThroughEnv": [
-    "celestia_*"
-  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**", ".mastra/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "lint": {
       "dependsOn": ["^lint"]

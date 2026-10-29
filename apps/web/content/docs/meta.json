@@ -1,24 +1,22 @@
 {
   "pages": [
     "---Getting Started---",
+    "index",
     "cli",
     "packages",
     "mobile",
-    "desktop",
-    "desktop-state",
-    "desktop-components",
-    "desktop-bridge",
+    "features",
     "design-system",
     "theming",
-    "layouts",
     "components",
-    "---Feature Installer---",
-    "index",
-    "features",
+    "---Features---",
     "authentication",
     "backend",
     "dashboard",
     "blog",
-    "access"
+    "access",
+    "cms",
+    "media-r2",
+    "unsplash"
   ]
 }

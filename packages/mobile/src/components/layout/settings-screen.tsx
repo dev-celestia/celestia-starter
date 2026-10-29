@@ -4,7 +4,6 @@ import { useMobileTheme } from "../../host"
 import { metrics } from "../../tokens"
 import { MobileSeparator } from "../primitive/separator"
 import { MobileText } from "../primitive/text"
-import { isTextChildren } from "../../utils"
 import { MobileScreen, type MobileScreenProps } from "./screen"
 
 export interface MobileSettingsSectionProps {
@@ -148,17 +147,7 @@ export function MobileSettingsScreen({
 
       <View style={styles.sections}>{children}</View>
 
-      {footer ? (
-        <View style={styles.footer}>
-          {isTextChildren(footer) ? (
-            <MobileText variant="caption" color="muted">
-              {footer}
-            </MobileText>
-          ) : (
-            footer
-          )}
-        </View>
-      ) : null}
+      {footer ? <View style={styles.footer}>{footer}</View> : null}
     </MobileScreen>
   )
 }

@@ -1,0 +1,123 @@
+---
+title: Desktop AI
+description: Twenty GPUI AI surfaces ported from the web ai/ kit — prompt, tools, plans, citations, and more
+icon: sparkles
+---
+
+# Desktop AI
+
+GPUI counterparts of `packages/ui/src/components/ai/*.tsx`, under
+`celestia_ui::components::ai`. Host apps own streaming / `Entity` state; these
+builders take callbacks and element slots.
+
+These surfaces have **no gallery pages** — the Chat & AI section was removed from
+the showcase, so this page is their only reference. The rest of the desktop kit
+still has a gallery:
+
+```bash
+pnpm desktop
+```
+
+---
+
+## File overview
+
+| Path | Component |
+| ---- | --------- |
+| `ai/prompt_input.rs` | `PromptInput`, `PromptStatus` |
+| `ai/reasoning.rs` | `Reasoning` |
+| `ai/suggestion.rs` | `Suggestions`, `Suggestion` |
+| `ai/tool.rs` | `Tool`, `ToolState` |
+| `ai/sources.rs` | `Sources`, `Source` |
+| `ai/chain_of_thought.rs` | `ChainOfThought`, `ChainStep` |
+| `ai/artifact.rs` | `Artifact` |
+| `ai/plan.rs` | `Plan`, `PlanStep` |
+| `ai/task.rs` | `Task`, `TaskItem` |
+| `ai/model_selector.rs` | `ModelSelector`, `ModelOption`, `ModelSelectorTrigger` |
+| `ai/agent.rs` | `Agent` |
+| `ai/confirmation.rs` | `AiConfirmation`, `ConfirmationState` |
+| `ai/checkpoint.rs` | `Checkpoint` |
+| `ai/queue.rs` | `Queue`, `QueueItem` |
+| `ai/inline_citation.rs` | `InlineCitation` |
+| `ai/code_block.rs` | `AiCodeBlock` |
+| `ai/snippet.rs` | `Snippet` |
+| `ai/terminal.rs` | `AiTerminal` |
+| `ai/conversation.rs` | `Conversation`, `ConversationEmpty` |
+| `ai/context_usage.rs` | `ContextUsage` |
+| `ai/thinking_text.rs` | `ThinkingText`, `ThinkingShimmer` |
+| `primitive/shimmer.rs` | `ShimmerText`, `ShimmerKind::Pulse` / `Wave` |
+
+Flat imports work for most types (`use celestia_ui::components::PromptInput`).
+Prefer `AiCodeBlock` / `AiTerminal` / `AiConfirmation` — they avoid clashes with
+composite `CodeBlock` and similar names.
+
+Existing conversation primitives stay under composite/primitive:
+`Message`, `Bubble`, `Attachment`, `MessageScroller`, `Marker`, `Avatar`.
+
+---
+
+## Thinking / shimmer text
+
+Animated status while the model is working. `ThinkingText` is the AI chrome
+(brain icon + wave shimmer + cycling dots). `ShimmerText::wave` is the raw
+travelling-band label (web `ai/shimmer.tsx` counterpart).
+
+```rust
+use celestia_ui::components::ai::thinking_text::ThinkingText;
+use celestia_ui::components::primitive::shimmer::ShimmerText;
+
+ThinkingText::new("status");                    // “Thinking” + dots
+ThinkingText::new("search").label("Searching");
+
+ShimmerText::wave("Generating a response…");    // travelling highlight
+ShimmerText::new("Loading…");                   // whole-label pulse
+```
+
+`Reasoning::streaming(true)` swaps the header for `ThinkingText` automatically.
+
+---
+
+## Quick start
+
+```rust
+use celestia_ui::components::ai::prompt_input::{PromptInput, PromptStatus};
+use celestia_ui::components::ai::reasoning::Reasoning;
+use celestia_ui::components::ai::suggestion::{Suggestion, Suggestions};
+use celestia_ui::components::ai::tool::{Tool, ToolState};
+use celestia_ui::components::ai::plan::{Plan, PlanStep, PlanStepStatus};
+
+Suggestions::new("sugs")
+    .child(Suggestion::new("s1", "Explain this diff"))
+    .child(Suggestion::new("s2", "Write a unit test"));
+
+PromptInput::new("prompt")
+    .placeholder("Ask Celestia…")
+    .status(PromptStatus::Ready)
+    .on_submit(|_, _, cx| { /* send */ cx.notify(); });
+
+Reasoning::new("think")
+    .open(true)
+    .duration_secs(3)
+    .body("Comparing desktop and web message metrics…");
+
+Tool::new("read", "read_file").state(ToolState::Completed);
+
+Plan::new("plan", "Ship AI gallery")
+    .child(PlanStep::new("p1", "Scaffold module").status(PlanStepStatus::Done))
+    .child(PlanStep::new("p2", "Wire demos").status(PlanStepStatus::Active));
+```
+
+---
+
+## Environment variables
+
+None. Theme tokens are compile-time embedded. Secrets stay in `apps/api/.env`
+for the web stack.
+
+---
+
+## Related
+
+- [Desktop Components](/docs/desktop-components) — Toggle, Item, Menubar, app composites
+- [Desktop (GPUI)](/docs/desktop) — architecture and theming
+- [AI Components (web)](/docs/components/ai) — full web AI suite

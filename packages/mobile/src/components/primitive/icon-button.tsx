@@ -1,6 +1,7 @@
 import * as React from "react"
 import {
   Animated,
+  Platform,
   Pressable,
   StyleSheet,
   type ViewStyle,
@@ -8,7 +9,6 @@ import {
 import * as Haptics from "expo-haptics"
 import { useMobileTheme } from "../../host"
 import { metrics } from "../../tokens"
-import { pressInTiming, springTo } from "../../motion"
 
 export type MobileIconButtonVariant =
   | "default"
@@ -74,10 +74,7 @@ export interface MobileIconButtonProps {
  *
  * Square icon-only control adhering to:
  * - a 44×44pt minimum touch target regardless of the visual size
- * - a 0.97 press-scale, springing back on release. `MobileButton` presses with
- *   the web button's 2pt bottom edge instead; a square icon box has no label
- *   width for that edge to read against, so the press reads as a shrink.
- * - the same-frame haptics `MobileButton` uses
+ * - the same 0.97 press-scale + same-frame haptics as `MobileButton`
  * - a *required* `accessibilityLabel`, since the icon carries no text
  */
 export function MobileIconButton({
@@ -96,12 +93,22 @@ export function MobileIconButton({
 
   const handlePressIn = () => {
     if (disabled) return
-    pressInTiming(scaleAnim, 0.97, 120).start()
+    Animated.timing(scaleAnim, {
+      toValue: 0.97,
+      duration: 120,
+      useNativeDriver: Platform.OS !== "web",
+    }).start()
   }
 
   const handlePressOut = () => {
     if (disabled) return
-    springTo(scaleAnim, 1).start()
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      damping: 15,
+      mass: 1,
+      stiffness: 250,
+      useNativeDriver: Platform.OS !== "web",
+    }).start()
   }
 
   const handlePress = () => {

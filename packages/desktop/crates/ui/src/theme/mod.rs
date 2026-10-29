@@ -712,6 +712,10 @@ impl Theme {
 
     /// The small surface radius (half the base) — the `sm` step of the radius
     /// ladder.
+    pub fn radius_xs(&self) -> Pixels {
+        self.radius / 4.
+    }
+
     pub fn radius_sm(&self) -> Pixels {
         self.radius / 2.
     }

@@ -1,38 +1,56 @@
 import type { Metadata } from "next"
 
-import { ContactSection } from "@/components/agency/contact-section"
-import { DeliveryModelsSection } from "@/components/agency/delivery-models-section"
-import { AgencyHero } from "@/components/agency/hero-section"
-import { OpenSourceSection } from "@/components/agency/open-source-section"
-import { ProcessSection } from "@/components/agency/process-section"
-import { RecentProjectsSection } from "@/components/agency/recent-projects-section"
-import { ServicesSection } from "@/components/agency/services-section"
-import { SiteLayout } from "@/components/shared/site-layout"
+import {
+  LandingBoundaries,
+  LandingCta,
+  LandingFeatures,
+  LandingFooter,
+  LandingHero,
+  LandingLifecycle,
+  LandingMetrics,
+  LandingNav,
+  LandingPackages,
+  LandingTrace,
+} from "@/components/landing"
 
 import "./landing.css"
 
 export const metadata: Metadata = {
-  title: "Celestia — Software Engineering & Development",
+  title: "Celestia — Decoupled Full-Stack Starter",
   description:
-    "We build modern web and mobile software that scales with your business. Schedule a free tech strategy call with our senior engineers at hello@devcelestia.com.",
+    "A Next.js 16 frontend that never touches the database, a Hono backend that owns it, and a typed contract between them. Auth, dashboard, blog, CMS and media install as features.",
   openGraph: {
-    title: "Celestia — Software Engineering & Development",
+    title: "Celestia — Decoupled Full-Stack Starter",
     description:
-      "Custom software development for founders, product leaders, and ambitious engineering teams. Web and mobile — shipped with architecture built to last.",
+      "Two apps, one typed contract, zero glue code. A separated frontend/backend monorepo with installable feature packages and a shared component library.",
     type: "website",
   },
 }
 
+/**
+ * Marketing home page.
+ *
+ * The `dark` class puts Celestia's app-shell palette into its dark mode so the
+ * library's own components (Button, Badge, Progress, Kbd, Separator, Sheet …)
+ * match the forced-dark brand palette that `.landing` uses for its bespoke
+ * surfaces. Without it the app-shell tokens would follow the user's theme and
+ * render light surfaces on a near-black page.
+ */
 export default function HomePage() {
   return (
-    <SiteLayout>
-      <AgencyHero />
-      <ServicesSection />
-      <RecentProjectsSection />
-      <OpenSourceSection />
-      <ProcessSection />
-      <DeliveryModelsSection />
-      <ContactSection />
-    </SiteLayout>
+    <div className="landing dark">
+      <LandingNav />
+      <main>
+        <LandingHero />
+        <LandingTrace />
+        <LandingFeatures />
+        <LandingPackages />
+        <LandingLifecycle />
+        <LandingBoundaries />
+        <LandingMetrics />
+        <LandingCta />
+      </main>
+      <LandingFooter />
+    </div>
   )
 }

@@ -17,17 +17,18 @@
 //!
 //! [`MenuBarPreview`] paints the same titles inside a view, for the gallery.
 
+use gpui::Window as PlatformWindow;
 use gpui::prelude::FluentBuilder as _;
 use gpui::{
     AnyElement, App, BoxShadow, ElementId, Entity, FontWeight, InteractiveElement as _,
-    IntoElement, Menu, MenuItem, MouseButton, OsAction, ParentElement, Pixels,
-    Refineable as _, Render, RenderOnce, SharedString, StatefulInteractiveElement as _,
-    StyleRefinement, Styled, TitlebarOptions, WindowBounds, WindowControlArea,
-    WindowHandle, WindowOptions, actions, div, point, px, rgba, size,
+    IntoElement, Menu, MenuItem, MouseButton, OsAction, ParentElement, Pixels, Refineable as _,
+    Render, RenderOnce, SharedString, StatefulInteractiveElement as _, StyleRefinement, Styled,
+    TitlebarOptions, WindowBounds, WindowControlArea, WindowHandle, WindowOptions, actions, div,
+    point, px, rgba, size,
 };
-use gpui::Window as PlatformWindow;
 
 use super::traffic_lights::TRAFFIC_LIGHT_DIAMETER;
+use crate::components::primitive::icon::{Phosphor, PhosphorIcon};
 use crate::theme::ActiveTheme as _;
 
 /// Title-bar height for the drag / content band.
@@ -209,11 +210,21 @@ fn embedded_title_band(content: AnyElement, cx: &App) -> impl IntoElement {
         .flex_shrink_0()
         .flex()
         .items_center()
-        .justify_center()
+        .gap(px(6.))
         .px(px(12.))
         .border_b_1()
         .border_color(theme.primary)
-        .child(content)
+        .child(title_drag_grip(cx))
+        .child(
+            div()
+                .flex_1()
+                .min_w_0()
+                .h_full()
+                .flex()
+                .items_center()
+                .justify_center()
+                .child(content),
+        )
 }
 
 /// Native title band: drag / double-click, leading inset for platform lights.
@@ -225,9 +236,7 @@ fn native_title_band(
 ) -> impl IntoElement {
     let is_macos = cfg!(target_os = "macos");
     let is_linux = cfg!(target_os = "linux");
-    let state = window.use_state(cx, |_, _| WindowDragState {
-        should_move: false,
-    });
+    let state = window.use_state(cx, |_, _| WindowDragState { should_move: false });
     let fullscreen = window.is_fullscreen();
 
     let theme = cx.theme();
@@ -282,15 +291,42 @@ fn native_title_band(
             .size_full()
             .flex()
             .items_center()
-            .justify_center()
+            .gap(px(6.))
             // Leading pad clears traffic lights; no trailing pad so actions
             // (e.g. project switcher) sit flush on the window's right edge.
             .when(fullscreen, |this| this.pl(px(12.)))
             .when(!fullscreen, |this| this.pl(TITLE_LEADING_PAD))
-            .child(content),
+            .child(title_drag_grip(cx))
+            .child(
+                div()
+                    .flex_1()
+                    .min_w_0()
+                    .h_full()
+                    .flex()
+                    .items_center()
+                    .justify_center()
+                    .child(content),
+            ),
     )
 }
 
+/// Nine-dot grip in the title band — visual cue that the bar is a drag region.
+fn title_drag_grip(cx: &App) -> impl IntoElement {
+    let theme = cx.theme();
+    div()
+        .id("window-title-drag-grip")
+        .flex_none()
+        .size(px(24.))
+        .flex()
+        .items_center()
+        .justify_center()
+        .aria_label("Drag to move window")
+        .child(
+            Phosphor::new(PhosphorIcon::DotsNine)
+                .size(px(14.))
+                .color(theme.muted_foreground),
+        )
+}
 
 // ── OS window, actions, and app menu ─────────────────────────────────
 
@@ -618,8 +654,8 @@ mod tests {
             ["New Window", "Close", "Open"]
         );
 
-        let created = AppMenu::new("Celestia")
-            .item("Window", MenuItem::action("Minimize", MinimizeWindow));
+        let created =
+            AppMenu::new("Celestia").item("Window", MenuItem::action("Minimize", MinimizeWindow));
         let created_titles = created.titles();
         let titles: Vec<&str> = created_titles.iter().map(|title| title.as_ref()).collect();
         assert_eq!(titles, ["Celestia", "Window"]);

@@ -1,6 +1,6 @@
 import * as React from "react"
 import {
-  Animated,
+  Image,
   View,
   StyleSheet,
   type ImageSourcePropType,
@@ -79,10 +79,6 @@ export function MobileAvatar({
   const { colors } = useMobileTheme()
   const diameter = mobileAvatarSizes[size]
   const trimmed = initials?.trim().slice(0, 2).toUpperCase()
-  // Fades the image in once it resolves, so a slow network never paints a
-  // blank circle that abruptly becomes a face. `onLoadEnd` (not `onLoad`)
-  // fires on error too, so a broken source can't strand the avatar invisible.
-  const imageOpacity = React.useRef(new Animated.Value(0)).current
 
   const boxStyle = {
     width: diameter,
@@ -92,24 +88,13 @@ export function MobileAvatar({
 
   if (source) {
     return (
-      <Animated.Image
+      <Image
         source={source}
-        onLoadEnd={() => {
-          Animated.timing(imageOpacity, {
-            toValue: 1,
-            duration: 200,
-            useNativeDriver: true,
-          }).start()
-        }}
         accessibilityRole="image"
         accessibilityLabel={accessibilityLabel ?? trimmed}
         style={[
           boxStyle,
-          {
-            borderColor: colors.cardBorder,
-            borderWidth: 1,
-            opacity: imageOpacity,
-          },
+          { borderColor: colors.cardBorder, borderWidth: 1 },
           style,
         ]}
       />
@@ -121,12 +106,7 @@ export function MobileAvatar({
       accessible
       accessibilityRole="image"
       accessibilityLabel={accessibilityLabel ?? trimmed}
-      style={[
-        styles.container,
-        boxStyle,
-        { backgroundColor: colors.mutedBackground },
-        style,
-      ]}
+      style={[styles.container, boxStyle, { backgroundColor: colors.mutedBackground }, style]}
     >
       {fallback ?? (
         <MobileText

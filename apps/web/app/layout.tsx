@@ -1,13 +1,11 @@
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
+import { Inter, Geist_Mono } from "next/font/google"
 
 import "@celestia-project/ui/globals.css"
-import { ThemeProvider } from "@/lib/theme"
-import { ThemeCustomizer } from "@/components/shared/theme-customizer"
+import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@celestia-project/ui/lib/utils"
 
-const geist = Geist({
+const inter = Inter({
   subsets: ["latin"],
   // `--font-sans-family` (not `--font-sans`) is the design system's public font
   // override hook. Pointing next/font at `--font-sans` would collide with the
@@ -42,14 +40,10 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={cn("antialiased", fontMono.variable, "font-sans", geist.variable)}
+      className={cn("antialiased", fontMono.variable, "font-sans", inter.variable)}
     >
       <body>
-        <ThemeProvider>
-          {children}
-          <ThemeCustomizer />
-        </ThemeProvider>
-        <Analytics />
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   )

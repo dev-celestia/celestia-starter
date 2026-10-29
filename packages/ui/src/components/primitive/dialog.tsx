@@ -117,19 +117,11 @@ function DialogFooter({
   )
 }
 
-function DialogTitle({
-  className,
-  mono = false,
-  ...props
-}: DialogPrimitive.Title.Props & {
-  /** Render the title in the monospace stack — for ids, hashes, tokens, ports. */
-  mono?: boolean
-}) {
+function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      data-mono={mono || undefined}
-      className={cn("font-heading text-sm font-medium", mono && "font-mono", className)}
+      className={cn("font-heading text-sm font-medium", className)}
       {...props}
     />
   )
@@ -137,19 +129,13 @@ function DialogTitle({
 
 function DialogDescription({
   className,
-  mono = false,
   ...props
-}: DialogPrimitive.Description.Props & {
-  /** Render the description in the monospace stack — for ids, hashes, tokens, ports. */
-  mono?: boolean
-}) {
+}: DialogPrimitive.Description.Props) {
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"
-      data-mono={mono || undefined}
       className={cn(
         "text-xs/relaxed text-muted-foreground *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",
-        mono && "font-mono",
         className
       )}
       {...props}

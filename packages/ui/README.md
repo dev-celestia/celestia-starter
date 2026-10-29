@@ -11,7 +11,7 @@
 
 ## Features
 
-- **133 component modules** — organized as primitives (47), composites (32), and AI chat components (54)
+- **126 component modules** — organized as primitives (47), composites (25), and AI chat components (54)
 - Built on [Base UI](https://base-ui.com) for accessible, unstyled primitives
 - Styled with **Tailwind CSS v4** and `tw-animate-css`
 - Full **TypeScript** support with bundled `.d.ts` types
@@ -128,7 +128,7 @@ Instead, add the `@source` directive in your main CSS file (e.g., `src/styles/gl
   --color-surface: hsl(var(--surface, 0 0% 8%));
   --color-text-primary: hsl(var(--text, 0 0% 96%));
   --color-fog: hsl(var(--fog, 0 0% 53%));
-  --color-stroke: hsl(var(--stroke));
+  --color-stroke: hsl(var(--stroke, 0 0% 12%));
 
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
@@ -418,7 +418,6 @@ All three tiers are also re-exported from the barrel `@celestia-project/ui`.
 | `ButtonGroup`, `ButtonGroupText`                                 | `composite/button-group` |
 | `Combobox` (+ parts)                                             | `composite/combobox` |
 | `Field`, `FieldLabel`, `FieldDescription`, `FieldError`          | `composite/field` |
-| `FilterBar`, `FilterChip`, `FilterMenu`, `FilterToken`           | `composite/filter` |
 | `Form` (+ parts)                                                 | `composite/form` |
 | `InputGroup`                                                     | `composite/input-group` |
 | `NativeSelect`                                                   | `composite/native-select` |
@@ -463,9 +462,6 @@ All three tiers are also re-exported from the barrel `@celestia-project/ui`.
 | `ArticleCard` (+ parts)                   | `composite/article-card` |
 | `Attachment`                              | `composite/attachment` |
 | `Chart` (+ parts)                         | `composite/chart` |
-| `ChartArea`, `ChartBar`, `ChartLine`      | `composite/chart-area`, `composite/chart-bar`, `composite/chart-line` |
-| `ChartPie`, `ChartRadial`, `ChartRadar`   | `composite/chart-pie`, `composite/chart-radial`, `composite/chart-radar` |
-| `ChartSparkline`                          | `composite/chart-sparkline` |
 | `DataTable` (+ parts)                     | `composite/data-table` |
 | `Empty` (+ parts)                         | `composite/empty` |
 | `Message`, `MessageBubble`                | `composite/message` |
@@ -521,7 +517,7 @@ A forced-dark palette with literal tokens:
 | `--surface` | `bg-surface`        | `hsl(0 0% 8%)` — cards, raised panels |
 | `--text`    | `text-text-primary` | `hsl(0 0% 96%)` — headings            |
 | `--fog`     | `text-fog`          | `hsl(0 0% 53%)` — muted copy          |
-| `--stroke`  | `border-stroke`     | `hsl(0 0% 15%)` — borders             |
+| `--stroke`  | `border-stroke`     | `hsl(0 0% 12%)` — borders             |
 
 ### Brand colours
 
@@ -529,11 +525,11 @@ The one chromatic family in the system. Available as `bg-brand`, `text-brand`, `
 
 | Token                | Value                    | Role                          |
 | -------------------- | ------------------------ | ----------------------------- |
-| `--brand`            | `hsl(0 72% 51%)` ≈ `#dc2626` | Accent, links, dots, hover borders |
-| `--brand-deep`       | `hsl(350 78% 40%)` ≈ `#b51230` | Gradient end, pressed states |
-| `--brand-foreground` | `hsl(0 0% 100%)` ≈ `#ffffff` | Text/icons on a `--brand` fill |
+| `--brand`            | `hsl(210 40% 67%)` ≈ `#89aacc` | Accent, links, dots, hover borders |
+| `--brand-deep`       | `hsl(211 47% 53%)` ≈ `#4e85bf` | Gradient end, pressed states |
+| `--brand-foreground` | `hsl(211 65% 12%)`       | Text/icons on a `--brand` fill |
 
-Gradient: `linear-gradient(90deg, hsl(var(--brand)) 0%, hsl(var(--brand-deep)) 100%)` — defined as the `.accent-gradient` class in `apps/web/app/landing.css` (landing-scoped, not part of the package styles).
+Gradient: `linear-gradient(90deg, hsl(var(--brand)) 0%, hsl(var(--brand-deep)) 100%)` — also exposed as the `.accent-gradient` class.
 
 ### Other token groups
 
@@ -568,7 +564,7 @@ utility is shorter and is what the components use.
 `--font-sans-family` and `--font-mono-family` are the public override hooks. Point `next/font` (or any CSS) at those names:
 
 ```tsx
-const geist = Geist({ subsets: ["latin"], variable: "--font-sans-family" })
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans-family" })
 ```
 
 Do **not** set `--font-sans` — it is the theme token itself, and `--font-sans: var(--font-sans)` is a CSS dependency cycle that resolves to nothing.

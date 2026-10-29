@@ -101,6 +101,8 @@ pub enum ButtonLoadingStyle {
     Spinner,
     /// Eight-pixel diamond chase ([`Loader::diamond`]).
     Diamond,
+    /// Scrambled grid chase ([`Loader::grid_shift`]).
+    GridShift,
 }
 
 /// The resolved style of one [`ButtonVariant`], before the hover fade is
@@ -1001,6 +1003,9 @@ impl RenderOnce for Button {
             let mark: AnyElement = match self.loading_style {
                 ButtonLoadingStyle::Spinner => Spinner::new().size(icon_size).into_any_element(),
                 ButtonLoadingStyle::Diamond => Loader::diamond().size(icon_size).into_any_element(),
+                ButtonLoadingStyle::GridShift => {
+                    Loader::grid_shift().size(icon_size).into_any_element()
+                }
             };
             el = el.child(
                 icon_slot(mark, icon_size)

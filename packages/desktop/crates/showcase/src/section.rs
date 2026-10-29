@@ -113,9 +113,7 @@ pub struct SectionDocs {
 }
 
 const BUTTONS_CODE: &str = r#"use celestia_ui::components::Card;
-use celestia_ui::components::primitive::button::{
-    Button, ButtonLoadingStyle, ButtonSize, ButtonVariant,
-};
+use celestia_ui::components::primitive::button::{Button, ButtonSize, ButtonVariant};
 use celestia_ui::components::primitive::kbd::Kbd;
 use celestia_ui::components::primitive::link::Link;
 use gpui_component::h_flex;
@@ -141,13 +139,6 @@ Button::new("btn-small")
     .variant(ButtonVariant::Primary)
     .size(ButtonSize::XSmall)
     .label("Small primary")
-
-// Loading — spinner (default) or diamond chase
-Button::new("btn-loading").loading(true).label("Saving")
-Button::new("btn-loading-diamond")
-    .loading(true)
-    .loading_style(ButtonLoadingStyle::Diamond)
-    .label("Saving")
 
 // Keyboard shortcut badge
 Kbd::new(Keystroke::parse("cmd-d").expect("valid keystroke"))
@@ -290,7 +281,6 @@ use celestia_ui::components::composite::loaders::{
 use celestia_ui::components::composite::notice::{NoticeChipIcon, notice_chip};
 use celestia_ui::components::primitive::progress::Progress;
 use celestia_ui::components::primitive::skeleton::Skeleton;
-use celestia_ui::components::primitive::loader::Loader;
 use celestia_ui::components::primitive::spinner::Spinner;
 use gpui::*;
 
@@ -303,9 +293,6 @@ Alert::error("al-err", "Something failed.")
 // Progress bars & loading indicators
 Progress::new("pg-1").value(0.65)
 Spinner::new()
-Loader::diamond() // chase: orbit / box_dots / snake / zigzag / blocks
-Loader::wave()    // processing: bounce / cascade / breath / spark / dots / bars
-Loader::grid_zigzag() // 3×3 two-tone primary: also grid_shift / grid_spin
 Skeleton::new().h_4().w(px(192.))
 
 // Micro loaders running on shared pulse clock
@@ -853,7 +840,7 @@ const BUTTONS_PROPS: &[DocProp] = &[
     DocProp {
         name: "leading_icon / trailing_icon",
         ty: "impl IntoElement",
-        description: "Typed icon slots (PhosphorIcon works). loading swaps the leading slot for Spinner or Diamond.",
+        description: "Typed icon slots (PhosphorIcon works). loading swaps the leading slot for a Spinner.",
     },
     DocProp {
         name: "on_click / dropdown_menu",
@@ -1012,11 +999,6 @@ const FEEDBACK_PROPS: &[DocProp] = &[
         description: "Task progress vs capacity meter (disk/quota), spinner, placeholders.",
     },
     DocProp {
-        name: "Loader::{diamond,wave,grid_zigzag,grid_shift,grid_spin,…}",
-        ty: "size 16–24px",
-        description: "Chase / processing / boxy 3×3 two-tone primary (zigzag, random shift, spin).",
-    },
-    DocProp {
         name: "pulse_loader / gradient_spinner / progress_ring",
         ty: "size + view + cx",
         description: "Zeron-port micro loaders sharing a pulse clock.",
@@ -1029,9 +1011,9 @@ const FEEDBACK_PROPS: &[DocProp] = &[
 ];
 
 const FEEDBACK_NOTES: &[&str] = &[
-    "Alert / Progress / Meter / Spinner / Loader / Skeleton are raw-GPUI — no gpui-component dependency.",
+    "Alert / Progress / Meter / Spinner / Skeleton are raw-GPUI — no gpui-component dependency.",
     "Meter auto-tones Warning ≥ 0.7 and Danger ≥ 0.9 unless .tone() is set.",
-    "Loader variants are icon-sized (16px) and need no EntityId; pulse_loader / gradient_spinner need view + cx.",
+    "Micro loaders need a view + cx so they can tick on the shared pulse clock.",
 ];
 
 const OVERLAYS_PROPS: &[DocProp] = &[
@@ -1048,7 +1030,7 @@ const OVERLAYS_PROPS: &[DocProp] = &[
     DocProp {
         name: "window.push_notification",
         ty: "Notification + cx",
-        description: "Toast via WindowExt — always-visible close. Use Notification::success / error / info.",
+        description: "Toast via WindowExt — single corner dismiss. Use Notification::success / error / info.",
     },
     DocProp {
         name: "Modal",

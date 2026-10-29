@@ -70,7 +70,7 @@ One file per component, split into two category modules mirroring
    desktop-only `success`/`warning`/`info` status fills — with `ButtonSize`'s five
    height steps and four icon steps, `leading_icon`/`trailing_icon` slots, the
    `Button::icon` constructor, and a `loading` state that swaps the leading slot for
-   a `Spinner` or `ButtonLoadingStyle::Diamond`), `badge.rs` (`Badge` + `BadgeVariant` — composed from a plain
+   a `Spinner`), `badge.rs` (`Badge` + `BadgeVariant` — composed from a plain
    `div` rather than `gpui-component`'s `Tag`, because the web status variants are a 10%
    tint of the accent under accent-coloured text and the Tag paints solid fills
    plus a hover dim the web does not have), `avatar.rs` (`Avatar` +
@@ -86,7 +86,6 @@ One file per component, split into two category modules mirroring
 3. **Raw-GPUI components** — written directly on `gpui` (`gpui-pre`) and
    importing nothing from `gpui_component`: `primitive/alert.rs`,
    `primitive/progress.rs`, `primitive/skeleton.rs`, `primitive/spinner.rs`,
-   `primitive/loader.rs`,
    `primitive/shimmer.rs`, `primitive/icon.rs`, `primitive/badge.rs`,
    `primitive/label.rs`, `primitive/rating.rs`, `composite/loaders.rs`,
    `composite/notice.rs`, `composite/context_badge.rs`. They render with
@@ -207,7 +206,7 @@ primitives, or that owns a layout region rather than a control, is a composite.
 | `primitive/input.rs`, `primitive/textarea.rs`, `primitive/input_otp.rs`, `primitive/select.rs`, `composite/combobox.rs`                                                                                                                                                                                      | `input.tsx`, `textarea.tsx`, `input-otp.tsx`, `select.tsx`, combobox composite                                                    |
 | `primitive/switch.rs`, `primitive/checkbox.rs`, `primitive/radio.rs`, `primitive/slider.rs`, `primitive/rating.rs`, `primitive/toggle.rs` (`Toggle` + `ToggleGroup`), `composite/stepper.rs`, `composite/toolbar_menu.rs`                                                                                                                                                                             | `switch.tsx`, `checkbox.tsx`, `radio-group.tsx`, `slider.tsx`, —, `toggle.tsx` (+ toggle-group), —, `toolbar-menu.tsx`                                                               |
 | `primitive/calendar.rs`, `composite/date_picker.rs`, `composite/color_picker.rs`, `primitive/label.rs`                                                                                                                                                                                             | `calendar.tsx`, —, —, `label.tsx`                                                                                                 |
-| `primitive/alert.rs`, `primitive/toast.rs` (toasts + `WindowExt`), `primitive/progress.rs`, `primitive/spinner.rs`, `primitive/loader.rs`, `primitive/skeleton.rs`, `primitive/shimmer.rs`                                                                                                                              | `alert.tsx`, `toast.tsx` / `sonner.tsx`, `progress.tsx`, `spinner.tsx`, (desktop-only pixel loaders), `skeleton.tsx`, `ai/shimmer.tsx` |
+| `primitive/alert.rs`, `primitive/toast.rs` (toasts + `WindowExt`), `primitive/progress.rs`, `primitive/spinner.rs`, `primitive/skeleton.rs`, `primitive/shimmer.rs`                                                                                                                                                    | `alert.tsx`, `toast.tsx` / `sonner.tsx`, `progress.tsx`, `spinner.tsx`, `skeleton.tsx`, `ai/shimmer.tsx`                          |
 | `primitive/popover.rs`, `primitive/dialog.rs`, `composite/modal.rs` (`Modal` / `ModalHeader` / `ModalTitle` / `ModalDescription` / `ModalBody` / `ModalFooter`), `primitive/sheet.rs`, `composite/menu.rs`, `primitive/menubar.rs`, `primitive/navigation_menu.rs`, `primitive/hover_card.rs`, `primitive/tooltip.rs`, `primitive/command.rs`                                                                                                                                                              | `popover.tsx`, `dialog.tsx`, `drawer.tsx` / `sheet.tsx`, dropdown/context, `menubar.tsx`, `navigation-menu.tsx`, `hover-card.tsx`, `tooltip.tsx`, `command.tsx` |
 | `primitive/avatar.rs` (wrapper: `AvatarSize` — web 24/32/40px), `primitive/breadcrumb.rs`, `primitive/item.rs`, `composite/list.rs`, `composite/file_tree.rs` (`FileTree` / `FileTreeFolder` / `FileTreeFile`), `composite/tree.rs` (gpui-component host), `composite/pagination.rs`, `composite/toolbar_menu.rs`, `composite/marker.rs`, `composite/empty.rs`, `composite/virtual_list.rs`                                          | `avatar.tsx`, `breadcrumb.tsx`, `item.tsx`, list delegate, `ai/file-tree.tsx`, —, `pagination.tsx`, `toolbar-menu.tsx`, `marker.tsx`, `empty.tsx`, —                 |
 | `primitive/table.rs` — pure GPUI composition table (`Table`, `TableHeader`, `TableBody`, `TableFooter`, `TableRow`, `TableHead`, `TableCell`, `TableCaption`) + declarative `DataTable` (`from_key_value`, striped rows). Columns share width via `flex_basis(relative)` so cells align across rows | `table.tsx` (primitives), the `data-table` composite; GetCat `kv_table.rs` inspired the Key/Value constructor                     |
@@ -292,9 +291,7 @@ and the 3D edge is the accent darkened toward black.
 **Icon slots and loading** are typed rather than assembled by hand:
 
 ```rust
-use celestia_ui::components::primitive::button::{
-    Button, ButtonLoadingStyle, ButtonSize, ButtonVariant,
-};
+use celestia_ui::components::primitive::button::{Button, ButtonSize, ButtonVariant};
 use celestia_ui::components::primitive::icon::PhosphorIcon;
 
 // Leading / trailing slots — a bare PhosphorIcon renders at the size step's
@@ -313,16 +310,13 @@ Button::icon("settings", PhosphorIcon::Gear)
     .accessibility_label("Settings")
     .tooltip("Settings");
 
-// Loading: the mark takes the *leading slot* rather than being pushed in
+// Loading: the spinner takes the *leading slot* rather than being pushed in
 // front of it, so the label and the trailing icon keep their positions and the
 // button does not reflow. Interaction is blocked, but the fill, the elevation
 // and the opacity are kept — a loading button is busy, not forbidden.
-// Default mark is Spinner; pass `.loading_style(ButtonLoadingStyle::Diamond)`
-// for the eight-pixel diamond chase.
 Button::new("save")
     .variant(ButtonVariant::Primary)
     .loading(true)
-    .loading_style(ButtonLoadingStyle::Diamond)
     .label("Saving");
 ```
 
@@ -450,13 +444,6 @@ from zeron's theme — and all motion runs through one shared module:
   ~30fps driver that keeps every mounted loader phase-locked and parks entirely once the last one
   unmounts (a window with no spinner schedules nothing). Reduced motion (gpui's
   `reduce_motion` flag) snaps loaders to a static rest brightness and zeroes the wave phases.
-- `components/primitive/loader.rs` — icon-sized (default 16px) pixel loaders that drop into the
-  same slot as `Spinner`. **Chase:** `diamond` (web `spin-pixel`), `orbit`, `box_dots`,
-  `snake`, `zigzag`, `blocks`. **Processing (Cursor-style):** `wave`, `bounce`, `cascade`,
-  `breath`, `spark`, plus `dots` / `bars`. **Boxy 3×3 (two-tone theme primary):**
-  `grid_zigzag`, `grid_shift` (scrambled phases), `grid_spin` — override with `.color` /
-  `.secondary`. Uses `with_animation` (no `EntityId`); reduced motion parks every cell at a
-  static rest brightness.
 - `components/loaders.rs` — the cell loaders: `pulse_loader` (5-cell opacity/scale wave),
   `gradient_spinner` (3×3 grid on the `brand → brand_deep` ramp, the pulse travels
   bottom-edge → top-centre), `mini_spinner` / `mini_mono_spinner` (2×3 radial chase in a

@@ -75,7 +75,6 @@ impl Showcase {
             | Demo::NumberStepper
             | Demo::Fab
             | Demo::Spinner
-            | Demo::Loader
             | Demo::Skeleton
             | Demo::Shimmer => self.render_feedback_demo(demo, cx),
 

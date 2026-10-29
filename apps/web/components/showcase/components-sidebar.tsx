@@ -9,7 +9,7 @@ import {
   BellSimpleRingingIcon,
   CompassIcon,
   StackIcon,
-  ChartLineUpIcon,
+  BrowserIcon,
 } from "@phosphor-icons/react"
 import { NavSidebar, type NavSidebarGroup } from "@/components/shared/nav-sidebar"
 import { cn } from "@celestia-project/ui/lib/utils"
@@ -27,11 +27,10 @@ export const CATEGORIES: CategoryItem[] = [
     id: "buttons",
     name: "Buttons & Actions",
     icon: CursorClickIcon,
-    count: 6,
+    count: 5,
     items: [
       { id: "button", name: "Button" },
       { id: "button-group", name: "Button Group" },
-      { id: "toolbar-menu", name: "Toolbar Menu" },
       { id: "toggle", name: "Toggle" },
       { id: "toggle-group", name: "Toggle Group" },
       { id: "ripple", name: "Ripple Effect" },
@@ -41,7 +40,7 @@ export const CATEGORIES: CategoryItem[] = [
     id: "inputs",
     name: "Inputs & Forms",
     icon: TextboxIcon,
-    count: 14,
+    count: 13,
     items: [
       { id: "input", name: "Input" },
       { id: "input-group", name: "Input Group" },
@@ -56,7 +55,6 @@ export const CATEGORIES: CategoryItem[] = [
       { id: "input-otp", name: "Input OTP" },
       { id: "colorized-url-input", name: "Colorized URL Input" },
       { id: "field", name: "Field & Form" },
-      { id: "filter", name: "Filter" },
     ],
   },
   {
@@ -84,12 +82,11 @@ export const CATEGORIES: CategoryItem[] = [
     id: "feedback",
     name: "Feedback & Overlays",
     icon: BellSimpleRingingIcon,
-    count: 11,
+    count: 10,
     items: [
       { id: "alert", name: "Alert" },
       { id: "alert-dialog", name: "Alert Dialog" },
       { id: "dialog", name: "Dialog" },
-      { id: "bottom-sheet", name: "Bottom Sheet" },
       { id: "drawer", name: "Drawer / Sheet" },
       { id: "popover", name: "Popover" },
       { id: "tooltip", name: "Tooltip" },
@@ -141,32 +138,40 @@ export const CATEGORIES: CategoryItem[] = [
     ],
   },
   {
-    id: "charts",
-    name: "Charts & Data Viz",
-    icon: ChartLineUpIcon,
-    count: 8,
-    items: [
-      { id: "chart", name: "Chart Container" },
-      { id: "chart-area", name: "Area Chart" },
-      { id: "chart-line", name: "Line Chart" },
-      { id: "chart-bar", name: "Bar Chart" },
-      { id: "chart-pie", name: "Pie / Donut" },
-      { id: "chart-radar", name: "Radar" },
-      { id: "chart-radial", name: "Radial Gauge" },
-      { id: "chart-sparkline", name: "Sparkline" },
-    ],
-  },
-  {
     id: "surfaces",
     name: "Surfaces & Rich Media",
     icon: StackIcon,
-    count: 5,
+    count: 6,
     items: [
       { id: "resizable", name: "Resizable Panels" },
       { id: "scroll-area", name: "Scroll Area" },
       { id: "carousel", name: "Carousel" },
       { id: "text-editor", name: "Text & Code Editor" },
       { id: "block-text-editor", name: "Block Text Editor" },
+      { id: "chart", name: "Chart Container" },
+    ],
+  },
+  {
+    id: "layout",
+    name: "Layout & Pages",
+    icon: BrowserIcon,
+    count: 15,
+    items: [
+      { id: "auth-shell", name: "Auth Shell" },
+      { id: "sign-in-page", name: "Sign In Page" },
+      { id: "sign-up-page", name: "Sign Up Page" },
+      { id: "forgot-password-page", name: "Forgot Password Page" },
+      { id: "reset-password-page", name: "Reset Password Page" },
+      { id: "two-factor-page", name: "Two-Factor Page" },
+      { id: "page-shell", name: "Page Shell" },
+      { id: "not-found-page", name: "Not Found Page" },
+      { id: "dashboard-shell", name: "Dashboard Shell" },
+      { id: "dashboard-page", name: "Dashboard Page" },
+      { id: "profile-page", name: "Profile Page" },
+      { id: "settings-page", name: "Settings Page" },
+      { id: "list-page", name: "List Page" },
+      { id: "billing-page", name: "Billing Page" },
+      { id: "status-page", name: "Status & Error Pages" },
     ],
   },
 ]
@@ -223,7 +228,7 @@ export function ComponentsSidebar({
       onSelectGroup={handleSelectGroup}
       onSelectItem={(item) => scrollToItem(item.id)}
       isSticky
-      stickyTopClass="top-20"
+      stickyTopClass="top-34"
       maxHeightClass="max-h-[calc(100vh-7rem)]"
       className={cn("w-64 shrink-0", className)}
     />

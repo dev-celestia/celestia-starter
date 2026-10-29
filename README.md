@@ -1,6 +1,6 @@
 # Celestia Starter
 
-> A production-ready, full-stack monorepo starter built with **Next.js 16**, **Hono**, **Better Auth**, **Drizzle ORM**, **Base UI**, **Tailwind CSS v4**, and **Expo / React Native**.
+> A production-ready, full-stack monorepo starter built with **Next.js 15**, **Hono**, **Better Auth**, **Drizzle ORM**, **Base UI**, **Tailwind CSS v4**, and **Expo / React Native**.
 
 [![npm @celestia-project/create](https://img.shields.io/npm/v/@celestia-project/create?label=%40celestia-project%2Fcreate)](https://www.npmjs.com/package/@celestia-project/create)
 [![npm @celestia-project/ui](https://img.shields.io/npm/v/@celestia-project/ui?label=%40celestia-project%2Fui)](https://www.npmjs.com/package/@celestia-project/ui)
@@ -42,7 +42,7 @@ pnpm dev
 
 - **Web App & Docs** → [http://localhost:1212](http://localhost:1212) (Docs at [/docs](http://localhost:1212/docs))
 - **API Server (Backend)** → [http://localhost:4000](http://localhost:4000)
-- **Mobile App (Expo)** → not started by `pnpm dev`; run `pnpm mobile` in a second terminal (Metro bundler, then press `i` / `a` for a simulator), or `pnpm --filter mobile ios` / `android` to target one directly. Web is not a supported target: `@expo/ui` has no web implementation — see [Platform support](apps/web/content/docs/mobile.mdx)
+- **Mobile App (Expo)** → not started by `pnpm dev`; run `pnpm mobile` in a second terminal (Metro bundler, then press `i` / `a` for a simulator)
 
 ---
 
@@ -53,7 +53,7 @@ Celestia Starter enforces a strict **separated architecture** between frontend a
 ```
 ┌────────────────────────────────┐       /api/* (proxy)       ┌────────────────────────────────┐
 │         apps/web (UI)          │  ───────────────────────▶  │        apps/api (Hono)         │
-│  Next.js 16 App Router · Pure  │  same-origin via rewrites  │  Backend API · Better Auth     │
+│  Next.js 15 App Router · Pure  │  same-origin via rewrites  │  Backend API · Better Auth     │
 └────────────────────────────────┘                            └───────────────┬────────────────┘
                                                                               │ Drizzle ORM
                                                                       ┌───────▼────────┐
@@ -62,7 +62,7 @@ Celestia Starter enforces a strict **separated architecture** between frontend a
 ```
 
 - **Backend API (`apps/api`)**: Powered by Hono running on Node.js (port 4000). Owns the database connection, business logic, authentication server instance, and CRUD endpoints. Exposes end-to-end typed contracts via Hono RPC.
-- **Frontend (`apps/web`)**: Next.js 16 App Router (port 1212). Pure UI layer with zero direct database access and no server-side auth secrets. Houses landing pages, interactive component showcase, and full documentation. Proxies `/api/*` to the backend.
+- **Frontend (`apps/web`)**: Next.js 15 App Router (port 1212). Pure UI layer with zero direct database access and no server-side auth secrets. Houses landing pages, interactive component showcase, and full documentation. Proxies `/api/*` to the backend.
 - **Mobile App (`apps/mobile`)**: Expo (React Native) client that consumes `@celestia-project/mobile` **from source** — there is no build step, Metro compiles the package's `.ts`/`.tsx` directly. It is not part of the `pnpm dev` pipeline; start it with `pnpm mobile`.
 - **Shared DB (`packages/db`)**: Drizzle ORM schema and PostgreSQL client (`@workspace/db`).
 - **Shared UI (`packages/ui`)**: `@celestia-project/ui` component library built on Base UI and Tailwind CSS v4.
@@ -77,10 +77,9 @@ celestia-starter/
 ├── apps/
 │   ├── api/                # Standalone Hono backend (owns DB, auth, RPC routes)
 │   ├── mobile/             # Expo (React Native) showcase app for @celestia-project/mobile
-│   └── web/                # Next.js 16 frontend (pure UI, landing, docs, showcase)
+│   └── web/                # Next.js 15 frontend (pure UI, landing, docs, showcase)
 ├── packages/
 │   ├── ui/                 # @celestia-project/ui component library (Base UI + Tailwind v4)
-│   ├── desktop/            # GPUI (Rust) desktop workspace: celestia-ui components + celestia-desktop app
 │   ├── mobile/             # @celestia-project/mobile native components (ships source, publishable)
 │   ├── db/                 # @workspace/db (Drizzle schema & PostgreSQL client)
 │   ├── cli/                # @celestia-project/create CLI package
@@ -111,33 +110,16 @@ The project includes modular features installed via `@workspace/feature-manager`
 <!-- feature-manager:features:access:begin -->
 - **access** — User management (roles, ban, delete) with RBAC route guards and ABAC policies over the Better Auth admin plugin
 <!-- feature-manager:features:access:end -->
+<!-- feature-manager:features:cms:begin -->
+- **cms** — Blog post management for the Celestia app: editorial workflow (draft → review → scheduled → published → archived), markdown block editor integration, auto-save, revisions with diff/rollback, categories/tags, SEO & Open Graph controls, image uploads (WebP), soft-locking, and a public blog at `/blog`.
+<!-- feature-manager:features:cms:end -->
+<!-- feature-manager:features:media-r2:begin -->
+- **media-r2** — Cloudflare R2 media storage with BYOK for the CMS: admins connect their own R2 bucket from the Media page; uploads go to R2 (S3 API), stream through `/api/media/f/<key>` when no public domain is configured, and local disk stays as the fallback.
+<!-- feature-manager:features:media-r2:end -->
+<!-- feature-manager:features:unsplash:begin -->
+- **unsplash** — Unsplash stock-photo search for the CMS media picker: a server-side proxy route (`/api/cms/unsplash`) keeps the access key out of the browser, and the media dialog gains an Unsplash tab where writers search, browse, and insert photos with attribution.
+<!-- feature-manager:features:unsplash:end -->
 <!-- feature-manager:features:end -->
-
-### 🖥 Desktop (GPUI, not a feature-manager feature)
-
-A native Rust desktop surface lives in [`packages/desktop`](packages/desktop) as a self-contained
-Cargo workspace (invisible to pnpm/turbo — use `cargo` directly inside it):
-
-- **celestia-ui** — reusable GPUI component library with the Celestia design tokens ported to
-  light/dark `gpui-component` themes (`theme.json` + `palette.rs`), family re-exports over the
-  gpui-component library covering most of `packages/ui` (buttons, inputs, feedback, overlays,
-  data display, layout, chat, charts), and a zustand/react-context-style state layer (`state/`)
-  with selector-gated subscriptions — the desktop counterpart of `packages/ui`
-- **celestia-bridge** — HTTP client from GPUI to `apps/api` (desktop twin of `api-client.ts`)
-- **celestia-desktop** — the desktop app binary (component gallery window)
-
-```bash
-pnpm desktop                     # showcase window from the repo root (⌘D / Ctrl+D toggles light/dark)
-pnpm desktop:starter             # boilerplate window with Backend bridge demo
-cargo test --workspace           # from packages/desktop/
-```
-
-Documented in the docs site: [Desktop (GPUI)](apps/web/content/docs/desktop.mdx) — architecture,
-theming rules, component-family map, and app setup (published at `/docs/desktop`) — plus
-[Desktop State](apps/web/content/docs/desktop-state.mdx),
-[Desktop Components](apps/web/content/docs/desktop-components.mdx),
-[Desktop AI](apps/web/content/docs/desktop-ai.mdx), and
-[Desktop Bridge](apps/web/content/docs/desktop-bridge.mdx) (published at `/docs/desktop-bridge`).
 
 ---
 
@@ -178,14 +160,12 @@ rather than deleting a file it still needs.
 | Command | Purpose |
 |---------|---------|
 | `pnpm dev` | Start development servers for web and api in parallel |
-| `pnpm mobile` | Start the Expo dev server (Metro) for `apps/mobile`; press `i` / `a` to open a target |
-| `pnpm desktop` | Build & launch the GPUI showcase window for `packages/desktop` (native Rust, not part of turbo) |
-| `pnpm --filter mobile ios` \| `android` | Start Metro and go straight to the iOS simulator / Android emulator (web is not a supported target) |
+| `pnpm mobile` | Start the Expo dev server (Metro) for `apps/mobile` |
 | `pnpm build` | Build all applications and workspace packages via Turborepo |
 | `pnpm lint` | Verify lint coverage across the workspace, then run ESLint in the packages that declare it |
 | `pnpm typecheck` | Run `tsc --noEmit` across all workspace targets |
 | `pnpm test` | Run the feature-manager test suite (marker engine, manifests, install/remove lifecycle) |
-| `pnpm audit:ui` | Run the static UI audit (6 checks): web token contrast, **mobile `ColorRamp` contrast + the derived-edge and gauge-step contracts**, theme parity, stylesheet compile, focus rings, feature templates |
+| `pnpm audit:ui` | Run the static UI audit: token contrast, theme parity, stylesheet compile, focus rings, feature templates |
 | `pnpm list-features` | List available and installed features |
 | `pnpm add-feature <name>` | Install a feature (add `--dry-run` to preview, `--force` to upgrade) |
 | `pnpm remove-feature <name>` | Uninstall a feature, restoring files shared with other features |

@@ -76,11 +76,11 @@ export function ContactSection() {
 
   if (state === "success") {
     return (
-      <section id="contact" className="py-16 sm:py-20">
+      <section id="contact" className="mx-auto w-full max-w-4xl px-5 py-24 sm:px-8 sm:py-32">
         <Empty
           role="status"
           aria-live="polite"
-          className="mx-auto max-w-2xl border border-border bg-card py-14"
+          className="border border-border bg-card py-14"
         >
           <EmptyMedia
             variant="icon"
@@ -92,7 +92,7 @@ export function ContactSection() {
             <EmptyTitle className="text-xl">We&apos;ll be in touch shortly</EmptyTitle>
             <EmptyDescription className="text-sm leading-relaxed">
               A senior engineer from our team will reach out within one business
-              day to schedule your free strategy call, or write to us directly at hello@devcelestia.com.
+              day to schedule your free strategy call.
             </EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
@@ -106,7 +106,7 @@ export function ContactSection() {
   }
 
   return (
-    <section id="contact" className="py-16 sm:py-20">
+    <section id="contact" className="mx-auto w-full max-w-7xl px-5 py-24 sm:px-8 sm:py-32">
       <div className="grid gap-12 lg:grid-cols-[1fr_1.4fr] lg:gap-16">
         <Reveal>
           <div className="flex flex-col gap-8">
@@ -114,7 +114,7 @@ export function ContactSection() {
               align="start"
               eyebrow="Get in touch"
               title="Start your project with a free strategy call"
-              description="Tell us about your project or email hello@devcelestia.com. We'll match you with the right engineer for a no-pressure technical conversation. No pitch decks, no commitment."
+              description="Tell us about your project and we'll match you with the right engineer for a no-pressure technical conversation. No pitch decks, no commitment."
             />
 
             <ItemGroup className="gap-2">
@@ -192,6 +192,7 @@ export function ContactSection() {
                     <NativeSelectOption value="web">Web Application</NativeSelectOption>
                     <NativeSelectOption value="mobile">Mobile App</NativeSelectOption>
                     <NativeSelectOption value="dedicated">Dedicated Team</NativeSelectOption>
+                    <NativeSelectOption value="cloud">Cloud / DevOps</NativeSelectOption>
                     <NativeSelectOption value="other">Other</NativeSelectOption>
                   </NativeSelect>
                 </Field>
@@ -246,6 +247,7 @@ export function ContactSection() {
 
               <Button
                 type="submit"
+                size="lg"
                 disabled={state === "submitting"}
                 aria-busy={state === "submitting"}
                 className="mt-2 w-full gap-2"

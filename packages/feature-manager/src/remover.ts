@@ -149,7 +149,7 @@ export function planRemove(options: RemoveOptions): PlanResult<RemovePlan> {
     return {
       ok: false,
       errors: [
-        `No readable manifest for "${name}" in packages/feature-manager/features/ — cannot determine what to revert.`,
+        `No readable manifest for "${name}" in features/ — cannot determine what to revert.`,
         found?.error ?? "",
       ].filter(Boolean),
     }
@@ -479,8 +479,7 @@ export function executeRemove(plan: RemovePlan, options: { dryRun?: boolean } = 
   try {
     for (const file of plan.files) {
       if (file.action === "delete") {
-        // recursive: a legacy record may still reference a directory copy.
-        rmSync(file.absPath, { force: true, recursive: true })
+        rmSync(file.absPath, { force: true })
         removeEmptyParents(file.absPath, root)
       } else if (file.action === "restore-owner" && file.restoreFrom) {
         const template = templateFor(ctx.featuresDir, file.restoreFrom, file.to)

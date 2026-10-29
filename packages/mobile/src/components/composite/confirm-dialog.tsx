@@ -1,12 +1,6 @@
 import * as React from "react"
-import {
-  Animated,
-  View,
-  StyleSheet,
-  type ViewStyle,
-} from "react-native"
+import { View, StyleSheet, type ViewStyle } from "react-native"
 import { useMobileTheme } from "../../host"
-import { SPRING_ENTRANCE, springTo } from "../../motion"
 import { MobileBottomSheet } from "../primitive/bottom-sheet"
 import { MobileButton } from "../primitive/button"
 import { MobileText } from "../primitive/text"
@@ -92,28 +86,6 @@ export function MobileConfirmDialog({
 }: MobileConfirmDialogProps) {
   const { colors } = useMobileTheme()
 
-  // The sheet's slide-up and backdrop belong to the native SwiftUI/Compose
-  // presentation (MobileBottomSheet), so the motion this layer owns is the
-  // dialog body: opacity + scale 0.9 → 1 with a slight overshoot, replayed
-  // each time the dialog is presented.
-  const entrance = React.useRef(new Animated.Value(0)).current
-  React.useEffect(() => {
-    if (!isPresented) {
-      entrance.setValue(0)
-      return
-    }
-    springTo(entrance, 1, SPRING_ENTRANCE).start()
-  }, [isPresented, entrance])
-  const scale = entrance.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.9, 1],
-  })
-  const fade = entrance.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 1],
-    extrapolateRight: "clamp",
-  })
-
   return (
     <MobileBottomSheet
       isPresented={isPresented}
@@ -122,9 +94,7 @@ export function MobileConfirmDialog({
       testID={testID}
       style={style}
     >
-      <Animated.View
-        style={[styles.body, { opacity: fade, transform: [{ scale }] }]}
-      >
+      <View style={styles.body}>
         <MobileText variant="title" align="center">
           {title}
         </MobileText>
@@ -167,7 +137,7 @@ export function MobileConfirmDialog({
             This action cannot be undone.
           </MobileText>
         ) : null}
-      </Animated.View>
+      </View>
     </MobileBottomSheet>
   )
 }

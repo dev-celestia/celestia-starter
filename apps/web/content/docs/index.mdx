@@ -13,7 +13,7 @@ Celestia Starter is a production-ready monorepo template with a decoupled archit
 - **Better Auth** — Email/password + OAuth authentication (runs on the backend)
 - **Drizzle ORM** — Type-safe PostgreSQL queries and migrations
 - **Hono RPC** — End-to-end typed API calls from frontend to backend
-- **Tailwind CSS v4 + @celestia-project/ui** — Utility-first styling with 150+ accessible components
+- **Tailwind CSS v4 + @celestia-project/ui** — Utility-first styling with 60+ accessible components
 - **Turborepo + pnpm workspaces** — Fast monorepo builds and workspace management
 
 ## Project Structure
@@ -21,18 +21,15 @@ Celestia Starter is a production-ready monorepo template with a decoupled archit
 ```
 celestia-starter/
 ├── apps/
-│   ├── web/               # Next.js frontend (pure UI, landing, showcase, docs)
-│   │   └── content/docs/  # Documentation pages (MDX)
-│   ├── api/               # Hono backend (auth + data + business logic)
-│   └── mobile/            # Expo showcase app for @celestia-project/mobile
+│   ├── web/          # Next.js frontend (pure UI, no database access)
+│   ├── api/          # Hono backend (auth + data + business logic)
+│   └── content/docs/ # Documentation pages (MDX)
 ├── packages/
-│   ├── db/                # Drizzle schema + client (backend-only)
-│   ├── ui/                # Shared component library (Base UI + Tailwind v4)
-│   ├── mobile/            # Native components (@expo/ui for iOS & Android)
-│   ├── cli/               # @celestia-project/create CLI package
-│   ├── feature-manager/   # CLI & installer engine for modular features
-│   ├── eslint-config/     # Shared ESLint flat-config presets
-│   └── typescript-config/ # Shared TypeScript configs
+│   ├── db/           # Drizzle schema + client (backend-only)
+│   ├── ui/           # Shared shadcn/ui component library
+│   ├── eslint-config/
+│   ├── typescript-config/
+│   └── feature-manager/  # CLI for installing features (features/ templates live here)
 ```
 
 ## Getting Started
@@ -44,29 +41,21 @@ npx @celestia-project/create my-app
 # Or clone manually
 pnpm install
 pnpm --filter @workspace/db db:push   # create the database schema
-pnpm dev                               # starts web (port 1212) + api (port 4000)
+pnpm dev                               # starts web + api + docs
 ```
 
 ## Features
 
 <Cards>
-  <Card title="CLI" href="/docs/cli" description="Scaffold a new project interactively with npx @celestia-project/create" />
-  <Card title="Packages" href="/docs/packages" description="Shared workspace packages for UI, mobile, database, linting, and config" />
-  <Card title="Mobile (Expo)" href="/docs/mobile" description="Native iOS & Android components built on @expo/ui — primitives, composites and full-screen layout shells" />
-  <Card title="Desktop (GPUI)" href="/docs/desktop" description="Native Rust desktop components on GPUI Kit — Celestia tokens as a compile-time theme, family re-exports over gpui-component" />
-  <Card title="Desktop State" href="/docs/desktop-state" description="zustand-style stores and React-context-style ambient values for GPUI — actions, selector-gated subscriptions, and testing" />
-  <Card title="Desktop Components" href="/docs/desktop-components" description="40+ new primitives and composites — chips, meters, wizard, terminal, tasks, and more" />
-  <Card title="Desktop Bridge" href="/docs/desktop-bridge" description="HTTP bridge from GPUI desktop UI to the Hono backend — health, auth cookies, and posts" />
+  <Card title="UI Components" href="/docs/components" description="70+ accessible UI components built on Base UI and Tailwind CSS v4" />
+  <Card title="AI Components" href="/docs/components/ai" description="Comprehensive suite of 54 AI primitives, prompt bars, tools, and agent workflows" />
   <Card title="Design System" href="/docs/design-system" description="OKLCH design tokens, Base UI primitives, and external project integration" />
   <Card title="Theming" href="/docs/theming" description="Centralized theme system — light/dark mode, accent palettes, and corner radius" />
-  <Card title="UI Components" href="/docs/components" description="150+ accessible components across primitives, composites, layouts, and AI" />
-  <Card title="AI Components" href="/docs/components/ai" description="Comprehensive suite of 54 AI primitives, prompt bars, tools, and agent workflows" />
-  <Card title="Templates" href="/layout" description="32 copy-ready page templates and 4 shells — preview at /layout and paste the source into your app" />
-  <Card title="Feature Installer" href="/feature-installer" description="The starter's installable feature system — see what ships and add it in one command" />
-  <Card title="Creating Features" href="/docs/features" description="Scaffold, author, and install modular feature packages" />
   <Card title="Authentication" href="/docs/authentication" description="Email/password and Google OAuth with Better Auth" />
   <Card title="Backend API" href="/docs/backend" description="Standalone Hono backend with Drizzle, auth, and typed RPC" />
   <Card title="Dashboard" href="/docs/dashboard" description="Protected dashboard with sidebar, route protection, and settings" />
+  <Card title="CLI" href="/docs/cli" description="Scaffold a new project interactively with npx @celestia-project/create" />
+  <Card title="Mobile (Expo)" href="/docs/mobile" description="Native iOS & Android components built on @expo/ui — primitives, composites and full-screen layout shells" />
   {/* feature-manager:cards:begin */}
   {/* feature-manager:cards:blog:begin */}
   <Card title="Blog (CRUD)" href="/docs/blog" description="Full create-read-update-delete blog over the typed RPC client" />
@@ -74,6 +63,15 @@ pnpm dev                               # starts web (port 1212) + api (port 4000
   {/* feature-manager:cards:access:begin */}
   <Card title="User Management & Access" href="/docs/access" description="Admin user management with RBAC middleware and ABAC policies" />
   {/* feature-manager:cards:access:end */}
+  {/* feature-manager:cards:cms:begin */}
+  <Card title="CMS (Blog Management)" href="/docs/cms" description="Editorial workflow, markdown editor, SEO controls, revisions, scheduling, and a public blog." />
+  {/* feature-manager:cards:cms:end */}
+  {/* feature-manager:cards:media-r2:begin */}
+  <Card title="Media on Cloudflare R2 (BYOK)" href="/docs/media-r2" description="Connect your own R2 bucket for CMS media uploads — proxy fallback, WebP variants unchanged." />
+  {/* feature-manager:cards:media-r2:end */}
+  {/* feature-manager:cards:unsplash:begin */}
+  <Card title="Unsplash Media Picker" href="/docs/unsplash" description="Search and insert free Unsplash stock photos from the CMS media dialog — key stays server-side." />
+  {/* feature-manager:cards:unsplash:end */}
   {/* feature-manager:cards:end */}
 </Cards>
 

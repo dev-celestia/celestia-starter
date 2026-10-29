@@ -3,8 +3,8 @@ import { join } from "node:path"
 
 import { sha256File } from "./fsx.js"
 import { getAtPath } from "./markers.js"
-import { discoverFeatures, type NormalizedManifest } from "./manifest.js"
-import { manifestDisplayPath, repoContext, repoPath } from "./paths.js"
+import { discoverFeatures, loadManifest, type NormalizedManifest } from "./manifest.js"
+import { repoContext } from "./paths.js"
 import { claimers, currentOwner, readTracker } from "./state.js"
 import type { FeatureTracker } from "./types.js"
 
@@ -68,19 +68,6 @@ function envKeyOf(entry: string): string | undefined {
 }
 
 /**
- * Manifest paths are attacker/typo controlled, so they go through `repoPath`
- * like everywhere else. Verify is read-only; on an escaping path it reports the
- * file as missing instead of throwing.
- */
-function resolveInRepo(root: string, rel: string, label: string): string | undefined {
-  try {
-    return repoPath(root, rel, label)
-  } catch {
-    return undefined
-  }
-}
-
-/**
  * Check that an installed feature still matches what it installed: files
  * present and unmodified, marker blocks still wired up, JSON entries and
  * dependencies still in place. Read-only — never writes.
@@ -112,8 +99,8 @@ export function verify(root: string, only?: string): VerifyReport {
         code: "missing_manifest",
         severity: "error",
         feature: name,
-        file: manifestDisplayPath(name),
-        message: `"${name}" is recorded as installed but ${manifestDisplayPath(name)} is gone.`,
+        file: `features/${name}/feature.json`,
+        message: `"${name}" is recorded as installed but features/${name}/feature.json is gone.`,
         hint: `Re-create the feature directory, or drop the entry from features.json.`,
       })
     }
@@ -176,8 +163,8 @@ export function verify(root: string, only?: string): VerifyReport {
         code: "unreadable_manifest",
         severity: "error",
         feature: name,
-        file: manifestDisplayPath(name),
-        message: found?.error ?? `${manifestDisplayPath(name)} could not be read.`,
+        file: `features/${name}/feature.json`,
+        message: found?.error ?? `features/${name}/feature.json could not be read.`,
       })
       results.push({
         name,
@@ -208,7 +195,7 @@ export function verify(root: string, only?: string): VerifyReport {
         code: "version_drift",
         severity: "warning",
         feature: name,
-        message: `Installed v${record.version} but packages/feature-manager/features/${name} is v${manifest.version}.`,
+        message: `Installed v${record.version} but features/${name} is v${manifest.version}.`,
         hint: `Upgrade with: pnpm add-feature ${name} --force`,
       })
     }
@@ -227,20 +214,9 @@ export function verify(root: string, only?: string): VerifyReport {
 
     // ── Copied files ──
     for (const copy of manifest.copies) {
-      const abs = resolveInRepo(root, copy.to, `copies[].to "${copy.to}"`)
+      const abs = join(root, copy.to)
       const owner = currentOwner(tracker, copy.to)
       const claimersList = claimers(tracker, copy.to)
-
-      if (!abs) {
-        issues.push({
-          code: "missing_file",
-          severity: "error",
-          feature: name,
-          file: copy.to,
-          message: `Copy target escapes the repository: ${copy.to}`,
-        })
-        continue
-      }
 
       if (!existsSync(abs)) {
         if (owner && owner !== name) {
@@ -295,17 +271,7 @@ export function verify(root: string, only?: string): VerifyReport {
 
     // ── Insertions ──
     for (const insertion of manifest.insertions) {
-      const abs = resolveInRepo(root, insertion.file, `insertions[].file "${insertion.file}"`)
-      if (!abs) {
-        issues.push({
-          code: "missing_marker",
-          severity: "warning",
-          feature: name,
-          file: insertion.file,
-          message: `Insertion target escapes the repository: ${insertion.file}.`,
-        })
-        continue
-      }
+      const abs = join(root, insertion.file)
       if (!existsSync(abs)) {
         issues.push({
           code: "missing_marker",
@@ -344,17 +310,7 @@ export function verify(root: string, only?: string): VerifyReport {
 
     // ── JSON appends ──
     for (const entry of manifest.jsonAppends) {
-      const abs = resolveInRepo(root, entry.file, `jsonAppends[].file "${entry.file}"`)
-      if (!abs) {
-        issues.push({
-          code: "missing_json_entry",
-          severity: "warning",
-          feature: name,
-          file: entry.file,
-          message: `JSON file target escapes the repository: ${entry.file}.`,
-        })
-        continue
-      }
+      const abs = join(root, entry.file)
       if (!existsSync(abs)) {
         issues.push({
           code: "missing_json_entry",
@@ -395,9 +351,8 @@ export function verify(root: string, only?: string): VerifyReport {
       ["devDependencies", manifest.devDependencies],
     ] as const) {
       for (const [target, group] of Object.entries(groups)) {
-        const targetAbs = resolveInRepo(root, target, `${field} target "${target}"`)
-        const pkgFile = targetAbs ? join(targetAbs, "package.json") : undefined
-        if (!pkgFile || !existsSync(pkgFile)) {
+        const pkgFile = join(root, target, "package.json")
+        if (!existsSync(pkgFile)) {
           issues.push({
             code: "missing_dependency",
             severity: "warning",
@@ -449,10 +404,8 @@ export function verify(root: string, only?: string): VerifyReport {
     // ── Env vars ──
     for (const [target, vars] of Object.entries(manifest.env)) {
       if (!vars.length) continue
-      const targetAbs = resolveInRepo(root, target, `env target "${target}"`)
-      if (!targetAbs) continue
-      const envPath = join(targetAbs, ".env")
-      const examplePath = join(targetAbs, ".env.example")
+      const envPath = join(root, target, ".env")
+      const examplePath = join(root, target, ".env.example")
       const envKeys = readEnvKeys(envPath)
       const exampleKeys = readEnvKeys(examplePath)
       const missing = vars

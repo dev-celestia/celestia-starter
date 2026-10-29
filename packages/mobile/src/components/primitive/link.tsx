@@ -1,6 +1,5 @@
 import * as React from "react"
 import {
-  Animated,
   Pressable,
   View,
   StyleSheet,
@@ -8,12 +7,8 @@ import {
 } from "react-native"
 import * as Haptics from "expo-haptics"
 import { useMobileTheme } from "../../host"
-import { usePressSpring } from "../../motion"
 import { MobileText } from "./text"
 import { metrics } from "../../tokens"
-import { isTextChildren } from "../../utils"
-
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
 export interface MobileLinkProps {
   /**
@@ -65,24 +60,6 @@ export function MobileLink({
   testID,
 }: MobileLinkProps) {
   const { colors } = useMobileTheme()
-  // 0 = resting, 1 = pressed. Drives opacity on both variants and a subtle
-  // scale on the standalone row (the inline link only dims — scaling text
-  // mid-sentence would reflow the line's visual weight). The hook's handlers
-  // need no disabled guard: a disabled Pressable never emits press events.
-  const {
-    value: pressAnim,
-    onPressIn: handlePressIn,
-    onPressOut: handlePressOut,
-  } = usePressSpring(0, 1)
-
-  const pressOpacity = pressAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [1, 0.6],
-  })
-  const pressScale = pressAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [1, 0.98],
-  })
 
   const handlePress = () => {
     if (disabled || !onPress) return
@@ -92,25 +69,16 @@ export function MobileLink({
 
   if (variant === "standalone") {
     return (
-      <AnimatedPressable
+      <Pressable
         onPress={handlePress}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
         disabled={disabled}
         testID={testID}
         accessibilityRole="link"
         accessibilityState={{ disabled }}
-        style={[
-          styles.standalone,
-          {
-            opacity: disabled ? 0.45 : pressOpacity,
-            transform: [{ scale: pressScale }],
-          },
-          style,
-        ]}
+        style={[styles.standalone, { opacity: disabled ? 0.45 : 1 }, style]}
       >
         <View style={styles.standaloneText}>
-          {isTextChildren(children) ? (
+          {typeof children === "string" ? (
             <MobileText variant="bodyMedium" color="primary">
               {children}
             </MobileText>
@@ -121,23 +89,21 @@ export function MobileLink({
         <MobileText variant="bodyMedium" color="muted" style={styles.chevron}>
           ›
         </MobileText>
-      </AnimatedPressable>
+      </Pressable>
     )
   }
 
   return (
-    <AnimatedPressable
+    <Pressable
       onPress={handlePress}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
       disabled={disabled}
       testID={testID}
       accessibilityRole="link"
       accessibilityState={{ disabled }}
       hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
-      style={disabled ? { opacity: 0.45 } : { opacity: pressOpacity }}
+      style={disabled ? { opacity: 0.45 } : undefined}
     >
-      {isTextChildren(children) ? (
+      {typeof children === "string" ? (
         <MobileText
           variant="body"
           style={{
@@ -150,7 +116,7 @@ export function MobileLink({
       ) : (
         children
       )}
-    </AnimatedPressable>
+    </Pressable>
   )
 }
 

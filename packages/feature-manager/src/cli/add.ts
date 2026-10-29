@@ -1,5 +1,3 @@
-import { execSync } from "node:child_process"
-
 import { executeInstall, planInstall, describePlan } from "../installer.js"
 import { discoverFeatures } from "../manifest.js"
 import { repoContext } from "../paths.js"
@@ -54,7 +52,7 @@ export function addCommand(ctx: CliContext, name: string | undefined): number {
     if (json) ui.emitJson({ ok: false, feature: name, errors: planned.errors })
     else {
       for (const error of planned.errors) ui.error(error)
-      if (planned.errors.some((e) => e.includes("not found in packages/feature-manager/features/"))) printAvailable(ctx)
+      if (planned.errors.some((e) => e.includes("not found in features/"))) printAvailable(ctx)
     }
     return 1
   }
@@ -178,23 +176,7 @@ export function addCommand(ctx: CliContext, name: string | undefined): number {
     ui.out(`    ${step++}. Add env vars to ${target}/.env:`)
     for (const entry of vars) ui.out(`       ${entry}`)
   }
-  const yes = flag(ctx, "yes")
-  if (plan.manifest.postInstall.length && yes) {
-    // `--yes` opts into executing the manifest's post-install commands now.
-    // A failure does not undo the install — it is reported as a failed step.
-    ui.out(`    ${step++}. Post-install commands:`)
-    let failed = false
-    for (const command of plan.manifest.postInstall) {
-      ui.detail(`$ ${command}`)
-      try {
-        execSync(command, { cwd: ctx.root, stdio: "inherit" })
-      } catch {
-        ui.error(`Post-install command failed: ${command}`)
-        failed = true
-      }
-    }
-    if (failed) return 1
-  } else if (plan.manifest.postInstall.length) {
+  if (plan.manifest.postInstall.length) {
     ui.out(`    ${step++}. Run post-install commands:`)
     for (const command of plan.manifest.postInstall) ui.out(`       ${command}`)
   }

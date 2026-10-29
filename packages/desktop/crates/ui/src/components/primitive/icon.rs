@@ -26,6 +26,15 @@ include!(concat!(env!("OUT_DIR"), "/phosphor_icon.rs"));
 /// Version of the embedded Phosphor Core release.
 pub const PHOSPHOR_VERSION: &str = "2.1.1";
 
+/// Let `gpui-component` surfaces that take a generic icon (menu items, for
+/// example) accept a Phosphor glyph directly. `Icon` resolves the path through
+/// the application's asset source, which already serves `phosphor/**`.
+impl gpui_component::IconNamed for PhosphorIcon {
+    fn path(self) -> SharedString {
+        PhosphorWeight::Regular.path(self)
+    }
+}
+
 /// Stroke/fill weight of a Phosphor icon. Only weights vendored under
 /// `assets/phosphor/` are listed; [`PhosphorWeight::path`] then always
 /// resolves.

@@ -6,19 +6,19 @@ icon: features
 
 # Creating Features
 
-New features MUST be authored as installable feature packages under `packages/feature-manager/features/<name>/`
+New features MUST be authored as installable feature packages under `features/<name>/`
 and installed with the feature-manager CLI — **never hand-copy files into `apps/` or
 `packages/` while authoring**. The `feature-manager add` command performs the actual
 copies and insertions, which keeps features installable, removable, and portable.
 
-Use `packages/feature-manager/features/blog/` as the canonical reference implementation.
+Use `features/blog/` as the canonical reference implementation.
 
 ## Architecture constraints (hard rules)
 
 | Layer | Location | Rule |
 |---|---|---|
 | Backend | `apps/api` (Hono, port 4000) | All API routes, auth server, DB access. Secrets env only here. |
-| Frontend | `apps/web` (Next.js, port 1212) | Pure UI. No DB access, no Better Auth server instance, no secrets. |
+| Frontend | `apps/web` (Next.js, port 3000) | Pure UI. No DB access, no Better Auth server instance, no secrets. |
 | Database | `packages/db` | Drizzle schema + pooled client (`@workspace/db`). Never create local `db.ts`. |
 | Shared UI | `packages/ui` | Reusable shadcn/ui components (`@celestia-project/ui`). |
 
@@ -28,8 +28,8 @@ Use `packages/feature-manager/features/blog/` as the canonical reference impleme
 
 ## Workflow
 
-1. **Plan** — Read `features.json` (installed features) and manifests in `packages/feature-manager/features/*/feature.json`. Decide `requires`, DB tables, env vars, dependencies, dashboard pages. Ask the user for anything unclear.
-2. **Scaffold** — Create `packages/feature-manager/features/<name>/` with the directory layout below and a valid starter `feature.json`.
+1. **Plan** — Read `features.json` (installed features) and manifests in `features/*/feature.json`. Decide `requires`, DB tables, env vars, dependencies, dashboard pages. Ask the user for anything unclear.
+2. **Scaffold** — Create `features/<name>/` with the directory layout below and a valid starter `feature.json`.
 3. **Author** — Write template files per target (`api/`, `web/`, `ui/`, `docs/`) and one snippet file per insertion.
 4. **Self-check** — For every manifest entry verify: `copies[].from` exists; every `insertions[].snippet` exists; every `insertions[].file` exists in the repo and contains the referenced marker region (`feature-manager:<marker>:begin`); `requires` lists only installed features; no orphan files in the feature dir. `pnpm add-feature <name> --dry-run --strict` performs these checks for you and prints the full plan without writing anything.
 5. **Install** — Run `pnpm add-feature <name>` from the repo root, then `pnpm install`, env vars, and the printed `postInstall` commands.
@@ -38,7 +38,7 @@ Use `packages/feature-manager/features/blog/` as the canonical reference impleme
 ## Directory layout
 
 ```text
-packages/feature-manager/features/<name>/
+features/<name>/
 ├── api/          → files copied into apps/api  (e.g. api/src/features/<name>/routes.ts)
 ├── web/          → files copied into apps/web  (pages, components, hooks)
 ├── ui/           → files copied into packages/ui
@@ -82,7 +82,7 @@ Paths in `copies[].from` and `insertions[].snippet` are relative to the feature 
 ```
 
 - `dependencies` / `devDependencies` / `env` are **keyed by target package dir** (`apps/api`, `apps/web`, `packages/ui`, ...).
-- Include `postInstall: ["pnpm --filter @workspace/db db:push"]` whenever the feature adds DB tables. `postInstall` commands are **not run automatically**: the CLI prints them as next steps, and runs them for you only when you pass `--yes` (e.g. `pnpm add-feature <name> --yes`).
+- Include `postInstall: ["pnpm --filter @workspace/db db:push"]` whenever the feature adds DB tables.
 - `requires` must list features already present in `features.json`.
 
 ## Available marker regions
@@ -106,28 +106,22 @@ Current regions:
 | `apps/web/components/dashboard/sidebar.tsx` | `nav` | `{ label: "...", href: "/dashboard/...", icon: Icon },` |
 | `apps/web/content/docs/index.mdx` | `cards` | `<Card title="..." href="/docs/<name>" description="..." />` |
 | `README.md` | `features` | `- **<name>** — One-line description` |
-
-> **External-app features.** The `cms`, `media-r2`, and `unsplash` packages target the
-> Celestia app (`apps/celestia/...`), which is developed outside this monorepo. They are
-> kept here as installable templates but are **not installed** in this starter: their
-> `apps/celestia` targets only exist once that app lives at `apps/celestia`. Do not point
-> new features at `apps/celestia` — follow the `apps/api` / `apps/web` split above.
+| `apps/celestia/lib/db/schema.ts` | `tables` | Drizzle `pgTable(...)` definitions for the Celestia app |
+| `apps/celestia/components/dashboard/sidebar-nav.tsx` | `imports` | Icon imports for CMS nav links (Phosphor icons) |
+| `apps/celestia/components/dashboard/sidebar-nav.tsx` | `nav` | `{ href: "/dashboard/cms/...", label: "...", icon: Icon },` — entries are shown to writer/editor/admin roles |
 
 ## Writing documentation for a feature
 
-1. Author `docs/<name>.mdx` inside `packages/feature-manager/features/<name>/`.
+1. Author `docs/<name>.mdx` inside `features/<name>/`.
 2. Copy it via `copies` to `apps/web/content/docs/<name>.mdx`.
-3. `jsonAppends` entry for `apps/web/content/docs/meta.json` → `pages`. The append
-   lands at the **end** of the array, which is the end of the last sidebar section
-   (`---Features---`) — exactly where installed feature docs belong. The sidebar's
-   groups are the `---Section---` separator strings in that file.
+3. `jsonAppends` entry for `apps/web/content/docs/meta.json` → `pages`.
 4. `insertions` entry for the `cards` marker in `apps/web/content/docs/index.mdx`.
 5. `insertions` entry for the `features` marker in `README.md`.
 
 ## CLI reference
 
 ```bash
-pnpm add-feature <name>       # install packages/feature-manager/features/<name> into the workspace
+pnpm add-feature <name>       # install features/<name> into the workspace
 pnpm remove-feature <name>    # uninstall cleanly (removes copies + marker blocks)
 pnpm list-features            # show available/installed features
 pnpm verify-features [name]   # check installed features for drift or breakage

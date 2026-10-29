@@ -19,13 +19,13 @@ export function AgencyHero() {
           className="gap-2 border-primary/25 bg-primary/5 text-xs uppercase tracking-wider text-primary"
         >
           <span className="size-1.5 animate-pulse rounded-full bg-primary" />
-          Software Engineering & Development
+          Enterprise Software Development
         </Badge>
 
         <h1 className="mt-8 max-w-[700px] text-[clamp(2.625rem,6vw,3.75rem)] leading-[1.08] font-semibold tracking-[-0.03em] text-balance text-foreground">
           {/* Non-breaking hyphen: the compound must not split after the dash
               on narrow viewports. */}
-          Modern software engineered to scale with your business.
+          Enterprise&#x2011;grade software that scales with your business.
         </h1>
 
         <p className="mt-6 max-w-xl text-lg leading-relaxed text-pretty text-muted-foreground">
@@ -36,13 +36,14 @@ export function AgencyHero() {
 
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <Button
+            size="lg"
             className="gap-2"
             render={<Link href="#contact" />}
           >
             Book a Free Strategy Call
             <ArrowRightIcon className="size-4" aria-hidden />
           </Button>
-          <Button variant="secondary" render={<Link href="#services" />}>
+          <Button variant="secondary" size="lg" render={<Link href="#services" />}>
             Explore Services
           </Button>
         </div>

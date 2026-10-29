@@ -30,7 +30,7 @@
 //! re-export `gpui-component` and are still being rewritten, one family at a
 //! time. Written on raw gpui so far:
 //!
-//! - **Feedback** — `alert`, `progress`, `skeleton`, `spinner`, `loader`, `shimmer`,
+//! - **Feedback** — `alert`, `progress`, `skeleton`, `spinner`, `shimmer`,
 //!   `icon`, `tooltip` (primitive); `loaders`, `notice`, `context_badge`
 //!   (composite).
 //! - **Structural** — `separator`, `kbd`, `link`, `breadcrumb` (primitive);
@@ -187,6 +187,7 @@ pub use composite::onboarding_tip::*;
 pub use composite::outline_view::*;
 pub use composite::page_header::*;
 pub use composite::panel::*;
+pub use composite::plan::*;
 pub use composite::project_card::*;
 pub use composite::property_list::*;
 pub use composite::resizable_split::*;
@@ -215,10 +216,12 @@ pub use composite::title_bar::*;
 pub use composite::toast_stack::*;
 pub use composite::toolbar::*;
 pub use composite::toolbar_menu::*;
+pub use composite::trace::*;
 pub use composite::traffic_lights::*;
 pub use composite::user_menu::*;
 pub use composite::v_grid::*;
 pub use composite::v_stack::*;
+pub use composite::variable_input::*;
 pub use composite::virtual_list::*;
 pub use composite::wizard::*;
 pub use composite::workspace_switcher::*;
@@ -253,9 +256,7 @@ pub use primitive::input::*;
 pub use primitive::input_otp::*;
 pub use primitive::item::*;
 pub use primitive::kbd::*;
-pub use primitive::label::*;
 pub use primitive::link::*;
-pub use primitive::loader::*;
 pub use primitive::menubar::*;
 pub use primitive::meter::*;
 pub use primitive::navigation_menu::*;

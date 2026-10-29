@@ -138,7 +138,6 @@ pub enum Demo {
     NumberStepper,
     Fab,
     Spinner,
-    Loader,
     Skeleton,
     Shimmer,
     Popover,
@@ -752,15 +751,6 @@ pub const SECTIONS: &[SectionMeta] = &[
         demo: Demo::Spinner,
         package: "primitive/spinner",
         description: "Indeterminate spinner.",
-    },
-    SectionMeta {
-        id: "loader",
-        label: "Loader",
-        category: Category::Feedback,
-        family: Family::Feedback,
-        demo: Demo::Loader,
-        package: "primitive/loader",
-        description: "Icon loaders — chase, processing, and boxy 3×3 primary two-tone (zigzag / shift / spin).",
     },
     SectionMeta {
         id: "skeleton",

@@ -7,13 +7,15 @@ use std::rc::Rc;
 
 use gpui::prelude::FluentBuilder as _;
 use gpui::{
-    AnyElement, App, ClickEvent, ElementId, FontWeight, InteractiveElement as _, IntoElement,
-    ParentElement, Pixels, Refineable as _, RenderOnce, ScrollHandle, SharedString,
+    AnyElement, App, ClickEvent, Context, ElementId, FontWeight, Hsla, InteractiveElement as _,
+    IntoElement, ParentElement, Pixels, Refineable as _, RenderOnce, ScrollHandle, SharedString,
     StatefulInteractiveElement as _, StyleRefinement, Styled, Window, div, px,
 };
 
+use crate::components::composite::menu::ContextMenuExt as _;
 use crate::components::primitive::icon::{Phosphor, PhosphorIcon};
 use crate::theme::ActiveTheme as _;
+use gpui_component::menu::PopupMenu;
 
 /// One document tab in a [`TabBar`].
 pub struct TabBarItem {
@@ -23,6 +25,8 @@ pub struct TabBarItem {
     pub closable: bool,
     leading: Option<AnyElement>,
     trailing: Option<AnyElement>,
+    context_menu:
+        Option<Rc<dyn Fn(PopupMenu, &mut Window, &mut Context<PopupMenu>) -> PopupMenu + 'static>>,
 }
 
 impl TabBarItem {
@@ -34,7 +38,17 @@ impl TabBarItem {
             closable: true,
             leading: None,
             trailing: None,
+            context_menu: None,
         }
+    }
+
+    /// Right-click menu for this tab (same builder as [`ContextMenuExt`]).
+    pub fn context_menu(
+        mut self,
+        f: impl Fn(PopupMenu, &mut Window, &mut Context<PopupMenu>) -> PopupMenu + 'static,
+    ) -> Self {
+        self.context_menu = Some(Rc::new(f));
+        self
     }
 
     pub fn dirty(mut self, dirty: bool) -> Self {
@@ -75,6 +89,7 @@ pub struct TabBar {
     leading: Option<AnyElement>,
     trailing: Option<AnyElement>,
     scroll_handle: Option<ScrollHandle>,
+    active_border: Option<Hsla>,
     on_select: Option<Rc<dyn Fn(&SharedString, &mut Window, &mut App) + 'static>>,
     on_close: Option<Rc<dyn Fn(&SharedString, &mut Window, &mut App) + 'static>>,
 }
@@ -92,9 +107,17 @@ impl TabBar {
             leading: None,
             trailing: None,
             scroll_handle: None,
+            active_border: None,
             on_select: None,
             on_close: None,
         }
+    }
+
+    /// Color of the strip's bottom rule and the active tab's border.
+    /// Defaults to [`Theme::primary`](crate::theme::Theme::primary).
+    pub fn active_border(mut self, color: impl Into<Hsla>) -> Self {
+        self.active_border = Some(color.into());
+        self
     }
 
     /// Track horizontal scroll so callers can reveal a tab with
@@ -159,6 +182,7 @@ impl RenderOnce for TabBar {
         let theme = cx.theme();
         let active_id = self.active_id.clone();
         let tab_height = self.tab_height;
+        let active_border = self.active_border.unwrap_or(theme.primary);
         let is_web = cfg!(target_family = "wasm");
 
         let mut root = div()
@@ -172,7 +196,7 @@ impl RenderOnce for TabBar {
             .px(px(4.0))
             .pt(px(4.0))
             .border_b_1()
-            .border_color(theme.primary)
+            .border_color(active_border)
             .bg(theme.muted.opacity(0.4));
         root.style().refine(&self.style);
 
@@ -201,14 +225,23 @@ impl RenderOnce for TabBar {
                 .when(!is_web, |this| this.restrict_scroll_to_axis())
                 .when_some(self.scroll_handle, |this, handle| this.track_scroll(&handle))
                 .children(self.items.into_iter().map(|item| {
-                    let selected = active_id.as_ref().is_some_and(|a| a == &item.id);
-                    let tab_id = item.id.clone();
-                    let close_id = item.id.clone();
+                    let TabBarItem {
+                        id,
+                        label,
+                        dirty,
+                        closable,
+                        leading,
+                        trailing,
+                        context_menu,
+                    } = item;
+                    let selected = active_id.as_ref().is_some_and(|a| a == &id);
+                    let tab_id = id.clone();
+                    let close_id = id.clone();
                     let on_select = self.on_select.clone();
                     let on_close = self.on_close.clone();
 
-                    div()
-                        .id(ElementId::Name(format!("tab-{}", item.id).into()))
+                    let chip = div()
+                        .id(ElementId::Name(format!("tab-{}", id).into()))
                         .relative()
                         .flex_shrink_0()
                         .h(tab_height)
@@ -222,7 +255,7 @@ impl RenderOnce for TabBar {
                         .border_1()
                         .border_b_0()
                         .border_color(if selected {
-                            theme.primary
+                            active_border
                         } else {
                             theme.border.opacity(0.0)
                         })
@@ -244,7 +277,7 @@ impl RenderOnce for TabBar {
                                 on(&tab_id, window, cx);
                             }
                         })
-                        .when(item.dirty, |this| {
+                        .when(dirty, |this| {
                             this.child(
                                 div()
                                     .size(px(6.0))
@@ -256,7 +289,7 @@ impl RenderOnce for TabBar {
                                     }),
                             )
                         })
-                        .when_some(item.leading, |this, leading| {
+                        .when_some(leading, |this, leading| {
                             this.child(
                                 div()
                                     .flex_shrink_0()
@@ -284,9 +317,9 @@ impl RenderOnce for TabBar {
                                 .whitespace_nowrap()
                                 .overflow_hidden()
                                 .text_ellipsis()
-                                .child(item.label),
+                                .child(label),
                         )
-                        .when_some(item.trailing, |this, trailing| {
+                        .when_some(trailing, |this, trailing| {
                             this.child(
                                 div()
                                     .flex_shrink_0()
@@ -296,10 +329,10 @@ impl RenderOnce for TabBar {
                                     .child(trailing),
                             )
                         })
-                        .when(item.closable, |this| {
+                        .when(closable, |this| {
                             this.child(
                                 div()
-                                    .id(ElementId::Name(format!("tab-close-{}", item.id).into()))
+                                    .id(ElementId::Name(format!("tab-close-{}", id).into()))
                                     .size(px(14.0))
                                     .rounded(px(3.0))
                                     .flex()
@@ -318,7 +351,14 @@ impl RenderOnce for TabBar {
                                             .color(theme.muted_foreground),
                                     ),
                             )
-                        })
+                        });
+
+                    match context_menu {
+                        Some(builder) => chip
+                            .context_menu(move |menu, window, cx| builder(menu, window, cx))
+                            .into_any_element(),
+                        None => chip.into_any_element(),
+                    }
                 })),
         )
         .when_some(self.trailing, |this, trailing| {

@@ -18,12 +18,6 @@ import { MobileNavBar } from "../composite/navbar"
 
 const DEFAULT_EDGES: Edge[] = ["top", "bottom"]
 
-/**
- * Horizontal gutter for screen body content. The pinned footer shares it, so a
- * form field and its pinned submit button always sit on the same margins.
- */
-const CONTENT_GUTTER = 16
-
 export interface MobileScreenProps {
   /**
    * Screen body. Placed inside the scroll view when `scroll` is set, otherwise
@@ -105,8 +99,7 @@ export interface MobileScreenProps {
   background?: keyof ColorRamp | string
   /**
    * Style for the scroll content container (or the plain body container when
-   * `scroll` is false). Merged over the body's default 16pt horizontal gutter —
-   * set `paddingHorizontal: 0` here for edge-to-edge content.
+   * `scroll` is false). Use this for horizontal padding.
    */
   contentContainerStyle?: StyleProp<ViewStyle>
   /**
@@ -146,10 +139,6 @@ export interface MobileScreenProps {
  *    which is exactly the auth-screen case.
  * 3. **The footer sits outside the scroll view.** A pinned action or pager must
  *    not scroll away from the thumb.
- * 4. **The body is inset, not bare.** Content gets a 16pt horizontal gutter —
- *    the same one the pinned footer uses — so a plain screen doesn't set text
- *    against the bezel. `contentContainerStyle` merges over it; pass
- *    `paddingHorizontal: 0` for full-bleed content.
  *
  * This component does not render a `SafeAreaProvider` — the app root owns that.
  * Outside a provider the insets resolve to zero, so the screen still renders,
@@ -226,7 +215,6 @@ export function MobileScreen({
     <View
       style={[
         styles.flex,
-        styles.bodyContent,
         { paddingBottom: paddingBottom },
         contentContainerStyle,
       ]}
@@ -289,16 +277,11 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
-  /** The default body gutter; `contentContainerStyle` merges over it. */
-  bodyContent: {
-    paddingHorizontal: CONTENT_GUTTER,
-  },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: CONTENT_GUTTER,
   },
   footer: {
-    paddingHorizontal: CONTENT_GUTTER,
+    paddingHorizontal: 16,
     paddingTop: 12,
   },
 })

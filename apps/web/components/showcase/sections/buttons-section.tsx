@@ -15,22 +15,15 @@ import {
   TrashIcon,
   PlusIcon,
   CaretDownIcon,
-  FloppyDiskIcon,
-  CopyIcon,
-  HouseIcon,
-  UserIcon,
-  GearSixIcon,
 } from "@phosphor-icons/react"
 import {
   Button,
   ButtonGroup,
+  ButtonGroupSeparator,
   ButtonGroupText,
   Toggle,
   ToggleGroup,
   ToggleGroupItem,
-  ToolbarMenu,
-  ToolbarMenuItem,
-  ToolbarMenuSeparator,
   Spinner,
   useRipple,
   RippleContainer,
@@ -75,22 +68,24 @@ export function ButtonDemo() {
 }`
 
 const BUTTON_GROUP_CODE = `import * as React from "react"
-import { Button, ButtonGroup, ButtonGroupText } from "@celestia-project/ui"
+import { Button, ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from "@celestia-project/ui"
 import { PlusIcon, DownloadSimpleIcon, CaretDownIcon } from "@phosphor-icons/react"
 
 export function ButtonGroupDemo() {
   return (
     <div className="flex flex-col items-center gap-4">
-      {/* Horizontal Action Group — outline segments fuse without separators */}
+      {/* Horizontal Action Group */}
       <ButtonGroup orientation="horizontal">
         <Button variant="outline" size="sm">
           <PlusIcon className="size-3.5 me-1" />
           New File
         </Button>
+        <ButtonGroupSeparator />
         <Button variant="outline" size="sm">
           <DownloadSimpleIcon className="size-3.5 me-1" />
           Export
         </Button>
+        <ButtonGroupSeparator />
         <Button variant="outline" size="icon-sm">
           <CaretDownIcon className="size-3.5" />
         </Button>
@@ -102,52 +97,6 @@ export function ButtonGroupDemo() {
         <Button variant="outline" size="xs">Active</Button>
         <Button variant="secondary" size="xs">Pending</Button>
       </ButtonGroup>
-    </div>
-  )
-}`
-
-const TOOLBAR_MENU_CODE = `import * as React from "react"
-import {
-  ToolbarMenu,
-  ToolbarMenuItem,
-  ToolbarMenuSeparator,
-} from "@celestia-project/ui"
-import {
-  FloppyDiskIcon,
-  CopyIcon,
-  TrashIcon,
-  HouseIcon,
-  UserIcon,
-  GearSixIcon,
-} from "@phosphor-icons/react"
-
-export function ToolbarMenuDemo() {
-  return (
-    <div className="flex flex-wrap items-start gap-6">
-      <ToolbarMenu appearance="icon" orientation="horizontal" aria-label="Actions">
-        <ToolbarMenuItem
-          icon={<FloppyDiskIcon />}
-          label="Save"
-          onClick={() => console.log("save")}
-        />
-        <ToolbarMenuItem
-          icon={<CopyIcon />}
-          label="Copy"
-          onClick={() => console.log("copy")}
-        />
-        <ToolbarMenuSeparator />
-        <ToolbarMenuItem
-          icon={<TrashIcon />}
-          label="Delete"
-          onClick={() => console.log("delete")}
-        />
-      </ToolbarMenu>
-
-      <ToolbarMenu appearance="labeled" orientation="vertical" aria-label="Navigation">
-        <ToolbarMenuItem icon={<HouseIcon />} label="Home" onClick={() => {}} />
-        <ToolbarMenuItem icon={<UserIcon />} label="Profile" onClick={() => {}} />
-        <ToolbarMenuItem icon={<GearSixIcon />} label="Settings" onClick={() => {}} />
-      </ToolbarMenu>
     </div>
   )
 }`
@@ -273,7 +222,7 @@ export function ButtonsSection() {
           id="button"
           title="Button"
           category="Buttons"
-          description="Clickable button elements with visual variants, labeled sizes (xs–lg), icon-only sizes, and loading states."
+          description="Clickable button elements with 6 visual variants, 4 sizes, icon support, and loading states."
           docsSlug="button"
           importSnippet={`import { Button } from "@celestia-project/ui"`}
           codeExample={BUTTON_CODE}
@@ -293,100 +242,22 @@ export function ButtonsSection() {
               <Button variant="link">Link Style</Button>
             </div>
 
-            {/* Labeled sizes */}
-            <div className="flex flex-col gap-2 border-t border-border/40 pt-4">
-              <p className="text-center text-xs font-medium text-muted-foreground">
-                Sizes — labeled
-              </p>
-              <div className="flex flex-wrap items-center justify-center gap-3">
-                <Button size="xs" variant="outline">xs</Button>
-                <Button size="sm" variant="outline">sm</Button>
-                <Button size="default" variant="outline">default</Button>
-                <Button size="md" variant="outline">md</Button>
-                <Button size="lg" variant="default" className="gap-2">
-                  <SparkleIcon className="size-4 text-warning" weight="fill" />
-                  lg
-                </Button>
-                <Button variant="secondary" disabled className="gap-2">
-                  <Spinner className="size-3.5" />
-                  Loading...
-                </Button>
-              </div>
-            </div>
-
-            {/* Icon-only sizes */}
-            <div className="flex flex-col gap-2 border-t border-border/40 pt-4">
-              <p className="text-center text-xs font-medium text-muted-foreground">
-                Icon-only — square
-              </p>
-              <div className="flex flex-wrap items-center justify-center gap-3">
-                <Button variant="outline" size="icon-xs" aria-label="icon-xs">
-                  <HeartIcon className="size-2.5 text-destructive" weight="fill" />
-                </Button>
-                <Button variant="outline" size="icon-sm" aria-label="icon-sm">
-                  <HeartIcon className="size-3 text-destructive" weight="fill" />
-                </Button>
-                <Button variant="outline" size="icon" aria-label="icon">
-                  <HeartIcon className="size-3.5 text-destructive" weight="fill" />
-                </Button>
-                <Button variant="outline" size="icon-lg" aria-label="icon-lg">
-                  <HeartIcon className="size-4 text-destructive" weight="fill" />
-                </Button>
-              </div>
-            </div>
-
-            {/* Metrics reference */}
-            <div className="grid gap-4 border-t border-border/40 pt-4 md:grid-cols-2">
-              <div className="overflow-x-auto">
-                <p className="mb-2 text-xs font-medium text-muted-foreground">
-                  Size metrics (labeled)
-                </p>
-                <table className="w-full text-left text-[11px] text-muted-foreground">
-                  <thead className="text-foreground">
-                    <tr className="border-b border-border/60">
-                      <th className="py-1 pe-2 font-medium">Step</th>
-                      <th className="py-1 pe-2 font-medium">Height</th>
-                      <th className="py-1 pe-2 font-medium">Pad</th>
-                      <th className="py-1 pe-2 font-medium">Gap</th>
-                      <th className="py-1 pe-2 font-medium">Text</th>
-                      <th className="py-1 font-medium">Icon</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="border-b border-border/40"><td className="py-1 pe-2">xs</td><td className="py-1 pe-2">20</td><td className="py-1 pe-2">8</td><td className="py-1 pe-2">4</td><td className="py-1 pe-2">10</td><td className="py-1">10</td></tr>
-                    <tr className="border-b border-border/40"><td className="py-1 pe-2">sm</td><td className="py-1 pe-2">24</td><td className="py-1 pe-2">10</td><td className="py-1 pe-2">4</td><td className="py-1 pe-2">12</td><td className="py-1">12</td></tr>
-                    <tr className="border-b border-border/40"><td className="py-1 pe-2">default</td><td className="py-1 pe-2">26</td><td className="py-1 pe-2">12</td><td className="py-1 pe-2">6</td><td className="py-1 pe-2">12</td><td className="py-1">14</td></tr>
-                    <tr className="border-b border-border/40"><td className="py-1 pe-2">md</td><td className="py-1 pe-2">28</td><td className="py-1 pe-2">10</td><td className="py-1 pe-2">4</td><td className="py-1 pe-2">12</td><td className="py-1">12</td></tr>
-                    <tr><td className="py-1 pe-2">lg</td><td className="py-1 pe-2">36</td><td className="py-1 pe-2">14</td><td className="py-1 pe-2">6</td><td className="py-1 pe-2">12</td><td className="py-1">16</td></tr>
-                  </tbody>
-                </table>
-                <p className="mt-2 text-[10px] text-muted-foreground">
-                  md is sm + one height step — taller than default, smaller icon. Values in px.
-                </p>
-              </div>
-              <div className="overflow-x-auto">
-                <p className="mb-2 text-xs font-medium text-muted-foreground">
-                  Icon-only metrics (square)
-                </p>
-                <table className="w-full text-left text-[11px] text-muted-foreground">
-                  <thead className="text-foreground">
-                    <tr className="border-b border-border/60">
-                      <th className="py-1 pe-2 font-medium">Step</th>
-                      <th className="py-1 pe-2 font-medium">Button</th>
-                      <th className="py-1 font-medium">Glyph</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="border-b border-border/40"><td className="py-1 pe-2">icon-xs</td><td className="py-1 pe-2">16</td><td className="py-1">10</td></tr>
-                    <tr className="border-b border-border/40"><td className="py-1 pe-2">icon-sm</td><td className="py-1 pe-2">20</td><td className="py-1">12</td></tr>
-                    <tr className="border-b border-border/40"><td className="py-1 pe-2">icon</td><td className="py-1 pe-2">26</td><td className="py-1">14</td></tr>
-                    <tr><td className="py-1 pe-2">icon-lg</td><td className="py-1 pe-2">32</td><td className="py-1">16</td></tr>
-                  </tbody>
-                </table>
-                <p className="mt-2 text-[10px] text-muted-foreground">
-                  Default icon-only is icon (26×26, 14px glyph). Values in px.
-                </p>
-              </div>
+            {/* Sizes & States row */}
+            <div className="flex flex-wrap items-center justify-center gap-3 border-t border-border/40 pt-4">
+              <Button size="xs" variant="outline">Size XS</Button>
+              <Button size="sm" variant="outline">Size SM</Button>
+              <Button size="default" variant="outline">Default Size</Button>
+              <Button size="lg" variant="default" className="gap-2">
+                <SparkleIcon className="size-4 text-warning" weight="fill" />
+                Size LG
+              </Button>
+              <Button variant="outline" size="icon-sm" aria-label="Favorite">
+                <HeartIcon className="size-4 text-destructive" weight="fill" />
+              </Button>
+              <Button variant="secondary" disabled className="gap-2">
+                <Spinner className="size-3.5" />
+                Loading...
+              </Button>
             </div>
           </div>
         </ShowcaseCard>
@@ -396,9 +267,9 @@ export function ButtonsSection() {
           id="button-group"
           title="Button Group"
           category="Buttons"
-          description="Groups related buttons horizontally or vertically with joined borders."
+          description="Groups related buttons horizontally or vertically with joined borders and integrated separators."
           docsSlug="button-group"
-          importSnippet={`import { ButtonGroup, ButtonGroupText } from "@celestia-project/ui"`}
+          importSnippet={`import { ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from "@celestia-project/ui"`}
           codeExample={BUTTON_GROUP_CODE}
         >
           <div className="flex flex-col items-center gap-4">
@@ -407,10 +278,12 @@ export function ButtonsSection() {
                 <PlusIcon className="size-3.5" />
                 New File
               </Button>
+              <ButtonGroupSeparator />
               <Button variant="outline" size="sm">
                 <DownloadSimpleIcon className="size-3.5" />
                 Export
               </Button>
+              <ButtonGroupSeparator />
               <Button variant="outline" size="icon-sm">
                 <CaretDownIcon className="size-3.5" />
               </Button>
@@ -424,49 +297,7 @@ export function ButtonsSection() {
           </div>
         </ShowcaseCard>
 
-        {/* 3. Toolbar Menu */}
-        <ShowcaseCard
-          id="toolbar-menu"
-          title="Toolbar Menu"
-          category="Buttons"
-          description="Icon or labeled action strip that lays out horizontally or vertically, with per-item onClick handlers."
-          docsSlug="toolbar-menu"
-          importSnippet={`import { ToolbarMenu, ToolbarMenuItem, ToolbarMenuSeparator } from "@celestia-project/ui"`}
-          codeExample={TOOLBAR_MENU_CODE}
-        >
-          <div className="flex flex-wrap items-start justify-center gap-6">
-            <div className="flex flex-col items-center gap-1.5">
-              <span className="text-[11px] text-muted-foreground">Icon · horizontal</span>
-              <ToolbarMenu appearance="icon" orientation="horizontal" aria-label="Actions">
-                <ToolbarMenuItem icon={<FloppyDiskIcon />} label="Save" />
-                <ToolbarMenuItem icon={<CopyIcon />} label="Copy" />
-                <ToolbarMenuItem icon={<DownloadSimpleIcon />} label="Download" />
-                <ToolbarMenuSeparator />
-                <ToolbarMenuItem icon={<TrashIcon />} label="Delete" />
-              </ToolbarMenu>
-            </div>
-
-            <div className="flex flex-col items-center gap-1.5">
-              <span className="text-[11px] text-muted-foreground">Labeled · vertical</span>
-              <ToolbarMenu appearance="labeled" orientation="vertical" aria-label="Navigation">
-                <ToolbarMenuItem icon={<HouseIcon />} label="Home" />
-                <ToolbarMenuItem icon={<UserIcon />} label="Profile" />
-                <ToolbarMenuItem icon={<GearSixIcon />} label="Settings" />
-              </ToolbarMenu>
-            </div>
-
-            <div className="flex flex-col items-center gap-1.5">
-              <span className="text-[11px] text-muted-foreground">Labeled · horizontal</span>
-              <ToolbarMenu appearance="labeled" orientation="horizontal" aria-label="Quick actions">
-                <ToolbarMenuItem icon={<PlusIcon />} label="New" />
-                <ToolbarMenuItem icon={<DownloadSimpleIcon />} label="Export" />
-                <ToolbarMenuItem icon={<SparkleIcon />} label="Improve" />
-              </ToolbarMenu>
-            </div>
-          </div>
-        </ShowcaseCard>
-
-        {/* 4. Toggle */}
+        {/* 3. Toggle */}
         <ShowcaseCard
           id="toggle"
           title="Toggle"
@@ -498,7 +329,7 @@ export function ButtonsSection() {
           </div>
         </ShowcaseCard>
 
-        {/* 5. Toggle Group */}
+        {/* 4. Toggle Group */}
         <ShowcaseCard
           id="toggle-group"
           title="Toggle Group"
@@ -556,7 +387,7 @@ export function ButtonsSection() {
           </div>
         </ShowcaseCard>
 
-        {/* 6. Ripple Effect */}
+        {/* 5. Ripple Effect */}
         <ShowcaseCard
           id="ripple"
           title="Ripple Effect"

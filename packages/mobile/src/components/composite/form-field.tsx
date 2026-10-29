@@ -1,5 +1,5 @@
 import * as React from "react"
-import { View, StyleSheet, Animated, type ViewStyle } from "react-native"
+import { View, StyleSheet, type ViewStyle } from "react-native"
 import { useMobileTheme } from "../../host"
 import { MobileLabel } from "../primitive/label"
 import { MobileText } from "../primitive/text"
@@ -69,31 +69,6 @@ export function MobileFormField({
   const hasError = Boolean(error)
   const errorMessage = typeof error === "string" ? error : undefined
 
-  // One-shot shake the moment error copy appears — a horizontal "no" gesture
-  // that costs nothing on mount or while the error merely stays on screen.
-  const shakeAnim = React.useRef(new Animated.Value(0)).current
-  const hadErrorRef = React.useRef(false)
-
-  React.useEffect(() => {
-    const hasErrorText = errorMessage !== undefined
-    if (hasErrorText && !hadErrorRef.current) {
-      const step = (toValue: number, duration: number) =>
-        Animated.timing(shakeAnim, {
-          toValue,
-          duration,
-          useNativeDriver: true,
-        })
-      Animated.sequence([
-        step(-5, 50),
-        step(5, 50),
-        step(-3, 45),
-        step(3, 45),
-        step(0, 40),
-      ]).start()
-    }
-    hadErrorRef.current = hasErrorText
-  }, [errorMessage, shakeAnim])
-
   return (
     <View style={[styles.container, style]} testID={testID}>
       {label ? (
@@ -108,11 +83,7 @@ export function MobileFormField({
         </MobileText>
       ) : null}
 
-      <Animated.View
-        style={[styles.control, { transform: [{ translateX: shakeAnim }] }]}
-      >
-        {children}
-      </Animated.View>
+      <View style={styles.control}>{children}</View>
 
       {errorMessage ? (
         <MobileText

@@ -3,7 +3,6 @@ import { View, StyleSheet, type ViewStyle, Platform } from "react-native"
 import { useMobileTheme } from "../../host"
 import { MobileText } from "./text"
 import { metrics } from "../../tokens"
-import { isTextChildren } from "../../utils"
 
 export interface MobileCardProps {
   children?: React.ReactNode
@@ -17,7 +16,7 @@ export interface MobileCardProps {
  * and semantic light/dark token awareness.
  */
 export function MobileCard({ children, style }: MobileCardProps) {
-  const { colors } = useMobileTheme()
+  const { colors, colorScheme } = useMobileTheme()
 
   return (
     <View
@@ -26,7 +25,7 @@ export function MobileCard({ children, style }: MobileCardProps) {
         {
           backgroundColor: colors.card,
           borderColor: colors.cardBorder,
-          shadowColor: colors.shadow,
+          shadowColor: colorScheme === "dark" ? "#000000" : "#0f172a",
         },
         style,
       ]}
@@ -53,7 +52,7 @@ export function MobileCardTitle({
   children?: React.ReactNode
   style?: ViewStyle
 }) {
-  if (isTextChildren(children)) {
+  if (typeof children === "string") {
     return (
       <MobileText variant="title" style={style}>
         {children}
@@ -70,7 +69,7 @@ export function MobileCardDescription({
   children?: React.ReactNode
   style?: ViewStyle
 }) {
-  if (isTextChildren(children)) {
+  if (typeof children === "string") {
     return (
       <MobileText
         variant="callout"
@@ -110,11 +109,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     overflow: "hidden",
     marginVertical: 6,
-    // A soft shadow can only *darken*, so on a near-black page it is invisible
-    // (~1.005:1). Dark mode therefore takes its elevation from the surface
-    // itself — `card` sits above `background` — and from `cardBorder`, not from
-    // this shadow. It is left enabled in both themes rather than branched per
-    // platform, because a *light* shadow would read as a glow.
     ...Platform.select({
       ios: {
         shadowOffset: { width: 0, height: 2 },

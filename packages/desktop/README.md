@@ -200,7 +200,7 @@ let notification_layer = Root::render_notification_layer(window, cx);
 Then open them with `WindowExt`: `window.open_dialog(cx, |dialog, _, _| …)`,
 `window.open_sheet(cx, |sheet, _, _| …)`,
 `window.push_notification(Notification::success("…"), cx)`
-(always-visible close button; upstream hover-only dismiss still works too).
+(upstream supplies a single corner dismiss control).
 
 ### Text editors
 

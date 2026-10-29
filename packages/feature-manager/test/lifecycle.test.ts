@@ -1,5 +1,4 @@
 import assert from "node:assert/strict"
-import { createHash } from "node:crypto"
 import {
   existsSync,
   mkdirSync,
@@ -70,7 +69,7 @@ function createFixture(): string {
   // ── alpha ──
   write(
     root,
-    "packages/feature-manager/features/alpha/feature.json",
+    "features/alpha/feature.json",
     `${JSON.stringify(
       {
         name: "alpha",
@@ -96,18 +95,18 @@ function createFixture(): string {
       2,
     )}\n`,
   )
-  write(root, "packages/feature-manager/features/alpha/web/components/alpha.tsx", "export const alpha = 1\n")
-  write(root, "packages/feature-manager/features/alpha/web/components/shared.tsx", ALPHA_SHARED)
-  write(root, "packages/feature-manager/features/alpha/docs/alpha.mdx", "# Alpha\n")
-  write(root, "packages/feature-manager/features/alpha/snippets/imports.ts", "import { alpha } from './alpha'")
-  write(root, "packages/feature-manager/features/alpha/snippets/nav.ts", "  { label: 'Alpha', href: '/alpha' },")
-  write(root, "packages/feature-manager/features/alpha/snippets/card.mdx", '<Card title="Alpha" href="/docs/alpha" />')
-  write(root, "packages/feature-manager/features/alpha/snippets/readme.md", "- **alpha** — Alpha feature")
+  write(root, "features/alpha/web/components/alpha.tsx", "export const alpha = 1\n")
+  write(root, "features/alpha/web/components/shared.tsx", ALPHA_SHARED)
+  write(root, "features/alpha/docs/alpha.mdx", "# Alpha\n")
+  write(root, "features/alpha/snippets/imports.ts", "import { alpha } from './alpha'")
+  write(root, "features/alpha/snippets/nav.ts", "  { label: 'Alpha', href: '/alpha' },")
+  write(root, "features/alpha/snippets/card.mdx", '<Card title="Alpha" href="/docs/alpha" />')
+  write(root, "features/alpha/snippets/readme.md", "- **alpha** — Alpha feature")
 
   // ── beta (requires alpha, shares a file, conflicts on react) ──
   write(
     root,
-    "packages/feature-manager/features/beta/feature.json",
+    "features/beta/feature.json",
     `${JSON.stringify(
       {
         name: "beta",
@@ -127,14 +126,14 @@ function createFixture(): string {
       2,
     )}\n`,
   )
-  write(root, "packages/feature-manager/features/beta/web/components/shared.tsx", BETA_SHARED)
-  write(root, "packages/feature-manager/features/beta/web/components/beta.tsx", "export const beta = 1\n")
-  write(root, "packages/feature-manager/features/beta/snippets/nav.ts", "  { label: 'Beta', href: '/beta' },")
+  write(root, "features/beta/web/components/shared.tsx", BETA_SHARED)
+  write(root, "features/beta/web/components/beta.tsx", "export const beta = 1\n")
+  write(root, "features/beta/snippets/nav.ts", "  { label: 'Beta', href: '/beta' },")
 
   // ── delta (overwrites a pre-existing, unowned file) ──
   write(
     root,
-    "packages/feature-manager/features/delta/feature.json",
+    "features/delta/feature.json",
     `${JSON.stringify(
       {
         name: "delta",
@@ -146,12 +145,12 @@ function createFixture(): string {
       2,
     )}\n`,
   )
-  write(root, "packages/feature-manager/features/delta/web/existing.tsx", "DELTA\n")
+  write(root, "features/delta/web/existing.tsx", "DELTA\n")
 
   // ── gamma (fails part-way through the copy phase) ──
   write(
     root,
-    "packages/feature-manager/features/gamma/feature.json",
+    "features/gamma/feature.json",
     `${JSON.stringify(
       {
         name: "gamma",
@@ -168,48 +167,10 @@ function createFixture(): string {
       2,
     )}\n`,
   )
-  write(root, "packages/feature-manager/features/gamma/web/existing.tsx", "REPLACED\n")
-  write(root, "packages/feature-manager/features/gamma/web/gamma-new.tsx", "export const gamma = 1\n")
-  write(root, "packages/feature-manager/features/gamma/web/broken.tsx", "export const broken = 1\n")
-  write(root, "packages/feature-manager/features/gamma/snippets/readme.md", "- **gamma** — Gamma")
-
-  // ── zeta (owns a marker-bearing file via a copy) ──
-  write(
-    root,
-    "packages/feature-manager/features/zeta/feature.json",
-    `${JSON.stringify(
-      {
-        name: "zeta",
-        version: "1.0.0",
-        description: "Zeta owns a composed file",
-        copies: [{ from: "web/widget.tsx", to: "apps/web/components/widget.tsx" }],
-      },
-      null,
-      2,
-    )}\n`,
-  )
-  write(
-    root,
-    "packages/feature-manager/features/zeta/web/widget.tsx",
-    ["// feature-manager:imports:begin", "// feature-manager:imports:end", "", "export const widget = 1", ""].join("\n"),
-  )
-
-  // ── eta (inserts into zeta's copied file) ──
-  write(
-    root,
-    "packages/feature-manager/features/eta/feature.json",
-    `${JSON.stringify(
-      {
-        name: "eta",
-        version: "1.0.0",
-        description: "Eta inserts into a file zeta owns",
-        insertions: [{ file: "apps/web/components/widget.tsx", marker: "imports", snippet: "snippets/imports.ts" }],
-      },
-      null,
-      2,
-    )}\n`,
-  )
-  write(root, "packages/feature-manager/features/eta/snippets/imports.ts", "import { helper } from './helper'")
+  write(root, "features/gamma/web/existing.tsx", "REPLACED\n")
+  write(root, "features/gamma/web/gamma-new.tsx", "export const gamma = 1\n")
+  write(root, "features/gamma/web/broken.tsx", "export const broken = 1\n")
+  write(root, "features/gamma/snippets/readme.md", "- **gamma** — Gamma")
 
   return root
 }
@@ -480,7 +441,7 @@ test("rejects manifests that try to write outside the repository", () => {
   const root = createFixture()
   write(
     root,
-    "packages/feature-manager/features/evil/feature.json",
+    "features/evil/feature.json",
     `${JSON.stringify(
       {
         name: "evil",
@@ -492,7 +453,7 @@ test("rejects manifests that try to write outside the repository", () => {
       2,
     )}\n`,
   )
-  write(root, "packages/feature-manager/features/evil/payload.ts", "export const evil = 1\n")
+  write(root, "features/evil/payload.ts", "export const evil = 1\n")
 
   const result = installFeature({ root, name: "evil" })
   assert.equal(result.ok, false)
@@ -506,8 +467,8 @@ test("--force upgrades an installed feature and clears the version drift", () =>
 
   write(
     root,
-    "packages/feature-manager/features/alpha/feature.json",
-    read(root, "packages/feature-manager/features/alpha/feature.json").replace('"version": "1.0.0"', '"version": "2.0.0"'),
+    "features/alpha/feature.json",
+    read(root, "features/alpha/feature.json").replace('"version": "1.0.0"', '"version": "2.0.0"'),
   )
 
   const drifted = verify(root)
@@ -566,7 +527,7 @@ test("a feature whose marker region is missing installs with a warning instead o
   write(root, "apps/web/components/plain.tsx", "export const plain = 1\n")
   write(
     root,
-    "packages/feature-manager/features/partial/feature.json",
+    "features/partial/feature.json",
     `${JSON.stringify(
       {
         name: "partial",
@@ -581,8 +542,8 @@ test("a feature whose marker region is missing installs with a warning instead o
       2,
     )}\n`,
   )
-  write(root, "packages/feature-manager/features/partial/plain.tsx", "export const partial = 1\n")
-  write(root, "packages/feature-manager/features/partial/snippet.ts", "// snippet")
+  write(root, "features/partial/plain.tsx", "export const partial = 1\n")
+  write(root, "features/partial/snippet.ts", "// snippet")
 
   const result = installFeature({ root, name: "partial" })
   assert.equal(result.ok, true)
@@ -599,7 +560,7 @@ test("--strict escalates warnings into a blocking error", () => {
   write(root, "apps/web/components/plain.tsx", "export const plain = 1\n")
   write(
     root,
-    "packages/feature-manager/features/partial/feature.json",
+    "features/partial/feature.json",
     `${JSON.stringify(
       {
         name: "partial",
@@ -613,7 +574,7 @@ test("--strict escalates warnings into a blocking error", () => {
       2,
     )}\n`,
   )
-  write(root, "packages/feature-manager/features/partial/snippet.ts", "// snippet")
+  write(root, "features/partial/snippet.ts", "// snippet")
 
   const result = installFeature({ root, name: "partial", strict: true })
   assert.equal(result.ok, false)
@@ -640,36 +601,4 @@ test("the backup scratch directory is never left behind when unused", () => {
   const root = createFixture()
   install(root, "alpha")
   assert.ok(!existsSync(join(root, ".feature-manager")))
-})
-
-test("inserting into a composed file refreshes the owning feature's recorded hash", () => {
-  const root = createFixture()
-  install(root, "zeta")
-  install(root, "eta")
-
-  const record = tracker(root).features.zeta
-  const expected = createHash("sha256")
-    .update(read(root, "apps/web/components/widget.tsx"))
-    .digest("hex")
-  assert.equal(record.files?.["apps/web/components/widget.tsx"], expected)
-
-  const report = verify(root)
-  const zeta = report.features.find((feature) => feature.name === "zeta")
-  assert.ok(zeta)
-  assert.equal(
-    zeta.issues.filter((issue) => issue.code === "modified_file").length,
-    0,
-    "composed file must not read as user-modified",
-  )
-
-  // The user-edit guard must keep working after the refresh: a real edit is
-  // still flagged.
-  write(root, "apps/web/components/widget.tsx", "edited\n")
-  const afterEdit = verify(root)
-  const zetaAfterEdit = afterEdit.features.find((feature) => feature.name === "zeta")
-  assert.ok(zetaAfterEdit)
-  assert.equal(
-    zetaAfterEdit.issues.filter((issue) => issue.code === "modified_file").length,
-    1,
-  )
 })
