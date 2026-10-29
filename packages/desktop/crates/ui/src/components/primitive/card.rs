@@ -1,9 +1,9 @@
 //! Bordered content container with optional title and description.
 //!
 //! Surface and edge are the web's: `bg-card` is `theme.popover` (light
-//! `#ffffff`, dark `#171717` — the exact port of web `--card`), and the edge is
-//! `ring-1 ring-foreground/10`, i.e. the foreground at 10%, not the `border`
-//! token. `overflow-hidden` clips a leading/trailing child image to the card's
+//! `#ffffff`, dark `#171717` — the exact port of web `--card`), and the edge
+//! uses the shared `border` token so dark hairlines stay readable. 
+//! `overflow-hidden` clips a leading/trailing child image to the card's
 //! radius, which is what the web's `*:[img:first-child]:rounded-t-lg` relies on.
 
 use gpui::prelude::FluentBuilder as _;
@@ -157,9 +157,7 @@ impl RenderOnce for Card {
             // card and made every card read as a hole.
             .bg(cx.theme().popover)
             .border_1()
-            // `ring-1 ring-foreground/10` — an alpha of the foreground, not the
-            // `border` token.
-            .border_color(cx.theme().foreground.opacity(0.10))
+            .border_color(cx.theme().border)
             .rounded(cx.theme().radius)
             .overflow_hidden()
             .children(header)

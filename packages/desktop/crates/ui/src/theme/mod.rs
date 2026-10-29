@@ -16,8 +16,8 @@
 //!   `oklch(0.577 0.245 27.325)` → #e7000b, `oklch(0.704 0.191 22.216)` →
 //!   #ff6467. Dark `--primary` `oklch(0.68 0.22 27)` is slightly out of gamut
 //!   and clips to #ff4d46.
-//! - Alpha-carrying tokens (`--border` dark = `oklch(1 0 0 / 10%)`) become
-//!   8-digit hex (#ffffff1a), the same form the dark-mode borders use.
+//! - Alpha-carrying tokens (`--border` dark = `oklch(1 0 0 / 11%)`) become
+//!   8-digit hex (#ffffff1c), the same form the dark-mode borders use.
 //! - Hover/active steps are not defined per-state in the CSS; light steps
 //!   darken the base (GetCat's desktop idiom), dark steps lighten toward
 //!   white. Status foregrounds follow the CSS: white in light, near-black
@@ -1063,7 +1063,7 @@ mod tests {
         });
     }
 
-    /// Dark borders ride on white alpha (oklch(1 0 0 / 10%)) — the rgb part is
+    /// Dark borders ride on white alpha (oklch(1 0 0 / 11%)) — the rgb part is
     /// white and the alpha carries the value.
     #[gpui::test]
     fn dark_border_is_white_alpha(cx: &mut gpui::TestAppContext) {
@@ -1075,7 +1075,7 @@ mod tests {
             assert_eq!((rgba.r * 255.0).round() as u32, 0xff);
             assert_eq!((rgba.g * 255.0).round() as u32, 0xff);
             assert_eq!((rgba.b * 255.0).round() as u32, 0xff);
-            assert_eq!((rgba.a * 255.0).round() as u32, 0x1a);
+            assert_eq!((rgba.a * 255.0).round() as u32, 0x1c);
         });
     }
 

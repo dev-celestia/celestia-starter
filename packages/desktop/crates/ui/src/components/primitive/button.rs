@@ -652,15 +652,16 @@ impl RenderOnce for Button {
                 };
                 if is_dark {
                     // Web `dark:bg-input/30` / `hover:bg-input/50` + `border-input`.
-                    // `--input` is already white-at-15%, so `opacity(0.30)` would
-                    // multiply that alpha away, and GPUI stacking two translucent
-                    // whites under the border paints a darker top rim. Bake the
-                    // washes into opaque faces over the page background instead.
+                    // Baking translucent whites stacks a darker top rim in GPUI,
+                    // so washes are opaque mixes over the page. Theme `--input`
+                    // alpha (~11%) is a chrome hairline — too faint for a button
+                    // perimeter (only the 3D bottom edge remained). Keep a soft
+                    // fill wash and a stronger stroke so the full outline reads.
                     let input_solid = cx.theme().input.alpha(1.0);
                     let page = cx.theme().background;
-                    let border = motion::mix(page, input_solid, cx.theme().input.a);
-                    let bg = motion::mix(page, input_solid, 0.30);
-                    let hover_bg = motion::mix(page, input_solid, 0.50);
+                    let border = motion::mix(page, input_solid, 0.36);
+                    let bg = motion::mix(page, input_solid, 0.14);
+                    let hover_bg = motion::mix(page, input_solid, 0.24);
                     VariantStyle {
                         bg,
                         border,
@@ -700,17 +701,26 @@ impl RenderOnce for Button {
                     inset: false,
                     color: elevation_edge,
                 };
+                // Web uses `border-secondary` (= fill). On near-black pages that
+                // erase the fill edge, only the 3D bottom shadow remains — lift
+                // the dark stroke so the full perimeter shows.
+                let fill = cx.theme().secondary;
+                let border = if is_dark {
+                    motion::mix(fill, gpui::hsla(0., 0., 1., 1.), 0.22)
+                } else {
+                    fill
+                };
                 VariantStyle {
-                    bg: cx.theme().secondary,
-                    border: cx.theme().secondary,
+                    bg: fill,
+                    border,
                     text: cx.theme().secondary_foreground,
                     shadow: Some(shadow),
-                    hover_bg: cx.theme().secondary.opacity(0.80),
-                    hover_border: cx.theme().secondary,
+                    hover_bg: fill.opacity(0.80),
+                    hover_border: border,
                     hover_text: cx.theme().secondary_foreground,
                     hover_underline: false,
-                    active_bg: cx.theme().secondary.opacity(0.80),
-                    active_border: cx.theme().secondary,
+                    active_bg: fill.opacity(0.80),
+                    active_border: border,
                     active_text: cx.theme().secondary_foreground,
                     has_3d_press: true,
                 }
