@@ -213,7 +213,7 @@ fn embedded_title_band(content: AnyElement, cx: &App) -> impl IntoElement {
         .gap(px(6.))
         .px(px(12.))
         .border_b_1()
-        .border_color(theme.primary)
+        .border_color(theme.title_bar_border)
         .child(title_drag_grip(cx))
         .child(
             div()
@@ -247,7 +247,7 @@ fn native_title_band(
         .h(WINDOW_TITLE_BAR_HEIGHT)
         .flex_shrink_0()
         .border_b_1()
-        .border_color(theme.primary)
+        .border_color(theme.title_bar_border)
         .window_control_area(WindowControlArea::Drag)
         .on_mouse_down_out(window.listener_for(&state, |state, _, _, _| {
             state.should_move = false;
